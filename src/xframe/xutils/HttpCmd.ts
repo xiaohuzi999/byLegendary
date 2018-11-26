@@ -6,7 +6,7 @@ module xframe{
 	export class HttpCmd{
 		/**host*/
 		public static httpRoot:string = "http://127.0.0.1/amfphp/Amfphp/?contentType=application/json";
-		
+
 		/**
 		 * 发送http请求
 		 * @param handler 请求回调；

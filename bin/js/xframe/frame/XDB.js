@@ -4,6 +4,15 @@
 var XDB = /** @class */ (function () {
     function XDB() {
     }
+    /**获取服务端数据 */
+    XDB.fetchSrvData = function (cb) {
+        //todo 获取远程数据
+        //xframe.HttpCmd.callServer()
+        //测试用，读取本地数据
+        var data = Laya.LocalStorage.getItem(this.NAME);
+        this.init(data);
+        cb.run();
+    };
     /**init with data*/
     XDB.init = function (data) {
         if (typeof data === "string") {
@@ -15,12 +24,6 @@ var XDB = /** @class */ (function () {
         }
         trace("init------------->", typeof this._data);
         this._uniqueIndex = (this.data[this.UID] || 1);
-    };
-    /**read local data */
-    XDB.readLocalData = function () {
-        var lData = Laya.LocalStorage.getItem(this.NAME);
-        trace("readLocalData==========", lData);
-        this.init(lData);
     };
     /**del local data */
     XDB.delLocalData = function () {
