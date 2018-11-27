@@ -15,7 +15,8 @@ class LoadingView extends xframe.XWindow{
         //加载本地资源
         //let urlList:any[] = []
         let urlList:any[] = [
-		    "res/atlas/share.atlas"
+		    "res/atlas/share.atlas",
+            "res/atlas/pet.atlas"
 		]
 
         if(urlList.length){

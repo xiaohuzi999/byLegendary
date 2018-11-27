@@ -22,7 +22,8 @@ var LoadingView = /** @class */ (function (_super) {
         //加载本地资源
         //let urlList:any[] = []
         var urlList = [
-            "res/atlas/share.atlas"
+            "res/atlas/share.atlas",
+            "res/atlas/pet.atlas"
         ];
         if (urlList.length) {
             Laya.loader.load(urlList, Handler.create(this, this.fetchSrvData));

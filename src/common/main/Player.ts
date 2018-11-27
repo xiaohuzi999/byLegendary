@@ -16,6 +16,7 @@ class Player extends ui.main.PlayerUI{
     public set dataSource(r:Role){
         this._vo = r;
         this.tfName.text = this._vo.name+" Lv"+this._vo.lv;
+        this.pic.skin = "pet/"+this._vo.lv+".png"
     }
 
     public get dataSource():Role{

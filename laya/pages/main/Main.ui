@@ -14,6 +14,19 @@
     "child":[
         {
             "x":15,
+            "type":"Image",
+            "props":{"y":0,"x":0,"skin":"main/bg.jpg"},
+            "nodeParent":1,
+            "label":"Image",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":4,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
             "type":"Label",
             "props":{"y":684,"x":330,"text":"Main","styleSkin":"comp/label.png","color":"#ffffff"},
             "nodeParent":1,
@@ -29,7 +42,7 @@
             "x":15,
             "type":"UIView",
             "source":"main/Player.ui",
-            "props":{"y":711,"x":272,"var":"player","runtime":"Player"},
+            "props":{"y":476,"x":219,"var":"player","runtime":"Player"},
             "nodeParent":1,
             "label":"UIView(player)",
             "isDirectory":false,

@@ -21,7 +21,7 @@ module ui.main {
     export class MainUI extends View {
 		public player:Player;
 
-        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Label","props":{"y":684,"x":330,"text":"Main","color":"#ffffff"}},{"type":"Player","props":{"y":711,"x":272,"var":"player","runtime":"Player"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"main/bg.jpg"}},{"type":"Label","props":{"y":684,"x":330,"text":"Main","color":"#ffffff"}},{"type":"Player","props":{"y":476,"x":219,"var":"player","runtime":"Player"}}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("Player",Player);
@@ -36,9 +36,10 @@ module ui.main {
 
 module ui.main {
     export class PlayerUI extends View {
+		public pic:Laya.Image;
 		public tfName:Laya.Label;
 
-        public static  uiView:any ={"type":"View","props":{"width":200,"height":200},"child":[{"type":"Label","props":{"y":172,"x":35,"width":130,"var":"tfName","text":"label","height":23,"fontSize":20,"color":"#ffffff","align":"center"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":264,"height":320},"child":[{"type":"Image","props":{"y":0,"x":0,"var":"pic","skin":"pet/1.png"}},{"type":"Label","props":{"y":287,"x":78,"width":130,"var":"tfName","text":"label","height":23,"fontSize":20,"color":"#ffffff","align":"center"}}]};
         constructor(){ super()}
         createChildren():void {
         

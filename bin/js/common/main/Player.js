@@ -29,6 +29,7 @@ var Player = /** @class */ (function (_super) {
         set: function (r) {
             this._vo = r;
             this.tfName.text = this._vo.name + " Lv" + this._vo.lv;
+            this.pic.skin = "pet/" + this._vo.lv + ".png";
         },
         enumerable: true,
         configurable: true
