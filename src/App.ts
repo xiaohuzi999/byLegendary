@@ -12,11 +12,12 @@ class App implements IApp{
         XFacade.instance.showModule(LoadingView);
     }
 
-    private onRdy():void{
+    //Focus here
+    private enterMain():void{
         XFacade.instance.showModule(MainView);
     }
 
     private initEvent():void{
-        XEvent.instance.once(LoadingView.RDY, this, this.onRdy)
+        XEvent.instance.once(LoadingView.RDY, this, this.enterMain)
     }
 }

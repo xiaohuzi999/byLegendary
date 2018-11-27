@@ -8,11 +8,11 @@ class User{
 
     public pic:string;
 
-    public power:number;
+    public power:number = 0;
 
-    public gold:number;
+    public gold:number = 0;
     
-    public diamond:number;
+    public diamond:number = 0;
     //
     public role:Role;
     //
@@ -26,7 +26,7 @@ class User{
     public static readonly UPDATE:string = "update";
 
     constructor(){
-        
+        this.role = new Role();
     }
 
     /**初始化 */

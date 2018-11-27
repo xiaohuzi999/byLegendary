@@ -16,15 +16,14 @@ var LoadingView = /** @class */ (function (_super) {
     function LoadingView() {
         return _super.call(this) || this;
     }
+    //step 1
     LoadingView.prototype.show = function () {
         _super.prototype.show.call(this);
         //加载本地资源
-        var urlList = [];
-        /*
-        let urlList:any[] = [
-            "res/atlas/common.atlas",
+        //let urlList:any[] = []
+        var urlList = [
             "res/atlas/share.atlas"
-        ]*/
+        ];
         if (urlList.length) {
             Laya.loader.load(urlList, Handler.create(this, this.fetchSrvData));
         }
@@ -32,13 +31,15 @@ var LoadingView = /** @class */ (function (_super) {
             this.fetchSrvData();
         }
     };
-    //获取远程存储数据
+    //step 2.获取远程存储数据
     LoadingView.prototype.fetchSrvData = function () {
         XDB.fetchSrvData(Laya.Handler.create(this, this.onFetchSrvData));
     };
-    //已获取服务端数据
+    //step 3.已获取服务端数据
     LoadingView.prototype.onFetchSrvData = function () {
+        //角色初始化；
         User.getInstance().init();
+        //道具初始化；
         XEvent.instance.event(LoadingView.RDY);
         this.close();
     };

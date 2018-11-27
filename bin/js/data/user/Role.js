@@ -5,7 +5,7 @@ var Role = /** @class */ (function () {
     function Role(data) {
         if (data === void 0) { data = null; }
         /**角色名*/
-        this.name = "";
+        this.name = "by001";
         /**头像*/
         this.pic = "";
         /**经验*/
@@ -13,7 +13,7 @@ var Role = /** @class */ (function () {
         /**升级经验*/
         this.lvExp = 1;
         /**等级*/
-        this.lv = 0;
+        this.lv = 1;
         /**技能列表*/
         this.skills = [];
         //一级属性===================================================
@@ -44,16 +44,6 @@ var Role = /** @class */ (function () {
         this.speed = 0;
         //装备=============================================
         this.weapon = null;
-        //服务端逻辑用============================================================
-        /**是否NPC，即是否采用AI逻辑*/
-        this.isNpc = false;
-        /**所在队伍*/
-        this.fightTeam = 0;
-        this.fightState = 0;
-        /**怒气值 */
-        this.power = 0;
-        /**状态 */
-        this.state = 0;
         if (data) {
             this.setValue(data);
         }
@@ -67,16 +57,6 @@ var Role = /** @class */ (function () {
             this[i] = valueObj[i];
         }
     };
-    /**状态常量-正常 */
-    Role.NORMAL = 0;
-    /**状态常量-参战 */
-    Role.IN_FIGHT = 1;
-    /**战斗状态常量-正常 */
-    Role.FS_NORMAL = 0;
-    /**战斗状态常量-眩晕 */
-    Role.FS_DIZZY = 1;
-    /**战斗状态常量-混乱 */
-    Role.FS_CHAOS = 1;
     return Role;
 }());
 //# sourceMappingURL=Role.js.map

@@ -19,13 +19,31 @@ module ui.loading {
 
 module ui.main {
     export class MainUI extends View {
+		public player:Player;
 
-        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Label","props":{"y":684,"x":330,"text":"Main","color":"#ffffff"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Label","props":{"y":684,"x":330,"text":"Main","color":"#ffffff"}},{"type":"Player","props":{"y":711,"x":272,"var":"player","runtime":"Player"}}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("Player",Player);
+
+            super.createChildren();
+            this.createView(ui.main.MainUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.main {
+    export class PlayerUI extends View {
+		public tfName:Laya.Label;
+
+        public static  uiView:any ={"type":"View","props":{"width":200,"height":200},"child":[{"type":"Label","props":{"y":172,"x":35,"width":130,"var":"tfName","text":"label","height":23,"fontSize":20,"color":"#ffffff","align":"center"}}]};
         constructor(){ super()}
         createChildren():void {
         
             super.createChildren();
-            this.createView(ui.main.MainUI.uiView);
+            this.createView(ui.main.PlayerUI.uiView);
 
         }
 

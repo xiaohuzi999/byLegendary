@@ -38,13 +38,32 @@ var ui;
                 return _super.call(this) || this;
             }
             MainUI.prototype.createChildren = function () {
+                View.regComponent("Player", Player);
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.main.MainUI.uiView);
             };
-            MainUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Label", "props": { "y": 684, "x": 330, "text": "Main", "color": "#ffffff" } }] };
+            MainUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Label", "props": { "y": 684, "x": 330, "text": "Main", "color": "#ffffff" } }, { "type": "Player", "props": { "y": 711, "x": 272, "var": "player", "runtime": "Player" } }] };
             return MainUI;
         }(View));
         main.MainUI = MainUI;
+    })(main = ui.main || (ui.main = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var main;
+    (function (main) {
+        var PlayerUI = /** @class */ (function (_super) {
+            __extends(PlayerUI, _super);
+            function PlayerUI() {
+                return _super.call(this) || this;
+            }
+            PlayerUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.main.PlayerUI.uiView);
+            };
+            PlayerUI.uiView = { "type": "View", "props": { "width": 200, "height": 200 }, "child": [{ "type": "Label", "props": { "y": 172, "x": 35, "width": 130, "var": "tfName", "text": "label", "height": 23, "fontSize": 20, "color": "#ffffff", "align": "center" } }] };
+            return PlayerUI;
+        }(View));
+        main.PlayerUI = PlayerUI;
     })(main = ui.main || (ui.main = {}));
 })(ui || (ui = {}));
 (function (ui) {

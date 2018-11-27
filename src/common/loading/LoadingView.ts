@@ -13,12 +13,10 @@ class LoadingView extends xframe.XWindow{
     public show():void{
         super.show();
         //加载本地资源
-        let urlList:any[] = []
-        /*
+        //let urlList:any[] = []
         let urlList:any[] = [
-		    "res/atlas/common.atlas",
 		    "res/atlas/share.atlas"
-		]*/
+		]
 
         if(urlList.length){
             Laya.loader.load(urlList, Handler.create(this, this.fetchSrvData));

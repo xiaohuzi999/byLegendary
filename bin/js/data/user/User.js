@@ -3,10 +3,14 @@
 */
 var User = /** @class */ (function () {
     function User() {
+        this.power = 0;
+        this.gold = 0;
+        this.diamond = 0;
         //
         this.heros = [];
         //
         this.pets = [];
+        this.role = new Role();
     }
     /**初始化 */
     User.prototype.init = function () {
@@ -30,7 +34,7 @@ var User = /** @class */ (function () {
         }
         return this._instance;
     };
-    //
+    //事件-更新;
     User.UPDATE = "update";
     return User;
 }());
