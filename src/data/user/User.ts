@@ -15,10 +15,6 @@ class User{
     public diamond:number = 0;
     //
     public role:Role;
-    //
-    public heros:Role[] = [];
-    //
-    public pets:Role[] = [];
 
     //单例;
     private static _instance:User;
@@ -38,6 +34,7 @@ class User{
             }
             this.update(val);
         }
+        this.dispatchEvent();
     }
 
     //更新
@@ -45,6 +42,16 @@ class User{
         for(var i in value){
             this[i] = value[i];
         }
+    }
+
+    //属性修改之后手动调用；
+    public dispatchEvent():void{
+        XEvent.instance.event(User.UPDATE);
+    }
+
+    /**保存 */
+    public save():void{
+        XDB.save(XDB.USER, this);
     }
 
     public static getInstance():User{

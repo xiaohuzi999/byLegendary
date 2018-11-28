@@ -16,7 +16,9 @@ class LoadingView extends xframe.XWindow{
         //let urlList:any[] = []
         let urlList:any[] = [
 		    "res/atlas/share.atlas",
-            "res/atlas/pet.atlas"
+            "res/atlas/item.atlas",
+            "res/atlas/pet.atlas",
+            "res/cfg/task.json"
 		]
 
         if(urlList.length){

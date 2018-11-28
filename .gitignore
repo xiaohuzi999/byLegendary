@@ -1,3 +1,6 @@
 # laya
 .laya/chrome/
 release/
+
+# EclToXml
+EclToXml/bin-debug/

@@ -33,6 +33,37 @@ P B9680947 vscroll$up.png
 P 7E990267 vscroll.png
 P E466EB1C vslider$bar.png
 P 2BFF7046 vslider.png
+D icons
+P 8D19D32B attack.png
+P D4B362E0 diamond.png
+P 1EA9A238 diamond2.png
+P 6FD45E96 diamond3.png
+P A9674D86 diamond4.png
+P 98B9C766 diamond5.png
+P A937632F diamond6.png
+P 6D46FBC7 heart.png
+P BCB44830 jinbi.png
+D item
+P 8AF5DB06 400103.png
+P AB94DDCD 400104.png
+P D827740F 400105.png
+P 570A7EC2 400106.png
+P 6303BA20 400107.png
+P 844195E5 400203.png
+P 28072FF7 400204.png
+P 68CF4ACC 400205.png
+P 39E6D24B 400206.png
+P FE430561 400207.png
+P D3C9556A 400303.png
+P 5C14EBF8 400304.png
+P 095139C6 400305.png
+P 0AB248CE 400306.png
+P 95641BBB 400307.png
+P B72EFBA4 400403.png
+P 69978D1D 400404.png
+P B8230EB6 400405.png
+P 5ED1131A 400406.png
+P F712AF33 400407.png
 D main
 R 177EB37E bg.jpg
 D pet
@@ -56,11 +87,16 @@ P 6633FFE0 1197.png
 P F676B1A1 1239.png
 P BC524546 1309.png
 P 3D7AA047 2.png
+R 58815937 新建文本文档.txt
 D share
-P 5386C73C btnClose.png
-P F416E265 btnGreen.png
-P 99500787 btnRed.png
-P 72E30D47 btnYellow.png
+P 8FB3DCEC bgWord.png
+P 9341FB64 btn_add.png
+P 5386C73C btn_close.png
+P F416E265 btn_green.png
+P 99500787 btn_red.png
+P 72E30D47 btn_yellow.png
+P 13072E18 frame.png
+P 7D443A68 frame2.png
 P 2B05E4F1 winBG0.png
 P 15428A83 winBG1.png
 P C4B1F845 winBG2.png

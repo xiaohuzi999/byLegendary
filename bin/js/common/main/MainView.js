@@ -21,6 +21,7 @@ var MainView = /** @class */ (function (_super) {
     MainView.prototype.show = function () {
         _super.prototype.show.call(this);
         this.ui.player.dataSource = User.getInstance().role;
+        XFacade.instance.showModule(LLKView);
     };
     MainView.prototype.onPlayerClick = function (e) {
         if (User.getInstance().role.lv == 1) {
@@ -29,6 +30,7 @@ var MainView = /** @class */ (function (_super) {
                 this._index = 0;
                 User.getInstance().role.lv++;
                 this.ui.player.update();
+                User.getInstance().save();
             }
         }
         else {

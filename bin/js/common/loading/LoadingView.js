@@ -23,6 +23,7 @@ var LoadingView = /** @class */ (function (_super) {
         //let urlList:any[] = []
         var urlList = [
             "res/atlas/share.atlas",
+            "res/atlas/item.atlas",
             "res/atlas/pet.atlas"
         ];
         if (urlList.length) {

@@ -11,27 +11,47 @@ class MainView extends xframe.XWindow{
     public show():void{
         super.show();
         this.ui.player.dataSource = User.getInstance().role;
+        XFacade.instance.showModule(LLKView);
     }
 
-    private onPlayerClick(e:Laya.Event):void{
+    private onClick(e:Laya.Event):void{
+        switch(e.target){
+            case this.ui.player:
+                this.onPlayerClick();
+            break;
+            case this.ui.btnAdd:
+                XTip.showTip("coming soon~~~~")
+            break;
+        }
+    }
+
+    private onPlayerClick():void{
         if(User.getInstance().role.lv == 1){
             this._index++;
             if(this._index > 3){
                 this._index = 0;
                 User.getInstance().role.lv ++;
                 this.ui.player.update();
+                User.getInstance().save();
             }
         }else{
             //
         }
     }
 
+    private updateInfo():void{
+        this.ui.tfGold.text = User.getInstance().gold+"";
+        this.ui.tfDiamond.text = User.getInstance().diamond+"";
+    }
+
     protected initEvent():void{
-        this.ui.player.on(Laya.Event.CLICK, this, this.onPlayerClick);
+        this.ui.on(Laya.Event.CLICK, this, this.onClick);
+        XEvent.instance.on(User.UPDATE,  this, this.updateInfo)
     }
 
     protected removeEvent():void{
-        this.ui.player.off(Laya.Event.CLICK, this, this.onPlayerClick);
+        this.ui.off(Laya.Event.CLICK, this, this.onClick);
+        XEvent.instance.off(User.UPDATE,  this, this.updateInfo)
     }
 
     protected createUI():void{

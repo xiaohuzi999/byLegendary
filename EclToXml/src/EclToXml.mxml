@@ -1,0 +1,1166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" width="500" height="500">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.lipi.excel.Excel;
+			
+			import flash.utils.getTimer;
+			import flash.utils.setTimeout;
+			
+			import mx.controls.Alert;
+			import mx.utils.ArrayUtil;
+			import mx.utils.ObjectUtil;
+			
+			import spark.components.Label;
+			
+			import csvJson.CSV;
+			import csvJson.CsvJsonUtil;
+			
+			import newExcel.childoftv.xlsxreader.Worksheet;
+			import newExcel.childoftv.xlsxreader.XLSXLoader;
+			
+			import util.XML2Object;
+			
+
+			private var byt:ByteArray;
+			
+			private var _encryUrl:String;
+			
+			private var _isEncry:int=0;
+			
+			private var _excelFile:Excel;
+			
+			protected var excel_loader:XLSXLoader;
+			
+			protected var excel_dic:Array=null;
+			
+			protected var exportIndex:uint=0;
+			
+			private var _isAlabol:Boolean=false;
+			
+			private var _isCSVToJson:Boolean=false;
+			private var _isJsonToCSV:Boolean=false;
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				_isEncry=1;
+				var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter(".xlsx","*.xlsx")]);
+				file.addEventListener(Event.SELECT,selectPngPathOK);
+			}
+			
+			private function selectPngPathOK(e:Event):void{
+				this.exportSingleFile(e.target as File,function():void{Alert.show("解析成功!")});
+			}
+			
+			private function exportSingleFile(e:File,complete:Function,bool:Boolean=false):void{
+				var _guolTxt:Array;
+				
+				var _txt:String=this.inputTxt.text;
+				if(_txt!=""){
+					if(_txt.indexOf("|")!=-1){
+						_guolTxt=_txt.split("|");
+					}else if(_txt.indexOf("|")!=-1){
+						_guolTxt=_txt.split("|");
+					}else{
+						_guolTxt=_txt.split("|");
+					}
+				}
+				var file:File = e;
+				var _load:URLLoader=new URLLoader();
+				_load.load(new URLRequest(file.url));
+				this._encryUrl=file.url;
+				this.excel_loader=new XLSXLoader();
+				
+				trace("当前解析的excel地址:"+file.url);
+				_load.dataFormat=URLLoaderDataFormat.BINARY;
+				_load.addEventListener(Event.COMPLETE,function(e:Event):void{
+					byt=_load.data;
+					_excelFile=new Excel(byt);
+					
+					
+					var _obj:Object=_excelFile.getSheetArray();
+					
+					var _arr:Array=new Array();
+					var _nameArr:Array=new Array();
+					for(var m:* in _obj){
+						_arr.push(_obj[m][0]);
+						_nameArr.push(_obj[m][1]);
+					}
+					
+					excel_loader.addEventListener(Event.COMPLETE,function(e:Event):void{
+						var _objss:Object=excel_loader.getSheetNames();
+						var _objs:Worksheet=excel_loader.worksheet(_objss[0]);
+						var _index:int=0;
+						for(var a:* in _objss){
+							for(var b:* in _arr){
+								if(_objss[a]==_arr[b]){
+									byt.position=0;
+									_excelFile=new Excel(byt);
+									var _newObj:Object=_excelFile.getSheetArray(_index);
+									
+									var _byt:ByteArray;
+									var file:File;
+									
+									var _data:Worksheet=excel_loader.worksheet(_objss[_index]);
+									
+									var _len:int=_newObj.length;
+									
+									var _enterStr:String="\r\n";
+									
+									var _str:String="";
+									
+									var _jsonObj:Object=new Object();
+									
+									if(_isEncry==2){
+										_str="<?php "+_enterStr+"global $config; "+"\r\n"+ "$config["+'"'+_nameArr[b]+'"'+"] = array(";
+									}else if(_isEncry==1){
+										_str='<?xml version="1.0" encoding="UTF-8"?>'+_enterStr+'<configs>';
+									}else{
+										
+									}
+									
+									for(var k:int=2;k<_len;k++){
+										if(!_newObj[k] || !_newObj[k][0]){
+											continue;
+										}
+										if(_isEncry==2){
+											_str+="\r\n     "+'"'+_newObj[k][0]+'"'+" => array(";
+										}else if(_isEncry==1){
+											_str+="\r\n   <item";
+										}else{
+											_jsonObj[_newObj[k][0]]=new Object();
+										}
+										for(var x:* in _newObj[1]){
+											if(_guolTxt && _guolTxt.indexOf(_newObj[1][x])!=-1){
+												continue;
+											}
+											if(_newObj[1][x]==null){
+												continue;
+											}
+											if(_isEncry==2){
+												if(_newObj[k][x]){
+													//_str+="\r\n         "+'"'+_newObj[1][x]+'"'+" => "+'"'+_newObj[k][x]+'"'+",";
+													if((Number(_newObj[k][x])!=0 && validatePosInt(_newObj[k][x])==false) || String(_newObj[k][x]).indexOf(".")!=-1){
+														if(Number(_newObj[k][x]).toString()!="NaN"){
+															_str+="\r\n         "+'"'+_newObj[1][x]+'"'+" => "+'"'+Number(_newObj[k][x]).toFixed(6)+'"'+",";
+														}else{
+															_str+="\r\n         "+'"'+_newObj[1][x]+'"'+" => "+'"'+_newObj[k][x]+'"'+",";	
+														}
+													}else{
+														_str+="\r\n         "+'"'+_newObj[1][x]+'"'+" => "+'"'+_newObj[k][x]+'"'+",";	
+													}
+												}else{
+													_str+="\r\n         "+'"'+_newObj[1][x]+'"'+" => "+'"'+'"'+",";
+												}
+											}else if(_isEncry==1){
+												if(_newObj[k][x]){
+													if((Number(_newObj[k][x])!=0 && validatePosInt(_newObj[k][x])==false) || String(_newObj[k][x]).indexOf(".")!=-1){
+														if(Number(_newObj[k][x]).toString()!="NaN"){
+															_str+=" "+_newObj[1][x]+"="+'"'+Number(_newObj[k][x]).toFixed(6)+'"';	
+														}else{
+															if((String(_newObj[k][x]).indexOf("!")!=-1||ValidateSpeWord(String(_newObj[k][x]))) && _isAlabol){
+																var _validateArr1:Array=String(_newObj[k][x]).split("");
+																_validateArr1=_validateArr1.reverse();
+																_str+=" "+_newObj[1][x]+"="+'"'+_validateArr1.join("")+'"';
+																//trace("444444")
+															}else{
+																_str+=" "+_newObj[1][x]+"="+'"'+_newObj[k][x]+'"';	
+															}
+														}
+													}else{
+														if((String(_newObj[k][x]).indexOf("!")!=-1||ValidateSpeWord(String(_newObj[k][x]))) && _isAlabol){
+															var _validateArr:Array=String(_newObj[k][x]).split(" ");
+															_validateArr=_validateArr.reverse();
+															_str+=" "+_newObj[1][x]+"="+'"'+_validateArr.join("")+'"';
+														}else{
+															_str+=" "+_newObj[1][x]+"="+'"'+_newObj[k][x]+'"';	
+														}
+													}
+												}else{
+													_str+=" "+_newObj[1][x]+'=""';
+												}
+											}else{
+												_jsonObj[_newObj[k][0]][_newObj[1][x]]=_newObj[k][x];
+											}
+										}
+										if(_isEncry==2){
+											_str+="\r\n      ),";
+										}else if(_isEncry==1){
+											_str+="></item>";
+										}
+									}
+									if(_isEncry==2){
+										_str+=" \r\n);\r\n?>";
+									}else if(_isEncry==1){
+										_str+="\r\n</configs>";
+									}else{
+										_str=JSON.stringify(_jsonObj);
+									}
+									
+									var _urlStr:String=_encryUrl.substr(0,_encryUrl.lastIndexOf("/")+1);
+									if(_isEncry==2){
+										file=new File(_urlStr+_nameArr[b]+".cfg.php");
+									}else if(_isEncry==1){
+										if(bool){
+											file=new File(_urlStr+"/newConfig/"+_nameArr[b]+".xml");
+										}else{
+											file=new File(_urlStr+_nameArr[b]+".xml");
+										}
+									}else{
+										file=new File(_urlStr+_nameArr[b]+".json");
+									}
+									
+									if(file.exists){
+										file.deleteFile();
+									}
+									
+									var fs:FileStream=new FileStream();
+									_byt=new ByteArray();
+									_byt.writeUTFBytes(_str);
+									fs.open(file,FileMode.UPDATE);
+									fs.writeBytes(_byt);
+									fs.close();
+								}
+							}
+							_index++;
+						}
+						
+						if(complete!=null){
+							//setTimeout(complete,100);
+							complete();
+						}
+						
+						trace("lll:"+_objss);
+						trace("nimei");
+					}); 
+					excel_loader.load(_encryUrl); 
+					
+					trace("lll:"+_obj);
+					trace("nimei");
+				});
+			}
+			
+			public static function ValidateSpeWord(str:String):Boolean{
+				var pattern:RegExp = /((?=[\x21-\x7e]+)[^A-Za-z0-9])/;
+				var result:Object = pattern.exec(str);
+				if(result == null) 
+				{
+					return false;
+				}
+				return true;
+			}
+			
+			public static function validatePosInt(str:String):Boolean{
+				var pattern:RegExp = /^-?[1-9]\d*$/;
+				var result:Object = pattern.exec(str);
+				if(result == null) 
+				{
+					return false;
+				}
+				return true;
+			}
+			
+			public static function validatePositiveNumber(str:String):Boolean 
+			{
+				var pattern:RegExp = /^-?([1-9]\d*\.\d*|0\.\d*[1-9]\d*|0?\.0+|0)$/;
+				var result:Object = pattern.exec(str);
+				if(result == null) 
+				{
+					return false;
+				}
+				return true;
+			}
+			
+			private function onNext():void{
+				
+			}
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				_isEncry=2;
+				/*var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter("BYT","*.byt")]);
+				file.addEventListener(Event.SELECT,selectPngPathOK);*/
+				var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter(".xlsx","*.xlsx")]);
+				file.addEventListener(Event.SELECT,selectPngPathOK);
+			}
+			
+			protected function button3_clickHandler(event:MouseEvent):void{
+				_isEncry=3;
+				var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter(".xlsx","*.xlsx")]);
+				file.addEventListener(Event.SELECT,selectPngPathOK);
+				
+			}
+			
+			protected function btn99_clickHandler(evt:MouseEvent):void{
+				_isEncry=3;
+				var directory:File = File.documentsDirectory;
+				this.exportIndex=0;
+				try
+				{
+					directory.browseForDirectory("Select Directory");
+					directory.addEventListener(Event.SELECT, directorySelected);
+				}
+				catch (error:Error)
+				{
+					trace("Failed:", error.message);
+				}
+				
+				function directorySelected(event:Event):void 
+				{
+					directory = event.target as File;
+					var files:Array = directory.getDirectoryListing();
+					excel_dic=files;
+					exportByIndexs();
+					/*for(var i:uint = 0; i < files.length; i++)
+					{
+					trace(files[i].name);
+					}*/
+				}
+			}
+			
+			protected function btn4_clickHandler(evt:MouseEvent):void{
+				this._isEncry=1;
+				var directory:File = File.documentsDirectory;
+				this.exportIndex=0;
+				try
+				{
+					directory.browseForDirectory("Select Directory");
+					directory.addEventListener(Event.SELECT, directorySelected);
+				}
+				catch (error:Error)
+				{
+					trace("Failed:", error.message);
+				}
+				
+				function directorySelected(event:Event):void 
+				{
+					directory = event.target as File;
+					var files:Array = directory.getDirectoryListing();
+					excel_dic=files;
+					exportByIndexs();
+					/*for(var i:uint = 0; i < files.length; i++)
+					{
+						trace(files[i].name);
+					}*/
+				}
+			}
+			protected var _exportAlert:Alert;
+			protected function exportByIndexs():void{
+				if(exportIndex<this.excel_dic.length){
+					var _file:File=this.excel_dic[this.exportIndex] as File;
+					this._encryUrl=_file.url;
+					if(_file && _file.nativePath.indexOf(".xlsx")!=-1){
+						if(!_exportAlert){
+							_exportAlert=Alert.show("正在解析中....");
+							_exportAlert.mouseChildren=false;
+							_exportAlert.mouseEnabled=false;
+						}
+						this.exportIndex++;
+						if(this._isCSVToJson){
+							this.exportFileJson(_file,exportByIndexs,false);
+						}else if(this._isJsonToCSV){
+							this.exportFileCSV(_file,exportByIndexs,false);
+						}else{
+							this.exportSingleFile(_file,exportByIndexs,false);
+						}
+					}else{
+						if(_file && _file.nativePath.indexOf(".txt")!=-1 && _file.nativePath.indexOf("version.")==-1){
+							if(this._isCSVToJson){
+								this.exportFileJson(_file,exportByIndexs,false);
+							}else if(this._isJsonToCSV){
+								this.exportFileCSV(_file,exportByIndexs,false);
+							}
+						}else{
+							this.exportIndex++;
+							this.exportByIndexs();
+						}
+					}
+				}else{
+					if(_exportAlert){
+						_exportAlert.mouseEnabled=true;
+						_exportAlert.mouseChildren=true;
+						_exportAlert.visible=false;
+					}
+					Alert.show("完成解析,soga！");
+					_isCSVToJson=false;
+				}
+			}
+			
+			protected function btn5_clickHandler(evt:MouseEvent):void{
+				this._isEncry=2;
+				var directory:File = File.documentsDirectory;
+				this.exportIndex=0;
+				try
+				{
+					directory.browseForDirectory("Select Directory");
+					directory.addEventListener(Event.SELECT, directorySelected);
+				}
+				catch (error:Error)
+				{
+					trace("Failed:", error.message);
+				}
+				
+				function directorySelected(event:Event):void 
+				{
+					directory = event.target as File;
+					var files:Array = directory.getDirectoryListing();
+					excel_dic=files;
+					exportByIndexs();
+					/*for(var i:uint = 0; i < files.length; i++)
+					{
+					trace(files[i].name);
+					}*/
+				}
+			}
+			//从json转到csv
+			private function exportFileCSV(e:File,complete:Function,bool:Boolean=false):void{
+				var file:File = e;
+				var _load:URLLoader=new URLLoader();
+				_load.load(new URLRequest(file.url));
+				this._encryUrl=file.url;
+				this.excel_loader=new XLSXLoader();
+				
+				trace("当前解析的CSV地址:"+file.url);
+				_load.dataFormat=URLLoaderDataFormat.BINARY;
+				_load.addEventListener(Event.COMPLETE,function(e:Event):void{
+					byt=_load.data;
+					var _urlStr:String=_encryUrl.substr(0,_encryUrl.lastIndexOf("/")+1);
+					trace("2222")
+					/*if(_isEncry==2){
+						file=new File(_urlStr+_nameArr[b]+".cfg.php");
+					}else if(_isEncry==1){
+						if(bool){
+							file=new File(_urlStr+"/newConfig/"+_nameArr[b]+".xml");
+						}else{
+							file=new File(_urlStr+_nameArr[b]+".xml");
+						}
+					}else{
+						file=new File(_urlStr+_nameArr[b]+".json");
+					}
+					
+					if(file.exists){
+						file.deleteFile();
+					}
+					
+					var fs:FileStream=new FileStream();
+					_byt=new ByteArray();
+					_byt.writeUTFBytes(_str);
+					fs.open(file,FileMode.UPDATE);
+					fs.writeBytes(_byt);
+					fs.close();*/
+				//	var _json:Object=CsvJsonUtil
+				});
+			}
+			//从csv转到json
+			private function exportFileJson(e:File,complete:Function,bool:Boolean=false):void{
+				var file:File = e;
+				var _load:URLLoader=new URLLoader();
+				_load.load(new URLRequest(file.url));
+				this._encryUrl=file.url;
+				this.excel_loader=new XLSXLoader();
+				
+				trace("当前解析的JSON地址:"+file.url);
+				_load.dataFormat=URLLoaderDataFormat.BINARY;
+				_load.addEventListener(Event.COMPLETE,function(e:Event):void{
+					var _txt:String=String(_load.data);
+					var _csv:CSV=new CSV(_txt);
+					var _util:CsvJsonUtil=new CsvJsonUtil();
+					var _indexArr:Array=_csv.data[0];
+					var _jsonArr:Array=[];
+					for(var a:int=1;a<_csv.data.length;a++){
+						var _obj:Object={};
+						var _str:String="";
+						for(var b:* in _indexArr){
+							if(String(_indexArr[b]).indexOf("|")!=-1){
+								if(String(_csv.data[a][b]).indexOf("[")!=-1 && String(_csv.data[a][b]).indexOf("]")!=-1){
+									/*var _ooo:Object=JSON.stringify('{[{"1":8400}]}');
+									var _hahahah:*=JSON.parse('{"aa":[{"1":8400}]}');*/
+									//var _uiyi:Object=JSON.parse('[[[2016,4,29],[00,00,00]],[[2016,5,5],[23,59,59]]]');
+									/*var _len:int=String(_csv.data[a][b]).length;
+									for(var mn:int=0;mn<_len;mn++){
+										var _subStr:String=String(_csv.data[a][b]).charAt(mn);
+										if(_subStr=="," && _subStr.charAt(mn-1)!="}"){
+											var _newStr1:String=String(_csv.data[a][b]).substr(0,mn);
+											var _newStr2:String=String(_csv.data[a][b]).substr(mn+1);
+											_csv.data[a][b]=_newStr1+'":'+_newStr2;
+										}
+										if(_subStr=="{"){
+											var _newStr1:String=String(_csv.data[a][b]).substr(0,mn);
+											var _newStr2:String=String(_csv.data[a][b]).substr(mn+1);
+											_csv.data[a][b]=_newStr1+'{"'+_newStr2;
+										}
+									}
+									while(String(_csv.data[a][b]).indexOf('"[')!=-1){
+										_csv.data[a][b]=_csv.data[a][b].replace('"[','[');
+										_csv.data[a][b]=_csv.data[a][b].replace(']"',']');
+									}
+									var _opop:String='{"tt":'+String(_csv.data[a][b])+'}';*/
+									while(String(_csv.data[a][b]).indexOf("{")!=-1){
+										_csv.data[a][b]=String(_csv.data[a][b]).replace("{","[");
+									}
+									while(String(_csv.data[a][b]).indexOf("}")!=-1){
+										_csv.data[a][b]=String(_csv.data[a][b]).replace("}","]");
+									}
+									while(String(_csv.data[a][b]).indexOf('"[')!=-1){
+										_csv.data[a][b]=_csv.data[a][b].replace('"[','[');
+										_csv.data[a][b]=_csv.data[a][b].replace(']"',']');
+									}
+									var _str1:String=replaceBlank(_csv.data[a][b]+"");
+									if(_str1.indexOf("[")==0 && _str1.indexOf("]")!=-1 && _str1.indexOf("[[")==-1){
+										var _str2:String=_str1.substring(1,_str1.length-1);
+										var _str2Arr:Array=_str2.split(",");
+										for(var rt:* in _str2Arr){
+											if(int(_str2Arr[rt])<=0){
+												_str2Arr[rt]+="";
+											}
+										}
+										/*_csv.data[a][b]="["+_str2Arr.join(",")+"]";
+										var _newData1:Object=JSON.parse(_csv.data[a][b]);*/
+										_obj[String(_indexArr[b]).split("|")[0]]=_str2Arr;
+									}else{
+										var _newData:Object=JSON.parse(_csv.data[a][b]);
+										/*if((_newData is String) && String(_newData).indexOf("[")!=-1 && String(_newData).indexOf("]")!=-1){
+										var _nima:String="{item:"+String(_newData)+"}";
+										_newData=JSON.parse("{item:"+String(_newData)+"}");
+										}*/
+										_obj[String(_indexArr[b]).split("|")[0]]=_newData;
+									}
+								}else{
+									_obj[String(_indexArr[b]).split("|")[0]]=String(_csv.data[a][b]);
+								}
+							}
+						}
+						_jsonArr.push(_obj);
+					}
+					var _jsonStr:String=JSON.stringify(_jsonArr);
+					
+					var _name:String=_encryUrl.substring(_encryUrl.lastIndexOf("/")+1,_encryUrl.lastIndexOf("."));
+					var _urlStr:String=_encryUrl.substr(0,_encryUrl.lastIndexOf("/")+1);
+					
+					var _newFile:File=new File(_urlStr+_name+".json");
+					if(_newFile.exists){
+						_newFile.deleteFile();
+					}
+					
+					var fs:FileStream=new FileStream();
+					var _byt:ByteArray=new ByteArray();
+					_byt.writeUTFBytes(_jsonStr);
+					//_byt.compress();
+					fs.open(_newFile,FileMode.UPDATE);
+					fs.writeBytes(_byt);
+					fs.close();
+					if(complete!=null){
+						exportIndex++;
+						complete();
+					}
+					trace("3333");
+				});
+				
+			}
+			
+			protected function btn6_clickHandler(evt:MouseEvent):void{
+				_isCSVToJson=true;
+				var directory:File = File.documentsDirectory;
+				this.exportIndex=0;
+				try
+				{
+					directory.browseForDirectory("Select Directory");
+					directory.addEventListener(Event.SELECT, directorySelected);
+				}
+				catch (error:Error)
+				{
+					trace("Failed:", error.message);
+				}
+				
+				function directorySelected(event:Event):void 
+				{
+					directory = event.target as File;
+					var files:Array = directory.getDirectoryListing();
+					excel_dic=files;
+					exportByIndexs();
+					/*for(var i:uint = 0; i < files.length; i++)
+					{
+					trace(files[i].name);
+					}*/
+				}
+			}
+			protected function btn7_clickHandler(evt:MouseEvent):void{
+				Alert.show("暂无需要,暂未开放!");
+				return;
+				_isJsonToCSV=true;
+				var directory:File = File.documentsDirectory;
+				this.exportIndex=0;
+				try
+				{
+					directory.browseForDirectory("Select Directory");
+					directory.addEventListener(Event.SELECT, directorySelected);
+				}
+				catch (error:Error)
+				{
+					trace("Failed:", error.message);
+				}
+				
+				function directorySelected(event:Event):void 
+				{
+					directory = event.target as File;
+					var files:Array = directory.getDirectoryListing();
+					excel_dic=files;
+					exportByIndexs();
+					/*for(var i:uint = 0; i < files.length; i++)
+					{
+					trace(files[i].name);
+					}*/
+				}
+			}
+			
+			protected function btn8_clickHandler(evt:MouseEvent):void{
+				var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter(".proto","*.proto")]);
+				file.addEventListener(Event.SELECT,selectHeadPathOK);
+			}
+			
+			private function selectHeadPathOK(e:Event):void{
+				var file:File=e.target as File;
+				if(file){
+					var _load:URLLoader=new URLLoader();
+					_load.load(new URLRequest(file.url));
+					this._encryUrl=file.url;
+					this.excel_loader=new XLSXLoader();
+					
+					trace("当前解析的Head地址:"+file.url);
+					_load.dataFormat=URLLoaderDataFormat.BINARY;
+					_load.addEventListener(Event.COMPLETE,function(e:Event):void{
+						var _txt:String=String(_load.data);
+						while(_txt.indexOf("\t")!=-1){
+							_txt=_txt.replace('\t',"");
+						}
+						while(_txt.indexOf("\r")!=-1){
+							_txt=_txt.replace('\r',"");
+						}
+						var _arr:Array=_txt.split('\n');
+						var _headObj:Object={};
+						var _bodyObj:Object={};
+						var _body:Array;
+						var _bodyHead:String="";
+						var _index:int=4;
+						for(var rrp:* in _arr){
+							if(String(_arr[rrp]).indexOf("MSG_ID")!=-1){
+								_index=rrp;
+								break;
+							}
+						}
+						for(var a:int=_index;a<_arr.length;a++){
+							var _arrStr:String=_arr[a];
+							if(_arrStr.indexOf("msg_")!=-1 && _arrStr.indexOf("=")!=-1){
+								if(_arrStr.indexOf("243")!=-1){
+									trace("333333")
+								}
+								var _headArr:Array=_arrStr.split(";");
+								var _headStr:String=_headArr[0];
+								var _msg_Arr:Array=_headStr.split("=");
+								_headObj[replaceBlank(_msg_Arr[0])]=replaceBlank(_msg_Arr[1]);
+							}else{
+								if(_arrStr.indexOf("message ")!=-1 && _arrStr.indexOf("{")!=-1){
+									var _bodyArr1:Array=_arrStr.split("message ");
+									_bodyHead=replaceBlank(String(_bodyArr1[1]).substr(0,String(_bodyArr1[1]).length-1));
+									if(_headObj["msg_"+_bodyHead]){
+										_bodyHead=_headObj["msg_"+_bodyHead];
+									}
+									_body=[];
+								}
+								if(_arrStr.indexOf("required")!=-1 && _arrStr.indexOf("=")!=-1 && _arrStr.indexOf("msgid")==-1){
+									if(_body){
+										if(_arrStr.indexOf("uint")!=-1){
+											_body.push("2");
+										}else if(_arrStr.indexOf("int32")!=-1){
+											_body.push("1");
+										}else if(_arrStr.indexOf("string")!=-1){
+											_body.push("3");
+										}
+									}
+								}
+								if(_arrStr=="repeated tr point = 2;"){
+									trace("2222")
+								}
+								if(_arrStr.indexOf("repeated")!=-1 && _arrStr.indexOf("=")!=-1){
+									if(_body){
+										var _bool:Boolean=false;
+										if(_arrStr.indexOf("uint")!=-1){
+											_bool=true;
+											_body.push("5");
+										}else if(_arrStr.indexOf("int32")!=-1){
+											_bool=true;
+											_body.push("4");
+										}else if(_arrStr.indexOf("string")!=-1){
+											_bool=true;
+											_body.push("6");
+										}
+										if(_bool==false){
+											var _bodyArr2:Array=_arrStr.split(" ");
+											_body.push("7/"+_bodyArr2[1]);
+										}
+									}
+								}
+								if(_arrStr.indexOf("}")!=-1){
+									if(_body){
+										_bodyObj[_bodyHead]=_body;
+									}
+									_body=null;
+								}
+							}
+						}
+						trace("22222");
+						var _jsonStr:String=JSON.stringify(_bodyObj);
+						
+						var _name:String=_encryUrl.substring(_encryUrl.lastIndexOf("/")+1,_encryUrl.lastIndexOf("."));
+						var _urlStr:String=_encryUrl.substr(0,_encryUrl.lastIndexOf("/")+1);
+						var _newFile:File=new File(_urlStr+_name+".json");
+						if(_newFile.exists){
+							_newFile.deleteFile();
+						}
+						
+						var fs:FileStream=new FileStream();
+						var _byt:ByteArray=new ByteArray();
+						_byt.writeUTFBytes(_jsonStr);
+						//_byt.compress();
+						fs.open(_newFile,FileMode.UPDATE);
+						fs.writeBytes(_byt);
+						//_byt.uncompress();
+						//_byt.position=0;
+						//var _nima:*=_byt.readUTFBytes(_byt.length);
+						fs.close();
+						
+						Alert.show("解析协议成功!");
+					});
+				}
+			}
+			
+			public static function replaceBlank(value:String):String{
+				var patten:RegExp=/(^\s*)|(\s*$)/g;
+				var _result:String=value.replace(patten,"");
+				return _result;
+			}
+			
+			protected function btn11_clickHandler(evt:MouseEvent):void{
+				var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter(".*","*.*")]);
+				file.addEventListener(Event.SELECT,parseSpineData);
+			}
+			
+			private function parseSpineData(e:Event):void{
+				var file:File=e.target as File;
+				if(file){
+					var _load:URLLoader=new URLLoader();
+					_load.load(new URLRequest(file.url));
+					this._encryUrl=file.url;
+					trace("当前解析的Body地址:"+file.url);
+					_load.dataFormat=URLLoaderDataFormat.TEXT;
+					_load.addEventListener(Event.COMPLETE,function(e:Event):void{
+						var _txt:String=String(_load.data);
+						var _arr:Array=_txt.split("\n");
+						trace("2222");
+						var _textureAllObj:Object={"imagePath":replaceBlank(_arr[1]),"name":replaceBlank(_arr[1]).split(".")[0]};
+						var _textureArr:Array=[];
+						var _textureObj:Object;
+						for(var a:int=6;a<_arr.length;a++){
+							if(String(_arr[a]).indexOf(":")==-1){
+								if(_textureObj){
+									_textureArr.push(_textureObj);
+								}
+								_textureObj=new Object();
+								_textureObj["name"]=replaceBlank(_arr[a]);
+							}else{
+								if(String(_arr[a]).indexOf("rotate")==-1 && String(_arr[a]).indexOf("index")==-1){
+									var _newData:Array=String(_arr[a]).split(":");
+									var _newStr:String=replaceBlank(String(_newData[1]));
+									var _fArr:Array=_newStr.split(",");
+									if(String(_newData[0]).indexOf("xy")!=-1){
+										_textureObj["x"]=replaceBlank(_fArr[0]);
+										_textureObj["y"]=replaceBlank(_fArr[1]);
+									}else if(String(_newData[0]).indexOf("size")!=-1){
+										_textureObj["width"]=replaceBlank(_fArr[0]);
+										_textureObj["height"]=replaceBlank(_fArr[1]);
+									}
+								}
+							}
+						}
+						_textureAllObj["SubTexture"]=_textureArr;
+						var _textureStr:String=JSON.stringify(_textureAllObj);
+						
+						var _name:String=_encryUrl.substring(_encryUrl.lastIndexOf("/")+1,_encryUrl.lastIndexOf("."));
+						var _urlStr:String=_encryUrl.substr(0,_encryUrl.lastIndexOf("/")+1);
+						var _newFile:File=new File(_urlStr+_name+".json");
+						if(_newFile.exists){
+							_newFile.deleteFile();
+						}
+						
+						var fs:FileStream=new FileStream();
+						var _byt:ByteArray=new ByteArray();
+						_byt.writeUTFBytes(_textureStr);
+						//_byt.compress();
+						fs.open(_newFile,FileMode.UPDATE);
+						fs.writeBytes(_byt);
+						//_byt.uncompress();
+						//_byt.position=0;
+						//var _nima:*=_byt.readUTFBytes(_byt.length);
+						fs.close();
+						
+						Alert.show("转换成功!");
+						trace("wucalie")
+					});
+				}
+			}
+			
+			protected function btn10_clickHandler(evt:MouseEvent):void{
+				var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter(".json","*.json")]);
+				file.addEventListener(Event.SELECT,selectDBJsonPathOK);
+			}
+			
+			private function selectDBJsonPathOK(e:Event):void{
+				var file:File=e.target as File;
+				if(file){
+					var _load:URLLoader=new URLLoader();
+					_load.load(new URLRequest(file.url));
+					this._encryUrl=file.url;
+					trace("当前解析的Body地址:"+file.url);
+					_load.dataFormat=URLLoaderDataFormat.TEXT;
+					_load.addEventListener(Event.COMPLETE,function(e:Event):void{
+						var _txt:String=String(_load.data);
+						trace("2222");
+						var _obj:Object=JSON.parse(_txt);
+
+						
+						var _skinJsonData:Object={};
+						for(var _ar:* in _obj["armature"]){
+							var _skinObj:Array=_obj["armature"][_ar]["skin"];
+							for(var a:* in _skinObj){
+								var _skinSlot:Array=_skinObj[a]["slot"];
+								for(var nm:* in _skinSlot){
+									var _slotData:Array=_skinSlot[nm]["display"];
+									for(var _slot:* in _slotData){
+										var _slotNewData:Object=new Object();
+										_slotNewData.name=_slotData[_slot].name;
+										if(String(_slotNewData.name).indexOf("business01/jacket2")!=-1){
+											trace("222222")
+										}
+										if(_slotData[_slot].type=="mesh"){
+											if(String(_slotNewData.name).indexOf("mouth")!=-1){
+												trace("2222")
+											}
+											//_skinJsonData[_slotNewData.name]=_slotData[_slot];
+											_skinJsonData[_skinSlot[nm]["name"]+"/"+_slotNewData.name]=_slotData[_slot];
+											//_slotData[_slot].name=_skinSlot[nm]["name"]+"/"+_slotNewData.name;
+											continue;
+										}else{
+											_slotNewData.x=Number(_slotData[_slot]["transform"].x);
+											_slotNewData.y=Number(_slotData[_slot]["transform"].y);
+											if(_slotData[_slot]["transform"].hasOwnProperty("skX")){
+												_slotNewData.skX=_slotData[_slot]["transform"].skX;
+											}else{
+												_slotNewData.skX=0;
+											}
+											if(_slotData[_slot]["transform"].hasOwnProperty("skY")){
+												_slotNewData.skY=_slotData[_slot]["transform"].skY;
+											}else{
+												_slotNewData.skY=0;
+											}
+											if(_slotData[_slot]["transform"].hasOwnProperty("scX")){
+												_slotNewData.scX=_slotData[_slot]["transform"].scX;
+											}else{
+												_slotNewData.scX=1;
+											}
+											if(_slotData[_slot]["transform"].hasOwnProperty("scY")){
+												_slotNewData.scY=_slotData[_slot]["transform"].scY;
+											}else{
+												_slotNewData.scY=1;
+											}
+										}
+										if(String(_slotNewData.name).indexOf("business01/jacket2")!=-1){
+											trace("222222")
+										}
+										_skinJsonData[_skinSlot[nm]["name"]+"/"+_slotNewData.name]=_slotNewData;
+										//_skinJsonData[_slotNewData.name]=_slotNewData;
+										if(!_slotNewData.x){
+											trace("3333")
+										}
+										//_slotNewData.name=_skinSlot[nm]["name"]+"/"+_slotNewData.name;
+									}
+								}
+							}
+						}
+						
+						var _jsonStr:String=JSON.stringify(_skinJsonData);
+						
+						var _name:String=_encryUrl.substring(_encryUrl.lastIndexOf("/")+1,_encryUrl.lastIndexOf("."));
+						var _urlStr:String=_encryUrl.substr(0,_encryUrl.lastIndexOf("/")+1);
+						var _newFile:File=new File(_urlStr+_name+"New.json");
+						if(_newFile.exists){
+							_newFile.deleteFile();
+						}
+						
+						var fs:FileStream=new FileStream();
+						var _byt:ByteArray=new ByteArray();
+						_byt.writeUTFBytes(_jsonStr);
+						//_byt.compress();
+						fs.open(_newFile,FileMode.UPDATE);
+						fs.writeBytes(_byt);
+						//_byt.uncompress();
+						//_byt.position=0;
+						//var _nima:*=_byt.readUTFBytes(_byt.length);
+						fs.close();
+						
+						Alert.show("解析骨骼数据成功!");
+						
+					});
+				}
+			}
+			
+			protected var _hebingIndex:int=1;
+			
+			private var hebinData1:Object;
+			
+			private var hebinData2:Object;
+			
+			private var hebinDic:Dictionary;
+			
+			//点击合并按钮
+			protected function btnHeBing_clickHandler(evt:MouseEvent):void{
+				var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter(".json","*.json")]);
+				file.addEventListener(Event.SELECT,selectHBBodyPathOK);
+			}
+			
+			private function selectHBBodyPathOK(e:Event):void{
+				var file:File=e.target as File;
+				if(file){
+					var _load:URLLoader=new URLLoader();
+					_load.load(new URLRequest(file.url));
+					this._encryUrl=file.url;
+					trace("当前解析的Body地址:"+file.url);
+					_load.dataFormat=URLLoaderDataFormat.TEXT;
+					_load.addEventListener(Event.COMPLETE,function(e:Event):void{
+						var _txt:String=String(_load.data);
+						if(_hebingIndex==1){
+							hebinData1=JSON.parse(_txt);
+							hebinDic=new Dictionary();
+							for(var n:* in hebinData1["SubTexture"]){
+								hebinDic[hebinData1["SubTexture"][n].name]=hebinData1["SubTexture"][n];
+							}
+							_hebingIndex=2;
+							Alert.show("搞定第一张表!");
+						}else{
+							hebinData2=JSON.parse(_txt);
+							trace("1111");
+							for(var a:* in hebinData2["SubTexture"]){
+								if(hebinDic[hebinData2["SubTexture"][a].name]){
+									hebinData2["SubTexture"][a].frameHeight=hebinDic[hebinData2["SubTexture"][a].name].frameHeight;
+									hebinData2["SubTexture"][a].frameWidth=hebinDic[hebinData2["SubTexture"][a].name].frameWidth;
+									hebinData2["SubTexture"][a].frameX=hebinDic[hebinData2["SubTexture"][a].name].frameX;
+									hebinData2["SubTexture"][a].frameY=hebinDic[hebinData2["SubTexture"][a].name].frameY;
+									hebinData2["SubTexture"][a].width=hebinDic[hebinData2["SubTexture"][a].name].width;
+									hebinData2["SubTexture"][a].height=hebinDic[hebinData2["SubTexture"][a].name].height;
+									hebinData2["SubTexture"][a].x=hebinDic[hebinData2["SubTexture"][a].name].x;
+									hebinData2["SubTexture"][a].y=hebinDic[hebinData2["SubTexture"][a].name].y;
+								}else{
+									hebinData2["SubTexture"][a].x=0;
+									hebinData2["SubTexture"][a].y=0;
+								}
+							}
+							var _jsonStr:String=JSON.stringify(hebinData2);
+							var _name:String=_encryUrl.substring(_encryUrl.lastIndexOf("/")+1,_encryUrl.lastIndexOf("."));
+							var _urlStr:String=_encryUrl.substr(0,_encryUrl.lastIndexOf("/")+1);
+							var _newFile:File=new File(_urlStr+_name+"NewNew.json");
+							if(_newFile.exists){
+								_newFile.deleteFile();
+							}
+							
+							var fs:FileStream=new FileStream();
+							var _byt:ByteArray=new ByteArray();
+							_byt.writeUTFBytes(_jsonStr);
+							//_byt.compress();
+							fs.open(_newFile,FileMode.UPDATE);
+							fs.writeBytes(_byt);
+							//_byt.uncompress();
+							//_byt.position=0;
+							//var _nima:*=_byt.readUTFBytes(_byt.length);
+							fs.close();
+							
+							Alert.show("修正成功!");
+						}
+					});
+				}
+			}
+			
+			protected function btn12_clickHandler(evt:MouseEvent):void{
+				var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter(".*","*.*")]);
+				file.addEventListener(Event.SELECT,parseLangData);
+			}
+			public static  function validateNumber(str:String):Boolean 
+			{
+				var pattern:RegExp = /^-?[0-9]\d*$/;
+				var result:Object = pattern.exec(str);
+				if(result == null) 
+				{
+					return false;
+				}
+				return true;
+			}
+			public static function ValidateCNWord(str:String):Boolean{
+				var pattern:RegExp = /[\u4e00-\u9fa5]/;
+				var result:Object = pattern.exec(str);
+				if(result == null) 
+				{
+					return false;
+				}
+				return true;
+			}
+			private function parseLangData(e:Event):void{
+				var file:File=e.target as File;
+				if(file){
+					var _load:URLLoader=new URLLoader();
+					_load.load(new URLRequest(file.url));
+					this._encryUrl=file.url;
+					trace("当前解析的Body地址:"+file.url);
+					_load.dataFormat=URLLoaderDataFormat.TEXT;
+					_load.addEventListener(Event.COMPLETE,function(e:Event):void{
+						var _txt:String=String(_load.data);
+						var _langObj:Object=JSON.parse(_txt);
+						var _xml:XML=<langs>
+						</langs>;
+						for(var a:* in _langObj){
+							if(String(_langObj[a]).indexOf("<")==-1 && !validateNumber(String(_langObj[a])) && !ValidateCNWord(String(_langObj[a]))){
+								var _newStr:String='<item key="'+a+'"value="'+_langObj[a]+'"/>';
+								var _newXml:XML=XML(_newStr);
+								if(_newXml){
+									_xml.appendChild(_newXml);
+								}else{
+									trace("33333")
+								}
+							}
+						}
+						//var _newStr:String=JSON.stringify(_langObj);
+						var _name:String=_encryUrl.substring(_encryUrl.lastIndexOf("/")+1,_encryUrl.lastIndexOf("."));
+						var _urlStr:String=_encryUrl.substr(0,_encryUrl.lastIndexOf("/")+1);
+						var _newFile:File=new File(_urlStr+""+_name+"New.json");
+						if(_newFile.exists){
+							_newFile.deleteFile();
+						}
+						
+						var fs:FileStream=new FileStream();
+						var _byt:ByteArray=new ByteArray();
+						_byt.writeUTFBytes(_xml);
+						//_byt.compress();
+						fs.open(_newFile,FileMode.UPDATE);
+						fs.writeBytes(_byt);
+						//_byt.uncompress();
+						//_byt.position=0;
+						//var _nima:*=_byt.readUTFBytes(_byt.length);
+						fs.close();
+						
+						Alert.show("修正成功!");
+						trace("2222")
+					});
+				}
+			}
+			
+			protected function btn9_clickHandler(evt:MouseEvent):void{
+				var file:File = File.applicationDirectory.resolvePath("");
+				file.browse([new FileFilter(".xml","*.xml")]);
+				file.addEventListener(Event.SELECT,selectBodyPathOK);
+			}
+			
+			private function selectBodyPathOK(e:Event):void{
+				var file:File=e.target as File;
+				if(file){
+					var _load:URLLoader=new URLLoader();
+					_load.load(new URLRequest(file.url));
+					this._encryUrl=file.url;
+					trace("当前解析的Body地址:"+file.url);
+					_load.dataFormat=URLLoaderDataFormat.TEXT;
+					_load.addEventListener(Event.COMPLETE,function(e:Event):void{
+						var _txt:String=String(_load.data);
+						var _xml:XML=XML(_txt);
+						var _url:String=_xml.@imagePath;
+						var arr:XMLList = _xml.children();
+						var len:uint = arr.length();
+						var _obj:Object=new Object();
+						var _arr:Array=[];
+						for (var i:uint = 0; i < len; i++) {
+							var _itemObj:Object={};
+							var item:XML = arr[i];
+							_itemObj["name"]=String(item.@name);
+							_itemObj["x"]=Number(item.@x);
+							_itemObj["y"]=Number(item.@y);
+							_itemObj["width"]=Number(item.@width);
+							_itemObj["height"]=Number(item.@height);
+							_itemObj["frameX"]=Number(item.@frameX);
+							_itemObj["frameY"]=Number(item.@frameY);
+							_itemObj["frameWidth"]=Number(item.@frameWidth);
+							_itemObj["frameHeight"]=Number(item.@frameHeight);
+							
+							_arr.push(_itemObj);
+						}
+						_obj["SubTexture"]=_arr;
+						_obj["imagePath"]=_url;
+						//_obj["name"]=url;
+						
+						var _jsonStr:String=JSON.stringify(_obj);
+						
+						var _name:String=_encryUrl.substring(_encryUrl.lastIndexOf("/")+1,_encryUrl.lastIndexOf("."));
+						var _urlStr:String=_encryUrl.substr(0,_encryUrl.lastIndexOf("/")+1);
+						var _newFile:File=new File(_urlStr+_name+".json");
+						if(_newFile.exists){
+							_newFile.deleteFile();
+						}
+						
+						var fs:FileStream=new FileStream();
+						var _byt:ByteArray=new ByteArray();
+						_byt.writeUTFBytes(_jsonStr);
+						//_byt.compress();
+						fs.open(_newFile,FileMode.UPDATE);
+						fs.writeBytes(_byt);
+						//_byt.uncompress();
+						//_byt.position=0;
+						//var _nima:*=_byt.readUTFBytes(_byt.length);
+						fs.close();
+						
+						Alert.show("修正成功!");
+						
+						trace("22222")
+					});
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:Button x="47" y="22" label="excel转xml" click="button1_clickHandler(event)"/>
+	<s:Button x="240" y="22" label="合并两个纹理配表" click="btnHeBing_clickHandler(event)"/>
+	<s:Button x="47" y="68" label="excel转php" click="button2_clickHandler(event)"/>
+	<s:Button x="47" y="114" label="excel转json" click="button3_clickHandler(event)"/>
+	<s:Button x="47" y="160" label="excel转xml文件夹选取" click="btn4_clickHandler(event)"/>
+	<s:Button x="240" y="160" label="excel转json文件夹选取" click="btn99_clickHandler(event)"/>
+	<s:Button x="47" y="204" label="excel转Php文件夹选取" click="btn5_clickHandler(event)"/>
+	<s:Button x="47" y="248" label="CSV转JSON文件夹选取" click="btn6_clickHandler(event)"/>
+	<s:Button x="240" y="248" label="JSON转CSV文件夹选取" click="btn7_clickHandler(event)"/>
+	<s:Button x="47" y="292" label="解析协议文件选取" click="btn8_clickHandler(event)"/>
+	<s:Button x="240" y="292" label="解析语言包json为xml" click="btn12_clickHandler(event)"/>
+	<s:Button x="47" y="336" label="修正纹理配表为JSON" click="btn9_clickHandler(event)"/>
+	<s:Button x="240" y="336" label="获取骨骼JSON数据" click="btn10_clickHandler(event)"/>
+	<s:Button x="240" y="204" label="解析spine数据格式为json" click="btn11_clickHandler(event)"/>
+	<s:TextInput x="47" y="380" width="400" height="40" fontSize="20" id="inputTxt"/>
+</s:WindowedApplication>

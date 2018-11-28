@@ -67,6 +67,42 @@ var ui;
     })(main = ui.main || (ui.main = {}));
 })(ui || (ui = {}));
 (function (ui) {
+    var MiniLLK;
+    (function (MiniLLK) {
+        var LLKItemUI = /** @class */ (function (_super) {
+            __extends(LLKItemUI, _super);
+            function LLKItemUI() {
+                return _super.call(this) || this;
+            }
+            LLKItemUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.MiniLLK.LLKItemUI.uiView);
+            };
+            LLKItemUI.uiView = { "type": "View", "props": { "width": 60, "height": 60 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 60, "var": "pic", "skin": "item/400103.png" } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 60, "var": "frame", "skin": "share/frame.png", "sizeGrid": "13,13,18,13", "height": 60 } }] };
+            return LLKItemUI;
+        }(View));
+        MiniLLK.LLKItemUI = LLKItemUI;
+    })(MiniLLK = ui.MiniLLK || (ui.MiniLLK = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var MiniLLK;
+    (function (MiniLLK) {
+        var LLKViewUI = /** @class */ (function (_super) {
+            __extends(LLKViewUI, _super);
+            function LLKViewUI() {
+                return _super.call(this) || this;
+            }
+            LLKViewUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.MiniLLK.LLKViewUI.uiView);
+            };
+            LLKViewUI.uiView = { "type": "View", "props": { "width": 700, "height": 630 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 30, "width": 700, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 600 } }, { "type": "Image", "props": { "x": 116, "width": 467, "skin": "share/winTitle.png", "sizeGrid": "0,205,0,204", "height": 80 } }, { "type": "Label", "props": { "y": 19, "x": 250, "width": 200, "var": "tfTitle", "text": "label", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 23, "x": 638, "var": "btnClose", "stateNum": 1, "skin": "share/btn_close.png" } }] }] };
+            return LLKViewUI;
+        }(View));
+        MiniLLK.LLKViewUI = LLKViewUI;
+    })(MiniLLK = ui.MiniLLK || (ui.MiniLLK = {}));
+})(ui || (ui = {}));
+(function (ui) {
     var test;
     (function (test) {
         var TestPageUI = /** @class */ (function (_super) {

@@ -6,10 +6,6 @@ var User = /** @class */ (function () {
         this.power = 0;
         this.gold = 0;
         this.diamond = 0;
-        //
-        this.heros = [];
-        //
-        this.pets = [];
         this.role = new Role();
     }
     /**初始化 */
@@ -27,6 +23,10 @@ var User = /** @class */ (function () {
         for (var i in value) {
             this[i] = value[i];
         }
+    };
+    /**保存 */
+    User.prototype.save = function () {
+        XDB.save(XDB.USER, this);
     };
     User.getInstance = function () {
         if (!this._instance) {
