@@ -24,7 +24,9 @@ var LoadingView = /** @class */ (function (_super) {
         var urlList = [
             "res/atlas/share.atlas",
             "res/atlas/item.atlas",
-            "res/atlas/pet.atlas"
+            "res/atlas/icon.atlas",
+            "res/atlas/pet.atlas",
+            "res/cfg/task.json"
         ];
         if (urlList.length) {
             Laya.loader.load(urlList, Handler.create(this, this.fetchSrvData));

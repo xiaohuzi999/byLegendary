@@ -31,6 +31,7 @@ var LLKView = /** @class */ (function (_super) {
             args[_i] = arguments[_i];
         }
         _super.prototype.show.call(this);
+        this.ui.tfTitle.text = "连连看";
         this.initMap(this._map);
     };
     LLKView.prototype.initMap = function (map) {

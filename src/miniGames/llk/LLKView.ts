@@ -20,6 +20,7 @@ class LLKView extends xframe.XMWindow{
 
     public show(...args):void{
         super.show();
+        this.ui.tfTitle.text = "连连看"
         this.initMap(this._map);
     }
 

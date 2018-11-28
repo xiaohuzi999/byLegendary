@@ -21,9 +21,25 @@ var MainView = /** @class */ (function (_super) {
     MainView.prototype.show = function () {
         _super.prototype.show.call(this);
         this.ui.player.dataSource = User.getInstance().role;
-        XFacade.instance.showModule(LLKView);
+        this.updateInfo();
     };
-    MainView.prototype.onPlayerClick = function (e) {
+    MainView.prototype.onClick = function (e) {
+        switch (e.target) {
+            case this.ui.player:
+                this.onPlayerClick();
+                break;
+            case this.ui.btnAdd:
+                XTip.showTip("coming soon~~~~");
+                break;
+            case this.ui.btnFight:
+                XFacade.instance.showModule(LLKView);
+                break;
+            case this.ui.btnTask:
+                XFacade.instance.showModule(TaskView);
+                break;
+        }
+    };
+    MainView.prototype.onPlayerClick = function () {
         if (User.getInstance().role.lv == 1) {
             this._index++;
             if (this._index > 3) {
@@ -37,15 +53,22 @@ var MainView = /** @class */ (function (_super) {
             //
         }
     };
+    MainView.prototype.updateInfo = function () {
+        this.ui.tfGold.text = User.getInstance().gold + "";
+        this.ui.tfDiamond.text = User.getInstance().diamond + "";
+    };
     MainView.prototype.initEvent = function () {
-        this.ui.player.on(Laya.Event.CLICK, this, this.onPlayerClick);
+        this.ui.on(Laya.Event.CLICK, this, this.onClick);
+        XEvent.instance.on(User.UPDATE, this, this.updateInfo);
     };
     MainView.prototype.removeEvent = function () {
-        this.ui.player.off(Laya.Event.CLICK, this, this.onPlayerClick);
+        this.ui.off(Laya.Event.CLICK, this, this.onClick);
+        XEvent.instance.off(User.UPDATE, this, this.updateInfo);
     };
     MainView.prototype.createUI = function () {
         this.ui = new ui.main.MainUI();
         this.addChild(this.ui);
+        this.ui.player.mouseEnabled = true;
     };
     return MainView;
 }(xframe.XWindow));

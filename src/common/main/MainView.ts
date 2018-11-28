@@ -11,7 +11,7 @@ class MainView extends xframe.XWindow{
     public show():void{
         super.show();
         this.ui.player.dataSource = User.getInstance().role;
-        XFacade.instance.showModule(LLKView);
+        this.updateInfo();
     }
 
     private onClick(e:Laya.Event):void{
@@ -21,6 +21,12 @@ class MainView extends xframe.XWindow{
             break;
             case this.ui.btnAdd:
                 XTip.showTip("coming soon~~~~")
+            break;
+            case this.ui.btnFight:
+                XFacade.instance.showModule(LLKView);
+            break;
+            case this.ui.btnTask:
+                XFacade.instance.showModule(TaskView);
             break;
         }
     }
@@ -57,5 +63,6 @@ class MainView extends xframe.XWindow{
     protected createUI():void{
         this.ui = new ui.main.MainUI();
         this.addChild(this.ui);
+        this.ui.player.mouseEnabled = true;
     }
 }

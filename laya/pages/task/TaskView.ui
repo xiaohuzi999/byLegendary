@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":6,
-    "selecteID":4,
+    "selectedBox":1,
+    "selecteID":6,
     "props":{"width":700,"sceneColor":"#000000","height":630},
     "nodeParent":-1,
     "label":"View",
@@ -53,7 +53,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"label","height":24,"fontSize":24,"color":"#ffffff","align":"center"},
+                    "props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"事件","height":24,"fontSize":24,"color":"#ffffff","align":"center"},
                     "nodeParent":6,
                     "label":"Label(tfTitle)",
                     "isDirectory":false,
@@ -75,8 +75,59 @@
                     "compId":7,
                     "child":[
                         ]
-                }],
-            "$LOCKED":false
+                }]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":172,"x":51,"width":603,"text":"label","height":134,"fontSize":24,"color":"#000000","align":"left"},
+            "nodeParent":1,
+            "label":"Label",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":8,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":107,"x":48,"width":603,"text":"label","height":42,"fontSize":28,"color":"#000000","align":"center"},
+            "nodeParent":1,
+            "label":"Label",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":9,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Button",
+            "props":{"y":469,"x":184,"width":135,"stateNum":"1","skin":"share/btn_yellow.png","sizeGrid":"0,36,0,38","labelColors":"#ffffff,#ffffff,#ffffff","label":"放弃","height":70},
+            "nodeParent":1,
+            "label":"Button",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":10,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Button",
+            "props":{"y":469,"x":375,"width":135,"stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,37,0,37","labelColors":"#ffffff,#ffffff,#ffffff","label":"完成"},
+            "nodeParent":1,
+            "label":"Button",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":11,
+            "child":[
+                ]
         }],
     "animations":[
         {

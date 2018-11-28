@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":21,
+    "selecteID":16,
     "props":{"width":750,"sceneColor":"#000000","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -47,15 +47,16 @@
             "props":{"y":28,"x":13,"width":195,"skin":"share/bgWord.png","height":40},
             "nodeParent":1,
             "label":"Image",
-            "isOpen":false,
+            "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":5,
             "child":[
                 {
+                    "x":30,
                     "type":"Image",
-                    "props":{"y":-9,"x":-2,"width":55,"skin":"icons/jinbi.png","height":57},
+                    "props":{"y":-9,"x":-2,"width":55,"skin":"icon/jinbi.png","height":57},
                     "nodeParent":5,
                     "label":"Image",
                     "isDirectory":false,
@@ -66,6 +67,7 @@
                         ]
                 },
                 {
+                    "x":30,
                     "type":"Label",
                     "props":{"y":6,"x":57,"width":129,"var":"tfGold","height":31,"fontSize":24,"color":"#ffffff","align":"center"},
                     "nodeParent":5,
@@ -84,15 +86,16 @@
             "props":{"y":29,"x":270,"width":195,"skin":"share/bgWord.png","height":40},
             "nodeParent":1,
             "label":"Image",
-            "isOpen":false,
+            "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":8,
             "child":[
                 {
+                    "x":30,
                     "type":"Image",
-                    "props":{"y":-12,"x":-11,"width":80,"skin":"icons/diamond.png","height":62},
+                    "props":{"y":-12,"x":-11,"width":80,"skin":"icon/diamond.png","height":62},
                     "nodeParent":8,
                     "label":"Image",
                     "isDirectory":false,
@@ -103,6 +106,7 @@
                         ]
                 },
                 {
+                    "x":30,
                     "type":"Label",
                     "props":{"y":5,"x":58,"width":112,"var":"tfDiamond","height":31,"fontSize":24,"color":"#ffffff","align":"center"},
                     "nodeParent":8,
@@ -115,6 +119,7 @@
                         ]
                 },
                 {
+                    "x":30,
                     "type":"Button",
                     "props":{"y":-4,"x":170,"var":"btnAdd","stateNum":"1","skin":"share/btn_add.png"},
                     "nodeParent":8,
@@ -130,9 +135,9 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":1242,"x":69,"width":135,"stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","height":70},
+            "props":{"y":1242,"x":69,"width":135,"var":"btnPlayer","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"角色","height":70},
             "nodeParent":1,
-            "label":"Button",
+            "label":"Button(btnPlayer)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
@@ -143,9 +148,9 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":1242,"x":223,"width":135,"stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","height":70},
+            "props":{"y":1242,"x":223,"width":135,"var":"btnFight","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"战斗","height":70},
             "nodeParent":1,
-            "label":"Button",
+            "label":"Button(btnFight)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
@@ -156,9 +161,9 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":1242,"x":376,"width":135,"stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","height":70},
+            "props":{"y":1242,"x":376,"width":135,"var":"btnTask","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"事件","height":70},
             "nodeParent":1,
-            "label":"Button",
+            "label":"Button(btnTask)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
@@ -169,7 +174,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":1242,"x":530,"width":135,"stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","height":70},
+            "props":{"y":1242,"x":530,"width":135,"stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","height":70},
             "nodeParent":1,
             "label":"Button",
             "isDirectory":false,

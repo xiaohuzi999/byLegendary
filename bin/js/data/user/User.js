@@ -17,12 +17,17 @@ var User = /** @class */ (function () {
             }
             this.update(val);
         }
+        this.dispatchEvent();
     };
     //更新
     User.prototype.update = function (value) {
         for (var i in value) {
             this[i] = value[i];
         }
+    };
+    //属性修改之后手动调用；
+    User.prototype.dispatchEvent = function () {
+        XEvent.instance.event(User.UPDATE);
     };
     /**保存 */
     User.prototype.save = function () {

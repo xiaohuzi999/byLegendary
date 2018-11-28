@@ -1,11 +1,10 @@
-var test = ui.test.TestPageUI;
 var Label = Laya.Label;
 var Handler = Laya.Handler;
 var Loader = Laya.Loader;
 var WebGL = Laya.WebGL;
 var XFacade = xframe.XFacade;
-var XWindow = xframe.XWindow;
-var XMWindow = xframe.XMWindow;
+var XTip = xframe.XTip;
+var XAlert = xframe.XAlert;
 //初始化微信小游戏
 Laya.MiniAdpter.init();
 //程序入口
