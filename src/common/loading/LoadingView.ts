@@ -19,7 +19,8 @@ class LoadingView extends xframe.XWindow{
             "res/atlas/item.atlas",
             "res/atlas/icon.atlas",
             "res/atlas/pet.atlas",
-            "res/cfg/task.json"
+            "res/cfg/task.json",
+            "res/cfg/item.json"
 		]
 
         if(urlList.length){

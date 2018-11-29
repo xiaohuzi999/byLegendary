@@ -29,6 +29,12 @@ var TaskView = /** @class */ (function (_super) {
         if (vo) {
             this.ui.tfName.text = vo.name + "";
             this.ui.tfDesc.text = vo.desc + "";
+            var arr = vo.reward || [];
+            var items = [];
+            for (var i = 0; i < arr.length; i++) {
+                items.push({ itemId: arr[i][0], num: arr[i][1] });
+            }
+            this.ui.itemList.array = items;
         }
     };
     TaskView.prototype.createUI = function () {

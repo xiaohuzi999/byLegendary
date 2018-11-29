@@ -3,7 +3,7 @@
 */
 interface UItemVo{
      //unique id;
-    uid:string;
+    uid?:string;
     //item id
     itemId:number;
     //item num;

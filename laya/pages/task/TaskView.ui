@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":6,
+    "selectedBox":12,
+    "selecteID":13,
     "props":{"width":700,"sceneColor":"#000000","height":630},
     "nodeParent":-1,
     "label":"View",
@@ -128,6 +128,33 @@
             "compId":11,
             "child":[
                 ]
+        },
+        {
+            "x":15,
+            "type":"List",
+            "props":{"y":342,"x":78,"width":544,"var":"itemList","spaceX":10,"height":100},
+            "nodeParent":1,
+            "label":"List(itemList)",
+            "isOpen":true,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":12,
+            "child":[
+                {
+                    "x":30,
+                    "type":"UIView",
+                    "source":"bag/Item.ui",
+                    "props":{"runtime":"Item","name":"render"},
+                    "nodeParent":12,
+                    "label":"UIView(render)",
+                    "isDirectory":false,
+                    "isAniNode":false,
+                    "hasChild":false,
+                    "compId":13,
+                    "child":[
+                        ]
+                }]
         }],
     "animations":[
         {

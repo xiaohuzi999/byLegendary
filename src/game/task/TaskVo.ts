@@ -8,7 +8,7 @@ class TaskVo{
     public type:number;
     public desc:string
     public cond:string
-    public reward:string
+    public reward:any[];
     public special:string = ''
     constructor(){
 

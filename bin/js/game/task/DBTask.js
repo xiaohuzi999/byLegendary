@@ -12,6 +12,7 @@ var DBTask = /** @class */ (function () {
         get: function () {
             if (!this._data) {
                 this._data = Laya.loader.getRes("res/cfg/task.json");
+                trace(this._data);
             }
             return this._data;
         },

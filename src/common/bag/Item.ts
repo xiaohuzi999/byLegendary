@@ -18,6 +18,11 @@ class Item extends ui.bag.ItemUI{
             }else{
                 this.pic.skin = "";
             }
+            if(vo.num > 0){
+                this.tfNum.text = vo.num+""
+            }else{
+                this.tfNum.text = "";
+            }
         }else{
             this._itemVo = null;
         }

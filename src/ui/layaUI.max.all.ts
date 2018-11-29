@@ -5,8 +5,9 @@ module ui.bag {
     export class ItemUI extends View {
 		public pic:Laya.Image;
 		public frame:Laya.Image;
+		public tfNum:Laya.Label;
 
-        public static  uiView:any ={"type":"View","props":{"width":100,"height":100},"child":[{"type":"Image","props":{"y":20,"x":20,"width":60,"var":"pic","skin":"item/400103.png"}},{"type":"Image","props":{"y":0,"x":0,"width":100,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":100}}]};
+        public static  uiView:any ={"type":"View","props":{"width":100,"height":100},"child":[{"type":"Image","props":{"y":20,"x":20,"width":60,"var":"pic","skin":"item/400103.png"}},{"type":"Image","props":{"y":0,"x":0,"width":100,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":100}},{"type":"Label","props":{"y":71,"x":36,"width":57,"var":"tfNum","height":20,"fontSize":20,"color":"#ffffff","align":"right"}}]};
         constructor(){ super()}
         createChildren():void {
         
@@ -114,11 +115,13 @@ module ui.task {
 		public btnClose:Laya.Button;
 		public tfDesc:Laya.Label;
 		public tfName:Laya.Label;
+		public itemList:Laya.List;
 
-        public static  uiView:any ={"type":"View","props":{"width":700,"height":630},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":600}},{"type":"Image","props":{"x":116,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"事件","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":638,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"Label","props":{"y":172,"x":51,"width":603,"var":"tfDesc","text":"label","height":134,"fontSize":24,"color":"#000000","align":"left"}},{"type":"Label","props":{"y":107,"x":48,"width":603,"var":"tfName","text":"label","height":42,"fontSize":28,"color":"#000000","align":"center"}},{"type":"Button","props":{"y":469,"x":184,"width":135,"stateNum":1,"skin":"share/btn_yellow.png","sizeGrid":"0,36,0,38","labelColors":"#ffffff,#ffffff,#ffffff","label":"放弃","height":70}},{"type":"Button","props":{"y":469,"x":375,"width":135,"stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,37,0,37","labelColors":"#ffffff,#ffffff,#ffffff","label":"完成"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":700,"height":630},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":600}},{"type":"Image","props":{"x":116,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"事件","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":638,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"Label","props":{"y":172,"x":51,"width":603,"var":"tfDesc","text":"label","height":134,"fontSize":24,"color":"#000000","align":"left"}},{"type":"Label","props":{"y":107,"x":48,"width":603,"var":"tfName","text":"label","height":42,"fontSize":28,"color":"#000000","align":"center"}},{"type":"Button","props":{"y":469,"x":184,"width":135,"stateNum":1,"skin":"share/btn_yellow.png","sizeGrid":"0,36,0,38","labelColors":"#ffffff,#ffffff,#ffffff","label":"放弃","height":70}},{"type":"Button","props":{"y":469,"x":375,"width":135,"stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,37,0,37","labelColors":"#ffffff,#ffffff,#ffffff","label":"完成"}},{"type":"List","props":{"y":342,"x":78,"width":544,"var":"itemList","spaceX":10,"height":100},"child":[{"type":"Item","props":{"runtime":"Item","name":"render"}}]}]};
         constructor(){ super()}
         createChildren():void {
-        
+        			View.regComponent("Item",Item);
+
             super.createChildren();
             this.createView(ui.task.TaskViewUI.uiView);
 

@@ -187,7 +187,18 @@
 													_str+=" "+_newObj[1][x]+'=""';
 												}
 											}else{
-												_jsonObj[_newObj[k][0]][_newObj[1][x]]=_newObj[k][x];
+												
+												//普通导出============================================
+												var str:String = _newObj[k][x]; 
+												var jsonObj:* = str;
+												if(str+"" != "null"){
+													trace("str-----------------",str)
+													if((str.indexOf("[") != -1 || str.indexOf("{") != -1)){
+														jsonObj = JSON.parse(str);
+													}
+													_jsonObj[_newObj[k][0]][_newObj[1][x]]= jsonObj;
+												}
+												
 											}
 										}
 										if(_isEncry==2){

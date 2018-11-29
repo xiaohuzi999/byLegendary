@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":2,
+    "selecteID":4,
     "props":{"width":100,"sceneColor":"#000000","height":100},
     "nodeParent":-1,
     "label":"View",
@@ -35,6 +35,19 @@
             "isAniNode":true,
             "hasChild":false,
             "compId":3,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":71,"x":36,"width":57,"var":"tfNum","height":20,"fontSize":20,"color":"#ffffff","align":"right"},
+            "nodeParent":1,
+            "label":"Label(tfNum)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":4,
             "child":[
                 ]
         }],

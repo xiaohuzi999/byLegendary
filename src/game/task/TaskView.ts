@@ -17,6 +17,12 @@ class TaskView extends xframe.XMWindow{
         if(vo){
             this.ui.tfName.text = vo.name+"";
             this.ui.tfDesc.text = vo.desc+"";
+            let arr:any[] = vo.reward || [];
+            let items:any[] = [];
+            for(let i=0; i<arr.length; i++){
+                items.push({itemId:arr[i][0], num:arr[i][1]})
+            }
+            this.ui.itemList.array = items;
         }
     }
 

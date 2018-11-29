@@ -24,12 +24,19 @@ var Item = /** @class */ (function (_super) {
         },
         set: function (vo) {
             this._vo = vo;
+            trace("item", vo);
             if (vo) {
                 if (vo.itemId) {
                     this._itemVo = DBItem.getItemVo(vo.itemId);
                 }
                 else {
                     this.pic.skin = "";
+                }
+                if (vo.num > 0) {
+                    this.tfNum.text = vo.num + "";
+                }
+                else {
+                    this.tfNum.text = "";
                 }
             }
             else {

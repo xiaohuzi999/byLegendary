@@ -15,6 +15,7 @@ class DBItem{
     private static get data():any{
         if(!this._data){
             this._data  = Laya.loader.getRes("res/cfg/item.json")
+            trace(this._data);
         }
         return this._data;
     }
