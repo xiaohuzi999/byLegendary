@@ -16,6 +16,21 @@ var TaskView = /** @class */ (function (_super) {
     function TaskView() {
         return _super.call(this) || this;
     }
+    TaskView.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this.showTask(User.getInstance().task[0]);
+    };
+    TaskView.prototype.showTask = function (taskId) {
+        var vo = DBTask.getTaskVo(taskId);
+        if (vo) {
+            this.ui.tfName.text = vo.name + "";
+            this.ui.tfDesc.text = vo.desc + "";
+        }
+    };
     TaskView.prototype.createUI = function () {
         this.ui = new ui.task.TaskViewUI();
         this.addChild(this.ui);

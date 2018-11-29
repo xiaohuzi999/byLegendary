@@ -16,6 +16,10 @@ class User{
     //
     public role:Role;
 
+    public task:number[] = [1];
+    
+    public taskDone:number[] = [];
+
     //单例;
     private static _instance:User;
     //事件-更新;

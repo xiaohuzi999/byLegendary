@@ -7,6 +7,19 @@ class TaskView extends xframe.XMWindow{
         super();
     }
 
+    public show(...args):void{
+        super.show();
+        this.showTask(User.getInstance().task[0]);
+    }
+
+    private showTask(taskId:any):void{  
+        let vo:TaskVo = DBTask.getTaskVo(taskId);
+        if(vo){
+            this.ui.tfName.text = vo.name+"";
+            this.ui.tfDesc.text = vo.desc+"";
+        }
+    }
+
     protected createUI():void{
         this.ui = new ui.task.TaskViewUI();
         this.addChild(this.ui);

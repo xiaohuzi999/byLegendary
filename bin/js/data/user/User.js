@@ -6,6 +6,8 @@ var User = /** @class */ (function () {
         this.power = 0;
         this.gold = 0;
         this.diamond = 0;
+        this.task = [1];
+        this.taskDone = [];
         this.role = new Role();
     }
     /**初始化 */
