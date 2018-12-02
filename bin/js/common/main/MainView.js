@@ -30,6 +30,8 @@ var MainView = /** @class */ (function (_super) {
                 break;
             case this.ui.btnAdd:
                 XTip.showTip("coming soon~~~~");
+                //XFacade.instance.showModule(ShopView);
+                XFacade.instance.showModule(SignView);
                 break;
             case this.ui.btnFight:
                 XFacade.instance.showModule(LLKView);

@@ -109,6 +109,93 @@ module ui.MiniLLK {
     }
 }
 
+module ui.shop {
+    export class ShopUI extends View {
+		public tfTitle:Laya.Label;
+		public btnClose:Laya.Button;
+		public itemList:Laya.List;
+
+        public static  uiView:any ={"type":"View","props":{"width":700,"height":630},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":600}},{"type":"Image","props":{"x":116,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"商店","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":638,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"List","props":{"y":125,"x":59,"width":582,"var":"itemList","spaceY":20,"spaceX":20,"repeatY":3,"repeatX":5,"height":443},"child":[{"type":"ShopItem","props":{"runtime":"ShopItem","name":"render"}}]}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("ShopItem",ShopItem);
+
+            super.createChildren();
+            this.createView(ui.shop.ShopUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.shop {
+    export class ShopItemUI extends View {
+		public frame:Laya.Image;
+		public item:Item;
+		public icon:Laya.Image;
+		public tfPriece:Laya.Label;
+		public tfName:Laya.Label;
+
+        public static  uiView:any ={"type":"View","props":{"width":100,"height":160},"child":[{"type":"Image","props":{"y":0,"x":0,"width":100,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":160}},{"type":"Item","props":{"y":0,"x":0,"var":"item","runtime":"Item"}},{"type":"Image","props":{"y":94,"x":2,"width":96,"skin":"share/btn_0.png","height":60},"child":[{"type":"Image","props":{"y":30,"x":1,"width":28,"var":"icon","skin":"icon/jinbi.png","height":29}},{"type":"Label","props":{"y":34,"x":31,"width":44,"var":"tfPriece","height":20,"fontSize":20,"color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":7,"x":4,"width":88,"var":"tfName","height":20,"fontSize":20,"color":"#ffffff","align":"center"}}]}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("Item",Item);
+
+            super.createChildren();
+            this.createView(ui.shop.ShopItemUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.sign {
+    export class SignUI extends View {
+		public tfTitle:Laya.Label;
+		public btnClose:Laya.Button;
+		public item1:SignItem;
+		public item2:SignItem;
+		public item3:SignItem;
+		public item4:SignItem;
+		public item5:SignItem;
+		public item6:SignItem;
+		public item0:SignItem;
+		public btnSign:Laya.Button;
+		public btnDouble:Laya.Button;
+
+        public static  uiView:any ={"type":"View","props":{"width":600,"height":630},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":600,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":600}},{"type":"Image","props":{"y":0,"x":56,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":190,"width":200,"var":"tfTitle","text":"签到","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":538,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"SignItem","props":{"y":252,"x":99,"var":"item1","runtime":"SignItem"}},{"type":"SignItem","props":{"y":252,"x":276,"var":"item2","runtime":"SignItem"}},{"type":"SignItem","props":{"y":255,"x":453,"var":"item3","runtime":"SignItem"}},{"type":"SignItem","props":{"y":401,"x":99,"var":"item4","runtime":"SignItem"}},{"type":"SignItem","props":{"y":401,"x":276,"var":"item5","runtime":"SignItem"}},{"type":"SignItem","props":{"y":404,"x":453,"var":"item6","runtime":"SignItem"}},{"type":"SignItem","props":{"y":110,"x":451,"var":"item0","runtime":"SignItem"}},{"type":"Label","props":{"y":118,"x":82,"width":363,"text":"签到7日，得大礼包","height":118,"fontSize":24,"color":"#000000","align":"center"}},{"type":"Button","props":{"y":539,"x":175,"width":140,"var":"btnSign","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,37,0,37","labelSize":20,"labelColors":"#ffffff,#ffffff,#ffffff","label":"领取","height":70}},{"type":"Button","props":{"y":540,"x":333,"width":140,"var":"btnDouble","stateNum":1,"skin":"share/btn_red.png","sizeGrid":"0,35,0,38","labelSize":20,"labelColors":"#ffffff,#ffffff,#ffffff","label":"双倍领取"}}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("SignItem",SignItem);
+
+            super.createChildren();
+            this.createView(ui.sign.SignUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.sign {
+    export class SignItemUI extends View {
+		public frame:Laya.Image;
+		public item:Item;
+		public tfDay:Laya.Label;
+		public tfName:Laya.Label;
+
+        public static  uiView:any ={"type":"View","props":{"width":100,"height":130},"child":[{"type":"Image","props":{"y":0,"x":0,"width":100,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":130}},{"type":"Item","props":{"y":0,"x":0,"var":"item","runtime":"Item"}},{"type":"Image","props":{"y":94,"x":2,"width":96,"skin":"share/btn_0.png","height":30},"child":[{"type":"Label","props":{"y":6,"x":6,"width":84,"var":"tfDay","height":20,"fontSize":20,"color":"#ffffff","align":"center"}}]},{"type":"Label","props":{"y":7,"x":6,"width":88,"var":"tfName","height":20,"fontSize":20,"color":"#ffffff","align":"center"}}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("Item",Item);
+
+            super.createChildren();
+            this.createView(ui.sign.SignItemUI.uiView);
+
+        }
+
+    }
+}
+
 module ui.task {
     export class TaskViewUI extends View {
 		public tfTitle:Laya.Label;

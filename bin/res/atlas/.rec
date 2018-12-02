@@ -35,7 +35,8 @@ P E466EB1C vslider$bar.png
 P 2BFF7046 vslider.png
 D icon
 P 8D19D32B attack.png
-P D4B362E0 diamond.png
+P 4EDF3E25 diamond.png
+P D4B362E0 diamond0.png
 P 1EA9A238 diamond2.png
 P 6FD45E96 diamond3.png
 P A9674D86 diamond4.png
@@ -89,6 +90,7 @@ P BC524546 1309.png
 P 3D7AA047 2.png
 D share
 P 8FB3DCEC bgWord.png
+P 704E5F07 btn_0.png
 P 9341FB64 btn_add.png
 P 5386C73C btn_close.png
 P F688D6F1 btn_green.png
