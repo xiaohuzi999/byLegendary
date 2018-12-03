@@ -2,6 +2,45 @@
 import View=laya.ui.View;
 import Dialog=laya.ui.Dialog;
 module ui.bag {
+    export class BagUI extends View {
+		public tfTitle:Laya.Label;
+		public btnClose:Laya.Button;
+		public itemList:Laya.List;
+
+        public static  uiView:any ={"type":"View","props":{"width":700,"height":800},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":770}},{"type":"Image","props":{"x":116,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"背包","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":638,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"List","props":{"y":96,"x":30,"width":640,"var":"itemList","spaceY":10,"height":654},"child":[{"type":"BagItem","props":{"runtime":"BagItem","name":"render"}}]}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("BagItem",BagItem);
+
+            super.createChildren();
+            this.createView(ui.bag.BagUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.bag {
+    export class BagItemUI extends View {
+		public item:Item;
+		public tfName:Laya.Label;
+		public tfDesc:Laya.Label;
+		public btnUser:Laya.Button;
+
+        public static  uiView:any ={"type":"View","props":{"width":640,"height":100},"child":[{"type":"Image","props":{"y":0,"x":0,"width":640,"skin":"share/itemBG.png","sizeGrid":"0,127,0,87","height":100}},{"type":"Item","props":{"y":1,"x":6,"var":"item","runtime":"Item"}},{"type":"Label","props":{"y":14,"x":127,"width":271,"var":"tfName","height":30,"fontSize":24,"color":"#ffffff","align":"left"}},{"type":"Label","props":{"y":52,"x":130,"width":271,"var":"tfDesc","height":30,"fontSize":24,"color":"#ffffff","align":"left"}},{"type":"Button","props":{"y":13,"x":486,"width":131,"var":"btnUser","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,37","labelSize":24,"labelColors":"#ffffff,#ffffff,#ffffff","label":"使用","height":70}}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("Item",Item);
+
+            super.createChildren();
+            this.createView(ui.bag.BagItemUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.bag {
     export class ItemUI extends View {
 		public pic:Laya.Image;
 		public frame:Laya.Image;
@@ -115,7 +154,7 @@ module ui.shop {
 		public btnClose:Laya.Button;
 		public itemList:Laya.List;
 
-        public static  uiView:any ={"type":"View","props":{"width":700,"height":630},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":600}},{"type":"Image","props":{"x":116,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"商店","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":638,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"List","props":{"y":125,"x":59,"width":582,"var":"itemList","spaceY":20,"spaceX":20,"repeatY":3,"repeatX":5,"height":443},"child":[{"type":"ShopItem","props":{"runtime":"ShopItem","name":"render"}}]}]};
+        public static  uiView:any ={"type":"View","props":{"width":700,"height":660},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":630}},{"type":"Image","props":{"x":116,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"商店","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":638,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"List","props":{"y":108,"x":60,"width":582,"var":"itemList","spaceY":20,"spaceX":20,"repeatY":3,"repeatX":5,"height":519},"child":[{"type":"ShopItem","props":{"runtime":"ShopItem","name":"render"}}]}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("ShopItem",ShopItem);

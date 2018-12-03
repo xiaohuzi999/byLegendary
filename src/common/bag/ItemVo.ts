@@ -20,6 +20,9 @@ class ItemVo{
     public icon:number;
     //item desc;
     public desc:string
+    /**特殊道具ID */
+    public static readonly GOLD:number = 1;
+    public static readonly DIAMOND:number = 2;
     constructor(){
 
     }

@@ -1,9 +1,9 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":9,
-    "props":{"width":700,"sceneColor":"#000000","height":660},
+    "selectedBox":12,
+    "selecteID":13,
+    "props":{"width":700,"sceneColor":"#000000","height":800},
     "nodeParent":-1,
     "label":"View",
     "isOpen":true,
@@ -27,7 +27,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":630},
+                    "props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":770},
                     "nodeParent":6,
                     "label":"Image",
                     "isDirectory":false,
@@ -53,7 +53,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"商店","height":24,"fontSize":24,"color":"#ffffff","align":"center"},
+                    "props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"背包","height":24,"fontSize":24,"color":"#ffffff","align":"center"},
                     "nodeParent":6,
                     "label":"Label(tfTitle)",
                     "isDirectory":false,
@@ -80,26 +80,26 @@
         {
             "x":15,
             "type":"List",
-            "props":{"y":108,"x":60,"width":582,"var":"itemList","spaceY":20,"spaceX":20,"repeatY":3,"repeatX":5,"height":519},
+            "props":{"y":96,"x":30,"width":640,"var":"itemList","spaceY":10,"height":654},
             "nodeParent":1,
             "label":"List(itemList)",
             "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
-            "compId":9,
+            "compId":12,
             "child":[
                 {
                     "x":30,
                     "type":"UIView",
-                    "source":"shop/ShopItem.ui",
-                    "props":{"runtime":"ShopItem","name":"render"},
-                    "nodeParent":9,
+                    "source":"bag/BagItem.ui",
+                    "props":{"runtime":"BagItem","name":"render"},
+                    "nodeParent":12,
                     "label":"UIView(render)",
                     "isDirectory":false,
                     "isAniNode":false,
                     "hasChild":false,
-                    "compId":10,
+                    "compId":13,
                     "child":[
                         ]
                 }]

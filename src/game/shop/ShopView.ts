@@ -38,7 +38,8 @@ class ShopView extends xframe.XMWindow{
                 }else{
                     User.getInstance().gold -= vo.price;
                     User.getInstance().save();
-                    //todo加入道具
+                    //加入道具
+                    Bag.getInstance().addItem(vo.itemId, 1);
                 }
             }else{
                  if(User.getInstance().diamond < vo.price){
@@ -46,7 +47,8 @@ class ShopView extends xframe.XMWindow{
                 }else{
                     User.getInstance().diamond -= vo.price;
                     User.getInstance().save();
-                    //todo加入道具
+                    //加入道具
+                    Bag.getInstance().addItem(vo.itemId, 1);
                 }
             }
         }

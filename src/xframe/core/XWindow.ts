@@ -3,7 +3,7 @@
 */
 module xframe{
 	export  abstract class XWindow extends Laya.Component implements IXWindow{
-		protected _view:any;
+		public ui:any;
 		/**层级,常量定义在LayerManager中*/
 		protected _layer:number = LayerManager.LAYER_PANEL;
 		/**对齐方式,默认左上角*/
@@ -45,7 +45,11 @@ module xframe{
 		}
 
 		/**初始化UI */
-		protected abstract createUI():void;
+		protected createUI():void{
+			if(this.ui){
+				this.addChild(this.ui);
+			}
+		}
 
 		/**添加事件 */
 		protected initEvent():void{
@@ -171,10 +175,6 @@ module xframe{
 			if(this._closeOnBlank){
 				this.close();
 			}
-		}
-		
-		protected createUI():void{
-			
 		}
 
 		protected initEvent():void{
