@@ -6,6 +6,9 @@ var ItemVo = /** @class */ (function () {
         //
         this.quality = 0;
     }
+    /**特殊道具ID */
+    ItemVo.GOLD = 1;
+    ItemVo.DIAMOND = 2;
     return ItemVo;
 }());
 //# sourceMappingURL=ItemVo.js.map

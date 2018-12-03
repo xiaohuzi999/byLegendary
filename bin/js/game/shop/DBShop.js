@@ -10,6 +10,7 @@ var DBShop = /** @class */ (function () {
     };
     /**获取所有列表 */
     DBShop.getShopList = function () {
+        trace("getShopList::", this._data);
         var items = [];
         for (var i in this.data) {
             items.push(this.data[i]);

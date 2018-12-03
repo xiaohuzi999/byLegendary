@@ -52,6 +52,12 @@ var xframe;
         /**自适应方法,窗口大小变化时供底层调用,在UI需要自动布局是需要*/
         XWindow.prototype.onStageResize = function () {
         };
+        /**初始化UI */
+        XWindow.prototype.createUI = function () {
+            if (this.ui) {
+                this.addChild(this.ui);
+            }
+        };
         /**添加事件 */
         XWindow.prototype.initEvent = function () {
         };
@@ -187,8 +193,6 @@ var xframe;
             if (this._closeOnBlank) {
                 this.close();
             }
-        };
-        XMWindow.prototype.createUI = function () {
         };
         XMWindow.prototype.initEvent = function () {
             this.bg.on(Laya.Event.CLICK, this, this._onClick);

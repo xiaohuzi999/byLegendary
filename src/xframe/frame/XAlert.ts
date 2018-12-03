@@ -47,16 +47,16 @@ module xframe{
 			//==============================================================
 			//根据需要换UI====================================================
 			//==============================================================
-			this._view = new XXAlertUI();
-			this.addChild(this._view);
+			this.ui = new XXAlertUI();
+			this.addChild(this.ui);
 			//==============================================================
 			//END===========================================================
 			//==============================================================
 			
-			this._btnYes = this._view["btnYes"];
-			this._btnNo = this._view["btnNo"];
-			this._btnClose = this._view["btnClose"];
-			this._tfMsg = this._view["tfMsg"];
+			this._btnYes = this.ui["btnYes"];
+			this._btnNo = this.ui["btnNo"];
+			this._btnClose = this.ui["btnClose"];
+			this._tfMsg = this.ui["tfMsg"];
 			//
 			this._oriYesPos = this._btnYes.x;
 			this._oriNoPos = this._btnNo.x;
@@ -65,13 +65,13 @@ module xframe{
 		/**加事件*/
 		protected initEvent():void
 		{
-			this._view.on(Laya.Event.CLICK, this, this.onClick);
+			this.ui.on(Laya.Event.CLICK, this, this.onClick);
 		}
 		
 		/**删除事件*/
 		protected removeEvent():void
 		{
-			this._view.off(Laya.Event.CLICK, this, this.onClick);
+			this.ui.off(Laya.Event.CLICK, this, this.onClick);
 		}
 		
 		private onClick(event:Laya.Event):void{
@@ -131,7 +131,7 @@ module xframe{
 			var btn:Laya.Button;
 			if(btnNum == 1){
 				this._btnYes.visible ? btn=this._btnYes : btn=this._btnNo;
-				btn.x = (this._view.width - btn.width)/2;
+				btn.x = (this.ui.width - btn.width)/2;
 			}else if(btnNum == 2){
 				this._btnYes.x = this._oriYesPos;
 				this._btnNo.x = this._oriNoPos;

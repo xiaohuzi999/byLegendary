@@ -14,6 +14,7 @@ class DBShop{
 
     /**获取所有列表 */
     public static getShopList():ShopItemVo[]{
+        trace("getShopList::",this._data)
         let items:ShopItemVo[] = [];
         for(let i in this.data){
             items.push(this.data[i]);

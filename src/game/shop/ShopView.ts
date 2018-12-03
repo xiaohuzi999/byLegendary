@@ -32,6 +32,7 @@ class ShopView extends xframe.XMWindow{
     private onItemClick(e:Laya.Event, index:number):void{
         if(e.type == Laya.Event.CLICK){
             let vo:ShopItemVo = this.ui.itemList.getItem(index)
+            let itemVo:ItemVo = DBItem.getItemVo(vo.itemId);
             if(vo.priceType == 1){
                 if(User.getInstance().gold < vo.price){
                     XTip.showTip("金币不足~")
@@ -40,6 +41,7 @@ class ShopView extends xframe.XMWindow{
                     User.getInstance().save();
                     //加入道具
                     Bag.getInstance().addItem(vo.itemId, 1);
+                    XTip.showTip("获得"+itemVo.name+"x1")
                 }
             }else{
                  if(User.getInstance().diamond < vo.price){
@@ -49,6 +51,7 @@ class ShopView extends xframe.XMWindow{
                     User.getInstance().save();
                     //加入道具
                     Bag.getInstance().addItem(vo.itemId, 1);
+                    XTip.showTip("获得"+itemVo.name+"x1")
                 }
             }
         }

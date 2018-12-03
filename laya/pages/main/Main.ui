@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":16,
+    "selecteID":4,
     "props":{"width":750,"sceneColor":"#000000","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -95,7 +95,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":-12,"x":-11,"width":80,"skin":"icon/diamond.png","height":62},
+                    "props":{"y":-12,"x":-11,"width":55,"skin":"icon/diamond.png","height":57},
                     "nodeParent":8,
                     "label":"Image",
                     "isDirectory":false,
@@ -135,7 +135,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":1242,"x":69,"width":135,"var":"btnPlayer","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"角色","height":70},
+            "props":{"y":1242,"x":39,"width":135,"var":"btnPlayer","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"角色","height":70},
             "nodeParent":1,
             "label":"Button(btnPlayer)",
             "isDirectory":false,
@@ -148,7 +148,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":1242,"x":223,"width":135,"var":"btnFight","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"战斗","height":70},
+            "props":{"y":1242,"x":177,"width":135,"var":"btnFight","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"战斗","height":70},
             "nodeParent":1,
             "label":"Button(btnFight)",
             "isDirectory":false,
@@ -161,7 +161,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":1242,"x":376,"width":135,"var":"btnTask","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"事件","height":70},
+            "props":{"y":1242,"x":315,"width":135,"var":"btnTask","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"事件","height":70},
             "nodeParent":1,
             "label":"Button(btnTask)",
             "isDirectory":false,
@@ -174,13 +174,26 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":1242,"x":530,"width":135,"stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","height":70},
+            "props":{"y":1242,"x":452,"width":135,"var":"btnBag","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"背包","height":70},
             "nodeParent":1,
-            "label":"Button",
+            "label":"Button(btnBag)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
             "compId":18,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Button",
+            "props":{"y":1242,"x":590,"width":135,"var":"btnShop","stateNum":"1","skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"商店","height":70},
+            "nodeParent":1,
+            "label":"Button(btnShop)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":19,
             "child":[
                 ]
         }],

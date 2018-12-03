@@ -16,14 +16,11 @@ var XDB = /** @class */ (function () {
     /**init with data*/
     XDB.init = function (data) {
         if (typeof data === "string") {
-            trace("xxxxxxxxxxxxxxxxxxxxxxxxxxx");
             this._data = JSON.parse(data);
         }
         else {
             this._data = data;
         }
-        trace("init------------->", typeof this._data);
-        this._uniqueIndex = (this.data[this.UID] || 1);
     };
     /**del local data */
     XDB.delLocalData = function () {
@@ -36,21 +33,10 @@ var XDB = /** @class */ (function () {
     /**save */
     XDB.save = function (key, value) {
         this.data[key] = value;
-        //save unique id index;
-        this.data[this.UID] = this._uniqueIndex;
-        this.data[key] = value;
         //save to local
         Laya.LocalStorage.setItem(this.NAME, JSON.stringify(this.data));
         //todo：save to srv
     };
-    Object.defineProperty(XDB, "uid", {
-        /**get unique index */
-        get: function () {
-            return this._uniqueIndex++;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(XDB, "data", {
         get: function () {
             if (!this._data) {
@@ -65,10 +51,6 @@ var XDB = /** @class */ (function () {
     XDB.USER = "user";
     /**KEY-BAG */
     XDB.BAG = "bag";
-    /**Unique id index */
-    XDB.UID = "uid";
-    /**unique id index */
-    XDB._uniqueIndex = 0;
     /**local save key */
     XDB.NAME = "xdb";
     return XDB;

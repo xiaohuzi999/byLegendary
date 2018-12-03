@@ -39,6 +39,12 @@ var MainView = /** @class */ (function (_super) {
             case this.ui.btnTask:
                 XFacade.instance.showModule(TaskView);
                 break;
+            case this.ui.btnBag:
+                XFacade.instance.showModule(BagView);
+                break;
+            case this.ui.btnShop:
+                XFacade.instance.showModule(ShopView);
+                break;
         }
     };
     MainView.prototype.onPlayerClick = function () {

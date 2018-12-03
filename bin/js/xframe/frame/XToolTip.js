@@ -39,7 +39,7 @@ var xframe;
          * @return 矩形区域。
          */
         XToolTip.prototype.getBounds = function () {
-            return new Laya.Rectangle(0, 0, this._view.width, this._view.height);
+            return new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
         };
         XToolTip.prototype.onClose = function () {
             if (this._target && !xframe.XUtils.checkHit(this._target)) {
@@ -52,12 +52,12 @@ var xframe;
              * 需要配置定义一套UI----------------------------
              * ------------------------------------------
              * */
-            this._view = new View();
-            this._view.size(200, 100);
-            this._view.graphics.drawRect(0, 0, 200, 100, "#999999");
-            this.addChild(this._view);
+            this.ui = new View();
+            this.ui.size(200, 100);
+            this.ui.graphics.drawRect(0, 0, 200, 100, "#999999");
+            this.addChild(this.ui);
             this._msgTF = new Laya.Text();
-            this._view.addChild(this._msgTF);
+            this.ui.addChild(this._msgTF);
         };
         XToolTip.prototype.initEvent = function () {
             Laya.stage.on(Laya.Event.MOUSE_DOWN, this, this.onClose);

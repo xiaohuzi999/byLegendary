@@ -38,6 +38,7 @@ var ShopView = /** @class */ (function (_super) {
     ShopView.prototype.onItemClick = function (e, index) {
         if (e.type == Laya.Event.CLICK) {
             var vo = this.ui.itemList.getItem(index);
+            var itemVo = DBItem.getItemVo(vo.itemId);
             if (vo.priceType == 1) {
                 if (User.getInstance().gold < vo.price) {
                     XTip.showTip("金币不足~");
@@ -45,7 +46,9 @@ var ShopView = /** @class */ (function (_super) {
                 else {
                     User.getInstance().gold -= vo.price;
                     User.getInstance().save();
-                    //todo加入道具
+                    //加入道具
+                    Bag.getInstance().addItem(vo.itemId, 1);
+                    XTip.showTip("获得" + itemVo.name + "x1");
                 }
             }
             else {
@@ -55,7 +58,9 @@ var ShopView = /** @class */ (function (_super) {
                 else {
                     User.getInstance().diamond -= vo.price;
                     User.getInstance().save();
-                    //todo加入道具
+                    //加入道具
+                    Bag.getInstance().addItem(vo.itemId, 1);
+                    XTip.showTip("获得" + itemVo.name + "x1");
                 }
             }
         }

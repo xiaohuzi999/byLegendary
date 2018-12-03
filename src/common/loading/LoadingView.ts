@@ -42,7 +42,7 @@ class LoadingView extends xframe.XWindow{
         //角色初始化；
         User.getInstance().init();
         //道具初始化；
-
+        Bag.getInstance().init();
         XEvent.instance.event(LoadingView.RDY);
         this.close();
     }

@@ -11,40 +11,35 @@ var __extends = (this && this.__extends) || (function () {
 /*
 * name;
 */
-var SignView = /** @class */ (function (_super) {
-    __extends(SignView, _super);
-    function SignView() {
+var BagView = /** @class */ (function (_super) {
+    __extends(BagView, _super);
+    function BagView() {
         var _this = _super.call(this) || this;
-        _this.ItemNum = 7;
+        _this.ui = new ui.bag.BagUI();
         return _this;
     }
-    SignView.prototype.show = function () {
+    BagView.prototype.show = function () {
         _super.prototype.show.call(this);
-        for (var i = 0; i < this.ItemNum; i++) {
-            this.ui["item" + i].dataSource = DBSign.getSignVo(i);
-        }
+        this.ui.itemList.array = Bag.getInstance().items;
     };
-    SignView.prototype.onClick = function (e) {
+    BagView.prototype.onClick = function (e) {
         switch (e.target) {
             case this.ui.btnClose:
                 this.close();
                 break;
-            case this.ui.btnSign:
-                break;
-            case this.ui.btnDouble:
-                break;
         }
     };
-    SignView.prototype.createUI = function () {
-        this.ui = new ui.sign.SignUI();
-        this.addChild(this.ui);
+    BagView.prototype.createUI = function () {
+        _super.prototype.createUI.call(this);
+        this.ui.itemList.vScrollBarSkin = "";
     };
-    SignView.prototype.initEvent = function () {
+    BagView.prototype.initEvent = function () {
+        _super.prototype.initEvent.call(this);
         this.ui.on(Laya.Event.CLICK, this, this.onClick);
     };
-    SignView.prototype.removeEvent = function () {
+    BagView.prototype.removeEvent = function () {
         this.ui.off(Laya.Event.CLICK, this, this.onClick);
     };
-    return SignView;
+    return BagView;
 }(xframe.XMWindow));
-//# sourceMappingURL=SignView.js.map
+//# sourceMappingURL=BagView.js.map

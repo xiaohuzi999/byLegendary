@@ -20,6 +20,7 @@ class Bag{
             if(typeof val === "string"){
                 val = JSON.parse(val);
             }
+            trace("initBag::", val)
             this.update(val);
         }
     }
@@ -56,11 +57,16 @@ class Bag{
         if(vo.max == 1){//不叠加
             this.items.push(this.createItem(itemId, itemNum))
         }else{
+            let hasIt:boolean = false;
             for(let i=0; i<this.items.length; i++){
                 if(this.items[i].itemId == itemId ){
-                    this.items[i].num += Math.floor(itemNum)
+                    this.items[i].num += Math.floor(itemNum);
+                    hasIt = true;
                     break;
                 }
+            }
+            if(!hasIt){
+                this.items.push(this.createItem(itemId, itemNum))
             }
         }
         this.dispatchEvent();

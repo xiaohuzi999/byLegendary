@@ -6,10 +6,6 @@ class XDB{
     public static readonly USER:string = "user";
     /**KEY-BAG */
     public static readonly BAG:string = "bag";
-    /**Unique id index */
-    public static readonly UID:string = "uid";
-    /**unique id index */
-    private static _uniqueIndex:number = 0;
     /** */
     private static _data:any;
     /**local save key */
@@ -31,13 +27,10 @@ class XDB{
     /**init with data*/
     public static init(data:any):void{
         if(typeof data === "string"){
-            trace("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
             this._data = JSON.parse(data);
         }else{
             this._data = data;
         }
-        trace("init------------->", typeof this._data);
-        this._uniqueIndex = (this.data[this.UID] || 1)
     }
 
     /**del local data */
@@ -53,17 +46,9 @@ class XDB{
     /**save */
     public static save(key:string, value:any):void{
         this.data[key] = value;
-        //save unique id index;
-        this.data[this.UID] = this._uniqueIndex;
-        this.data[key] = value;
         //save to local
         Laya.LocalStorage.setItem(this.NAME, JSON.stringify(this.data));
         //todo：save to srv
-    }
-
-    /**get unique index */
-    public static get uid():number{
-        return this._uniqueIndex++;
     }
 
     private static get data():any{
