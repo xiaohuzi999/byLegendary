@@ -58,6 +58,40 @@ module ui.bag {
     }
 }
 
+module ui.gift {
+    export class GiftUI extends View {
+		public tfTitle:Laya.Label;
+		public btnClose:Laya.Button;
+
+        public static  uiView:any ={"type":"View","props":{"width":600,"height":630},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":600,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":600}},{"type":"Image","props":{"y":0,"x":56,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":190,"width":200,"var":"tfTitle","text":"新手礼包","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":538,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"GiftItem","props":{"y":138,"x":78,"runtime":"ui.gift.GiftItemUI"}},{"type":"GiftItem","props":{"y":138,"x":335,"runtime":"TraineeGiftItem"}},{"type":"GiftItem","props":{"y":358,"x":87,"runtime":"ui.gift.GiftItemUI"}}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("ui.gift.GiftItemUI",ui.gift.GiftItemUI);
+			View.regComponent("TraineeGiftItem",TraineeGiftItem);
+
+            super.createChildren();
+            this.createView(ui.gift.GiftUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.gift {
+    export class GiftItemUI extends View {
+
+        public static  uiView:any ={"type":"View","props":{"width":170,"height":174},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"share/frame3.png"}}]};
+        constructor(){ super()}
+        createChildren():void {
+        
+            super.createChildren();
+            this.createView(ui.gift.GiftItemUI.uiView);
+
+        }
+
+    }
+}
+
 module ui.loading {
     export class LoadingUI extends View {
 		public tfPro:Laya.Label;
@@ -86,7 +120,7 @@ module ui.main {
 		public btnBag:Laya.Button;
 		public btnShop:Laya.Button;
 
-        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"main/bg.jpg"}},{"type":"Player","props":{"y":476,"x":219,"var":"player","runtime":"Player"}},{"type":"Image","props":{"y":28,"x":13,"width":195,"skin":"share/bgWord.png","height":40},"child":[{"type":"Image","props":{"y":-9,"x":-2,"width":55,"skin":"icon/jinbi.png","height":57}},{"type":"Label","props":{"y":6,"x":57,"width":129,"var":"tfGold","height":31,"fontSize":24,"color":"#ffffff","align":"center"}}]},{"type":"Image","props":{"y":29,"x":270,"width":195,"skin":"share/bgWord.png","height":40},"child":[{"type":"Image","props":{"y":-12,"x":-11,"width":80,"skin":"icon/diamond.png","height":62}},{"type":"Label","props":{"y":5,"x":58,"width":112,"var":"tfDiamond","height":31,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":-4,"x":170,"var":"btnAdd","stateNum":1,"skin":"share/btn_add.png"}}]},{"type":"Button","props":{"y":1242,"x":39,"width":135,"var":"btnPlayer","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"角色","height":70}},{"type":"Button","props":{"y":1242,"x":177,"width":135,"var":"btnFight","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"战斗","height":70}},{"type":"Button","props":{"y":1242,"x":315,"width":135,"var":"btnTask","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"事件","height":70}},{"type":"Button","props":{"y":1242,"x":452,"width":135,"var":"btnBag","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"背包","height":70}},{"type":"Button","props":{"y":1242,"x":590,"width":135,"var":"btnShop","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"商店","height":70}}]};
+        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"main/bg.jpg"}},{"type":"Player","props":{"y":476,"x":219,"var":"player","runtime":"Player"}},{"type":"Image","props":{"y":28,"x":13,"width":195,"skin":"share/bgWord.png","height":40},"child":[{"type":"Image","props":{"y":-9,"x":-2,"width":55,"skin":"icon/jinbi.png","height":57}},{"type":"Label","props":{"y":6,"x":57,"width":129,"var":"tfGold","height":31,"fontSize":24,"color":"#ffffff","align":"center"}}]},{"type":"Image","props":{"y":29,"x":270,"width":195,"skin":"share/bgWord.png","height":40},"child":[{"type":"Image","props":{"y":-12,"x":-11,"width":55,"skin":"icon/diamond.png","height":57}},{"type":"Label","props":{"y":5,"x":58,"width":112,"var":"tfDiamond","height":31,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":-4,"x":170,"var":"btnAdd","stateNum":1,"skin":"share/btn_add.png"}}]},{"type":"Button","props":{"y":1242,"x":39,"width":135,"var":"btnPlayer","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"角色","height":70}},{"type":"Button","props":{"y":1242,"x":177,"width":135,"var":"btnFight","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"战斗","height":70}},{"type":"Button","props":{"y":1242,"x":315,"width":135,"var":"btnTask","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"事件","height":70}},{"type":"Button","props":{"y":1242,"x":452,"width":135,"var":"btnBag","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"背包","height":70}},{"type":"Button","props":{"y":1242,"x":590,"width":135,"var":"btnShop","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,36","labelColors":"#ffffff,#ffffff,#ffffff","label":"商店","height":70}}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("Player",Player);
