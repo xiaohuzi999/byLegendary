@@ -9,7 +9,7 @@ class FightModel{
     private static _curRnd:number = 1;
     /**当前*/
     private static _curRole:Role;
-
+    
     /**初始化 */
     public static init(home:Role[], away:any[]):void{
         this._home.length = this._away.length = this._all.length = 0;
@@ -24,19 +24,26 @@ class FightModel{
         this._all = this._home.concat(this._away);
         this._all.sort(this.sortOnSpeed);
         this._wait = this._all.slice(0, this._all.length);
+        this.startNewRnd();
     }
 
     public static fight():void{
-        
+        //如果没有接受
+        while(!this.checkEnd()){
+            //
+        }
     }
 
     /**
      * 开始战斗
      */
-    public static startFight():void{
+    public static startNewRnd():void{
         //console.log("startFight============================")
-        this._curRole = this._wait.shift();
-        this.excuteAI(this._curRole);
+        while(this._wait.length){
+            this._curRole = this._wait.shift();
+            //this.excuteAI(this._curRole);
+            trace(this.excuteAI(this._curRole))
+        }
     }
 
     /**
@@ -47,26 +54,14 @@ class FightModel{
         vo.nowId = role.uid;
         let list:Role[];
         let target:Role;
-        //1，判定对象，可能受技能影响--------------------------
-        if(this._home.indexOf(role) != -1){//主队,取第一个目标了
-            target = this._away[0];
-            //target = xframe.XUtils.arrRandomValue(this._away);
-        }else{
-            target = this._home[0];
-            //target = xframe.XUtils.arrRandomValue(this._home);
-        }
-        //2,操作------------------------------------------------
+        //1,操作------------------------------------------------
         list = this.exSkill(role, vo);
-        //3，操作结果------------------------------------------------
+        //2，操作结果------------------------------------------------
         if(list && list.length >0){
             //console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxo",list.length);
             var len:number = list.length;
-            var ids:string[]=[]
             for(var i=0; i<len; i++){
-                ids.push(list[i].uid)
-            }
-            for(var i=0; i<len; i++){
-                target = this.getRole(ids[i]);
+                target = list[i];
                 if(target.hp <= 0){
                     xframe.XUtils.delArrItem(this._all, target);
                     xframe.XUtils.delArrItem(this._wait, target);
@@ -75,14 +70,9 @@ class FightModel{
                 }
             }
         }else{
-            if(target.hp <= 0){
-                xframe.XUtils.delArrItem(this._all, target);
-                xframe.XUtils.delArrItem(this._wait, target);
-                xframe.XUtils.delArrItem(this._home, target);
-                xframe.XUtils.delArrItem(this._away, target);
-            }
+            console.warn("Skill Err",role);
         }
-        //4,小回合结束，派发事件
+        //3,小回合结束，派发事件
         vo.rndId  = this._curRnd;
         if(this._wait.length == 0) {//回合结束
             vo.rndOver = true;
@@ -95,7 +85,7 @@ class FightModel{
 
     private static exSkill(skillRole:Role, vo:FightVo):any {
         //寻找当前能执行的技能；
-        let list:any = skillRole.skills;
+        let list:any = skillRole.skills || [];
         let isAway:boolean = this._away.indexOf(skillRole) > -1
         var skillData:SkillVo;
         for(let i=list.length-1; i>-1; i--){
@@ -209,6 +199,11 @@ class FightModel{
             vo.fightInfo[role.uid] = {addBuff:buff.id};
         }
         */
+    }
+
+    /**检测是否已经结束 */
+    public static checkEnd():boolean{
+        return this._home.length==0 || this._away.length == 0;
     }
 
     /***/

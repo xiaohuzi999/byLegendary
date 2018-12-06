@@ -32,7 +32,8 @@ var LoadingView = /** @class */ (function (_super) {
             "res/cfg/sign.json",
             "res/cfg/item.json",
             "res/cfg/hero.json",
-            "res/cfg/npc.json"
+            "res/cfg/npc.json",
+            "res/cfg/skill.json"
         ];
         if (urlList.length) {
             Laya.loader.load(urlList, Handler.create(this, this.fetchSrvData));

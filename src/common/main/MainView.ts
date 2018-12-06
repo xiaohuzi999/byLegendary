@@ -17,6 +17,8 @@ class MainView extends xframe.XWindow{
         if(User.getInstance().traineeGift.length < 3){
             XFacade.instance.showModule(TraineeGiftView);
         }
+        //战斗
+        XFacade.instance.showModule(FightView).fight(User.getInstance().role, [1]);
     }
 
     private onClick(e:Laya.Event):void{
