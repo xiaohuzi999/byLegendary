@@ -58,16 +58,51 @@ module ui.bag {
     }
 }
 
+module ui.fight {
+    export class FightUI extends View {
+		public home_0:Fighter;
+		public away_0:Fighter;
+
+        public static  uiView:any ={"type":"View","props":{"width":700,"height":660},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":0,"x":0,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":660}}]},{"type":"Fighter","props":{"y":230,"x":60,"var":"home_0","runtime":"Fighter"}},{"type":"Fighter","props":{"y":230,"x":439,"var":"away_0","runtime":"Fighter"}}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("Fighter",Fighter);
+
+            super.createChildren();
+            this.createView(ui.fight.FightUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.fight {
+    export class FighterUI extends View {
+
+        public static  uiView:any ={"type":"View","props":{"width":200,"height":200},"child":[{"type":"Image","props":{"y":1,"x":19,"width":159,"skin":"pet/1.png","height":190}}]};
+        constructor(){ super()}
+        createChildren():void {
+        
+            super.createChildren();
+            this.createView(ui.fight.FighterUI.uiView);
+
+        }
+
+    }
+}
+
 module ui.gift {
     export class GiftUI extends View {
 		public tfTitle:Laya.Label;
 		public btnClose:Laya.Button;
+		public item_0:TraineeGiftItem;
+		public item_1:TraineeGiftItem;
+		public item_2:TraineeGiftItem;
 
-        public static  uiView:any ={"type":"View","props":{"width":600,"height":630},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":600,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":600}},{"type":"Image","props":{"y":0,"x":56,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":190,"width":200,"var":"tfTitle","text":"新手礼包","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":538,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"GiftItem","props":{"y":138,"x":78,"runtime":"ui.gift.GiftItemUI"}},{"type":"GiftItem","props":{"y":138,"x":335,"runtime":"TraineeGiftItem"}},{"type":"GiftItem","props":{"y":358,"x":87,"runtime":"ui.gift.GiftItemUI"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":600,"height":630},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":600,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":600}},{"type":"Image","props":{"y":0,"x":56,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":190,"width":200,"var":"tfTitle","text":"新手礼包","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":538,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"GiftItem","props":{"y":138,"x":78,"var":"item_0","runtime":"TraineeGiftItem","mouseEnabled":true}},{"type":"GiftItem","props":{"y":138,"x":335,"var":"item_1","runtime":"TraineeGiftItem","mouseEnabled":true}},{"type":"GiftItem","props":{"y":358,"x":87,"var":"item_2","runtime":"TraineeGiftItem","mouseEnabled":true}}]};
         constructor(){ super()}
         createChildren():void {
-        			View.regComponent("ui.gift.GiftItemUI",ui.gift.GiftItemUI);
-			View.regComponent("TraineeGiftItem",TraineeGiftItem);
+        			View.regComponent("TraineeGiftItem",TraineeGiftItem);
 
             super.createChildren();
             this.createView(ui.gift.GiftUI.uiView);
@@ -79,8 +114,12 @@ module ui.gift {
 
 module ui.gift {
     export class GiftItemUI extends View {
+		public pic:Laya.Image;
+		public tfDay:Laya.Label;
+		public tfName:Laya.Label;
+		public flagGet:Laya.Image;
 
-        public static  uiView:any ={"type":"View","props":{"width":170,"height":174},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"share/frame3.png"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":170,"height":174},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"share/frame3.png"}},{"type":"Image","props":{"y":75,"x":59,"width":60,"var":"pic","skin":"item/400103.png"}},{"type":"Label","props":{"y":20,"x":37,"width":96,"var":"tfDay","height":23,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":130,"x":37,"width":96,"var":"tfName","height":23,"fontSize":24,"color":"#000000","align":"center"}},{"type":"Image","props":{"y":49,"x":41,"width":92,"var":"flagGet","skin":"share/picGet.png","height":81}}]};
         constructor(){ super()}
         createChildren():void {
         

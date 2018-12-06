@@ -18,6 +18,7 @@ var LoadingView = /** @class */ (function (_super) {
     }
     //step 1
     LoadingView.prototype.show = function () {
+        XDB.delLocalData();
         _super.prototype.show.call(this);
         //加载本地资源
         //let urlList:any[] = []
@@ -29,7 +30,9 @@ var LoadingView = /** @class */ (function (_super) {
             "res/cfg/task.json",
             "res/cfg/shop.json",
             "res/cfg/sign.json",
-            "res/cfg/item.json"
+            "res/cfg/item.json",
+            "res/cfg/hero.json",
+            "res/cfg/npc.json"
         ];
         if (urlList.length) {
             Laya.loader.load(urlList, Handler.create(this, this.fetchSrvData));

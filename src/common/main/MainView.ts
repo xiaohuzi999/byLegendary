@@ -12,6 +12,11 @@ class MainView extends xframe.XWindow{
         super.show();
         this.ui.player.dataSource = User.getInstance().role;
         this.updateInfo();
+
+        //弹出新手签到
+        if(User.getInstance().traineeGift.length < 3){
+            XFacade.instance.showModule(TraineeGiftView);
+        }
     }
 
     private onClick(e:Laya.Event):void{

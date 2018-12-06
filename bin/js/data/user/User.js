@@ -8,6 +8,8 @@ var User = /** @class */ (function () {
         this.diamond = 0;
         this.task = [1];
         this.taskDone = [];
+        /**Trainee Gift */
+        this.traineeGift = [];
         this.role = new Role();
     }
     /**初始化 */

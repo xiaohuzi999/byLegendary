@@ -1,52 +1,51 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 /*
 * name;
 */
-var Role = /** @class */ (function () {
+var Role = /** @class */ (function (_super) {
+    __extends(Role, _super);
     function Role(data) {
         if (data === void 0) { data = null; }
+        var _this = _super.call(this) || this;
         /**角色名*/
-        this.name = "by001";
+        _this.name = "by001";
         /**头像*/
-        this.pic = "";
+        _this.pic = "";
         /**经验*/
-        this.exp = 0;
-        /**升级经验*/
-        this.lvExp = 1;
+        _this.exp = 0;
         /**等级*/
-        this.lv = 1;
+        _this.lv = 1;
         /**技能列表*/
-        this.skills = [];
+        _this.skills = [];
         //一级属性===================================================
         /**HP*/
-        this.hp = 1;
+        _this.hp = 1;
         /**最大HP*/
-        this.maxHp = 1;
+        _this.maxHp = 1;
         /**攻击*/
-        this.attack = 1;
+        _this.attack = 1;
         /**闪避*/
-        this.dodge = 0;
+        _this.dodge = 0;
         /**暴击*/
-        this.crit = 0;
+        _this.crit = 0;
         //二级属性==================================================
-        /**体质*/
-        this.physique = 0;
-        /**敏捷*/
-        this.agility = 0;
-        //
-        this.strength = 0;
-        /**攻击成长*/
-        this.strengthGrow = 1;
-        /**体质成长*/
-        this.physiqueGrow = 0;
-        /**敏捷成长*/
-        this.agilityGrow = 0;
         /**速度*/
-        this.speed = 0;
+        _this.speed = 0;
         //装备=============================================
-        this.weapon = null;
+        _this.weapon = null;
         if (data) {
-            this.setValue(data);
+            _this.setValue(data);
         }
+        return _this;
     }
     /**
      *赋值
@@ -58,5 +57,5 @@ var Role = /** @class */ (function () {
         }
     };
     return Role;
-}());
+}(BaseRole));
 //# sourceMappingURL=Role.js.map

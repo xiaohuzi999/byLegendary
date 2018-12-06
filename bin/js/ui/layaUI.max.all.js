@@ -68,6 +68,80 @@ var ui;
     })(bag = ui.bag || (ui.bag = {}));
 })(ui || (ui = {}));
 (function (ui) {
+    var fight;
+    (function (fight) {
+        var FightUI = /** @class */ (function (_super) {
+            __extends(FightUI, _super);
+            function FightUI() {
+                return _super.call(this) || this;
+            }
+            FightUI.prototype.createChildren = function () {
+                View.regComponent("Fighter", Fighter);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.fight.FightUI.uiView);
+            };
+            FightUI.uiView = { "type": "View", "props": { "width": 700, "height": 660 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 700, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 660 } }] }, { "type": "Fighter", "props": { "y": 230, "x": 60, "var": "home_0", "runtime": "Fighter" } }, { "type": "Fighter", "props": { "y": 230, "x": 439, "var": "away_0", "runtime": "Fighter" } }] };
+            return FightUI;
+        }(View));
+        fight.FightUI = FightUI;
+    })(fight = ui.fight || (ui.fight = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var fight;
+    (function (fight) {
+        var FighterUI = /** @class */ (function (_super) {
+            __extends(FighterUI, _super);
+            function FighterUI() {
+                return _super.call(this) || this;
+            }
+            FighterUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.fight.FighterUI.uiView);
+            };
+            FighterUI.uiView = { "type": "View", "props": { "width": 200, "height": 200 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 19, "width": 159, "skin": "pet/1.png", "height": 190 } }] };
+            return FighterUI;
+        }(View));
+        fight.FighterUI = FighterUI;
+    })(fight = ui.fight || (ui.fight = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var gift;
+    (function (gift) {
+        var GiftUI = /** @class */ (function (_super) {
+            __extends(GiftUI, _super);
+            function GiftUI() {
+                return _super.call(this) || this;
+            }
+            GiftUI.prototype.createChildren = function () {
+                View.regComponent("TraineeGiftItem", TraineeGiftItem);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.gift.GiftUI.uiView);
+            };
+            GiftUI.uiView = { "type": "View", "props": { "width": 600, "height": 630 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 30, "width": 600, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 600 } }, { "type": "Image", "props": { "y": 0, "x": 56, "width": 467, "skin": "share/winTitle.png", "sizeGrid": "0,205,0,204", "height": 80 } }, { "type": "Label", "props": { "y": 19, "x": 190, "width": 200, "var": "tfTitle", "text": "新手礼包", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 23, "x": 538, "var": "btnClose", "stateNum": 1, "skin": "share/btn_close.png" } }] }, { "type": "GiftItem", "props": { "y": 138, "x": 78, "var": "item_0", "runtime": "TraineeGiftItem", "mouseEnabled": true } }, { "type": "GiftItem", "props": { "y": 138, "x": 335, "var": "item_1", "runtime": "TraineeGiftItem", "mouseEnabled": true } }, { "type": "GiftItem", "props": { "y": 358, "x": 87, "var": "item_2", "runtime": "TraineeGiftItem", "mouseEnabled": true } }] };
+            return GiftUI;
+        }(View));
+        gift.GiftUI = GiftUI;
+    })(gift = ui.gift || (ui.gift = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var gift;
+    (function (gift) {
+        var GiftItemUI = /** @class */ (function (_super) {
+            __extends(GiftItemUI, _super);
+            function GiftItemUI() {
+                return _super.call(this) || this;
+            }
+            GiftItemUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.gift.GiftItemUI.uiView);
+            };
+            GiftItemUI.uiView = { "type": "View", "props": { "width": 170, "height": 174 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "share/frame3.png" } }, { "type": "Image", "props": { "y": 75, "x": 59, "width": 60, "var": "pic", "skin": "item/400103.png" } }, { "type": "Label", "props": { "y": 20, "x": 37, "width": 96, "var": "tfDay", "height": 23, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 130, "x": 37, "width": 96, "var": "tfName", "height": 23, "fontSize": 24, "color": "#000000", "align": "center" } }, { "type": "Image", "props": { "y": 49, "x": 41, "width": 92, "var": "flagGet", "skin": "share/picGet.png", "height": 81 } }] };
+            return GiftItemUI;
+        }(View));
+        gift.GiftItemUI = GiftItemUI;
+    })(gift = ui.gift || (ui.gift = {}));
+})(ui || (ui = {}));
+(function (ui) {
     var loading;
     (function (loading) {
         var LoadingUI = /** @class */ (function (_super) {
@@ -98,7 +172,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.main.MainUI.uiView);
             };
-            MainUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "main/bg.jpg" } }, { "type": "Player", "props": { "y": 476, "x": 219, "var": "player", "runtime": "Player" } }, { "type": "Image", "props": { "y": 28, "x": 13, "width": 195, "skin": "share/bgWord.png", "height": 40 }, "child": [{ "type": "Image", "props": { "y": -9, "x": -2, "width": 55, "skin": "icon/jinbi.png", "height": 57 } }, { "type": "Label", "props": { "y": 6, "x": 57, "width": 129, "var": "tfGold", "height": 31, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Image", "props": { "y": 29, "x": 270, "width": 195, "skin": "share/bgWord.png", "height": 40 }, "child": [{ "type": "Image", "props": { "y": -12, "x": -11, "width": 80, "skin": "icon/diamond.png", "height": 62 } }, { "type": "Label", "props": { "y": 5, "x": 58, "width": 112, "var": "tfDiamond", "height": 31, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": -4, "x": 170, "var": "btnAdd", "stateNum": 1, "skin": "share/btn_add.png" } }] }, { "type": "Button", "props": { "y": 1242, "x": 39, "width": 135, "var": "btnPlayer", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "角色", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 177, "width": 135, "var": "btnFight", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "战斗", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 315, "width": 135, "var": "btnTask", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "事件", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 452, "width": 135, "var": "btnBag", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "背包", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 590, "width": 135, "var": "btnShop", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "商店", "height": 70 } }] };
+            MainUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "main/bg.jpg" } }, { "type": "Player", "props": { "y": 476, "x": 219, "var": "player", "runtime": "Player" } }, { "type": "Image", "props": { "y": 28, "x": 13, "width": 195, "skin": "share/bgWord.png", "height": 40 }, "child": [{ "type": "Image", "props": { "y": -9, "x": -2, "width": 55, "skin": "icon/jinbi.png", "height": 57 } }, { "type": "Label", "props": { "y": 6, "x": 57, "width": 129, "var": "tfGold", "height": 31, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Image", "props": { "y": 29, "x": 270, "width": 195, "skin": "share/bgWord.png", "height": 40 }, "child": [{ "type": "Image", "props": { "y": -12, "x": -11, "width": 55, "skin": "icon/diamond.png", "height": 57 } }, { "type": "Label", "props": { "y": 5, "x": 58, "width": 112, "var": "tfDiamond", "height": 31, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": -4, "x": 170, "var": "btnAdd", "stateNum": 1, "skin": "share/btn_add.png" } }] }, { "type": "Button", "props": { "y": 1242, "x": 39, "width": 135, "var": "btnPlayer", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "角色", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 177, "width": 135, "var": "btnFight", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "战斗", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 315, "width": 135, "var": "btnTask", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "事件", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 452, "width": 135, "var": "btnBag", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "背包", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 590, "width": 135, "var": "btnShop", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "商店", "height": 70 } }] };
             return MainUI;
         }(View));
         main.MainUI = MainUI;

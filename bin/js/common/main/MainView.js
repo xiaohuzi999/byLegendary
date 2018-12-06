@@ -22,6 +22,10 @@ var MainView = /** @class */ (function (_super) {
         _super.prototype.show.call(this);
         this.ui.player.dataSource = User.getInstance().role;
         this.updateInfo();
+        //弹出新手签到
+        if (User.getInstance().traineeGift.length < 3) {
+            XFacade.instance.showModule(TraineeGiftView);
+        }
     };
     MainView.prototype.onClick = function (e) {
         switch (e.target) {

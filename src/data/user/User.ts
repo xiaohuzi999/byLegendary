@@ -20,6 +20,8 @@ class User{
     
     public taskDone:number[] = [];
 
+    /**Trainee Gift */
+    public traineeGift:number[] = [];
     //单例;
     private static _instance:User;
     //事件-更新;

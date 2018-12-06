@@ -11,6 +11,7 @@ class LoadingView extends xframe.XWindow{
 
     //step 1
     public show():void{
+        XDB.delLocalData();
         super.show();
         //加载本地资源
         //let urlList:any[] = []
@@ -22,7 +23,10 @@ class LoadingView extends xframe.XWindow{
             "res/cfg/task.json",
             "res/cfg/shop.json",
             "res/cfg/sign.json",
-            "res/cfg/item.json"
+            "res/cfg/item.json",
+            "res/cfg/hero.json",
+            "res/cfg/npc.json",
+            "res/cfg/skill.json"
 		]
 
         if(urlList.length){
