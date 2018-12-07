@@ -28,7 +28,8 @@ class User{
     public static readonly UPDATE:string = "update";
 
     constructor(){
-        this.role = new Role();
+        this.role = new Role(DBRole.getHero(1));
+        this.role.uid = 1;
     }
 
     /**初始化 */

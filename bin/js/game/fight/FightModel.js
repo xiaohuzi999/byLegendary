@@ -15,14 +15,31 @@ var FightModel = /** @class */ (function () {
             this._away.push(DBRole.calcNpcPro(away[i]));
         }
         this._all = this._home.concat(this._away);
-        this._all.sort(this.sortOnSpeed);
-        this._wait = this._all.slice(0, this._all.length);
-        this.startNewRnd();
+        //
+        for (var i = 0; i < this._all.length; i++) {
+            if (this._all[i].uid == undefined) {
+                this._all[i].uid = this._uidIndex--;
+            }
+        }
+        //this._all.sort(this.sortOnSpeed);
+        this.fight();
     };
     FightModel.fight = function () {
         //如果没有接受
-        while (!this.checkEnd()) {
+        var result = this.checkEnd();
+        while (result < 1) {
             //
+            trace("rnd：：：：：：：：：", this._curRnd);
+            this.out();
+            this.startNewRnd();
+            this._curRnd++;
+            result = this.checkEnd();
+        }
+        trace("fight result::", result);
+    };
+    FightModel.out = function () {
+        for (var i = 0; i < this._all.length; i++) {
+            trace("【state】", this._all[i].name, this._all[i].hp);
         }
     };
     /**
@@ -30,10 +47,11 @@ var FightModel = /** @class */ (function () {
      */
     FightModel.startNewRnd = function () {
         //console.log("startFight============================")
+        this._wait = this._all.slice(0, this._all.length);
         while (this._wait.length) {
             this._curRole = this._wait.shift();
-            //this.excuteAI(this._curRole);
-            trace(this.excuteAI(this._curRole));
+            trace("Now----------", this._curRole);
+            this.excuteAI(this._curRole);
         }
     };
     /**
@@ -63,14 +81,7 @@ var FightModel = /** @class */ (function () {
         else {
             console.warn("Skill Err", role);
         }
-        //3,小回合结束，派发事件
         vo.rndId = this._curRnd;
-        if (this._wait.length == 0) { //回合结束
-            vo.rndOver = true;
-            this._curRnd++;
-        }
-        //XEvent.instance.event(FightModel.UPDATEINFO, vo);
-        //console.log("excuteAI=====================================")
         return vo;
     };
     FightModel.exSkill = function (skillRole, vo) {
@@ -191,9 +202,21 @@ var FightModel = /** @class */ (function () {
         }
         */
     };
-    /**检测是否已经结束 */
+    /**
+     * 检测是否已经结束
+     * return 0未结束，1主队胜，2可对剩，3平局
+     */
     FightModel.checkEnd = function () {
-        return this._home.length == 0 || this._away.length == 0;
+        if (this._home.length == 0) {
+            return 2;
+        }
+        else if (this._away.length == 0) {
+            return 1;
+        }
+        else if (this._curRnd > 99) {
+            return 3;
+        }
+        return 0;
     };
     /***/
     FightModel.sortOnSpeed = function (roleA, roleB) {
@@ -216,6 +239,8 @@ var FightModel = /** @class */ (function () {
     FightModel._all = [];
     FightModel._wait = [];
     FightModel._curRnd = 1;
+    /**uids */
+    FightModel._uidIndex = -1;
     return FightModel;
 }());
 //# sourceMappingURL=FightModel.js.map

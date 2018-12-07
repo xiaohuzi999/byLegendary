@@ -10,7 +10,8 @@ var User = /** @class */ (function () {
         this.taskDone = [];
         /**Trainee Gift */
         this.traineeGift = [];
-        this.role = new Role();
+        this.role = new Role(DBRole.getHero(1));
+        this.role.uid = 1;
     }
     /**初始化 */
     User.prototype.init = function () {

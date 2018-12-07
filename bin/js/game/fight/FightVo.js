@@ -7,8 +7,6 @@ var FightVo = /** @class */ (function () {
         this.showType = 0;
         //结果，哈希,{目标角色UID:{属性：值}},形如{1:{hp:30}};
         this.fightInfo = {};
-        /**是否回合结束*/
-        this.rndOver = false;
     }
     /**动作类型-普通攻击*/
     FightVo.ATTACK = 1;

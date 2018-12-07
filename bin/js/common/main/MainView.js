@@ -27,7 +27,7 @@ var MainView = /** @class */ (function (_super) {
             XFacade.instance.showModule(TraineeGiftView);
         }
         //战斗
-        XFacade.instance.showModule(FightView).fight(User.getInstance().role, [1]);
+        XFacade.instance.showModule(FightView).fight([User.getInstance().role], [1]);
     };
     MainView.prototype.onClick = function (e) {
         switch (e.target) {

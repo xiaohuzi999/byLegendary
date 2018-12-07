@@ -14,8 +14,6 @@ class FightVo{
     public fightInfo:any = {};
     //回合ID
     public rndId:number;
-    /**是否回合结束*/
-    public rndOver:boolean = false;
 
     /**动作类型-普通攻击*/
     public static ATTACK:number = 1;
