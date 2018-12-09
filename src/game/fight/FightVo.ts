@@ -12,8 +12,6 @@ class FightVo{
     public showType:number = 0;
     //结果，哈希,{目标角色UID:{属性：值}},形如{1:{hp:30}};
     public fightInfo:any = {};
-    //回合ID
-    public rndId:number;
 
     /**动作类型-普通攻击*/
     public static ATTACK:number = 1;

@@ -2,8 +2,8 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":4,
-    "props":{"width":100,"sceneColor":"#000000","height":100},
+    "selecteID":2,
+    "props":{"width":120,"sceneColor":"#000000","height":120},
     "nodeParent":-1,
     "label":"View",
     "isOpen":true,
@@ -15,7 +15,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":20,"x":20,"width":60,"var":"pic","skin":"item/400103.png"},
+            "props":{"y":0,"x":0,"var":"pic","skin":"item/2.png"},
             "nodeParent":1,
             "label":"Image(pic)",
             "isDirectory":false,
@@ -28,7 +28,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":0,"x":0,"width":100,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":100},
+            "props":{"y":0,"x":0,"width":120,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":120},
             "nodeParent":1,
             "label":"Image(frame)",
             "isDirectory":false,
@@ -41,7 +41,7 @@
         {
             "x":15,
             "type":"Label",
-            "props":{"y":71,"x":36,"width":57,"var":"tfNum","height":20,"fontSize":20,"color":"#ffffff","align":"right"},
+            "props":{"y":90,"x":56,"width":57,"var":"tfNum","height":20,"fontSize":20,"color":"#ffffff","align":"right"},
             "nodeParent":1,
             "label":"Label(tfNum)",
             "isDirectory":false,

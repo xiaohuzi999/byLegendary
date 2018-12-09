@@ -7,7 +7,7 @@ module ui.bag {
 		public btnClose:Laya.Button;
 		public itemList:Laya.List;
 
-        public static  uiView:any ={"type":"View","props":{"width":700,"height":800},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":770}},{"type":"Image","props":{"x":116,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"背包","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":638,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"List","props":{"y":96,"x":30,"width":640,"var":"itemList","spaceY":10,"height":654},"child":[{"type":"BagItem","props":{"runtime":"BagItem","name":"render"}}]}]};
+        public static  uiView:any ={"type":"View","props":{"width":700,"height":800},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":30,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":770}},{"type":"Image","props":{"x":116,"width":467,"skin":"share/winTitle.png","sizeGrid":"0,205,0,204","height":80}},{"type":"Label","props":{"y":19,"x":250,"width":200,"var":"tfTitle","text":"背包","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"y":23,"x":638,"var":"btnClose","stateNum":1,"skin":"share/btn_close.png"}}]},{"type":"List","props":{"y":99,"x":30,"width":640,"var":"itemList","spaceY":10,"height":648},"child":[{"type":"BagItem","props":{"runtime":"BagItem","name":"render"}}]}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("BagItem",BagItem);
@@ -27,7 +27,7 @@ module ui.bag {
 		public tfDesc:Laya.Label;
 		public btnUser:Laya.Button;
 
-        public static  uiView:any ={"type":"View","props":{"width":640,"height":100},"child":[{"type":"Image","props":{"y":0,"x":0,"width":640,"skin":"share/itemBG.png","sizeGrid":"0,127,0,87","height":100}},{"type":"Item","props":{"y":1,"x":6,"var":"item","runtime":"Item"}},{"type":"Label","props":{"y":14,"x":127,"width":271,"var":"tfName","height":30,"fontSize":24,"color":"#ffffff","align":"left"}},{"type":"Label","props":{"y":52,"x":130,"width":271,"var":"tfDesc","height":30,"fontSize":24,"color":"#ffffff","align":"left"}},{"type":"Button","props":{"y":13,"x":486,"width":131,"var":"btnUser","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,37","labelSize":24,"labelColors":"#ffffff,#ffffff,#ffffff","label":"使用","height":70}}]};
+        public static  uiView:any ={"type":"View","props":{"width":640,"height":120},"child":[{"type":"Image","props":{"y":0,"x":0,"width":640,"skin":"share/itemBG.png","sizeGrid":"0,127,0,87","height":120}},{"type":"Item","props":{"y":1,"x":6,"var":"item","runtime":"Item"}},{"type":"Label","props":{"y":14,"x":127,"width":271,"var":"tfName","height":30,"fontSize":24,"color":"#ffffff","align":"left"}},{"type":"Label","props":{"y":52,"x":130,"width":271,"var":"tfDesc","height":30,"fontSize":24,"color":"#ffffff","align":"left"}},{"type":"Button","props":{"y":13,"x":486,"width":131,"var":"btnUser","stateNum":1,"skin":"share/btn_green.png","sizeGrid":"0,39,0,37","labelSize":24,"labelColors":"#ffffff,#ffffff,#ffffff","label":"使用","height":70}}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("Item",Item);
@@ -46,7 +46,7 @@ module ui.bag {
 		public frame:Laya.Image;
 		public tfNum:Laya.Label;
 
-        public static  uiView:any ={"type":"View","props":{"width":100,"height":100},"child":[{"type":"Image","props":{"y":20,"x":20,"width":60,"var":"pic","skin":"item/400103.png"}},{"type":"Image","props":{"y":0,"x":0,"width":100,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":100}},{"type":"Label","props":{"y":71,"x":36,"width":57,"var":"tfNum","height":20,"fontSize":20,"color":"#ffffff","align":"right"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":120,"height":120},"child":[{"type":"Image","props":{"y":0,"x":0,"var":"pic","skin":"item/2.png"}},{"type":"Image","props":{"y":0,"x":0,"width":120,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":120}},{"type":"Label","props":{"y":90,"x":56,"width":57,"var":"tfNum","height":20,"fontSize":20,"color":"#ffffff","align":"right"}}]};
         constructor(){ super()}
         createChildren():void {
         
@@ -62,8 +62,9 @@ module ui.fight {
     export class FightUI extends View {
 		public home_0:Fighter;
 		public away_0:Fighter;
+		public tfRnd:Laya.Label;
 
-        public static  uiView:any ={"type":"View","props":{"width":700,"height":660},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":0,"x":0,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":660}}]},{"type":"Fighter","props":{"y":230,"x":60,"var":"home_0","runtime":"Fighter"}},{"type":"Fighter","props":{"y":230,"x":439,"var":"away_0","runtime":"Fighter"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":700,"height":660},"child":[{"type":"Box","props":{"y":0,"x":0},"child":[{"type":"Image","props":{"y":0,"x":0,"width":700,"skin":"share/winFrame1.png","sizeGrid":"66,49,50,37","height":660}}]},{"type":"Fighter","props":{"y":230,"x":60,"var":"home_0","runtime":"Fighter"}},{"type":"Fighter","props":{"y":230,"x":439,"var":"away_0","runtime":"Fighter"}},{"type":"Label","props":{"y":39,"x":247,"width":164,"var":"tfRnd","height":24,"fontSize":24,"color":"#000000","align":"center"}}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("Fighter",Fighter);
@@ -119,7 +120,7 @@ module ui.gift {
 		public tfName:Laya.Label;
 		public flagGet:Laya.Image;
 
-        public static  uiView:any ={"type":"View","props":{"width":170,"height":174},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"share/frame3.png"}},{"type":"Image","props":{"y":75,"x":59,"width":60,"var":"pic","skin":"item/400103.png"}},{"type":"Label","props":{"y":20,"x":37,"width":96,"var":"tfDay","height":23,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":130,"x":37,"width":96,"var":"tfName","height":23,"fontSize":24,"color":"#000000","align":"center"}},{"type":"Image","props":{"y":49,"x":41,"width":92,"var":"flagGet","skin":"share/picGet.png","height":81}}]};
+        public static  uiView:any ={"type":"View","props":{"width":170,"height":174},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"share/frame3.png"}},{"type":"Image","props":{"y":27,"x":25,"var":"pic","skin":"item/2.png"}},{"type":"Label","props":{"y":20,"x":37,"width":96,"var":"tfDay","height":23,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":130,"x":37,"width":96,"var":"tfName","height":23,"fontSize":24,"color":"#000000","align":"center"}},{"type":"Image","props":{"y":49,"x":41,"width":92,"var":"flagGet","skin":"share/picGet.png","height":81}}]};
         constructor(){ super()}
         createChildren():void {
         
@@ -250,7 +251,7 @@ module ui.shop {
 		public tfPriece:Laya.Label;
 		public tfName:Laya.Label;
 
-        public static  uiView:any ={"type":"View","props":{"width":100,"height":160},"child":[{"type":"Image","props":{"y":0,"x":0,"width":100,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":160}},{"type":"Item","props":{"y":0,"x":0,"var":"item","runtime":"Item"}},{"type":"Image","props":{"y":94,"x":2,"width":96,"skin":"share/btn_0.png","height":60},"child":[{"type":"Image","props":{"y":30,"x":1,"width":28,"var":"icon","skin":"icon/jinbi.png","height":29}},{"type":"Label","props":{"y":34,"x":31,"width":44,"var":"tfPriece","height":20,"fontSize":20,"color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":7,"x":4,"width":88,"var":"tfName","height":20,"fontSize":20,"color":"#ffffff","align":"center"}}]}]};
+        public static  uiView:any ={"type":"View","props":{"width":100,"height":160},"child":[{"type":"Image","props":{"y":0,"x":0,"width":120,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":160}},{"type":"Item","props":{"y":0,"x":0,"var":"item","runtime":"Item"}},{"type":"Image","props":{"y":94,"x":2,"width":114,"skin":"share/btn_0.png","height":60},"child":[{"type":"Image","props":{"y":30,"x":1,"width":28,"var":"icon","skin":"icon/jinbi.png","height":29}},{"type":"Label","props":{"y":34,"x":31,"width":44,"var":"tfPriece","height":20,"fontSize":20,"color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":7,"x":4,"width":88,"var":"tfName","height":20,"fontSize":20,"color":"#ffffff","align":"center"}}]}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("Item",Item);
@@ -297,7 +298,7 @@ module ui.sign {
 		public tfDay:Laya.Label;
 		public tfName:Laya.Label;
 
-        public static  uiView:any ={"type":"View","props":{"width":100,"height":130},"child":[{"type":"Image","props":{"y":0,"x":0,"width":100,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":130}},{"type":"Item","props":{"y":0,"x":0,"var":"item","runtime":"Item"}},{"type":"Image","props":{"y":94,"x":2,"width":96,"skin":"share/btn_0.png","height":30},"child":[{"type":"Label","props":{"y":6,"x":6,"width":84,"var":"tfDay","height":20,"fontSize":20,"color":"#ffffff","align":"center"}}]},{"type":"Label","props":{"y":7,"x":6,"width":88,"var":"tfName","height":20,"fontSize":20,"color":"#ffffff","align":"center"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":120,"height":130},"child":[{"type":"Image","props":{"y":0,"x":0,"width":120,"var":"frame","skin":"share/frame.png","sizeGrid":"13,13,18,13","height":130}},{"type":"Item","props":{"y":0,"x":0,"var":"item","runtime":"Item"}},{"type":"Image","props":{"y":94,"x":2,"width":114,"skin":"share/btn_0.png","height":30},"child":[{"type":"Label","props":{"y":6,"x":6,"width":84,"var":"tfDay","height":20,"fontSize":20,"color":"#ffffff","align":"center"}}]},{"type":"Label","props":{"y":7,"x":6,"width":88,"var":"tfName","height":20,"fontSize":20,"color":"#ffffff","align":"center"}}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("Item",Item);
