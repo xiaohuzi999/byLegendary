@@ -49,9 +49,14 @@ var TraineeGiftView = /** @class */ (function (_super) {
     TraineeGiftView.prototype.getGift = function (data) {
         trace("getGift-------------------", User.getInstance().traineeGift);
         var id = data.id;
-        var canGet = !User.getInstance().traineeGift[id];
-        if (canGet && id > 0) {
-            canGet = User.getInstance().traineeGift[id - 1] > 0;
+        var canGet;
+        var ts = User.getInstance().traineeGift[id];
+        xframe.XUtils;
+        if (ts > 0) {
+            canGet = xframe.XUtils.checkDate(ts, Laya.Browser.now());
+        }
+        else {
+            canGet = (id == 0);
         }
         trace(canGet, "xxxxxxxxxxxxxxxxxx");
         if (canGet) {
@@ -62,7 +67,7 @@ var TraineeGiftView = /** @class */ (function (_super) {
                 Bag.getInstance().addItem(tmp[0], tmp[1]);
             }
             //存数据
-            User.getInstance().traineeGift[id] = 1;
+            User.getInstance().traineeGift[id] = Laya.Browser.now();
             User.getInstance().save();
             this.format();
         }

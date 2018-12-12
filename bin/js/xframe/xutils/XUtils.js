@@ -120,6 +120,12 @@ var xframe;
             }
             return null;
         };
+        /**判定时间戳ts比ts1晚 1天及以上 */
+        XUtils.checkDate = function (ts, ts1) {
+            var d1 = new Date(ts);
+            var d2 = new Date(ts1);
+            return d1.getFullYear() > d2.getFullYear() || d1.getMonth() > d2.getMonth() || d1.getDate() > d2.getDate();
+        };
         /**
          * 画椭圆
          * @param sp 绘图Graphics

@@ -42,9 +42,13 @@ class TraineeGiftView extends xframe.XMWindow{
     private getGift(data:{id:number, name:string, reward:any[],day:string}):void{
         trace("getGift-------------------",User.getInstance().traineeGift)
         let id:number = data.id;
-        let canGet:boolean = !User.getInstance().traineeGift[id];
-        if(canGet && id>0){
-            canGet = User.getInstance().traineeGift[id-1] > 0;
+        let canGet:boolean
+        let ts:number = User.getInstance().traineeGift[id];
+        xframe.XUtils
+        if(ts > 0){
+             canGet = xframe.XUtils.checkDate(ts, Laya.Browser.now());
+        }else{
+            canGet = (id == 0);
         }
         trace(canGet,"xxxxxxxxxxxxxxxxxx")
         if(canGet){
@@ -55,7 +59,7 @@ class TraineeGiftView extends xframe.XMWindow{
                 Bag.getInstance().addItem(tmp[0], tmp[1])
             }
             //存数据
-            User.getInstance().traineeGift[id] = 1;
+            User.getInstance().traineeGift[id] = Laya.Browser.now();
             User.getInstance().save();
             this.format();
         }

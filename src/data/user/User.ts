@@ -22,6 +22,10 @@ class User{
 
     /**Trainee Gift */
     public traineeGift:number[] = [];
+    /** */
+    public sign:{end:number, info:number[]} = {end:0, info:[]};
+    /** */
+    public createDate:number;
     //单例;
     private static _instance:User;
     //事件-更新;
@@ -40,6 +44,8 @@ class User{
                 val = JSON.parse(val);
             }
             this.update(val);
+        }else{
+            this.createDate = Laya.Browser.now();
         }
         this.dispatchEvent();
     }

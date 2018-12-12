@@ -20,8 +20,24 @@ var SignView = /** @class */ (function (_super) {
     }
     SignView.prototype.show = function () {
         _super.prototype.show.call(this);
+        //同步
+        var now = Laya.Browser.now();
+        if (now - User.getInstance().sign.end > 0) {
+            var date = new Date();
+            var delDay = 6 - date.getDay();
+            var tDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+            var delTime = tDate.getTime() - date.getTime();
+            delTime += 3600 * 1000 * 24 * delDay;
+            User.getInstance().sign.end = now + delTime;
+            trace(User.getInstance().sign.end);
+            //trace(date.getMonth())
+            //trace(date.getDate())
+            User.getInstance().sign.info.length = 0;
+        }
+        //
         for (var i = 0; i < this.ItemNum; i++) {
             this.ui["item" + i].dataSource = DBSign.getSignVo(i);
+            //this.ui["item"+i].update(User.getInstance().sign[i]);
         }
     };
     SignView.prototype.onClick = function (e) {
@@ -30,9 +46,36 @@ var SignView = /** @class */ (function (_super) {
                 this.close();
                 break;
             case this.ui.btnSign:
+                this.sign();
                 break;
             case this.ui.btnDouble:
                 break;
+        }
+    };
+    SignView.prototype.sign = function () {
+        var date = new Date();
+        date.getDay();
+        if (User.ge)
+            var ts = User.getInstance().traineeGift[id];
+        xframe.XUtils;
+        if (ts > 0) {
+            canGet = xframe.XUtils.checkDate(ts, Laya.Browser.now());
+        }
+        else {
+            canGet = (id == 0);
+        }
+        trace(canGet, "xxxxxxxxxxxxxxxxxx");
+        if (canGet) {
+            //发东西
+            var items = data.reward;
+            for (var i = 0; i < items.length; i++) {
+                var tmp = items[i];
+                Bag.getInstance().addItem(tmp[0], tmp[1]);
+            }
+            //存数据
+            User.getInstance().traineeGift[id] = Laya.Browser.now();
+            User.getInstance().save();
+            this.format();
         }
     };
     SignView.prototype.createUI = function () {

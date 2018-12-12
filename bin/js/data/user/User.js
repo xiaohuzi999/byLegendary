@@ -10,6 +10,8 @@ var User = /** @class */ (function () {
         this.taskDone = [];
         /**Trainee Gift */
         this.traineeGift = [];
+        /** */
+        this.sign = { end: 0, info: [] };
         this.role = new Role(DBRole.getHero(1));
         this.role.uid = 1;
     }
@@ -21,6 +23,9 @@ var User = /** @class */ (function () {
                 val = JSON.parse(val);
             }
             this.update(val);
+        }
+        else {
+            this.createDate = Laya.Browser.now();
         }
         this.dispatchEvent();
     };

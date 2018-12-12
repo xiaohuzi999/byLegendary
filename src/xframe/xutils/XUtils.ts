@@ -119,6 +119,12 @@ module xframe{
 			return null;
 		}
 		
+		/**判定时间戳ts比ts1晚 1天及以上 */
+		public static checkDate(ts:number, ts1:number):boolean{
+			let d1:Date = new Date(ts);
+			let d2:Date = new Date(ts1);
+			return d1.getFullYear() > d2.getFullYear() || d1.getMonth() > d2.getMonth() || d1.getDate() > d2.getDate();
+		}
 		
 		/**
 		 * 画椭圆
