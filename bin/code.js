@@ -53535,6 +53535,12 @@ var xframe;
             }
             return null;
         };
+        /**判定时间戳ts比ts1晚 1天及以上 */
+        XUtils.checkDate = function (ts, ts1) {
+            var d1 = new Date(ts);
+            var d2 = new Date(ts1);
+            return d1.getFullYear() > d2.getFullYear() || d1.getMonth() > d2.getMonth() || d1.getDate() > d2.getDate();
+        };
         /**
          * 画椭圆
          * @param sp 绘图Graphics
@@ -53569,40 +53575,6 @@ var xframe;
     xframe.XUtils = XUtils;
 })(xframe || (xframe = {}));
 //# sourceMappingURL=XUtils.js.map
-/*
-* name;
-*/
-var WXUtil = /** @class */ (function () {
-    function WXUtil() {
-    }
-    /**初始化 */
-    WXUtil.init = function () {
-        try {
-            wx.getNetworkType();
-        }
-        catch (e) {
-            this._inWX = false;
-        }
-    };
-    WXUtil.showLoading = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        wx.showLoading(args);
-    };
-    /*setUserCloudStorage */
-    WXUtil.setUserCloudStorage = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        this._inWX && wx.setUserCloudStorage(args);
-    };
-    WXUtil._inWX = true;
-    return WXUtil;
-}());
-//# sourceMappingURL=WXUtil.js.map
 /**
 * name
 */
@@ -53859,7 +53831,6 @@ var xframe;
     xframe.XFacade = XFacade;
 })(xframe || (xframe = {}));
 //# sourceMappingURL=XFacade.js.map
-//# sourceMappingURL=ISelectable.js.map
 /**
 * name
 */
@@ -53984,14 +53955,11 @@ var XDB = /** @class */ (function () {
     /**init with data*/
     XDB.init = function (data) {
         if (typeof data === "string") {
-            trace("xxxxxxxxxxxxxxxxxxxxxxxxxxx");
             this._data = JSON.parse(data);
         }
         else {
             this._data = data;
         }
-        trace("init------------->", typeof this._data);
-        this._uniqueIndex = (this.data[this.UID] || 1);
     };
     /**del local data */
     XDB.delLocalData = function () {
@@ -54004,21 +53972,10 @@ var XDB = /** @class */ (function () {
     /**save */
     XDB.save = function (key, value) {
         this.data[key] = value;
-        //save unique id index;
-        this.data[this.UID] = this._uniqueIndex;
-        this.data[key] = value;
         //save to local
         Laya.LocalStorage.setItem(this.NAME, JSON.stringify(this.data));
         //todo：save to srv
     };
-    Object.defineProperty(XDB, "uid", {
-        /**get unique index */
-        get: function () {
-            return this._uniqueIndex++;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(XDB, "data", {
         get: function () {
             if (!this._data) {
@@ -54033,10 +53990,6 @@ var XDB = /** @class */ (function () {
     XDB.USER = "user";
     /**KEY-BAG */
     XDB.BAG = "bag";
-    /**Unique id index */
-    XDB.UID = "uid";
-    /**unique id index */
-    XDB._uniqueIndex = 0;
     /**local save key */
     XDB.NAME = "xdb";
     return XDB;
@@ -54499,15 +54452,582 @@ var xframe;
 /*
 * name;
 */
+var LLKLogic = /** @class */ (function () {
+    function LLKLogic() {
+    }
+    //
+    LLKLogic.checkLink = function (a, b, map) {
+        this.mapData = map;
+        this.row = map[0].length;
+        this.col = map.length;
+        if (a.x == b.x && this.horizon(a, b)) {
+            return true;
+        }
+        if (a.y == b.y && this.vertical(a, b)) {
+            return true;
+        }
+        if (this.oneCorner(a, b)) {
+            return true;
+        }
+        else {
+            return this.twoCorner(a, b);
+        }
+    };
+    //
+    LLKLogic.horizon = function (a, b) {
+        if (a.x == b.x && a.y == b.y)
+            return false; //如果点击的是同一个图案，直接返回false;
+        var x_start = a.y < b.y ? a.y : b.y; //获取a,b中较小的y值
+        var x_end = a.y < b.y ? b.y : a.y; //获取a,b中较大的值
+        //遍历a,b之间是否通路，如果一个不是就返回false;
+        for (var i = x_start + 1; i < x_end; i++) {
+            if (this.mapData[a.x][i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    };
+    //
+    LLKLogic.vertical = function (a, b) {
+        if (a.x == b.x && a.y == b.y)
+            return false;
+        var y_start = a.x < b.x ? a.x : b.x;
+        var y_end = a.x < b.x ? b.x : a.x;
+        for (var i = y_start + 1; i < y_end; i++) {
+            if (this.mapData[i][a.y] != 0) {
+                return false;
+            }
+        }
+        return true;
+    };
+    //
+    LLKLogic.oneCorner = function (a, b) {
+        var c = new Laya.Point(b.x, a.y);
+        var d = new Laya.Point(a.x, b.y);
+        //判断C点是否有元素                 
+        if (this.mapData[c.x][c.y] == 0) {
+            var path1 = this.horizon(b, c) && this.vertical(a, c);
+            return path1;
+        }
+        //判断D点是否有元素
+        if (this.mapData[d.x][d.y] == 0) {
+            var path2 = this.horizon(a, d) && this.vertical(b, d);
+            return path2;
+        }
+        else {
+            return false;
+        }
+    };
+    //
+    LLKLogic.twoCorner = function (a, b) {
+        var ll = this.scan(a, b);
+        if (ll.length == 0) {
+            return false;
+        }
+        for (var i = 0; i < ll.length; i++) {
+            var tmpLine = ll[i];
+            if (tmpLine.direct == 1) {
+                if (this.vertical(a, tmpLine.a) && this.vertical(b, tmpLine.b)) {
+                    return true;
+                }
+            }
+            else if (tmpLine.direct == 0) {
+                if (this.horizon(a, tmpLine.a) && this.horizon(b, tmpLine.b)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    LLKLogic.scan = function (a, b) {
+        var linkList = [];
+        //检测a点,b点的左侧是否能够垂直直连
+        for (var i = a.y; i >= 0; i--) {
+            if (this.mapData[a.x][i] == 0 && this.mapData[b.x][i] == 0 && this.vertical(new Laya.Point(a.x, i), new Laya.Point(b.x, i))) {
+                linkList.push(new Line(new Laya.Point(a.x, i), new Laya.Point(b.x, i), 0));
+            }
+        }
+        //检测a点,b点的右侧是否能够垂直直连
+        for (i = a.y; i < this.col; i++) {
+            if (this.mapData[a.x][i] == 0 && this.mapData[b.x][i] == 0 && this.vertical(new Laya.Point(a.x, i), new Laya.Point(b.x, i))) {
+                linkList.push(new Line(new Laya.Point(a.x, i), new Laya.Point(b.x, i), 0));
+            }
+        }
+        //检测a点,b点的上侧是否能够水平直连
+        for (var j = a.x; j >= 0; j--) {
+            if (this.mapData[j][a.y] == 0 && this.mapData[j][b.y] == 0 && this.horizon(new Laya.Point(j, a.y), new Laya.Point(j, b.y))) {
+                linkList.push(new Line(new Laya.Point(j, a.y), new Laya.Point(j, b.y), 1));
+            }
+        }
+        //检测a点,b点的下侧是否能够水平直连
+        for (j = a.x; j < this.row; j++) {
+            if (this.mapData[j][a.y] == 0 && this.mapData[j][b.y] == 0 && this.horizon(new Laya.Point(j, a.y), new Laya.Point(j, b.y))) {
+                linkList.push(new Line(new Laya.Point(j, a.y), new Laya.Point(j, b.y), 1));
+            }
+        }
+        return linkList;
+    };
+    return LLKLogic;
+}());
+//
+var Line = /** @class */ (function () {
+    function Line(a, b, direct) {
+        this.a = a;
+        this.b = b;
+        this.direct = direct;
+    }
+    return Line;
+}());
+//# sourceMappingURL=LLKLogic.js.map
+/*
+* name;
+*/
+var LLKItemVo = /** @class */ (function () {
+    function LLKItemVo() {
+    }
+    return LLKItemVo;
+}());
+//# sourceMappingURL=LLKItemVo.js.map
+/*
+* name;
+*/
+var DBLLK = /** @class */ (function () {
+    function DBLLK() {
+    }
+    /**获取 */
+    DBLLK.getVo = function (id) {
+        return this._data[id];
+    };
+    DBLLK._data = {
+        1: { id: 1, skin: "400103" },
+        2: { id: 2, skin: "400203" },
+        3: { id: 3, skin: "400303" },
+        4: { id: 4, skin: "400403" }
+    };
+    return DBLLK;
+}());
+//# sourceMappingURL=DBLLK.js.map
+/*
+* name;
+*/
+var TaskVo = /** @class */ (function () {
+    function TaskVo() {
+        this.lv = 0;
+        this.special = '';
+    }
+    return TaskVo;
+}());
+//# sourceMappingURL=TaskVo.js.map
+/*
+* name;
+*/
+var DBTask = /** @class */ (function () {
+    function DBTask() {
+    }
+    /** */
+    DBTask.getTaskVo = function (id) {
+        return this.data[id];
+    };
+    Object.defineProperty(DBTask, "data", {
+        get: function () {
+            if (!this._data) {
+                this._data = Laya.loader.getRes("res/cfg/task.json");
+                trace(this._data);
+            }
+            return this._data;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DBTask;
+}());
+//# sourceMappingURL=DBTask.js.map
+/*
+* name;
+*/
+var SignVo = /** @class */ (function () {
+    function SignVo() {
+    }
+    return SignVo;
+}());
+//# sourceMappingURL=SignVo.js.map
+/*
+* name;
+*/
+var DBSign = /** @class */ (function () {
+    function DBSign() {
+    }
+    //
+    DBSign.getSignVo = function (id) {
+        return this.data[id];
+    };
+    Object.defineProperty(DBSign, "data", {
+        get: function () {
+            if (!this._data) {
+                this._data = Laya.loader.getRes("res/cfg/sign.json");
+            }
+            return this._data;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DBSign;
+}());
+//# sourceMappingURL=DBSign.js.map
+/*
+* name;
+*/
+var ShopItemVo = /** @class */ (function () {
+    function ShopItemVo() {
+    }
+    return ShopItemVo;
+}());
+//# sourceMappingURL=ShopVo.js.map
+/*
+* name;
+*/
+var DBShop = /** @class */ (function () {
+    function DBShop() {
+    }
+    //
+    DBShop.getShopItemVo = function (id) {
+        return this.data[id];
+    };
+    /**获取所有列表 */
+    DBShop.getShopList = function () {
+        trace("getShopList::", this._data);
+        var items = [];
+        for (var i in this.data) {
+            items.push(this.data[i]);
+        }
+        return items;
+    };
+    Object.defineProperty(DBShop, "data", {
+        get: function () {
+            if (!this._data) {
+                this._data = Laya.loader.getRes("res/cfg/shop.json");
+            }
+            return this._data;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DBShop;
+}());
+//# sourceMappingURL=DBShop.js.map
+/*
+* name;
+*/
+var DBTraineeGift = /** @class */ (function () {
+    function DBTraineeGift() {
+    }
+    /** */
+    DBTraineeGift.getTraineeGiftVo = function (id) {
+        return this.dic[id];
+    };
+    //id	reward	name	day
+    DBTraineeGift.dic = {
+        0: { id: 0, name: "1*5", reward: [[1, 5]], day: "第1天" },
+        1: { id: 1, name: "2*5", reward: [[2, 5]], day: "第2天" },
+        2: { id: 2, name: "1*5*3*1", reward: [[1, 5], [3, 1]], day: "第3天" }
+    };
+    return DBTraineeGift;
+}());
+//# sourceMappingURL=DBTraineeGift.js.map
+/**
+ * Created by Administrator on 15-6-2.
+ */
+var FightVo = /** @class */ (function () {
+    function FightVo() {
+        //表现类型=FightVo(NORMAL,CRIT,MISS)
+        this.showType = 0;
+        //结果，哈希,{目标角色UID:{属性：值}},形如{1:{hp:30}};
+        this.fightInfo = {};
+    }
+    /**动作类型-普通攻击*/
+    FightVo.ATTACK = 1;
+    /**动作类型-技能*/
+    FightVo.SKILL = 2;
+    /**动作类型-防御*/
+    FightVo.DEFEND = 3;
+    /**动作类型-回复*/
+    FightVo.RECOVER = 4;
+    /**表现类型*/
+    FightVo.NORMAL = 0;
+    /**表现类型-暴击*/
+    FightVo.CRIT = 1;
+    /**表现类型-未命中*/
+    FightVo.MISS = 2;
+    return FightVo;
+}());
+//# sourceMappingURL=FightVo.js.map
+/*
+* name;
+*/
+var FightModel = /** @class */ (function () {
+    function FightModel() {
+    }
+    /**初始化 */
+    FightModel.init = function (home, away) {
+        this._home.length = this._away.length = this._all.length = 0;
+        this._curRnd = 1;
+        for (var i = 0; i < home.length; i++) {
+            this._home.push(DBRole.calcRolePro(home[i]));
+        }
+        for (var i = 0; i < away.length; i++) {
+            this._away.push(DBRole.calcNpcPro(away[i]));
+        }
+        this._all = this._home.concat(this._away);
+        //
+        for (var i = 0; i < this._all.length; i++) {
+            if (this._all[i].uid == undefined) {
+                this._all[i].uid = this._uidIndex--;
+            }
+        }
+        //this._all.sort(this.sortOnSpeed);
+        //this.fight();
+        return [this._home, this._away];
+    };
+    FightModel.fight = function () {
+        //如果没有接受
+        var result = this.checkEnd();
+        var fightResut = {};
+        while (result < 1) {
+            //
+            trace("rnd：：：：：：：：：", this._curRnd);
+            this.out();
+            fightResut[this._curRnd++] = this.startNewRnd();
+            result = this.checkEnd();
+        }
+        fightResut["result"] = result;
+        fightResut["totalRnd"] = this._curRnd - 1;
+        trace("fightResut::", fightResut);
+        return fightResut;
+    };
+    FightModel.out = function () {
+        for (var i = 0; i < this._all.length; i++) {
+            trace("【state】", this._all[i].name, this._all[i].hp);
+        }
+    };
+    /**
+     * 开始新一轮
+     */
+    FightModel.startNewRnd = function () {
+        //console.log("startFight============================")
+        var rnd = [];
+        this._wait = this._all.slice(0, this._all.length);
+        while (this._wait.length) {
+            this._curRole = this._wait.shift();
+            //trace("Now----------", this._curRole)
+            rnd.push(this.excuteAI(this._curRole));
+        }
+        return rnd;
+    };
+    /**
+     * 执行AI逻辑*
+     */
+    FightModel.excuteAI = function (role) {
+        var vo = new FightVo();
+        vo.nowId = role.uid;
+        var list;
+        var target;
+        //1,操作------------------------------------------------
+        list = this.exSkill(role, vo);
+        //2，操作结果------------------------------------------------
+        if (list && list.length > 0) {
+            //console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxo",list.length);
+            var len = list.length;
+            for (var i = 0; i < len; i++) {
+                target = list[i];
+                if (target.hp <= 0) {
+                    xframe.XUtils.delArrItem(this._all, target);
+                    xframe.XUtils.delArrItem(this._wait, target);
+                    xframe.XUtils.delArrItem(this._home, target);
+                    xframe.XUtils.delArrItem(this._away, target);
+                }
+            }
+        }
+        else {
+            console.warn("Skill Err", role);
+        }
+        return vo;
+    };
+    FightModel.exSkill = function (skillRole, vo) {
+        //寻找当前能执行的技能；
+        var list = skillRole.skills || [];
+        var isAway = this._away.indexOf(skillRole) > -1;
+        var skillData;
+        for (var i = list.length - 1; i > -1; i--) {
+            var vo_1 = DBSkill.getSkill(list[i]);
+            if (Math.random() <= vo_1.rate) {
+                skillData = vo_1;
+                break;
+            }
+        }
+        if (!skillData) {
+            skillData = DBSkill.getSkill(0);
+        }
+        //寻找目标==========================================================
+        var targets = [];
+        var tmp;
+        //本方
+        if (skillData.target == SkillVo.TargetHome) {
+            for (var i = 0; i < skillData.num; i++) {
+                if (isAway) {
+                    this._away[i] && targets.push(this._away[i]);
+                }
+                else {
+                    this._home[i] && targets.push(this._home[i]);
+                }
+            }
+        }
+        //对方
+        else if (skillData.target == SkillVo.TargetAway) {
+            for (var i = 0; i < skillData.num; i++) {
+                if (isAway) {
+                    this._home[i] && targets.push(this._home[i]);
+                }
+                else {
+                    this._away[i] && targets.push(this._away[i]);
+                }
+            }
+        }
+        //技能效果(伤害)解析==============================================================
+        for (var i = 0; i < targets.length; i++) {
+            //计算伤害=============
+            var hurt = skillRole.attack * skillData.rate;
+            //BUFF伤害加成；
+            hurt = parseInt(hurt + "");
+            if (hurt != 0) {
+                //TODO：BUFF减伤；
+                targets[i].hp = Math.max(0, targets[i].hp - hurt);
+                if (targets[i].hp > targets[i].maxHp) {
+                    targets[i].hp = targets[i].maxHp;
+                }
+                if (vo.fightInfo[targets[i].uid]) {
+                    vo.fightInfo[targets[i].uid]["hp"] = targets[i].hp;
+                }
+                else {
+                    vo.fightInfo[targets[i].uid] = { "hp": targets[i].hp };
+                }
+            }
+        }
+        //BUFF解析===============================================================
+        if (skillData.buff) {
+            var makeBuff = Math.random() < skillData.buffRate;
+            if (makeBuff) {
+                var buffData = DBBuff.getBuff(skillData.buff);
+                if (buffData) {
+                    var tmp_1;
+                    if (buffData.target == BuffVo.TargetMe) {
+                        this.addBuff(skillRole, buffData, vo);
+                    }
+                    else if (buffData.target == BuffVo.TargetHome) {
+                        tmp_1 = isAway ? this._away : this._home;
+                        for (var i = 0; i < tmp_1.length; i++) {
+                            this.addBuff(tmp_1[i], buffData, vo);
+                        }
+                    }
+                    else if (buffData.target == BuffVo.TargetAttackOne) {
+                        this.addBuff(targets[0], buffData, vo);
+                    }
+                    else if (buffData.target == BuffVo.TargetAttackOne) {
+                        tmp_1 = isAway ? this._home : this._away;
+                        for (var i = 0; i < tmp_1.length; i++) {
+                            this.addBuff(tmp_1[i], buffData, vo);
+                        }
+                    }
+                }
+            }
+        }
+        //生成操作列表
+        vo.action = FightVo.SKILL;
+        vo.skillId = skillData.id + "";
+        return targets;
+    };
+    /**加BUFF */
+    FightModel.addBuff = function (role, buff, vo) {
+        trace("加BUFF======================", role.uid, buff.id);
+        /*
+        if(!this._buffInfo[role.uid]){
+            this._buffInfo[role.uid] = {};
+        }
+        //todo同类BUFF重复加的问题
+        //格式【当前回合，持续回合, BUFF附加状态】
+        let state:number = Role.FS_NORMAL
+        if(buff.type == BuffVo.TYPE_DIZZY){
+            state = Role.FS_DIZZY;
+            role.fightState = state;
+        }else if(buff.type == BuffVo.TYPE_CHAOS){
+            state = Role.FS_CHAOS
+            role.fightState = state;
+        }
+        this._buffInfo[role.uid][buff.id] = [0, buff.rnd, state];
+        if(vo.fightInfo[role.uid]){
+            vo.fightInfo[role.uid]["addBuff"] = buff.id
+        }else{
+            vo.fightInfo[role.uid] = {addBuff:buff.id};
+        }
+        */
+    };
+    /**
+     * 检测是否已经结束
+     * return 0未结束，1主队胜，2可对剩，3平局
+     */
+    FightModel.checkEnd = function () {
+        if (this._home.length == 0) {
+            return 2;
+        }
+        else if (this._away.length == 0) {
+            return 1;
+        }
+        else if (this._curRnd > 99) {
+            return 3;
+        }
+        return 0;
+    };
+    /***/
+    FightModel.sortOnSpeed = function (roleA, roleB) {
+        if (roleA.speed > roleB.speed) {
+            return 1;
+        }
+        return -1;
+    };
+    //
+    FightModel.getRole = function (roleId) {
+        for (var i in this._all) {
+            if (this._all[i].uid == roleId) {
+                return this._all[i];
+            }
+        }
+        return null;
+    };
+    FightModel._home = [];
+    FightModel._away = [];
+    FightModel._all = [];
+    FightModel._wait = [];
+    FightModel._curRnd = 1;
+    /**uids */
+    FightModel._uidIndex = -1;
+    return FightModel;
+}());
+//# sourceMappingURL=FightModel.js.map
+/*
+* name;
+*/
 var User = /** @class */ (function () {
     function User() {
         this.power = 0;
         this.gold = 0;
         this.diamond = 0;
-        //
-        this.heros = [];
-        //
-        this.pets = [];
+        this.task = [1];
+        this.taskDone = [];
+        /**Trainee Gift */
+        this.traineeGift = [];
+        /** */
+        this.sign = { end: 0, info: [] };
+        this.role = new Role(DBRole.getHero(1));
+        this.role.uid = 1;
     }
     /**初始化 */
     User.prototype.init = function () {
@@ -54518,12 +55038,24 @@ var User = /** @class */ (function () {
             }
             this.update(val);
         }
+        else {
+            this.createDate = Laya.Browser.now();
+        }
+        this.dispatchEvent();
     };
     //更新
     User.prototype.update = function (value) {
         for (var i in value) {
             this[i] = value[i];
         }
+    };
+    //属性修改之后手动调用；
+    User.prototype.dispatchEvent = function () {
+        XEvent.instance.event(User.UPDATE);
+    };
+    /**保存 */
+    User.prototype.save = function () {
+        XDB.save(XDB.USER, this);
     };
     User.getInstance = function () {
         if (!this._instance) {
@@ -54539,94 +55071,348 @@ var User = /** @class */ (function () {
 /*
 * name;
 */
-var Role = /** @class */ (function () {
-    function Role(data) {
-        if (data === void 0) { data = null; }
-        /**角色名*/
-        this.name = "";
-        /**头像*/
-        this.pic = "";
-        /**经验*/
-        this.exp = 0;
-        /**升级经验*/
-        this.lvExp = 1;
-        /**等级*/
-        this.lv = 0;
-        /**技能列表*/
-        this.skills = [];
-        //一级属性===================================================
-        /**HP*/
-        this.hp = 1;
-        /**最大HP*/
-        this.maxHp = 1;
-        /**攻击*/
-        this.attack = 1;
-        /**闪避*/
-        this.dodge = 0;
-        /**暴击*/
-        this.crit = 0;
-        //二级属性==================================================
-        /**体质*/
-        this.physique = 0;
-        /**敏捷*/
-        this.agility = 0;
-        //
-        this.strength = 0;
-        /**攻击成长*/
-        this.strengthGrow = 1;
-        /**体质成长*/
-        this.physiqueGrow = 0;
-        /**敏捷成长*/
-        this.agilityGrow = 0;
-        /**速度*/
-        this.speed = 0;
-        //装备=============================================
-        this.weapon = null;
-        //服务端逻辑用============================================================
-        /**是否NPC，即是否采用AI逻辑*/
-        this.isNpc = false;
-        /**所在队伍*/
-        this.fightTeam = 0;
-        this.fightState = 0;
-        /**怒气值 */
-        this.power = 0;
-        /**状态 */
-        this.state = 0;
-        if (data) {
-            this.setValue(data);
-        }
-    }
-    /**
-     *赋值
-     * @param valueObj 值对象,JSON格式化对象
-     */
-    Role.prototype.setValue = function (valueObj) {
-        for (var i in valueObj) {
-            this[i] = valueObj[i];
-        }
-    };
-    /**状态常量-正常 */
-    Role.NORMAL = 0;
-    /**状态常量-参战 */
-    Role.IN_FIGHT = 1;
-    /**战斗状态常量-正常 */
-    Role.FS_NORMAL = 0;
-    /**战斗状态常量-眩晕 */
-    Role.FS_DIZZY = 1;
-    /**战斗状态常量-混乱 */
-    Role.FS_CHAOS = 1;
-    return Role;
-}());
-//# sourceMappingURL=Role.js.map
-/*
-* name;
-*/
 var EquipVo = /** @class */ (function () {
     function EquipVo() {
     }
     return EquipVo;
 }());
 //# sourceMappingURL=EquipVo.js.map
+/*
+* name;
+*/
+var SkillVo = /** @class */ (function () {
+    function SkillVo() {
+    }
+    //target 作用对象，1-己方，2-对方，0-不限
+    SkillVo.TargetAll = 0;
+    SkillVo.TargetHome = 1;
+    SkillVo.TargetAway = 2;
+    //策略0-随机，1-HP最少
+    SkillVo.StrRandom = 0;
+    SkillVo.StrHp = 1;
+    return SkillVo;
+}());
+//# sourceMappingURL=SkillVo.js.map
+/*
+* name;
+*/
+var DBSkill = /** @class */ (function () {
+    function DBSkill() {
+    }
+    /** */
+    DBSkill.getSkill = function (skillId) {
+        return this.data[skillId];
+    };
+    Object.defineProperty(DBSkill, "data", {
+        get: function () {
+            if (!this._data) {
+                this._data = Laya.loader.getRes("res/cfg/skill.json");
+            }
+            return this._data;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DBSkill;
+}());
+//# sourceMappingURL=DBSkill.js.map
+/*
+* name;
+*/
+var DBBuff = /** @class */ (function () {
+    function DBBuff() {
+    }
+    /** */
+    DBBuff.getBuff = function (buffId) {
+        return this.data[buffId];
+    };
+    Object.defineProperty(DBBuff, "data", {
+        get: function () {
+            if (!this._db) {
+                this._db = JSON.parse(Laya.loader.getRes("cfgs/buff.txt") + "");
+                Laya.loader.clearRes("cfgs/buff.txt");
+            }
+            return this._db;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DBBuff;
+}());
+//# sourceMappingURL=DBBuff.js.map
+/*
+* name;
+*/
+var BuffVo = /** @class */ (function () {
+    function BuffVo() {
+    }
+    //target 0-本人 ,1-本方全队，2-攻击目标，3-对方全队
+    BuffVo.TargetMe = 0;
+    BuffVo.TargetHome = 1;
+    BuffVo.TargetAttackOne = 2;
+    BuffVo.TargetAttackAll = 2;
+    //type 类型 1，HP增减, 2,attack增减 3，defend增减 4，speed增减, 5，dodge增减， 6，crit增减 7眩晕类 8，混乱类， 9 吸血
+    BuffVo.TypeHp = 1;
+    BuffVo.TypeAttack = 2;
+    BuffVo.TypeDefend = 3;
+    BuffVo.TypeSpeed = 4;
+    BuffVo.TypeDodge = 5;
+    BuffVo.TypeCrit = 6;
+    BuffVo.TypeDizzy = 7;
+    BuffVo.TypeChaos = 8;
+    BuffVo.TypeGreedy = 9;
+    return BuffVo;
+}());
+//# sourceMappingURL=BuffVo.js.map
+/*
+* name;
+*/
+var DBRole = /** @class */ (function () {
+    function DBRole() {
+    }
+    /**获取npc属性 */
+    DBRole.getNpc = function (id) {
+        return this.npcData[id];
+    };
+    /**hero属性*/
+    DBRole.getHero = function (id) {
+        return this.heroData[id];
+    };
+    Object.defineProperty(DBRole, "npcData", {
+        get: function () {
+            if (!this._npcData) {
+                this._npcData = Laya.loader.getRes("res/cfg/npc.json");
+            }
+            return this._npcData;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DBRole, "heroData", {
+        get: function () {
+            if (!this._heroData) {
+                this._heroData = Laya.loader.getRes("res/cfg/hero.json");
+            }
+            return this._heroData;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * 计算总属性 ,需要一个公式
+    */
+    DBRole.calcNpcPro = function (id) {
+        var role = xframe.XUtils.clone(this.getNpc(id));
+        role.attack = role.strength * 5;
+        role.hp = role.maxHp = role.physique * 100;
+        role.speed = role.agility * 1;
+        role.crit = role.strength * 0.1;
+        role.dodge = role.agility * 0.2;
+        return role;
+    };
+    /**计算总属性 */
+    DBRole.calcRolePro = function (tRole) {
+        var role = xframe.XUtils.clone(tRole);
+        role.attack = role.attack + role.strength * 5;
+        role.hp = role.maxHp = role.hp + role.physique * 100;
+        role.speed = role.speed + role.agility * 1;
+        role.crit = role.crit + role.strength * 0.1;
+        role.dodge = role.dodge + role.agility * 0.2;
+        return role;
+    };
+    return DBRole;
+}());
+//# sourceMappingURL=DBRole.js.map
+//# sourceMappingURL=UItemVo.js.map
+/*
+* 道具基础数据
+*/
+var ItemVo = /** @class */ (function () {
+    function ItemVo() {
+        //
+        this.quality = 0;
+    }
+    /**特殊道具ID */
+    ItemVo.GOLD = 1;
+    ItemVo.DIAMOND = 2;
+    return ItemVo;
+}());
+//# sourceMappingURL=ItemVo.js.map
+/*
+* name;
+*/
+var DBItem = /** @class */ (function () {
+    function DBItem() {
+    }
+    /** */
+    DBItem.getItemVo = function (id) {
+        return this.data[id];
+    };
+    Object.defineProperty(DBItem, "data", {
+        get: function () {
+            if (!this._data) {
+                this._data = Laya.loader.getRes("res/cfg/item.json");
+                trace(this._data);
+            }
+            return this._data;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DBItem;
+}());
+//# sourceMappingURL=DBItem.js.map
+/*
+* name;
+*/
+var Bag = /** @class */ (function () {
+    function Bag() {
+        /**编号 */
+        this.index = 1;
+        /**道具列表 */
+        this.items = [];
+    }
+    /**初始化 */
+    Bag.prototype.init = function () {
+        var val = XDB.getData(XDB.BAG);
+        if (val) {
+            if (typeof val === "string") {
+                val = JSON.parse(val);
+            }
+            trace("initBag::", val);
+            this.update(val);
+        }
+    };
+    /**生成一个道具 */
+    Bag.prototype.createItem = function (itemId, itemNum) {
+        if (itemNum === void 0) { itemNum = 1; }
+        var vo;
+        if (DBItem.getItemVo(itemId)) {
+            vo = { uid: this.index++, itemId: itemId, num: Math.floor(itemNum) };
+        }
+        XTip.showTip("道具Id" + itemId + "不存在");
+        return vo;
+    };
+    /**加入道具 */
+    Bag.prototype.addItem = function (itemId, itemNum) {
+        if (itemNum === void 0) { itemNum = 1; }
+        var vo = DBItem.getItemVo(itemId);
+        if (!vo) {
+            XTip.showTip("无效道具ID:" + itemId);
+            return;
+        }
+        //如果是货币
+        if (itemId == ItemVo.GOLD) {
+            User.getInstance().gold += Math.floor(itemNum);
+            User.getInstance().save();
+            return;
+        }
+        else if (itemId == ItemVo.DIAMOND) {
+            User.getInstance().diamond += Math.floor(itemNum);
+            User.getInstance().save();
+            return;
+        }
+        if (vo.max == 1) { //不叠加
+            this.items.push(this.createItem(itemId, itemNum));
+        }
+        else {
+            var hasIt = false;
+            for (var i = 0; i < this.items.length; i++) {
+                if (this.items[i].itemId == itemId) {
+                    this.items[i].num += Math.floor(itemNum);
+                    hasIt = true;
+                    break;
+                }
+            }
+            if (!hasIt) {
+                this.items.push(this.createItem(itemId, itemNum));
+            }
+        }
+        this.dispatchEvent();
+        this.save();
+    };
+    /**根据道具ID返回 */
+    Bag.prototype.getItemById = function (itemId) {
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].itemId == itemId) {
+                return this.items[i];
+            }
+        }
+        return null;
+    };
+    /**根据唯一ID返回 */
+    Bag.prototype.getItemByUid = function (uid) {
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].uid == uid) {
+                return this.items[i];
+            }
+        }
+        return null;
+    };
+    /**获取道具数量 */
+    Bag.prototype.getItemNum = function (itemId) {
+        var num = 0;
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].itemId == itemId) {
+                num += Math.floor(this.items[i].num);
+            }
+        }
+        return num;
+    };
+    /**随机扣除道具 */
+    Bag.prototype.delItem = function (itemId, itemNum) {
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].itemId == itemId) {
+                this.items[i].num -= Math.floor(itemNum);
+                if (this.items[i].num < 1) {
+                    this.items.splice(i, 1);
+                }
+                break;
+            }
+        }
+        this.dispatchEvent();
+        this.save();
+    };
+    /**扣除指定道具 */
+    Bag.prototype.delItemByUid = function (uid, itemNum) {
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].uid == uid) {
+                this.items[i].num -= Math.floor(itemNum);
+                if (this.items[i].num < 1) {
+                    this.items.splice(i, 1);
+                }
+                break;
+            }
+        }
+        this.dispatchEvent();
+        this.save();
+    };
+    //更新
+    Bag.prototype.update = function (value) {
+        for (var i in value) {
+            this[i] = value[i];
+        }
+    };
+    /**保存 */
+    Bag.prototype.save = function () {
+        XDB.save(XDB.BAG, this);
+    };
+    //变化之后手动调用；
+    Bag.prototype.dispatchEvent = function () {
+        XEvent.instance.event(User.UPDATE);
+    };
+    /** */
+    Bag.getInstance = function () {
+        if (!this._instance) {
+            this._instance = new Bag();
+        }
+        return this._instance;
+    };
+    /**事件-道具变化 */
+    Bag.CHANGE = "change";
+    return Bag;
+}());
+//# sourceMappingURL=Bag.js.map
 //# sourceMappingURL=IApp.js.map
 /*
 * name;
@@ -54649,6 +55435,373 @@ var App = /** @class */ (function () {
     return App;
 }());
 //# sourceMappingURL=App.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var View = laya.ui.View;
+var Dialog = laya.ui.Dialog;
+var ui;
+(function (ui) {
+    var bag;
+    (function (bag) {
+        var BagUI = /** @class */ (function (_super) {
+            __extends(BagUI, _super);
+            function BagUI() {
+                return _super.call(this) || this;
+            }
+            BagUI.prototype.createChildren = function () {
+                View.regComponent("BagItem", BagItem);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.bag.BagUI.uiView);
+            };
+            BagUI.uiView = { "type": "View", "props": { "width": 700, "height": 800 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 30, "width": 700, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 770 } }, { "type": "Image", "props": { "x": 116, "width": 467, "skin": "share/winTitle.png", "sizeGrid": "0,205,0,204", "height": 80 } }, { "type": "Label", "props": { "y": 19, "x": 250, "width": 200, "var": "tfTitle", "text": "背包", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 23, "x": 638, "var": "btnClose", "stateNum": 1, "skin": "share/btn_close.png" } }] }, { "type": "List", "props": { "y": 99, "x": 30, "width": 640, "var": "itemList", "spaceY": 10, "height": 648 }, "child": [{ "type": "BagItem", "props": { "runtime": "BagItem", "name": "render" } }] }] };
+            return BagUI;
+        }(View));
+        bag.BagUI = BagUI;
+    })(bag = ui.bag || (ui.bag = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var bag;
+    (function (bag) {
+        var BagItemUI = /** @class */ (function (_super) {
+            __extends(BagItemUI, _super);
+            function BagItemUI() {
+                return _super.call(this) || this;
+            }
+            BagItemUI.prototype.createChildren = function () {
+                View.regComponent("Item", Item);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.bag.BagItemUI.uiView);
+            };
+            BagItemUI.uiView = { "type": "View", "props": { "width": 640, "height": 120 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 640, "skin": "share/itemBG.png", "sizeGrid": "0,127,0,87", "height": 120 } }, { "type": "Item", "props": { "y": 1, "x": 6, "var": "item", "runtime": "Item" } }, { "type": "Label", "props": { "y": 14, "x": 127, "width": 271, "var": "tfName", "height": 30, "fontSize": 24, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 52, "x": 130, "width": 271, "var": "tfDesc", "height": 30, "fontSize": 24, "color": "#ffffff", "align": "left" } }, { "type": "Button", "props": { "y": 13, "x": 486, "width": 131, "var": "btnUser", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,37", "labelSize": 24, "labelColors": "#ffffff,#ffffff,#ffffff", "label": "使用", "height": 70 } }] };
+            return BagItemUI;
+        }(View));
+        bag.BagItemUI = BagItemUI;
+    })(bag = ui.bag || (ui.bag = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var bag;
+    (function (bag) {
+        var ItemUI = /** @class */ (function (_super) {
+            __extends(ItemUI, _super);
+            function ItemUI() {
+                return _super.call(this) || this;
+            }
+            ItemUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.bag.ItemUI.uiView);
+            };
+            ItemUI.uiView = { "type": "View", "props": { "width": 120, "height": 120 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "pic", "skin": "item/2.png" } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 120, "var": "frame", "skin": "share/frame.png", "sizeGrid": "13,13,18,13", "height": 120 } }, { "type": "Label", "props": { "y": 90, "x": 56, "width": 57, "var": "tfNum", "height": 20, "fontSize": 20, "color": "#ffffff", "align": "right" } }] };
+            return ItemUI;
+        }(View));
+        bag.ItemUI = ItemUI;
+    })(bag = ui.bag || (ui.bag = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var fight;
+    (function (fight) {
+        var FightUI = /** @class */ (function (_super) {
+            __extends(FightUI, _super);
+            function FightUI() {
+                return _super.call(this) || this;
+            }
+            FightUI.prototype.createChildren = function () {
+                View.regComponent("Fighter", Fighter);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.fight.FightUI.uiView);
+            };
+            FightUI.uiView = { "type": "View", "props": { "width": 700, "height": 660 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 700, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 660 } }] }, { "type": "Fighter", "props": { "y": 230, "x": 60, "var": "home_0", "runtime": "Fighter" } }, { "type": "Fighter", "props": { "y": 230, "x": 439, "var": "away_0", "runtime": "Fighter" } }, { "type": "Label", "props": { "y": 39, "x": 247, "width": 164, "var": "tfRnd", "height": 24, "fontSize": 24, "color": "#000000", "align": "center" } }] };
+            return FightUI;
+        }(View));
+        fight.FightUI = FightUI;
+    })(fight = ui.fight || (ui.fight = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var fight;
+    (function (fight) {
+        var FighterUI = /** @class */ (function (_super) {
+            __extends(FighterUI, _super);
+            function FighterUI() {
+                return _super.call(this) || this;
+            }
+            FighterUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.fight.FighterUI.uiView);
+            };
+            FighterUI.uiView = { "type": "View", "props": { "width": 200, "height": 200 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 19, "width": 159, "skin": "pet/1.png", "height": 190 } }] };
+            return FighterUI;
+        }(View));
+        fight.FighterUI = FighterUI;
+    })(fight = ui.fight || (ui.fight = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var gift;
+    (function (gift) {
+        var GiftUI = /** @class */ (function (_super) {
+            __extends(GiftUI, _super);
+            function GiftUI() {
+                return _super.call(this) || this;
+            }
+            GiftUI.prototype.createChildren = function () {
+                View.regComponent("TraineeGiftItem", TraineeGiftItem);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.gift.GiftUI.uiView);
+            };
+            GiftUI.uiView = { "type": "View", "props": { "width": 600, "height": 630 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 30, "width": 600, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 600 } }, { "type": "Image", "props": { "y": 0, "x": 56, "width": 467, "skin": "share/winTitle.png", "sizeGrid": "0,205,0,204", "height": 80 } }, { "type": "Label", "props": { "y": 19, "x": 190, "width": 200, "var": "tfTitle", "text": "新手礼包", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 23, "x": 538, "var": "btnClose", "stateNum": 1, "skin": "share/btn_close.png" } }] }, { "type": "GiftItem", "props": { "y": 138, "x": 78, "var": "item_0", "runtime": "TraineeGiftItem", "mouseEnabled": true } }, { "type": "GiftItem", "props": { "y": 138, "x": 335, "var": "item_1", "runtime": "TraineeGiftItem", "mouseEnabled": true } }, { "type": "GiftItem", "props": { "y": 358, "x": 87, "var": "item_2", "runtime": "TraineeGiftItem", "mouseEnabled": true } }] };
+            return GiftUI;
+        }(View));
+        gift.GiftUI = GiftUI;
+    })(gift = ui.gift || (ui.gift = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var gift;
+    (function (gift) {
+        var GiftItemUI = /** @class */ (function (_super) {
+            __extends(GiftItemUI, _super);
+            function GiftItemUI() {
+                return _super.call(this) || this;
+            }
+            GiftItemUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.gift.GiftItemUI.uiView);
+            };
+            GiftItemUI.uiView = { "type": "View", "props": { "width": 170, "height": 174 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "share/frame3.png" } }, { "type": "Image", "props": { "y": 27, "x": 25, "var": "pic", "skin": "item/2.png" } }, { "type": "Label", "props": { "y": 20, "x": 37, "width": 96, "var": "tfDay", "height": 23, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 130, "x": 37, "width": 96, "var": "tfName", "height": 23, "fontSize": 24, "color": "#000000", "align": "center" } }, { "type": "Image", "props": { "y": 49, "x": 41, "width": 92, "var": "flagGet", "skin": "share/picGet.png", "height": 81 } }] };
+            return GiftItemUI;
+        }(View));
+        gift.GiftItemUI = GiftItemUI;
+    })(gift = ui.gift || (ui.gift = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var loading;
+    (function (loading) {
+        var LoadingUI = /** @class */ (function (_super) {
+            __extends(LoadingUI, _super);
+            function LoadingUI() {
+                return _super.call(this) || this;
+            }
+            LoadingUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.loading.LoadingUI.uiView);
+            };
+            LoadingUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Label", "props": { "y": 674, "x": 320, "var": "tfPro", "text": "loading", "color": "#ffffff" } }] };
+            return LoadingUI;
+        }(View));
+        loading.LoadingUI = LoadingUI;
+    })(loading = ui.loading || (ui.loading = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var main;
+    (function (main) {
+        var MainUI = /** @class */ (function (_super) {
+            __extends(MainUI, _super);
+            function MainUI() {
+                return _super.call(this) || this;
+            }
+            MainUI.prototype.createChildren = function () {
+                View.regComponent("Player", Player);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.main.MainUI.uiView);
+            };
+            MainUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "main/bg.jpg" } }, { "type": "Player", "props": { "y": 476, "x": 219, "var": "player", "runtime": "Player" } }, { "type": "Image", "props": { "y": 28, "x": 13, "width": 195, "skin": "share/bgWord.png", "height": 40 }, "child": [{ "type": "Image", "props": { "y": -9, "x": -2, "width": 55, "skin": "icon/jinbi.png", "height": 57 } }, { "type": "Label", "props": { "y": 6, "x": 57, "width": 129, "var": "tfGold", "height": 31, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Image", "props": { "y": 29, "x": 270, "width": 195, "skin": "share/bgWord.png", "height": 40 }, "child": [{ "type": "Image", "props": { "y": -12, "x": -11, "width": 55, "skin": "icon/diamond.png", "height": 57 } }, { "type": "Label", "props": { "y": 5, "x": 58, "width": 112, "var": "tfDiamond", "height": 31, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": -4, "x": 170, "var": "btnAdd", "stateNum": 1, "skin": "share/btn_add.png" } }] }, { "type": "Button", "props": { "y": 1242, "x": 39, "width": 135, "var": "btnPlayer", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "角色", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 177, "width": 135, "var": "btnFight", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "战斗", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 315, "width": 135, "var": "btnTask", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "事件", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 452, "width": 135, "var": "btnBag", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "背包", "height": 70 } }, { "type": "Button", "props": { "y": 1242, "x": 590, "width": 135, "var": "btnShop", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,39,0,36", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "商店", "height": 70 } }] };
+            return MainUI;
+        }(View));
+        main.MainUI = MainUI;
+    })(main = ui.main || (ui.main = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var main;
+    (function (main) {
+        var PlayerUI = /** @class */ (function (_super) {
+            __extends(PlayerUI, _super);
+            function PlayerUI() {
+                return _super.call(this) || this;
+            }
+            PlayerUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.main.PlayerUI.uiView);
+            };
+            PlayerUI.uiView = { "type": "View", "props": { "width": 264, "height": 320 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "pic", "skin": "pet/1.png" } }, { "type": "Label", "props": { "y": 287, "x": 78, "width": 130, "var": "tfName", "text": "label", "height": 23, "fontSize": 20, "color": "#ffffff", "align": "center" } }] };
+            return PlayerUI;
+        }(View));
+        main.PlayerUI = PlayerUI;
+    })(main = ui.main || (ui.main = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var MiniLLK;
+    (function (MiniLLK) {
+        var LLKItemUI = /** @class */ (function (_super) {
+            __extends(LLKItemUI, _super);
+            function LLKItemUI() {
+                return _super.call(this) || this;
+            }
+            LLKItemUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.MiniLLK.LLKItemUI.uiView);
+            };
+            LLKItemUI.uiView = { "type": "View", "props": { "width": 60, "height": 60 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 60, "var": "pic", "skin": "item/400103.png" } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 60, "var": "frame", "skin": "share/frame.png", "sizeGrid": "13,13,18,13", "height": 60 } }] };
+            return LLKItemUI;
+        }(View));
+        MiniLLK.LLKItemUI = LLKItemUI;
+    })(MiniLLK = ui.MiniLLK || (ui.MiniLLK = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var MiniLLK;
+    (function (MiniLLK) {
+        var LLKViewUI = /** @class */ (function (_super) {
+            __extends(LLKViewUI, _super);
+            function LLKViewUI() {
+                return _super.call(this) || this;
+            }
+            LLKViewUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.MiniLLK.LLKViewUI.uiView);
+            };
+            LLKViewUI.uiView = { "type": "View", "props": { "width": 700, "height": 630 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 30, "width": 700, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 600 } }, { "type": "Image", "props": { "x": 116, "width": 467, "skin": "share/winTitle.png", "sizeGrid": "0,205,0,204", "height": 80 } }, { "type": "Label", "props": { "y": 19, "x": 250, "width": 200, "var": "tfTitle", "text": "label", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 23, "x": 638, "var": "btnClose", "stateNum": 1, "skin": "share/btn_close.png" } }] }] };
+            return LLKViewUI;
+        }(View));
+        MiniLLK.LLKViewUI = LLKViewUI;
+    })(MiniLLK = ui.MiniLLK || (ui.MiniLLK = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var shop;
+    (function (shop) {
+        var ShopUI = /** @class */ (function (_super) {
+            __extends(ShopUI, _super);
+            function ShopUI() {
+                return _super.call(this) || this;
+            }
+            ShopUI.prototype.createChildren = function () {
+                View.regComponent("ShopItem", ShopItem);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.shop.ShopUI.uiView);
+            };
+            ShopUI.uiView = { "type": "View", "props": { "width": 700, "height": 660 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 30, "width": 700, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 630 } }, { "type": "Image", "props": { "x": 116, "width": 467, "skin": "share/winTitle.png", "sizeGrid": "0,205,0,204", "height": 80 } }, { "type": "Label", "props": { "y": 19, "x": 250, "width": 200, "var": "tfTitle", "text": "商店", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 23, "x": 638, "var": "btnClose", "stateNum": 1, "skin": "share/btn_close.png" } }] }, { "type": "List", "props": { "y": 108, "x": 60, "width": 582, "var": "itemList", "spaceY": 20, "spaceX": 20, "repeatY": 3, "repeatX": 5, "height": 519 }, "child": [{ "type": "ShopItem", "props": { "runtime": "ShopItem", "name": "render" } }] }] };
+            return ShopUI;
+        }(View));
+        shop.ShopUI = ShopUI;
+    })(shop = ui.shop || (ui.shop = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var shop;
+    (function (shop) {
+        var ShopItemUI = /** @class */ (function (_super) {
+            __extends(ShopItemUI, _super);
+            function ShopItemUI() {
+                return _super.call(this) || this;
+            }
+            ShopItemUI.prototype.createChildren = function () {
+                View.regComponent("Item", Item);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.shop.ShopItemUI.uiView);
+            };
+            ShopItemUI.uiView = { "type": "View", "props": { "width": 100, "height": 160 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 120, "var": "frame", "skin": "share/frame.png", "sizeGrid": "13,13,18,13", "height": 160 } }, { "type": "Item", "props": { "y": 0, "x": 0, "var": "item", "runtime": "Item" } }, { "type": "Image", "props": { "y": 94, "x": 2, "width": 114, "skin": "share/btn_0.png", "height": 60 }, "child": [{ "type": "Image", "props": { "y": 30, "x": 1, "width": 28, "var": "icon", "skin": "icon/jinbi.png", "height": 29 } }, { "type": "Label", "props": { "y": 34, "x": 31, "width": 44, "var": "tfPriece", "height": 20, "fontSize": 20, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 7, "x": 4, "width": 88, "var": "tfName", "height": 20, "fontSize": 20, "color": "#ffffff", "align": "center" } }] }] };
+            return ShopItemUI;
+        }(View));
+        shop.ShopItemUI = ShopItemUI;
+    })(shop = ui.shop || (ui.shop = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var sign;
+    (function (sign) {
+        var SignUI = /** @class */ (function (_super) {
+            __extends(SignUI, _super);
+            function SignUI() {
+                return _super.call(this) || this;
+            }
+            SignUI.prototype.createChildren = function () {
+                View.regComponent("SignItem", SignItem);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.sign.SignUI.uiView);
+            };
+            SignUI.uiView = { "type": "View", "props": { "width": 600, "height": 630 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 30, "width": 600, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 600 } }, { "type": "Image", "props": { "y": 0, "x": 56, "width": 467, "skin": "share/winTitle.png", "sizeGrid": "0,205,0,204", "height": 80 } }, { "type": "Label", "props": { "y": 19, "x": 190, "width": 200, "var": "tfTitle", "text": "签到", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 23, "x": 538, "var": "btnClose", "stateNum": 1, "skin": "share/btn_close.png" } }] }, { "type": "SignItem", "props": { "y": 252, "x": 99, "var": "item1", "runtime": "SignItem" } }, { "type": "SignItem", "props": { "y": 252, "x": 276, "var": "item2", "runtime": "SignItem" } }, { "type": "SignItem", "props": { "y": 255, "x": 453, "var": "item3", "runtime": "SignItem" } }, { "type": "SignItem", "props": { "y": 401, "x": 99, "var": "item4", "runtime": "SignItem" } }, { "type": "SignItem", "props": { "y": 401, "x": 276, "var": "item5", "runtime": "SignItem" } }, { "type": "SignItem", "props": { "y": 404, "x": 453, "var": "item6", "runtime": "SignItem" } }, { "type": "SignItem", "props": { "y": 110, "x": 451, "var": "item0", "runtime": "SignItem" } }, { "type": "Label", "props": { "y": 118, "x": 82, "width": 363, "text": "签到7日，得大礼包", "height": 118, "fontSize": 24, "color": "#000000", "align": "center" } }, { "type": "Button", "props": { "y": 539, "x": 175, "width": 140, "var": "btnSign", "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,37,0,37", "labelSize": 20, "labelColors": "#ffffff,#ffffff,#ffffff", "label": "领取", "height": 70 } }, { "type": "Button", "props": { "y": 540, "x": 333, "width": 140, "var": "btnDouble", "stateNum": 1, "skin": "share/btn_red.png", "sizeGrid": "0,35,0,38", "labelSize": 20, "labelColors": "#ffffff,#ffffff,#ffffff", "label": "双倍领取" } }] };
+            return SignUI;
+        }(View));
+        sign.SignUI = SignUI;
+    })(sign = ui.sign || (ui.sign = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var sign;
+    (function (sign) {
+        var SignItemUI = /** @class */ (function (_super) {
+            __extends(SignItemUI, _super);
+            function SignItemUI() {
+                return _super.call(this) || this;
+            }
+            SignItemUI.prototype.createChildren = function () {
+                View.regComponent("Item", Item);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.sign.SignItemUI.uiView);
+            };
+            SignItemUI.uiView = { "type": "View", "props": { "width": 120, "height": 130 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 120, "var": "frame", "skin": "share/frame.png", "sizeGrid": "13,13,18,13", "height": 130 } }, { "type": "Item", "props": { "y": 0, "x": 0, "var": "item", "runtime": "Item" } }, { "type": "Image", "props": { "y": 94, "x": 2, "width": 114, "skin": "share/btn_0.png", "height": 30 }, "child": [{ "type": "Label", "props": { "y": 6, "x": 6, "width": 84, "var": "tfDay", "height": 20, "fontSize": 20, "color": "#ffffff", "align": "center" } }] }, { "type": "Label", "props": { "y": 7, "x": 6, "width": 88, "var": "tfName", "height": 20, "fontSize": 20, "color": "#ffffff", "align": "center" } }] };
+            return SignItemUI;
+        }(View));
+        sign.SignItemUI = SignItemUI;
+    })(sign = ui.sign || (ui.sign = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var task;
+    (function (task) {
+        var TaskViewUI = /** @class */ (function (_super) {
+            __extends(TaskViewUI, _super);
+            function TaskViewUI() {
+                return _super.call(this) || this;
+            }
+            TaskViewUI.prototype.createChildren = function () {
+                View.regComponent("Item", Item);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.task.TaskViewUI.uiView);
+            };
+            TaskViewUI.uiView = { "type": "View", "props": { "width": 700, "height": 630 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 30, "width": 700, "skin": "share/winFrame1.png", "sizeGrid": "66,49,50,37", "height": 600 } }, { "type": "Image", "props": { "x": 116, "width": 467, "skin": "share/winTitle.png", "sizeGrid": "0,205,0,204", "height": 80 } }, { "type": "Label", "props": { "y": 19, "x": 250, "width": 200, "var": "tfTitle", "text": "事件", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 23, "x": 638, "var": "btnClose", "stateNum": 1, "skin": "share/btn_close.png" } }] }, { "type": "Label", "props": { "y": 172, "x": 51, "width": 603, "var": "tfDesc", "text": "label", "height": 134, "fontSize": 24, "color": "#000000", "align": "left" } }, { "type": "Label", "props": { "y": 107, "x": 48, "width": 603, "var": "tfName", "text": "label", "height": 42, "fontSize": 28, "color": "#000000", "align": "center" } }, { "type": "Button", "props": { "y": 469, "x": 184, "width": 135, "stateNum": 1, "skin": "share/btn_yellow.png", "sizeGrid": "0,36,0,38", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "放弃", "height": 70 } }, { "type": "Button", "props": { "y": 469, "x": 375, "width": 135, "stateNum": 1, "skin": "share/btn_green.png", "sizeGrid": "0,37,0,37", "labelColors": "#ffffff,#ffffff,#ffffff", "label": "完成" } }, { "type": "List", "props": { "y": 342, "x": 78, "width": 544, "var": "itemList", "spaceX": 10, "height": 100 }, "child": [{ "type": "Item", "props": { "runtime": "Item", "name": "render" } }] }] };
+            return TaskViewUI;
+        }(View));
+        task.TaskViewUI = TaskViewUI;
+    })(task = ui.task || (ui.task = {}));
+})(ui || (ui = {}));
+//# sourceMappingURL=layaUI.max.all.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var BagItem = /** @class */ (function (_super) {
+    __extends(BagItem, _super);
+    function BagItem() {
+        return _super.call(this) || this;
+    }
+    Object.defineProperty(BagItem.prototype, "dataSource", {
+        get: function () {
+            return this._vo;
+        },
+        set: function (vo) {
+            this._vo = vo;
+            this.item.dataSource = vo;
+            if (vo) {
+                var itemVo = DBItem.getItemVo(vo.itemId);
+                this.tfName.text = itemVo.name + "";
+                this.tfDesc.text = itemVo.desc + "";
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return BagItem;
+}(ui.bag.BagItemUI));
+//# sourceMappingURL=BagItem.js.map
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -54702,6 +55855,12 @@ var xframe;
         };
         /**自适应方法,窗口大小变化时供底层调用,在UI需要自动布局是需要*/
         XWindow.prototype.onStageResize = function () {
+        };
+        /**初始化UI */
+        XWindow.prototype.createUI = function () {
+            if (this.ui) {
+                this.addChild(this.ui);
+            }
         };
         /**添加事件 */
         XWindow.prototype.initEvent = function () {
@@ -54839,8 +55998,6 @@ var xframe;
                 this.close();
             }
         };
-        XMWindow.prototype.createUI = function () {
-        };
         XMWindow.prototype.initEvent = function () {
             this.bg.on(Laya.Event.CLICK, this, this._onClick);
         };
@@ -54865,6 +56022,108 @@ var __extends = (this && this.__extends) || (function () {
 /*
 * name;
 */
+var BagView = /** @class */ (function (_super) {
+    __extends(BagView, _super);
+    function BagView() {
+        var _this = _super.call(this) || this;
+        _this.ui = new ui.bag.BagUI();
+        return _this;
+    }
+    BagView.prototype.show = function () {
+        _super.prototype.show.call(this);
+        this.ui.itemList.array = Bag.getInstance().items;
+    };
+    BagView.prototype.onClick = function (e) {
+        switch (e.target) {
+            case this.ui.btnClose:
+                this.close();
+                break;
+        }
+    };
+    BagView.prototype.createUI = function () {
+        _super.prototype.createUI.call(this);
+        this.ui.itemList.vScrollBarSkin = "";
+    };
+    BagView.prototype.initEvent = function () {
+        _super.prototype.initEvent.call(this);
+        this.ui.on(Laya.Event.CLICK, this, this.onClick);
+    };
+    BagView.prototype.removeEvent = function () {
+        this.ui.off(Laya.Event.CLICK, this, this.onClick);
+    };
+    return BagView;
+}(xframe.XMWindow));
+//# sourceMappingURL=BagView.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var Item = /** @class */ (function (_super) {
+    __extends(Item, _super);
+    function Item(vo) {
+        var _this = _super.call(this) || this;
+        _this.dataSource = vo;
+        return _this;
+    }
+    Object.defineProperty(Item.prototype, "dataSource", {
+        get: function () {
+            return this._vo;
+        },
+        set: function (vo) {
+            this._vo = vo;
+            if (vo) {
+                if (vo.itemId) {
+                    this._itemVo = DBItem.getItemVo(vo.itemId);
+                }
+                else {
+                    this.pic.skin = "";
+                }
+                if (vo.num > 0) {
+                    this.tfNum.text = vo.num + "";
+                }
+                else {
+                    this.tfNum.text = "";
+                }
+            }
+            else {
+                this._itemVo = null;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Item.prototype, "ItemVo", {
+        get: function () {
+            return this._itemVo;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Item;
+}(ui.bag.ItemUI));
+//# sourceMappingURL=Item.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
 var LoadingView = /** @class */ (function (_super) {
     __extends(LoadingView, _super);
     function LoadingView() {
@@ -54872,14 +56131,22 @@ var LoadingView = /** @class */ (function (_super) {
     }
     //step 1
     LoadingView.prototype.show = function () {
+        XDB.delLocalData();
         _super.prototype.show.call(this);
-        wx.showLoading({
-            title: '正在初始化'
-        });
         //加载本地资源
         //let urlList:any[] = []
         var urlList = [
-            "res/atlas/share.atlas"
+            "res/atlas/share.atlas",
+            "res/atlas/item.atlas",
+            "res/atlas/icon.atlas",
+            "res/atlas/pet.atlas",
+            "res/cfg/task.json",
+            "res/cfg/shop.json",
+            "res/cfg/sign.json",
+            "res/cfg/item.json",
+            "res/cfg/hero.json",
+            "res/cfg/npc.json",
+            "res/cfg/skill.json"
         ];
         if (urlList.length) {
             Laya.loader.load(urlList, Handler.create(this, this.fetchSrvData));
@@ -54897,6 +56164,7 @@ var LoadingView = /** @class */ (function (_super) {
         //角色初始化；
         User.getInstance().init();
         //道具初始化；
+        Bag.getInstance().init();
         XEvent.instance.event(LoadingView.RDY);
         this.close();
     };
@@ -54925,11 +56193,75 @@ var __extends = (this && this.__extends) || (function () {
 var MainView = /** @class */ (function (_super) {
     __extends(MainView, _super);
     function MainView() {
-        return _super.call(this) || this;
+        var _this = _super.call(this) || this;
+        _this._index = 0;
+        return _this;
     }
+    MainView.prototype.show = function () {
+        _super.prototype.show.call(this);
+        this.ui.player.dataSource = User.getInstance().role;
+        this.updateInfo();
+        //弹出新手签到
+        if (User.getInstance().traineeGift.length < 3) {
+            XFacade.instance.showModule(TraineeGiftView);
+        }
+        //战斗
+        // XFacade.instance.showModule(FightView).fight([User.getInstance().role], [1]);
+    };
+    MainView.prototype.onClick = function (e) {
+        switch (e.target) {
+            case this.ui.player:
+                this.onPlayerClick();
+                break;
+            case this.ui.btnAdd:
+                XTip.showTip("coming soon~~~~");
+                //XFacade.instance.showModule(ShopView);
+                XFacade.instance.showModule(SignView);
+                break;
+            case this.ui.btnFight:
+                XFacade.instance.showModule(LLKView);
+                break;
+            case this.ui.btnTask:
+                XFacade.instance.showModule(TaskView);
+                break;
+            case this.ui.btnBag:
+                XFacade.instance.showModule(BagView);
+                break;
+            case this.ui.btnShop:
+                XFacade.instance.showModule(ShopView);
+                break;
+        }
+    };
+    MainView.prototype.onPlayerClick = function () {
+        if (User.getInstance().role.lv == 1) {
+            this._index++;
+            if (this._index > 3) {
+                this._index = 0;
+                User.getInstance().role.lv++;
+                this.ui.player.update();
+                User.getInstance().save();
+            }
+        }
+        else {
+            //
+        }
+    };
+    MainView.prototype.updateInfo = function () {
+        this.ui.tfGold.text = User.getInstance().gold + "";
+        this.ui.tfDiamond.text = User.getInstance().diamond + "";
+    };
+    MainView.prototype.initEvent = function () {
+        this.ui.on(Laya.Event.CLICK, this, this.onClick);
+        XEvent.instance.on(User.UPDATE, this, this.updateInfo);
+    };
+    MainView.prototype.removeEvent = function () {
+        this.ui.off(Laya.Event.CLICK, this, this.onClick);
+        XEvent.instance.off(User.UPDATE, this, this.updateInfo);
+    };
     MainView.prototype.createUI = function () {
         this.ui = new ui.main.MainUI();
         this.addChild(this.ui);
+        this.ui.player.mouseEnabled = true;
     };
     return MainView;
 }(xframe.XWindow));
@@ -54944,64 +56276,900 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var View = laya.ui.View;
-var Dialog = laya.ui.Dialog;
-var ui;
-(function (ui) {
-    var loading;
-    (function (loading) {
-        var LoadingUI = /** @class */ (function (_super) {
-            __extends(LoadingUI, _super);
-            function LoadingUI() {
-                return _super.call(this) || this;
+/*
+* name;
+*/
+var Player = /** @class */ (function (_super) {
+    __extends(Player, _super);
+    function Player() {
+        var _this = _super.call(this) || this;
+        _this.dataSource;
+        return _this;
+    }
+    /**更新表现 */
+    Player.prototype.update = function () {
+        this.dataSource = this._vo;
+    };
+    Object.defineProperty(Player.prototype, "dataSource", {
+        get: function () {
+            return this._vo;
+        },
+        set: function (r) {
+            this._vo = r;
+            this.tfName.text = this._vo.name + " Lv" + this._vo.lv;
+            this.pic.skin = "pet/" + this._vo.lv + ".png";
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Player;
+}(ui.main.PlayerUI));
+//# sourceMappingURL=Player.js.map
+/*
+* name;
+*/
+var BaseRole = /** @class */ (function () {
+    function BaseRole() {
+        /**体质*/
+        this.physique = 0;
+        /**敏捷*/
+        this.agility = 0;
+        //
+        this.strength = 0;
+    }
+    return BaseRole;
+}());
+//# sourceMappingURL=BaseRole.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var BaseHero = /** @class */ (function (_super) {
+    __extends(BaseHero, _super);
+    function BaseHero() {
+        var _this = _super.call(this) || this;
+        /**攻击成长*/
+        _this.strengthGrow = 1;
+        /**体质成长*/
+        _this.physiqueGrow = 0;
+        /**敏捷成长*/
+        _this.agilityGrow = 0;
+        return _this;
+    }
+    return BaseHero;
+}(BaseRole));
+//# sourceMappingURL=BaseHero.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var Role = /** @class */ (function (_super) {
+    __extends(Role, _super);
+    function Role(data) {
+        if (data === void 0) { data = null; }
+        var _this = _super.call(this) || this;
+        /**角色名*/
+        _this.name = "by001";
+        /**头像*/
+        _this.pic = "";
+        /**经验*/
+        _this.exp = 0;
+        /**等级*/
+        _this.lv = 1;
+        /**技能列表*/
+        _this.skills = [];
+        //一级属性===================================================
+        /**HP*/
+        _this.hp = 1;
+        /**最大HP*/
+        _this.maxHp = 1;
+        /**攻击*/
+        _this.attack = 1;
+        /**闪避*/
+        _this.dodge = 0;
+        /**暴击*/
+        _this.crit = 0;
+        //二级属性==================================================
+        /**速度*/
+        _this.speed = 0;
+        //装备=============================================
+        _this.weapon = null;
+        if (data) {
+            _this.setValue(data);
+        }
+        return _this;
+    }
+    /**
+     *赋值
+     * @param valueObj 值对象,JSON格式化对象
+     */
+    Role.prototype.setValue = function (valueObj) {
+        for (var i in valueObj) {
+            this[i] = valueObj[i];
+        }
+    };
+    return Role;
+}(BaseRole));
+//# sourceMappingURL=Role.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var Fighter = /** @class */ (function (_super) {
+    __extends(Fighter, _super);
+    function Fighter() {
+        var _this = _super.call(this) || this;
+        _this.dataSource;
+        return _this;
+    }
+    Fighter.prototype.attack = function (cb) {
+        var _this = this;
+        Laya.Tween.to(this, { scaleX: 1.2, scaleY: 1.2 }, 150, null, Laya.Handler.create(null, function () {
+            Laya.Tween.to(_this, { scaleX: 1, scaleY: 1 }, 150, null, Laya.Handler.create(null, function () {
+                Laya.Tween.to(_this, { x: _this.x }, 300, null, cb);
+            }));
+        }));
+    };
+    Fighter.prototype.beAttacked = function () {
+        var _this = this;
+        Laya.Tween.to(this, { scaleX: 0.8, scaleY: 0.8 }, 150, null, Laya.Handler.create(null, function () {
+            Laya.Tween.to(_this, { scaleX: 1, scaleY: 1 }, 150);
+        }));
+    };
+    Object.defineProperty(Fighter.prototype, "dataSource", {
+        get: function () {
+            return this._vo;
+        },
+        set: function (v) {
+            this._vo = v;
+            if (this._vo) {
             }
-            LoadingUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.loading.LoadingUI.uiView);
-            };
-            LoadingUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Label", "props": { "y": 674, "x": 320, "var": "tfPro", "text": "loading", "color": "#ffffff" } }] };
-            return LoadingUI;
-        }(View));
-        loading.LoadingUI = LoadingUI;
-    })(loading = ui.loading || (ui.loading = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var main;
-    (function (main) {
-        var MainUI = /** @class */ (function (_super) {
-            __extends(MainUI, _super);
-            function MainUI() {
-                return _super.call(this) || this;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Fighter;
+}(ui.fight.FighterUI));
+//# sourceMappingURL=Fighter.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var FightView = /** @class */ (function (_super) {
+    __extends(FightView, _super);
+    function FightView() {
+        var _this = _super.call(this) || this;
+        _this.ui = new ui.fight.FightUI();
+        _this._curRnd = 1;
+        return _this;
+    }
+    //
+    FightView.prototype.fight = function (home, away) {
+        var fighters = FightModel.init(home, away);
+        var tmp = fighters[0];
+        for (var i = 0; i < tmp.length; i++) {
+            this.ui.home_0.dataSource = tmp[0];
+        }
+        tmp = fighters[1];
+        for (var i = 0; i < tmp.length; i++) {
+            this.ui.away_0.dataSource = tmp[0];
+        }
+        //test
+        this._allFighter = [this.ui.home_0, this.ui.away_0];
+        this._fightInfo = FightModel.fight();
+        this.replay();
+    };
+    FightView.prototype.replay = function () {
+        this.execRnd();
+    };
+    FightView.prototype.execRnd = function () {
+        this.ui.tfRnd.text = "回合" + this._curRnd;
+        this._curRndInfo = this._fightInfo[this._curRnd];
+        if (this._curRndInfo) {
+            this.execAct();
+            this._curRnd++;
+        }
+        else {
+            trace("结束~~~~~~~~~~~~~~~");
+        }
+    };
+    FightView.prototype.execAct = function () {
+        var vo = this._curRndInfo.shift();
+        if (vo) {
+            var attacker = this.getFighter(vo.nowId);
+            trace("execAct", vo);
+            attacker.attack(Laya.Handler.create(this, this.execAct));
+            for (var i in vo.fightInfo) {
+                var defender = this.getFighter(i);
+                defender.beAttacked();
             }
-            MainUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.main.MainUI.uiView);
-            };
-            MainUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Label", "props": { "y": 684, "x": 330, "text": "Main", "color": "#ffffff" } }] };
-            return MainUI;
-        }(View));
-        main.MainUI = MainUI;
-    })(main = ui.main || (ui.main = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var test;
-    (function (test) {
-        var TestPageUI = /** @class */ (function (_super) {
-            __extends(TestPageUI, _super);
-            function TestPageUI() {
-                return _super.call(this) || this;
+        }
+        else {
+            Laya.timer.once(500, this, this.execRnd);
+            //this.execRnd();
+        }
+    };
+    FightView.prototype.getFighter = function (id) {
+        for (var i = 0; i < this._allFighter.length; i++) {
+            if (this._allFighter[i].dataSource.uid == id) {
+                return this._allFighter[i];
             }
-            TestPageUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.test.TestPageUI.uiView);
-            };
-            TestPageUI.uiView = { "type": "View", "child": [{ "props": { "x": 0, "y": 0, "skin": "comp/bg.png", "sizeGrid": "30,4,4,4", "width": 600, "height": 400 }, "type": "Image" }, { "props": { "x": 41, "y": 56, "skin": "comp/button.png", "label": "点我赋值", "width": 150, "height": 37, "sizeGrid": "4,4,4,4", "var": "btn" }, "type": "Button" }, { "props": { "x": 401, "y": 56, "skin": "comp/clip_num.png", "clipX": 10, "var": "clip" }, "type": "Clip" }, { "props": { "x": 220, "y": 143, "skin": "comp/combobox.png", "labels": "select1,select2,selecte3", "selectedIndex": 1, "sizeGrid": "4,20,4,4", "width": 200, "height": 23, "var": "combobox" }, "type": "ComboBox" }, { "props": { "x": 220, "y": 96, "skin": "comp/tab.png", "labels": "tab1,tab2,tab3", "var": "tab" }, "type": "Tab" }, { "props": { "x": 259, "y": 223, "skin": "comp/vscroll.png", "height": 150 }, "type": "VScrollBar" }, { "props": { "x": 224, "y": 223, "skin": "comp/vslider.png", "height": 150 }, "type": "VSlider" }, { "type": "List", "child": [{ "type": "Box", "child": [{ "props": { "skin": "comp/label.png", "text": "this is a list", "x": 26, "y": 5, "width": 78, "height": 20, "fontSize": 14, "name": "label" }, "type": "Label" }, { "props": { "x": 0, "y": 2, "skin": "comp/clip_num.png", "clipX": 10, "name": "clip" }, "type": "Clip" }], "props": { "name": "render", "x": 0, "y": 0, "width": 112, "height": 30 } }], "props": { "x": 452, "y": 68, "width": 128, "height": 299, "vScrollBarSkin": "comp/vscroll.png", "repeatX": 1, "var": "list" } }, { "props": { "x": 563, "y": 4, "skin": "comp/btn_close.png", "name": "close" }, "type": "Button" }, { "props": { "x": 41, "y": 112, "skin": "comp/button.png", "label": "点我赋值", "width": 150, "height": 66, "sizeGrid": "4,4,4,4", "labelSize": 30, "labelBold": true, "var": "btn2" }, "type": "Button" }, { "props": { "x": 220, "y": 188, "skin": "comp/checkbox.png", "label": "checkBox1", "var": "check" }, "type": "CheckBox" }, { "props": { "x": 220, "y": 61, "skin": "comp/radiogroup.png", "labels": "radio1,radio2,radio3", "var": "radio" }, "type": "RadioGroup" }, { "type": "Panel", "child": [{ "props": { "skin": "comp/image.png" }, "type": "Image" }], "props": { "x": 299, "y": 223, "width": 127, "height": 150, "vScrollBarSkin": "comp/vscroll.png" } }, { "props": { "x": 326, "y": 188, "skin": "comp/checkbox.png", "label": "checkBox2", "labelColors": "#ff0000" }, "type": "CheckBox" }, { "type": "Box", "child": [{ "props": { "y": 70, "skin": "comp/progress.png", "width": 150, "height": 14, "sizeGrid": "4,4,4,4", "name": "progress" }, "type": "ProgressBar" }, { "props": { "y": 103, "skin": "comp/label.png", "text": "This is a Label", "width": 137, "height": 26, "fontSize": 20, "name": "label" }, "type": "Label" }, { "props": { "y": 148, "skin": "comp/textinput.png", "text": "textinput", "width": 150, "name": "input" }, "type": "TextInput" }, { "props": { "skin": "comp/hslider.png", "width": 150, "name": "slider" }, "type": "HSlider" }, { "props": { "y": 34, "skin": "comp/hscroll.png", "width": 150, "name": "scroll" }, "type": "HScrollBar" }], "props": { "x": 41, "y": 197, "var": "box" } }], "props": { "width": 600, "height": 400 } };
-            return TestPageUI;
-        }(View));
-        test.TestPageUI = TestPageUI;
-    })(test = ui.test || (ui.test = {}));
-})(ui || (ui = {}));
-//# sourceMappingURL=layaUI.max.all.js.map
+        }
+        return null;
+    };
+    return FightView;
+}(xframe.XMWindow));
+//# sourceMappingURL=FightView.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var TraineeGiftItem = /** @class */ (function (_super) {
+    __extends(TraineeGiftItem, _super);
+    function TraineeGiftItem() {
+        var _this = _super.call(this) || this;
+        _this.flagGet.visible = false;
+        _this.mouseEnabled = true;
+        return _this;
+    }
+    TraineeGiftItem.prototype.updateState = function (state) {
+        this.flagGet.visible = (state > 0);
+    };
+    Object.defineProperty(TraineeGiftItem.prototype, "dataSource", {
+        get: function () {
+            return this._vo;
+        },
+        set: function (vo) {
+            this._vo = vo;
+            trace("gogogo", vo);
+            if (this._vo) {
+                this.tfDay.text = this._vo.day + "";
+                this.tfName.text = this._vo.name + "";
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return TraineeGiftItem;
+}(ui.gift.GiftItemUI));
+//# sourceMappingURL=TraineeGiftItem.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var TraineeGiftView = /** @class */ (function (_super) {
+    __extends(TraineeGiftView, _super);
+    function TraineeGiftView() {
+        var _this = _super.call(this) || this;
+        _this.ui = new ui.gift.GiftUI();
+        return _this;
+    }
+    TraineeGiftView.prototype.show = function () {
+        _super.prototype.show.call(this);
+        this.format();
+    };
+    TraineeGiftView.prototype.format = function () {
+        this.ui.item_0.dataSource = DBTraineeGift.getTraineeGiftVo(0);
+        this.ui.item_1.dataSource = DBTraineeGift.getTraineeGiftVo(1);
+        this.ui.item_2.dataSource = DBTraineeGift.getTraineeGiftVo(2);
+        for (var i = User.getInstance().traineeGift.length - 1; i > -1; i--) {
+            this.ui["item_" + i].updateState(User.getInstance().traineeGift[i]);
+        }
+    };
+    TraineeGiftView.prototype.onClick = function (e) {
+        switch (e.target) {
+            case this.ui.btnClose:
+                this.close();
+                break;
+            case this.ui.item_0:
+                this.getGift(this.ui.item_0.dataSource);
+                break;
+            case this.ui.item_1:
+                this.getGift(this.ui.item_1.dataSource);
+                break;
+            case this.ui.item_2:
+                this.getGift(this.ui.item_2.dataSource);
+                break;
+        }
+    };
+    TraineeGiftView.prototype.getGift = function (data) {
+        trace("getGift-------------------", User.getInstance().traineeGift);
+        var id = data.id;
+        var canGet;
+        var ts = User.getInstance().traineeGift[id];
+        xframe.XUtils;
+        if (ts > 0) {
+            canGet = xframe.XUtils.checkDate(ts, Laya.Browser.now());
+        }
+        else {
+            canGet = (id == 0);
+        }
+        trace(canGet, "xxxxxxxxxxxxxxxxxx");
+        if (canGet) {
+            //发东西
+            var items = data.reward;
+            for (var i = 0; i < items.length; i++) {
+                var tmp = items[i];
+                Bag.getInstance().addItem(tmp[0], tmp[1]);
+            }
+            //存数据
+            User.getInstance().traineeGift[id] = Laya.Browser.now();
+            User.getInstance().save();
+            this.format();
+        }
+    };
+    TraineeGiftView.prototype.initEvent = function () {
+        _super.prototype.initEvent.call(this);
+        this.ui.on(Laya.Event.CLICK, this, this.onClick);
+    };
+    TraineeGiftView.prototype.removeEvent = function () {
+        _super.prototype.removeEvent.call(this);
+        this.ui.off(Laya.Event.CLICK, this, this.onClick);
+    };
+    return TraineeGiftView;
+}(xframe.XMWindow));
+//# sourceMappingURL=TraineeGiftView.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var ShopItem = /** @class */ (function (_super) {
+    __extends(ShopItem, _super);
+    function ShopItem() {
+        return _super.call(this) || this;
+    }
+    Object.defineProperty(ShopItem.prototype, "dataSource", {
+        get: function () {
+            return this._vo;
+        },
+        set: function (vo) {
+            this._vo = vo;
+            this.item.dataSource = vo;
+            if (this._vo) {
+                var itemVo = DBItem.getItemVo(vo.itemId);
+                this.tfPriece.text = vo.price + "";
+                this.tfName.text = itemVo.name + "";
+                if (this._vo.priceType == 1) {
+                    this.icon.skin = "icon/jinbi.png";
+                }
+                else {
+                    this.icon.skin = "icon/diamond.png";
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return ShopItem;
+}(ui.shop.ShopItemUI));
+//# sourceMappingURL=ShopItem.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var ShopView = /** @class */ (function (_super) {
+    __extends(ShopView, _super);
+    function ShopView() {
+        return _super.call(this) || this;
+    }
+    ShopView.prototype.show = function () {
+        _super.prototype.show.call(this);
+        this.ui.itemList.array = DBShop.getShopList();
+        User.getInstance().gold += 10000;
+        User.getInstance().diamond += 1000;
+        User.getInstance().dispatchEvent();
+    };
+    ShopView.prototype.createUI = function () {
+        this.ui = new ui.shop.ShopUI();
+        this.addChild(this.ui);
+        this.ui.itemList.vScrollBarSkin = "";
+    };
+    ShopView.prototype.onClick = function (e) {
+        switch (e.target) {
+            case this.ui.btnClose:
+                this.close();
+                break;
+        }
+    };
+    ShopView.prototype.onItemClick = function (e, index) {
+        if (e.type == Laya.Event.CLICK) {
+            var vo = this.ui.itemList.getItem(index);
+            var itemVo = DBItem.getItemVo(vo.itemId);
+            if (vo.priceType == 1) {
+                if (User.getInstance().gold < vo.price) {
+                    XTip.showTip("金币不足~");
+                }
+                else {
+                    User.getInstance().gold -= vo.price;
+                    User.getInstance().save();
+                    //加入道具
+                    Bag.getInstance().addItem(vo.itemId, 1);
+                    XTip.showTip("获得" + itemVo.name + "x1");
+                }
+            }
+            else {
+                if (User.getInstance().diamond < vo.price) {
+                    XTip.showTip("钻石不足~");
+                }
+                else {
+                    User.getInstance().diamond -= vo.price;
+                    User.getInstance().save();
+                    //加入道具
+                    Bag.getInstance().addItem(vo.itemId, 1);
+                    XTip.showTip("获得" + itemVo.name + "x1");
+                }
+            }
+        }
+    };
+    ShopView.prototype.initEvent = function () {
+        this.ui.on(Laya.Event.CLICK, this, this.onClick);
+        this.ui.itemList.mouseHandler = Laya.Handler.create(this, this.onItemClick, null, false);
+    };
+    ShopView.prototype.removeEvent = function () {
+        this.ui.off(Laya.Event.CLICK, this, this.onClick);
+        this.ui.itemList.mouseHandler.recover();
+        this.ui.itemList.mouseHandler = null;
+    };
+    return ShopView;
+}(xframe.XMWindow));
+//# sourceMappingURL=ShopView.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var SignItem = /** @class */ (function (_super) {
+    __extends(SignItem, _super);
+    function SignItem() {
+        var _this = _super.call(this) || this;
+        _this.dataSource;
+        return _this;
+    }
+    Object.defineProperty(SignItem.prototype, "dataSource", {
+        get: function () {
+            return this._vo;
+        },
+        set: function (vo) {
+            this._vo = vo;
+            if (this._vo) {
+                this.tfDay.text = this._vo.day;
+                this.tfName.text = this._vo.name + "";
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return SignItem;
+}(ui.sign.SignItemUI));
+//# sourceMappingURL=SignItem.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var SignView = /** @class */ (function (_super) {
+    __extends(SignView, _super);
+    function SignView() {
+        var _this = _super.call(this) || this;
+        _this.ItemNum = 7;
+        return _this;
+    }
+    SignView.prototype.show = function () {
+        _super.prototype.show.call(this);
+        //同步
+        var now = Laya.Browser.now();
+        if (now - User.getInstance().sign.end > 0) {
+            var date = new Date();
+            var delDay = 6 - date.getDay();
+            var tDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+            var delTime = tDate.getTime() - date.getTime();
+            delTime += 3600 * 1000 * 24 * delDay;
+            User.getInstance().sign.end = now + delTime;
+            trace(User.getInstance().sign.end);
+            //trace(date.getMonth())
+            //trace(date.getDate())
+            User.getInstance().sign.info.length = 0;
+        }
+        //
+        for (var i = 0; i < this.ItemNum; i++) {
+            this.ui["item" + i].dataSource = DBSign.getSignVo(i);
+            //this.ui["item"+i].update(User.getInstance().sign[i]);
+        }
+    };
+    SignView.prototype.onClick = function (e) {
+        switch (e.target) {
+            case this.ui.btnClose:
+                this.close();
+                break;
+            case this.ui.btnSign:
+                this.sign();
+                break;
+            case this.ui.btnDouble:
+                break;
+        }
+    };
+    SignView.prototype.sign = function () {
+        var date = new Date();
+        /*
+        date.getDay();
+        if(User.ge)
+        let ts:number = User.getInstance().traineeGift[id];
+        xframe.XUtils
+        if(ts > 0){
+             canGet = xframe.XUtils.checkDate(ts, Laya.Browser.now());
+        }else{
+            canGet = (id == 0);
+        }
+        trace(canGet,"xxxxxxxxxxxxxxxxxx")
+        if(canGet){
+            //发东西
+            let items:any[] = data.reward;
+            for(let i=0; i<items.length; i++){
+                let tmp:number = items[i];
+                Bag.getInstance().addItem(tmp[0], tmp[1])
+            }
+            //存数据
+            User.getInstance().traineeGift[id] = Laya.Browser.now();
+            User.getInstance().save();
+            this.format();
+        }
+        */
+    };
+    SignView.prototype.createUI = function () {
+        this.ui = new ui.sign.SignUI();
+        this.addChild(this.ui);
+    };
+    SignView.prototype.initEvent = function () {
+        this.ui.on(Laya.Event.CLICK, this, this.onClick);
+    };
+    SignView.prototype.removeEvent = function () {
+        this.ui.off(Laya.Event.CLICK, this, this.onClick);
+    };
+    return SignView;
+}(xframe.XMWindow));
+//# sourceMappingURL=SignView.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var TaskView = /** @class */ (function (_super) {
+    __extends(TaskView, _super);
+    function TaskView() {
+        return _super.call(this) || this;
+    }
+    TaskView.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this.showTask(User.getInstance().task[0]);
+    };
+    TaskView.prototype.showTask = function (taskId) {
+        var vo = DBTask.getTaskVo(taskId);
+        if (vo) {
+            this.ui.tfName.text = vo.name + "";
+            this.ui.tfDesc.text = vo.desc + "";
+            var arr = vo.reward || [];
+            var items = [];
+            for (var i = 0; i < arr.length; i++) {
+                items.push({ itemId: arr[i][0], num: arr[i][1] });
+            }
+            this.ui.itemList.array = items;
+        }
+    };
+    TaskView.prototype.createUI = function () {
+        this.ui = new ui.task.TaskViewUI();
+        this.addChild(this.ui);
+        this.closeOnBlank = true;
+    };
+    TaskView.prototype.initEvent = function () {
+        _super.prototype.initEvent.call(this);
+    };
+    TaskView.prototype.removeEvent = function () {
+        _super.prototype.removeEvent.call(this);
+    };
+    return TaskView;
+}(xframe.XMWindow));
+//# sourceMappingURL=TaskView.js.map
+//# sourceMappingURL=ISelectable.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var LLKItem = /** @class */ (function (_super) {
+    __extends(LLKItem, _super);
+    function LLKItem() {
+        var _this = _super.call(this) || this;
+        _this.position = new Laya.Point();
+        return _this;
+    }
+    Object.defineProperty(LLKItem.prototype, "dataSource", {
+        get: function () {
+            return this._data;
+        },
+        set: function (vo) {
+            this._data = vo;
+            if (this._data) {
+                this.visible = true;
+                this.pic.skin = "item/" + vo.skin + ".png";
+            }
+            else {
+                this.visible = false;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LLKItem.prototype, "selected", {
+        get: function () {
+            return this._selected;
+        },
+        set: function (b) {
+            this._selected = b;
+            if (this._selected) {
+                this.frame.skin = "share/frame2.png";
+            }
+            else {
+                this.frame.skin = "share/frame.png";
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return LLKItem;
+}(ui.MiniLLK.LLKItemUI));
+//# sourceMappingURL=LLKItem.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var LLKView = /** @class */ (function (_super) {
+    __extends(LLKView, _super);
+    function LLKView() {
+        var _this = _super.call(this) || this;
+        _this._items = [];
+        _this._map = [
+            [2, 0, 2, 1, 3],
+            [1, 2, 0, 2, 3],
+            [1, 1, 0, 2, 2],
+            [2, 3, 2, 2, 4],
+            [3, 2, 2, 2, 4],
+        ];
+        return _this;
+    }
+    LLKView.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this.ui.tfTitle.text = "连连看";
+        this.initMap(this._map);
+    };
+    LLKView.prototype.initMap = function (map) {
+        this.clear();
+        var len;
+        var item;
+        for (var i = 0; i < map.length; i++) {
+            len = map[i].length;
+            for (var j = 0; j < len; j++) {
+                if (map[i][j] > 0) {
+                    item = new LLKItem();
+                    item.dataSource = DBLLK.getVo(map[i][j]);
+                    this._items.push(item);
+                    this._itemSp.addChild(item);
+                    item.x = item.width * j;
+                    item.y = item.height * i;
+                    item.position.x = i;
+                    item.position.y = j;
+                    item.on(Laya.Event.CLICK, this, this.onItemClick);
+                }
+            }
+        }
+        this._itemSp.width = map.length * item.width;
+        this._itemSp.height = len * item.height;
+        this._itemSp.x = (this.ui.width - this._itemSp.width) / 2;
+        this._itemSp.y = (this.ui.height - this._itemSp.height) / 2;
+    };
+    LLKView.prototype.onClick = function (e) {
+        switch (e.target) {
+            case this.ui.btnClose:
+                this.close();
+                break;
+        }
+    };
+    LLKView.prototype.onItemClick = function (e) {
+        var item = e.currentTarget;
+        if (this.selectedItem) {
+            if (this.selectedItem.dataSource.id == item.dataSource.id) {
+                if (LLKLogic.checkLink(this.selectedItem.position, item.position, this._map)) {
+                    this.delItem(this.selectedItem);
+                    this.delItem(item);
+                }
+                this.selectedItem = null;
+            }
+            else {
+                this.selectedItem = item;
+            }
+        }
+        else {
+            this.selectedItem = item;
+        }
+    };
+    LLKView.prototype.delItem = function (item) {
+        for (var i = this._items.length - 1; i > -1; i--) {
+            if (this._items[i] == item) {
+                this._items[i].off(Laya.Event.CLICK, this, this.onItemClick);
+                //do sth;
+                this._items[i].removeSelf();
+                this._items.splice(i, 1);
+                this._map[item.position.x][item.position.y] = 0;
+                break;
+            }
+        }
+        if (this._items.length == 0) {
+            trace("done===========================");
+        }
+    };
+    LLKView.prototype.clear = function () {
+        for (var i = this._items.length - 1; i > -1; i--) {
+            this._items[i].off(Laya.Event.CLICK, this, this.onItemClick);
+            this._items[i].removeSelf();
+        }
+        this._items.length = 0;
+    };
+    Object.defineProperty(LLKView.prototype, "selectedItem", {
+        get: function () {
+            return this._selectedItem;
+        },
+        set: function (item) {
+            if (this._selectedItem != item) {
+                if (this._selectedItem) {
+                    this._selectedItem.selected = false;
+                }
+                this._selectedItem = item;
+                if (this._selectedItem) {
+                    this._selectedItem.selected = true;
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    LLKView.prototype.createUI = function () {
+        this.ui = new ui.MiniLLK.LLKViewUI();
+        this.addChild(this.ui);
+        this.closeOnBlank = true;
+        this._itemSp = new Laya.Sprite();
+        this.ui.addChild(this._itemSp);
+    };
+    LLKView.prototype.initEvent = function () {
+        _super.prototype.initEvent.call(this);
+        this.ui.on(Laya.Event.CLICK, this, this.onClick);
+    };
+    LLKView.prototype.removeEvent = function () {
+        _super.prototype.removeEvent.call(this);
+        this.ui.off(Laya.Event.CLICK, this, this.onClick);
+    };
+    return LLKView;
+}(xframe.XMWindow));
+//# sourceMappingURL=LLKView.js.map
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -55047,26 +57215,26 @@ var xframe;
             //==============================================================
             //根据需要换UI====================================================
             //==============================================================
-            this._view = new XXAlertUI();
-            this.addChild(this._view);
+            this.ui = new XXAlertUI();
+            this.addChild(this.ui);
             //==============================================================
             //END===========================================================
             //==============================================================
-            this._btnYes = this._view["btnYes"];
-            this._btnNo = this._view["btnNo"];
-            this._btnClose = this._view["btnClose"];
-            this._tfMsg = this._view["tfMsg"];
+            this._btnYes = this.ui["btnYes"];
+            this._btnNo = this.ui["btnNo"];
+            this._btnClose = this.ui["btnClose"];
+            this._tfMsg = this.ui["tfMsg"];
             //
             this._oriYesPos = this._btnYes.x;
             this._oriNoPos = this._btnNo.x;
         };
         /**加事件*/
         XAlert.prototype.initEvent = function () {
-            this._view.on(Laya.Event.CLICK, this, this.onClick);
+            this.ui.on(Laya.Event.CLICK, this, this.onClick);
         };
         /**删除事件*/
         XAlert.prototype.removeEvent = function () {
-            this._view.off(Laya.Event.CLICK, this, this.onClick);
+            this.ui.off(Laya.Event.CLICK, this, this.onClick);
         };
         XAlert.prototype.onClick = function (event) {
             switch (event.target) {
@@ -55130,7 +57298,7 @@ var xframe;
             var btn;
             if (btnNum == 1) {
                 this._btnYes.visible ? btn = this._btnYes : btn = this._btnNo;
-                btn.x = (this._view.width - btn.width) / 2;
+                btn.x = (this.ui.width - btn.width) / 2;
             }
             else if (btnNum == 2) {
                 this._btnYes.x = this._oriYesPos;
@@ -55458,7 +57626,7 @@ var xframe;
          * @return 矩形区域。
          */
         XToolTip.prototype.getBounds = function () {
-            return new Laya.Rectangle(0, 0, this._view.width, this._view.height);
+            return new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
         };
         XToolTip.prototype.onClose = function () {
             if (this._target && !xframe.XUtils.checkHit(this._target)) {
@@ -55471,12 +57639,12 @@ var xframe;
              * 需要配置定义一套UI----------------------------
              * ------------------------------------------
              * */
-            this._view = new View();
-            this._view.size(200, 100);
-            this._view.graphics.drawRect(0, 0, 200, 100, "#999999");
-            this.addChild(this._view);
+            this.ui = new View();
+            this.ui.size(200, 100);
+            this.ui.graphics.drawRect(0, 0, 200, 100, "#999999");
+            this.addChild(this.ui);
             this._msgTF = new Laya.Text();
-            this._view.addChild(this._msgTF);
+            this.ui.addChild(this._msgTF);
         };
         XToolTip.prototype.initEvent = function () {
             Laya.stage.on(Laya.Event.MOUSE_DOWN, this, this.onClose);
@@ -55490,82 +57658,24 @@ var xframe;
 })(xframe || (xframe = {}));
 //# sourceMappingURL=XToolTip.js.map
 //# sourceMappingURL=IXWindow.js.map
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var test = ui.test.TestPageUI;
 var Label = Laya.Label;
 var Handler = Laya.Handler;
 var Loader = Laya.Loader;
 var WebGL = Laya.WebGL;
 var XFacade = xframe.XFacade;
-var XWindow = xframe.XWindow;
-var XMWindow = xframe.XMWindow;
-var TestUI = /** @class */ (function (_super) {
-    __extends(TestUI, _super);
-    function TestUI() {
-        var _this = _super.call(this) || this;
-        //btn是编辑器界面设定的，代码里面能直接使用，并且有代码提示
-        _this.btn.on(Laya.Event.CLICK, _this, _this.onBtnClick);
-        _this.btn2.on(Laya.Event.CLICK, _this, _this.onBtn2Click);
-        return _this;
-    }
-    TestUI.prototype.onBtnClick = function () {
-        //手动控制组件属性
-        this.radio.selectedIndex = 1;
-        this.clip.index = 8;
-        this.tab.selectedIndex = 2;
-        this.combobox.selectedIndex = 0;
-        this.check.selected = true;
-    };
-    TestUI.prototype.onBtn2Click = function () {
-        //通过赋值可以简单快速修改组件属性
-        //赋值有两种方式：
-        //简单赋值，比如：progress:0.2，就是更改progress组件的value为2
-        //复杂复制，可以通知某个属性，比如：label:{color:"#ff0000",text:"Hello LayaAir"}
-        this.box.dataSource = { slider: 50, scroll: 80, progress: 0.2, input: "This is a input", label: { color: "#ff0000", text: "Hello LayaAir" } };
-        //list赋值，先获得一个数据源数组
-        var arr = [];
-        for (var i = 0; i < 100; i++) {
-            arr.push({ label: "item " + i, clip: i % 9 });
-        }
-        //给list赋值更改list的显示
-        this.list.array = arr;
-        //还可以自定义list渲染方式，可以打开下面注释看一下效果
-        //list.renderHandler = new Handler(this, onListRender);
-    };
-    TestUI.prototype.onListRender = function (item, index) {
-        //自定义list的渲染方式
-        var label = item.getChildByName("label");
-        if (index % 2) {
-            label.color = "#ff0000";
-        }
-        else {
-            label.color = "#000000";
-        }
-    };
-    return TestUI;
-}(ui.test.TestPageUI));
+var XTip = xframe.XTip;
+var XAlert = xframe.XAlert;
 //初始化微信小游戏
 Laya.MiniAdpter.init();
 //程序入口
 Laya.init(750, 1334, WebGL);
+Laya.stage.scaleMode = "showall";
 //激活资源版本控制
 Laya.ResourceVersion.enable("version.json", Handler.create(null, beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
 function beginLoad() {
     Laya.loader.load("res/atlas/comp.atlas", Handler.create(null, onLoaded));
 }
 function onLoaded() {
-    //实例UI界面
-    //var testUI: TestUI = new TestUI();
-    //Laya.stage.addChild(testUI);
     xframe.XFacade.instance.init(new App());
 }
 //# sourceMappingURL=Main.js.map

@@ -46,6 +46,7 @@ class SignView extends xframe.XMWindow{
 
     private sign():void{
         let date:Date = new Date();
+        /*
         date.getDay();
         if(User.ge)
         let ts:number = User.getInstance().traineeGift[id];
@@ -68,6 +69,7 @@ class SignView extends xframe.XMWindow{
             User.getInstance().save();
             this.format();
         }
+        */
     }
 
     protected createUI():void{

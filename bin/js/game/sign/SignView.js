@@ -54,29 +54,30 @@ var SignView = /** @class */ (function (_super) {
     };
     SignView.prototype.sign = function () {
         var date = new Date();
+        /*
         date.getDay();
-        if (User.ge)
-            var ts = User.getInstance().traineeGift[id];
-        xframe.XUtils;
-        if (ts > 0) {
-            canGet = xframe.XUtils.checkDate(ts, Laya.Browser.now());
-        }
-        else {
+        if(User.ge)
+        let ts:number = User.getInstance().traineeGift[id];
+        xframe.XUtils
+        if(ts > 0){
+             canGet = xframe.XUtils.checkDate(ts, Laya.Browser.now());
+        }else{
             canGet = (id == 0);
         }
-        trace(canGet, "xxxxxxxxxxxxxxxxxx");
-        if (canGet) {
+        trace(canGet,"xxxxxxxxxxxxxxxxxx")
+        if(canGet){
             //发东西
-            var items = data.reward;
-            for (var i = 0; i < items.length; i++) {
-                var tmp = items[i];
-                Bag.getInstance().addItem(tmp[0], tmp[1]);
+            let items:any[] = data.reward;
+            for(let i=0; i<items.length; i++){
+                let tmp:number = items[i];
+                Bag.getInstance().addItem(tmp[0], tmp[1])
             }
             //存数据
             User.getInstance().traineeGift[id] = Laya.Browser.now();
             User.getInstance().save();
             this.format();
         }
+        */
     };
     SignView.prototype.createUI = function () {
         this.ui = new ui.sign.SignUI();
