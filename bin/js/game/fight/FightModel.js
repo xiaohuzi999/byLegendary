@@ -22,20 +22,24 @@ var FightModel = /** @class */ (function () {
             }
         }
         //this._all.sort(this.sortOnSpeed);
-        this.fight();
+        //this.fight();
+        return [this._home, this._away];
     };
     FightModel.fight = function () {
         //如果没有接受
         var result = this.checkEnd();
+        var fightResut = {};
         while (result < 1) {
             //
             trace("rnd：：：：：：：：：", this._curRnd);
             this.out();
-            this.startNewRnd();
-            this._curRnd++;
+            fightResut[this._curRnd++] = this.startNewRnd();
             result = this.checkEnd();
         }
-        trace("fight result::", result);
+        fightResut["result"] = result;
+        fightResut["totalRnd"] = this._curRnd - 1;
+        trace("fightResut::", fightResut);
+        return fightResut;
     };
     FightModel.out = function () {
         for (var i = 0; i < this._all.length; i++) {
@@ -43,16 +47,18 @@ var FightModel = /** @class */ (function () {
         }
     };
     /**
-     * 开始战斗
+     * 开始新一轮
      */
     FightModel.startNewRnd = function () {
         //console.log("startFight============================")
+        var rnd = [];
         this._wait = this._all.slice(0, this._all.length);
         while (this._wait.length) {
             this._curRole = this._wait.shift();
-            trace("Now----------", this._curRole);
-            this.excuteAI(this._curRole);
+            //trace("Now----------", this._curRole)
+            rnd.push(this.excuteAI(this._curRole));
         }
+        return rnd;
     };
     /**
      * 执行AI逻辑*
@@ -81,7 +87,6 @@ var FightModel = /** @class */ (function () {
         else {
             console.warn("Skill Err", role);
         }
-        vo.rndId = this._curRnd;
         return vo;
     };
     FightModel.exSkill = function (skillRole, vo) {

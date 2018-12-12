@@ -13,7 +13,7 @@ class FightModel{
     private static _uidIndex:number = -1;
     
     /**初始化 */
-    public static init(home:Role[], away:any[]):void{
+    public static init(home:Role[], away:any[]):any[]{
         this._home.length = this._away.length = this._all.length = 0;
         this._curRnd = 1;
 
@@ -31,21 +31,25 @@ class FightModel{
             }
         }
         //this._all.sort(this.sortOnSpeed);
-        this.fight();
+        //this.fight();
+        return [this._home, this._away]
     }
 
-    public static fight():void{
+    public static fight():any{
         //如果没有接受
         let result:number = this.checkEnd();
+        let fightResut:any = {};
         while(result < 1){
             //
             trace("rnd：：：：：：：：：", this._curRnd);
             this.out();
-            this.startNewRnd();
-            this._curRnd ++;
+            fightResut[this._curRnd ++] = this.startNewRnd();
             result = this.checkEnd();
         }
-        trace("fight result::",result)
+        fightResut["result"] = result;
+        fightResut["totalRnd"] = this._curRnd-1;
+        trace("fightResut::",fightResut)
+        return fightResut;
     }
 
     private static out():void{
@@ -55,16 +59,18 @@ class FightModel{
     }
 
     /**
-     * 开始战斗
+     * 开始新一轮
      */
-    public static startNewRnd():void{
+    private static startNewRnd():FightVo[]{
         //console.log("startFight============================")
+        let rnd:FightVo[] = [];
         this._wait = this._all.slice(0, this._all.length);
         while(this._wait.length){
             this._curRole = this._wait.shift();
-            trace("Now----------", this._curRole)
-            this.excuteAI(this._curRole);
+            //trace("Now----------", this._curRole)
+           rnd.push(this.excuteAI(this._curRole));
         }
+        return rnd;
     }
 
     /**
@@ -93,7 +99,6 @@ class FightModel{
         }else{
             console.warn("Skill Err",role);
         }
-        vo.rndId  = this._curRnd;
         return vo;
     }
 
