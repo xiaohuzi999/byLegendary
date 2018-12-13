@@ -4,9 +4,9 @@
 var User = /** @class */ (function () {
     function User() {
         this.power = 0;
-        this.gold = 0;
+        this.gold = 10000;
         this.diamond = 0;
-        this.task = [1];
+        this.task = [];
         this.taskDone = [];
         /**Trainee Gift */
         this.traineeGift = [];

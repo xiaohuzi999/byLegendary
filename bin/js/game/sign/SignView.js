@@ -30,14 +30,14 @@ var SignView = /** @class */ (function (_super) {
             delTime += 3600 * 1000 * 24 * delDay;
             User.getInstance().sign.end = now + delTime;
             trace(User.getInstance().sign.end);
-            //trace(date.getMonth())
-            //trace(date.getDate())
             User.getInstance().sign.info.length = 0;
         }
-        //
+        this.update();
+    };
+    SignView.prototype.update = function () {
         for (var i = 0; i < this.ItemNum; i++) {
             this.ui["item" + i].dataSource = DBSign.getSignVo(i);
-            //this.ui["item"+i].update(User.getInstance().sign[i]);
+            this.ui["item" + i].update(User.getInstance().sign.info[i], (new Date()).getDay());
         }
     };
     SignView.prototype.onClick = function (e) {
@@ -53,29 +53,21 @@ var SignView = /** @class */ (function (_super) {
         }
     };
     SignView.prototype.sign = function () {
+        trace("sign----------------");
         var date = new Date();
-        date.getDay();
-        if (User.ge)
-            var ts = User.getInstance().traineeGift[id];
-        xframe.XUtils;
-        if (ts > 0) {
-            canGet = xframe.XUtils.checkDate(ts, Laya.Browser.now());
+        var day = date.getDay();
+        if (User.getInstance().sign.info[day]) {
+            XTip.showTip("done~~~~~~~~~~");
         }
         else {
-            canGet = (id == 0);
-        }
-        trace(canGet, "xxxxxxxxxxxxxxxxxx");
-        if (canGet) {
-            //发东西
-            var items = data.reward;
-            for (var i = 0; i < items.length; i++) {
-                var tmp = items[i];
-                Bag.getInstance().addItem(tmp[0], tmp[1]);
-            }
+            var vo = DBSign.getSignVo(day);
+            trace("sign----------------", vo);
+            var item = vo.reward;
+            Bag.getInstance().addItem(item[0], item[1]);
             //存数据
-            User.getInstance().traineeGift[id] = Laya.Browser.now();
+            User.getInstance().sign.info[day] = 1;
             User.getInstance().save();
-            this.format();
+            this.update();
         }
     };
     SignView.prototype.createUI = function () {

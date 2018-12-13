@@ -40,11 +40,13 @@ var Bag = /** @class */ (function () {
         //如果是货币
         if (itemId == ItemVo.GOLD) {
             User.getInstance().gold += Math.floor(itemNum);
+            User.getInstance().dispatchEvent();
             User.getInstance().save();
             return;
         }
         else if (itemId == ItemVo.DIAMOND) {
             User.getInstance().diamond += Math.floor(itemNum);
+            User.getInstance().dispatchEvent();
             User.getInstance().save();
             return;
         }
@@ -87,6 +89,12 @@ var Bag = /** @class */ (function () {
     };
     /**获取道具数量 */
     Bag.prototype.getItemNum = function (itemId) {
+        if (itemId == ItemVo.GOLD) {
+            return User.getInstance().gold;
+        }
+        else if (itemId == ItemVo.DIAMOND) {
+            return User.getInstance().diamond;
+        }
         var num = 0;
         for (var i = 0; i < this.items.length; i++) {
             if (this.items[i].itemId == itemId) {
@@ -97,6 +105,14 @@ var Bag = /** @class */ (function () {
     };
     /**随机扣除道具 */
     Bag.prototype.delItem = function (itemId, itemNum) {
+        if (itemId == ItemVo.GOLD) {
+            User.getInstance().gold -= itemNum;
+            return;
+        }
+        else if (itemId == ItemVo.DIAMOND) {
+            User.getInstance().diamond -= itemNum;
+            return;
+        }
         for (var i = 0; i < this.items.length; i++) {
             if (this.items[i].itemId == itemId) {
                 this.items[i].num -= Math.floor(itemNum);

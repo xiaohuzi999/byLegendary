@@ -46,10 +46,12 @@ class Bag{
         //如果是货币
         if(itemId == ItemVo.GOLD){
             User.getInstance().gold += Math.floor(itemNum);
+            User.getInstance().dispatchEvent();
             User.getInstance().save();
             return;
         }else if(itemId == ItemVo.DIAMOND){
             User.getInstance().diamond += Math.floor(itemNum);
+            User.getInstance().dispatchEvent();
             User.getInstance().save();
             return;
         }
@@ -95,6 +97,11 @@ class Bag{
 
     /**获取道具数量 */
     public getItemNum(itemId:any):number{
+        if(itemId == ItemVo.GOLD){
+            return User.getInstance().gold;
+        }else if(itemId == ItemVo.DIAMOND){
+            return User.getInstance().diamond;
+        }
         let num:number = 0;
         for(let i=0; i<this.items.length; i++){
             if(this.items[i].itemId == itemId ){
@@ -107,6 +114,13 @@ class Bag{
 
     /**随机扣除道具 */
     public delItem(itemId:any, itemNum:number):void{
+        if(itemId == ItemVo.GOLD){
+            User.getInstance().gold -= itemNum;
+            return;
+        }else if(itemId == ItemVo.DIAMOND){
+            User.getInstance().diamond -= itemNum;
+            return;
+        }
         for(let i=0; i<this.items.length; i++){
             if(this.items[i].itemId == itemId ){
                 this.items[i].num -= Math.floor(itemNum);

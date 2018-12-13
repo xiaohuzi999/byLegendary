@@ -10,13 +10,13 @@ class User{
 
     public power:number = 0;
 
-    public gold:number = 0;
+    public gold:number = 10000;
     
     public diamond:number = 0;
     //
     public role:Role;
 
-    public task:number[] = [1];
+    public task:{id:number, value:number}[] = [];
     
     public taskDone:number[] = [];
 

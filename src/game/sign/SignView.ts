@@ -20,14 +20,15 @@ class SignView extends xframe.XMWindow{
             delTime += 3600*1000*24*delDay
             User.getInstance().sign.end = now+delTime;
             trace(User.getInstance().sign.end)
-            //trace(date.getMonth())
-            //trace(date.getDate())
             User.getInstance().sign.info.length = 0;
         }
-        //
+        this.update();
+    }
+
+    private update():void{
         for(let i=0; i<this.ItemNum; i++){
             this.ui["item"+i].dataSource = DBSign.getSignVo(i);
-            //this.ui["item"+i].update(User.getInstance().sign[i]);
+            this.ui["item"+i].update(User.getInstance().sign.info[i], (new Date()).getDay());
         }
     }
 
@@ -45,28 +46,20 @@ class SignView extends xframe.XMWindow{
     }
 
     private sign():void{
+        trace("sign----------------")
         let date:Date = new Date();
-        date.getDay();
-        if(User.ge)
-        let ts:number = User.getInstance().traineeGift[id];
-        xframe.XUtils
-        if(ts > 0){
-             canGet = xframe.XUtils.checkDate(ts, Laya.Browser.now());
+        let day:number = date.getDay();
+        if(User.getInstance().sign.info[day]){
+            XTip.showTip("done~~~~~~~~~~")
         }else{
-            canGet = (id == 0);
-        }
-        trace(canGet,"xxxxxxxxxxxxxxxxxx")
-        if(canGet){
-            //发东西
-            let items:any[] = data.reward;
-            for(let i=0; i<items.length; i++){
-                let tmp:number = items[i];
-                Bag.getInstance().addItem(tmp[0], tmp[1])
-            }
+            let vo:SignVo = DBSign.getSignVo(day)
+            trace("sign----------------", vo)
+            let item:number[] = vo.reward;
+            Bag.getInstance().addItem(item[0], item[1])
             //存数据
-            User.getInstance().traineeGift[id] = Laya.Browser.now();
+            User.getInstance().sign.info[day] = 1;
             User.getInstance().save();
-            this.format();
+            this.update();
         }
     }
 

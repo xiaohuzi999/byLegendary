@@ -22,10 +22,12 @@ var TaskView = /** @class */ (function (_super) {
             args[_i] = arguments[_i];
         }
         _super.prototype.show.call(this);
-        this.showTask(User.getInstance().task[0]);
+        this.showTask({ id: 1, value: 0 });
     };
-    TaskView.prototype.showTask = function (taskId) {
-        var vo = DBTask.getTaskVo(taskId);
+    TaskView.prototype.showTask = function (taskInfo) {
+        this._curId = taskInfo.id;
+        var vo = DBTask.getTaskVo(this._curId);
+        var done = DBTask.checkFinish(this._curId);
         if (vo) {
             this.ui.tfName.text = vo.name + "";
             this.ui.tfDesc.text = vo.desc + "";
@@ -36,6 +38,16 @@ var TaskView = /** @class */ (function (_super) {
             }
             this.ui.itemList.array = items;
         }
+        this.ui.btnDone.disabled = !done;
+    };
+    TaskView.prototype.onClick = function (e) {
+        switch (e.target) {
+            case this.ui.btnDone:
+                if (DBTask.finishTask(this._curId)) {
+                    this.close();
+                }
+                break;
+        }
     };
     TaskView.prototype.createUI = function () {
         this.ui = new ui.task.TaskViewUI();
@@ -44,9 +56,11 @@ var TaskView = /** @class */ (function (_super) {
     };
     TaskView.prototype.initEvent = function () {
         _super.prototype.initEvent.call(this);
+        this.ui.on(Laya.Event.CLICK, this, this.onClick);
     };
     TaskView.prototype.removeEvent = function () {
         _super.prototype.removeEvent.call(this);
+        this.ui.off(Laya.Event.CLICK, this, this.onClick);
     };
     return TaskView;
 }(xframe.XMWindow));

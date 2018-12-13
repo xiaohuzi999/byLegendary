@@ -15,9 +15,14 @@ var SignItem = /** @class */ (function (_super) {
     __extends(SignItem, _super);
     function SignItem() {
         var _this = _super.call(this) || this;
-        _this.dataSource;
+        _this.flag.visible = false;
         return _this;
     }
+    SignItem.prototype.update = function (state, day) {
+        if (state > 0) {
+            this.flag.visible = true;
+        }
+    };
     Object.defineProperty(SignItem.prototype, "dataSource", {
         get: function () {
             return this._vo;

@@ -5,7 +5,13 @@ class SignItem extends ui.sign.SignItemUI{
     private _vo:SignVo;
     constructor(){
         super();
-        this.dataSource
+        this.flag.visible = false;
+    }
+
+    public update(state:number, day:number):void{
+        if(state > 0){
+            this.flag.visible = true;
+        }
     }
 
     public set dataSource(vo:SignVo){
