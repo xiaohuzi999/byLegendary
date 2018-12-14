@@ -47,6 +47,10 @@ var TaskView = /** @class */ (function (_super) {
                     this.close();
                 }
                 break;
+            case this.ui.btnDone:
+                DBTask.dropTask(this._curId);
+                this.close();
+                break;
         }
     };
     TaskView.prototype.createUI = function () {

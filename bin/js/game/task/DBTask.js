@@ -33,12 +33,13 @@ var DBTask = /** @class */ (function () {
             }
             //todo special
             if (vo.special) {
-                XAlert.showAlert("doing ~~~~~~~~~~~~~~~~~~");
+                XAlert.showAlert("doing~~~~~~~~~~~~~~~~~~");
             }
             User.getInstance().taskDone.push(id);
             for (var i = 0; i < User.getInstance().task.length; i++) {
                 if (User.getInstance().task[i].id == id) {
                     User.getInstance().task.splice(i, 1);
+                    break;
                 }
             }
             return true;
@@ -47,6 +48,15 @@ var DBTask = /** @class */ (function () {
             XTip.showTip("not finish~");
         }
         return false;
+    };
+    //
+    DBTask.dropTask = function (id) {
+        for (var i = 0; i < User.getInstance().task.length; i++) {
+            if (User.getInstance().task[i].id == id) {
+                User.getInstance().task.splice(i, 1);
+                break;
+            }
+        }
     };
     /** */
     DBTask.getTaskVo = function (id) {

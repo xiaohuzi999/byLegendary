@@ -27,6 +27,7 @@ class XDB{
     /**init with data*/
     public static init(data:any):void{
         if(typeof data === "string"){
+            trace("data:::::::",data)
             this._data = JSON.parse(data);
         }else{
             this._data = data;
@@ -49,6 +50,10 @@ class XDB{
         //save to local
         Laya.LocalStorage.setItem(this.NAME, JSON.stringify(this.data));
         //todo：save to srv
+    }
+
+    public static push2Srv():void{
+        xframe.HttpCmd.callServer(Handler.create(null, (data)=>{trace("save::",data)}), "srv", "save", {kv:"xxoo"})
     }
 
     private static get data():any{

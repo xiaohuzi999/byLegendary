@@ -16,6 +16,7 @@ var XDB = /** @class */ (function () {
     /**init with data*/
     XDB.init = function (data) {
         if (typeof data === "string") {
+            trace("data:::::::", data);
             this._data = JSON.parse(data);
         }
         else {
@@ -36,6 +37,9 @@ var XDB = /** @class */ (function () {
         //save to local
         Laya.LocalStorage.setItem(this.NAME, JSON.stringify(this.data));
         //todo：save to srv
+    };
+    XDB.push2Srv = function () {
+        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { kv: "xxoo" });
     };
     Object.defineProperty(XDB, "data", {
         get: function () {
