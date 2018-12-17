@@ -53253,12 +53253,10 @@ var ui;
                 return _super.call(this) || this;
             }
             GameResultViewUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                View.regComponent("ui.rank.ResultOpenUI", ui.rank.ResultOpenUI);
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.GameResultViewUI.uiView);
             };
-            GameResultViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 51, "x": 39, "var": "homebtn", "skin": "res/game/btn_home.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 379, "x": 210, "var": "star1", "skin": "res/game/ic_star_result_b.png", "rotation": -30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 380, "x": 542, "var": "star3", "skin": "res/game/ic_star_result_gray_b.png", "rotation": 30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 187, "x": 305, "var": "star2", "skin": "res/game/ic_star_result_gray_b.png" } }, { "type": "Label", "props": { "y": 478, "x": 224, "width": 301, "var": "scorelabel", "text": "14分", "height": 66, "fontSize": 60, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 598, "x": 219, "var": "tip", "text": "加油哦", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 567, "x": 369, "skin": "res/game/ic_coin.png" } }, { "type": "Label", "props": { "y": 598, "x": 476, "var": "coinLabel", "text": "X10", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 684, "x": 55, "skin": "res/game/bj_single.png" }, "child": [{ "type": "Label", "props": { "y": 35, "x": 172, "var": "musicname", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 88, "x": 172, "var": "authname", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }, { "type": "Image", "props": { "y": 856, "x": 57, "skin": "res/game/bj_ranking_single.png" }, "child": [{ "type": "Label", "props": { "y": 16, "x": 24, "width": 140, "visible": false, "var": "rankingLabel", "height": 43, "fontSize": 40, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 23, "x": 378, "var": "rankbtn", "text": "查看单曲排行榜", "fontSize": 30, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 24, "x": 602, "skin": "res/game/btn_enter.png" } }] }, { "type": "Image", "props": { "y": 1011, "x": 242, "var": "restartbtn", "skin": "res/game/btn_again.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 1011, "x": 238, "visible": false, "var": "nextBtn", "skin": "res/game/btn_next.png", "runtime": "runtime.btn_img" } }, { "type": "ResultOpen", "props": { "var": "rankPreview", "runtime": "ui.rank.ResultOpenUI" } }] };
+            GameResultViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 51, "x": 39, "var": "homebtn", "skin": "res/game/btn_home.png" } }, { "type": "Image", "props": { "y": 379, "x": 210, "var": "star1", "skin": "res/game/ic_star_result_b.png", "rotation": -30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 380, "x": 542, "var": "star3", "skin": "res/game/ic_star_result_gray_b.png", "rotation": 30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 187, "x": 305, "var": "star2", "skin": "res/game/ic_star_result_gray_b.png" } }, { "type": "Label", "props": { "y": 478, "x": 224, "width": 301, "var": "scorelabel", "text": "14分", "height": 66, "fontSize": 60, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 598, "x": 219, "var": "tip", "text": "加油哦", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 567, "x": 369, "skin": "res/game/ic_coin.png" } }, { "type": "Label", "props": { "y": 598, "x": 476, "var": "coinLabel", "text": "X10", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 684, "x": 55, "skin": "res/game/bj_single.png" }, "child": [{ "type": "Label", "props": { "y": 35, "x": 172, "var": "musicname", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 88, "x": 172, "var": "authname", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }, { "type": "Image", "props": { "y": 1011, "x": 242, "var": "restartbtn", "skin": "res/game/btn_again.png" } }, { "type": "Image", "props": { "y": 1011, "x": 238, "visible": false, "var": "nextBtn", "skin": "res/game/btn_next.png" } }] };
             return GameResultViewUI;
         }(View));
         views.GameResultViewUI = GameResultViewUI;
@@ -54445,7 +54443,7 @@ var xframe;
             if (noBtnLabel == null || noBtnLabel == "") {
                 noBtnLabel = XAlert.LABEL_NO_DEFAULT;
             }
-            this._tfMsg.innerHTML = message + "";
+            this._tfMsg.text = message + "";
             this._tfMsg.y = (this._btnYes.y - this._tfMsg.contextHeight) * 0.5;
             var btnNum = 0;
             if (showYesBtn) {
@@ -54486,7 +54484,7 @@ var xframe;
         };
         /**覆盖关闭*/
         XAlert.prototype.close = function () {
-            xframe.AniUtil.popOut(this, Handler.create(this, this.onClose), 150, 200);
+            xframe.AniUtil.popOut(this, Handler.create(this, this.onClose), 150);
         };
         //
         XAlert.prototype.onClose = function () {
@@ -54511,7 +54509,7 @@ var xframe;
             bg.size(500, 320);
             bg.graphics.drawRect(0, 0, 500, 320, "#66ccff");
             _this.addChild(bg);
-            _this.tfMsg = new Laya.HTMLDivElement();
+            _this.tfMsg = new Laya.Label();
             _this.tfMsg.width = 460;
             _this.addChild(_this.tfMsg);
             _this.tfMsg.pos(20, 72);

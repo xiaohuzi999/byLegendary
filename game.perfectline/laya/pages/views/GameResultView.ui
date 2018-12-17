@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":29,
+    "selecteID":13,
     "props":{"width":750,"sceneColor":"#000000","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -15,7 +15,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":51,"x":39,"var":"homebtn","skin":"res/game/btn_home.png","runtime":"runtime.btn_img"},
+            "props":{"y":51,"x":39,"var":"homebtn","skin":"res/game/btn_home.png"},
             "nodeParent":1,
             "label":"Image(homebtn)",
             "isDirectory":false,
@@ -157,61 +157,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":856,"x":57,"skin":"res/game/bj_ranking_single.png"},
-            "nodeParent":1,
-            "label":"Image",
-            "isOpen":true,
-            "isDirectory":true,
-            "isAniNode":true,
-            "hasChild":true,
-            "compId":14,
-            "child":[
-                {
-                    "x":30,
-                    "type":"Label",
-                    "props":{"y":16,"x":24,"width":140,"visible":false,"var":"rankingLabel","height":43,"fontSize":40,"color":"#ffffff","bold":true,"align":"left"},
-                    "nodeParent":14,
-                    "label":"Label(rankingLabel)",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":19,
-                    "child":[
-                        ],
-                    "$HIDDEN":true
-                },
-                {
-                    "x":30,
-                    "type":"Label",
-                    "props":{"y":23,"x":378,"var":"rankbtn","text":"查看单曲排行榜","fontSize":30,"color":"#ffffff"},
-                    "nodeParent":14,
-                    "label":"Label(rankbtn)",
-                    "isOpen":true,
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":20,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
-                    "type":"Image",
-                    "props":{"y":24,"x":602,"skin":"res/game/btn_enter.png"},
-                    "nodeParent":14,
-                    "label":"Image",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":18,
-                    "child":[
-                        ]
-                }]
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "props":{"y":1011,"x":242,"var":"restartbtn","skin":"res/game/btn_again.png","runtime":"runtime.btn_img"},
+            "props":{"y":1011,"x":242,"var":"restartbtn","skin":"res/game/btn_again.png"},
             "nodeParent":1,
             "label":"Image(restartbtn)",
             "isDirectory":false,
@@ -224,27 +170,13 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":1011,"x":238,"visible":false,"var":"nextBtn","skin":"res/game/btn_next.png","runtime":"runtime.btn_img"},
+            "props":{"y":1011,"x":238,"visible":false,"var":"nextBtn","skin":"res/game/btn_next.png"},
             "nodeParent":1,
             "label":"Image(nextBtn)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
             "compId":23,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"UIView",
-            "source":"rank/ResultOpen.ui",
-            "props":{"var":"rankPreview"},
-            "nodeParent":1,
-            "label":"UIView(rankPreview)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":29,
             "child":[
                 ]
         }],
