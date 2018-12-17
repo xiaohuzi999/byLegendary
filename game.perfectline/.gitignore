@@ -1,0 +1,11 @@
+# OSX
+#
+.DS_Store
+
+
+# laya
+.laya/chrome/
+
+# Editor
+Editor/bin-debug/
+Editor/release/

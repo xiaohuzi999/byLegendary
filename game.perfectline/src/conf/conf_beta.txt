@@ -1,0 +1,15 @@
+class Conf {
+    public static sdkOptions = {
+        serverUrl: 'https://betaapi.xiuwu.me',
+        appName: 'perfectline',
+        asset: {
+            server: 'https://s.xiuwu.me',
+            beta: true,
+        },
+        webSocket: {
+            url: 'wss://betaapi.xiuwu.me/ws',
+            autoRetryTimes: 3,
+        },
+        debug: true,
+    }
+}
