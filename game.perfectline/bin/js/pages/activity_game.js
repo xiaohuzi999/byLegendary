@@ -110,7 +110,7 @@ var GameActivity = /** @class */ (function (_super) {
         switch (type) {
             case GameEvent.BACK:
                 this.stop();
-                this.back();
+                this.close();
                 break;
             case GameEvent.OVER:
                 this.over();
@@ -140,10 +140,10 @@ var GameActivity = /** @class */ (function (_super) {
                 this.ui.tfChap.text = this.params.name;
                 this.ui.selectBox.visible = true;
                 var fristMusic = GameDataManager.instance.nearestPlayMusic(this.params);
-                GameLoading.show(fristMusic);
+                XFacade.instance.showModule(GameLoading, fristMusic);
                 break;
             case GameEvent.ERR:
-                Tips.showTip("出了点小问题", "哎呀，网络不太好~返回再试试吧", Laya.Handler.create(this, this.back));
+                XAlert.showAlert("哎呀，网络不太好~返回再试试吧", Laya.Handler.create(this, this.close));
                 break;
         }
     };
@@ -354,7 +354,7 @@ var GameActivity = /** @class */ (function (_super) {
             this.ball.shadow(4);
             this.pathSp.addChild(this.ball);
         }
-        this.ball.setSkin(GameDataManager.instance.currentUsedRoleId(), this.speedY);
+        this.ball.setSkin(1, this.speedY);
         this.ball.reset();
         this.ball.pos(this.curX, this.curY);
         this.map.y = this.pathSp.y = 0;

@@ -111,7 +111,7 @@ module xframe{
 			if(noBtnLabel == null || noBtnLabel == ""){
 				noBtnLabel = XAlert.LABEL_NO_DEFAULT;
 			}
-			this._tfMsg.innerHTML = message+"";
+			this._tfMsg.text = message+"";
 			this._tfMsg.y = (this._btnYes.y - this._tfMsg.contextHeight ) * 0.5;
 			var btnNum:number = 0;
 			if(showYesBtn){
@@ -148,7 +148,7 @@ module xframe{
 		
 		/**覆盖关闭*/
 		public close():void{
-			AniUtil.popOut(this, Handler.create(this, this.onClose), 150,200);
+			AniUtil.popOut(this, Handler.create(this, this.onClose), 150);
 		}
 		
 		//
@@ -167,7 +167,7 @@ module xframe{
 		/***/
 		public btnYes:Laya.Button;
 		public btnNo:Laya.Button;
-		public tfMsg:Laya.HTMLDivElement;
+		public tfMsg:Laya.Label;
 		
 		constructor(){
 			super();
@@ -176,7 +176,7 @@ module xframe{
 			bg.graphics.drawRect(0,0, 500, 320, "#66ccff");
 			this.addChild(bg);
 			
-			this.tfMsg = new Laya.HTMLDivElement();
+			this.tfMsg = new Laya.Label();
 			this.tfMsg.width = 460;
 			this.addChild(this.tfMsg);
 			this.tfMsg.pos(20, 72);

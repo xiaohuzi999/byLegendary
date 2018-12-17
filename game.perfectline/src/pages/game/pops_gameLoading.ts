@@ -46,7 +46,6 @@ class GameLoading extends xframe.XMWindow{
 
         console.log(Laya.URL.basePath+'res/snd/' + this.params.mp3 + '.mp3')
 
-        //GameActivity.mp3 = Laya.URL.basePath+'res/snd/' + this.params.mp3 + '.mp3';
         GameActivity.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
         Laya.timer.once(22000, this, this.onErr);
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
@@ -54,6 +53,9 @@ class GameLoading extends xframe.XMWindow{
 
     private loadSnd():void{
         console.log('启动歌曲加载-----------------------');
+        XEvent.instance.event(GameEvent.SELECTED, this.params);
+        this.close();
+        return;
         if(Laya.loader.getRes('res/snd/' + this.params.json + '.json')){
             XEvent.instance.event(GameEvent.SELECTED, this.params);
         }else{
@@ -63,7 +65,7 @@ class GameLoading extends xframe.XMWindow{
         }
         
         
-        
+        trace("xxxxxxxxxx__", GameActivity.mp3)
         Laya.loader.load(GameActivity.mp3, Laya.Handler.create(null, ()=>{
             //trace(Laya.MiniAdpter["getFileList"]());
             Laya.timer.clear(this, this.onErr);

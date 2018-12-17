@@ -54,7 +54,6 @@ var GameLoading = /** @class */ (function (_super) {
         ];
         //Laya.loader.load(res);
         console.log(Laya.URL.basePath + 'res/snd/' + this.params.mp3 + '.mp3');
-        //GameActivity.mp3 = Laya.URL.basePath+'res/snd/' + this.params.mp3 + '.mp3';
         GameActivity.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
         Laya.timer.once(22000, this, this.onErr);
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
@@ -62,6 +61,9 @@ var GameLoading = /** @class */ (function (_super) {
     GameLoading.prototype.loadSnd = function () {
         var _this = this;
         console.log('启动歌曲加载-----------------------');
+        XEvent.instance.event(GameEvent.SELECTED, this.params);
+        this.close();
+        return;
         if (Laya.loader.getRes('res/snd/' + this.params.json + '.json')) {
             XEvent.instance.event(GameEvent.SELECTED, this.params);
         }
@@ -70,6 +72,7 @@ var GameLoading = /** @class */ (function (_super) {
             this.onErr();
             return;
         }
+        trace("xxxxxxxxxx__", GameActivity.mp3);
         Laya.loader.load(GameActivity.mp3, Laya.Handler.create(null, function () {
             //trace(Laya.MiniAdpter["getFileList"]());
             Laya.timer.clear(_this, _this.onErr);

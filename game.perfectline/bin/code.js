@@ -38358,1567 +38358,6 @@ if (typeof define === 'function' && define.amd){
         }
     });
 }
-// Object.assign
-if (typeof Object.assign != 'function') {
-    // Must be writable: true, enumerable: false, configurable: true
-    Object.defineProperty(Object, "assign", {
-        value: function assign(target, varArgs) {
-            'use strict';
-            if (target == null) { // TypeError if undefined or null
-                throw new TypeError('Cannot convert undefined or null to object');
-            }
-            var to = Object(target);
-            for (var index = 1; index < arguments.length; index++) {
-                var nextSource = arguments[index];
-                if (nextSource != null) { // Skip over if undefined or null
-                    for (var nextKey in nextSource) {
-                        // Avoid bugs when hasOwnProperty is shadowed
-                        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-                            to[nextKey] = nextSource[nextKey];
-                        }
-                    }
-                }
-            }
-            return to;
-        },
-        writable: true,
-        configurable: true
-    });
-}
-
-var Tape;
-(function (Tape) {
-    var ArrayUtil;
-    (function (ArrayUtil) {
-        function random(source) {
-            return source[Math.floor(Math.random() * source.length)];
-        }
-        ArrayUtil.random = random;
-        function randomArr(source, length) {
-            if (length === void 0) { length = -1; }
-            var randomLength = length == -1 ? source.length : length;
-            randomLength = Math.min(randomLength, source.length);
-            var copy = source.concat([]);
-            var result = [];
-            while (result.length < randomLength) {
-                var randomObj = random(copy);
-                result.push(randomObj);
-                copy.splice(copy.indexOf(randomLength), 1);
-            }
-            return result;
-        }
-        ArrayUtil.randomArr = randomArr;
-    })(ArrayUtil = Tape.ArrayUtil || (Tape.ArrayUtil = {}));
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var Env;
-    (function (Env) {
-        /**
-         * get env
-         * @return env mode : development or production
-         */
-        Env.getEnv = function () {
-            var env = '${env}';
-            if (env.indexOf('${') === 0) {
-                return 'development';
-            }
-            return env;
-        };
-        /**
-         * isDebug
-         */
-        Env.isDev = function () {
-            return Env.getEnv() !== 'production';
-        };
-        /**
-         * isProd
-         */
-        Env.isProd = function () {
-            return Env.getEnv() === 'production';
-        };
-    })(Env = Tape.Env || (Tape.Env = {}));
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var Platform;
-    (function (Platform) {
-        Platform.isWechatApp = function () {
-            return window.hasOwnProperty("wx");
-        };
-        Platform.isLongPhone = function () {
-            var scale = (Laya.Browser.clientHeight / laya.utils.Browser.clientWidth);
-            return scale > 2.1;
-        };
-        Platform.getScreenHeightWidthRatio = function () {
-            var scale = (Laya.Browser.clientHeight / laya.utils.Browser.clientWidth);
-            return scale;
-        };
-    })(Platform = Tape.Platform || (Tape.Platform = {}));
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var Screen;
-    (function (Screen) {
-        var __offset_x__ = 0;
-        var __offset_y__ = 0;
-        var __design_width__ = 0;
-        var __design_height__ = 0;
-        function init(width, height) {
-            var options = [];
-            for (var _i = 2; _i < arguments.length; _i++) {
-                options[_i - 2] = arguments[_i];
-            }
-            __design_width__ = width;
-            __design_width__ = height;
-            var screenRatio = Tape.Platform.getScreenHeightWidthRatio();
-            var initRatio = height / width;
-            var initWidth = width;
-            var initHeight = height;
-            __offset_x__ = 0;
-            __offset_y__ = 0;
-            if (Math.abs(screenRatio / initRatio - 1) > 0.1) {
-                if (screenRatio > initRatio) {
-                    initHeight = width * screenRatio;
-                    __offset_y__ = (initHeight - height) / 2;
-                }
-                else {
-                    initWidth = height / screenRatio;
-                    __offset_x__ = (initWidth - width) / 2;
-                }
-            }
-            Laya.init.apply(Laya, [initWidth, initHeight].concat(options));
-            Tape.Background.init();
-            Laya.stage.x = __offset_x__;
-            Laya.stage.y = __offset_y__;
-            Laya.stage.scaleMode = Laya.Stage.SCALE_FIXED_WIDTH;
-            Laya.stage.alignH = Laya.Stage.ALIGN_CENTER;
-            Laya.stage.alignV = Laya.Stage.ALIGN_MIDDLE;
-        }
-        Screen.init = init;
-        function getOffestX() {
-            return __offset_x__;
-        }
-        Screen.getOffestX = getOffestX;
-        function getOffestY() {
-            return __offset_y__;
-        }
-        Screen.getOffestY = getOffestY;
-        function getDesignWidth() {
-            return __design_width__;
-        }
-        Screen.getDesignWidth = getDesignWidth;
-        function getDesignHeight() {
-            return __design_height__;
-        }
-        Screen.getDesignHeight = getDesignHeight;
-    })(Screen = Tape.Screen || (Tape.Screen = {}));
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    /** UUID */
-    var UUID;
-    (function (UUID) {
-        function _s4() {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        }
-        UUID.randomUUID = function () {
-            return (_s4() + _s4() + "-" + _s4() + "-" + _s4() + "-" + _s4() + "-" + _s4() + _s4() + _s4());
-        };
-    })(UUID = Tape.UUID || (Tape.UUID = {}));
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    /** BrowserHandler  */
-    var BrowserHandler;
-    (function (BrowserHandler) {
-        BrowserHandler.init = function (width, height) {
-            var options = [];
-            for (var _i = 2; _i < arguments.length; _i++) {
-                options[_i - 2] = arguments[_i];
-            }
-            Tape.Screen.init.apply(Tape.Screen, [width, height].concat(options));
-        };
-        BrowserHandler.exit = function () {
-        };
-    })(BrowserHandler = Tape.BrowserHandler || (Tape.BrowserHandler = {}));
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var __rank_texture__ = null;
-    /** __exec_wx__ */
-    var __exec_wx__ = function (func) {
-        var options = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            options[_i - 1] = arguments[_i];
-        }
-        var _a;
-        if (window.hasOwnProperty("wx")) {
-            if (window['wx'].hasOwnProperty(func)) {
-                return (_a = window['wx'])[func].apply(_a, options);
-            }
-        }
-    };
-    /** __post_message_to_sub_context__ */
-    var __post_message_to_sub_context__ = function (data) {
-        var openDataContext = __exec_wx__('getOpenDataContext');
-        openDataContext && openDataContext.postMessage(data || {});
-    };
-    /** __create_rank_texture__ */
-    var __create_rank_texture__ = function () {
-        if (window.hasOwnProperty('sharedCanvas')) {
-            var sharedCanvas = window['sharedCanvas'];
-            sharedCanvas.width = 1500;
-            sharedCanvas.height = 3000;
-            if (!sharedCanvas.hasOwnProperty('_addReference')) {
-                sharedCanvas['_addReference'] = function () {
-                };
-            }
-            if (!__rank_texture__) {
-                __rank_texture__ = new Laya.Texture(sharedCanvas, null);
-                __rank_texture__.bitmap.alwaysChange = true;
-            }
-        }
-        return __rank_texture__;
-    };
-    var __init_rank__ = function () {
-        if (window.hasOwnProperty('sharedCanvas')) {
-            var sharedCanvas = window['sharedCanvas'];
-            sharedCanvas.width = 1500;
-            sharedCanvas.height = 3000;
-        }
-        __post_message_to_sub_context__({
-            action: 'init',
-            data: {
-                width: Laya.stage.width,
-                height: Laya.stage.height,
-                matrix: Laya.stage._canvasTransform
-            }
-        });
-        __post_message_to_sub_context__({
-            action: 'setDebug',
-            data: {
-                debug: Tape.Env.isDev()
-            }
-        });
-    };
-    /** MiniHandler */
-    var MiniHandler;
-    (function (MiniHandler) {
-        MiniHandler.init = function (width, height) {
-            var options = [];
-            for (var _i = 2; _i < arguments.length; _i++) {
-                options[_i - 2] = arguments[_i];
-            }
-            Laya.MiniAdpter.init(true);
-            Tape.Screen.init.apply(Tape.Screen, [width, height].concat(options));
-            __init_rank__();
-        };
-        MiniHandler.exit = function () {
-            __exec_wx__('exitMiniProgram');
-        };
-    })(MiniHandler = Tape.MiniHandler || (Tape.MiniHandler = {}));
-    function fixWidth(width) {
-        var systemInfo = __exec_wx__('getSystemInfoSync');
-        if (systemInfo) {
-            var windowWidth = systemInfo.windowWidth;
-            var stageWidth = Laya.stage.width;
-            return width * windowWidth / stageWidth;
-        }
-        return width;
-    }
-    function fixHeight(height) {
-        var systemInfo = __exec_wx__('getSystemInfoSync');
-        if (systemInfo) {
-            var windowHeight = systemInfo.windowHeight;
-            var stageHeight = Laya.stage.height;
-            return height * windowHeight / stageHeight;
-        }
-        return height;
-    }
-    /** MiniAd */
-    var MiniAd;
-    (function (MiniAd) {
-        var __bannerStack__ = {};
-        var __rewardedVideoAd__ = null;
-        var __rewardedVideoCallback__ = null;
-        function showBannerAd(adUnitId, x, y, w, h, onError) {
-            if (onError === void 0) { onError = null; }
-            var _a;
-            hideBannerAd(adUnitId);
-            var left = fixWidth(x + Tape.Screen.getOffestX());
-            var top = fixHeight(y + Tape.Screen.getOffestY());
-            var width = fixWidth(w);
-            var height = fixHeight(h);
-            var bannerAd = __exec_wx__('createBannerAd', {
-                adUnitId: adUnitId,
-                style: {
-                    left: left,
-                    top: top,
-                    width: width,
-                    height: height
-                }
-            });
-            if (bannerAd) {
-                Object.assign(__bannerStack__, (_a = {},
-                    _a[adUnitId] = bannerAd,
-                    _a));
-                bannerAd.onResize(function (res) {
-                    bannerAd.style.top = bannerAd.style.top + height - res.height;
-                });
-                bannerAd.onError(function (err) {
-                    onError && onError(err);
-                });
-                bannerAd.show();
-            }
-            else {
-                onError && onError({
-                    errMsg: 'showBannerAd:fail',
-                    err_code: -1
-                });
-            }
-        }
-        MiniAd.showBannerAd = showBannerAd;
-        function hideBannerAd(adUnitId) {
-            if (__bannerStack__.hasOwnProperty(adUnitId)) {
-                var bannerAd = __bannerStack__[adUnitId];
-                bannerAd.destroy();
-                delete __bannerStack__[adUnitId];
-            }
-        }
-        MiniAd.hideBannerAd = hideBannerAd;
-        function showRewardedVideoAd(adUnitId, onRewarded, onCancal, onError) {
-            if (onError === void 0) { onError = null; }
-            __rewardedVideoAd__ = __exec_wx__('createRewardedVideoAd', {
-                adUnitId: adUnitId
-            });
-            if (__rewardedVideoAd__) {
-                __rewardedVideoCallback__ && __rewardedVideoAd__.offClose(__rewardedVideoCallback__);
-                __rewardedVideoCallback__ = function (res) {
-                    if (res && res.isEnded || res === undefined) {
-                        onRewarded && onRewarded();
-                    }
-                    else {
-                        onCancal && onCancal();
-                    }
-                };
-                __rewardedVideoAd__.onClose(__rewardedVideoCallback__);
-                __rewardedVideoAd__.show().catch(function (err) {
-                    __rewardedVideoAd__.load().then(function () { return __rewardedVideoAd__.show(); }).catch(function (err) {
-                        onError && onError(err);
-                    });
-                });
-            }
-            else {
-                onError && onError({
-                    errMsg: 'showRewardedVideoAd:fail',
-                    err_code: -1
-                });
-            }
-        }
-        MiniAd.showRewardedVideoAd = showRewardedVideoAd;
-    })(MiniAd = Tape.MiniAd || (Tape.MiniAd = {}));
-    /** MiniButton */
-    var MiniButton;
-    (function (MiniButton) {
-        var clubButton = null;
-        var userButton = null;
-        var feedbackButton = null;
-        function showFeedbackButton(image, x, y, w, h) {
-            var left = fixWidth(x + Tape.Screen.getOffestX());
-            var top = fixHeight(y + Tape.Screen.getOffestY());
-            var width = fixWidth(w);
-            var height = fixHeight(h);
-            hideFeedbackButton();
-            if (!feedbackButton) {
-                feedbackButton = __exec_wx__('createFeedbackButton', {
-                    type: 'image',
-                    image: image,
-                    style: {
-                        left: left,
-                        top: top,
-                        width: width,
-                        height: height
-                    }
-                });
-            }
-            if (feedbackButton) {
-                feedbackButton.style.left = left;
-                feedbackButton.style.top = top;
-                feedbackButton.style.width = width;
-                feedbackButton.style.height = height;
-                feedbackButton.show();
-            }
-        }
-        MiniButton.showFeedbackButton = showFeedbackButton;
-        function hideFeedbackButton() {
-            if (feedbackButton) {
-                try {
-                    feedbackButton.style.left = -feedbackButton.style.width;
-                    feedbackButton.style.top = -feedbackButton.style.height;
-                    feedbackButton.hide();
-                    feedbackButton.destroy();
-                    feedbackButton = null;
-                }
-                catch (error) {
-                }
-            }
-        }
-        MiniButton.hideFeedbackButton = hideFeedbackButton;
-        function showGameClubButton(icon, x, y, w, h) {
-            var left = fixWidth(x + Tape.Screen.getOffestX());
-            var top = fixHeight(y + Tape.Screen.getOffestY());
-            var width = fixWidth(w);
-            var height = fixHeight(h);
-            var icons = ['green', 'white', 'dark', 'light'];
-            hideGameClubButton();
-            if (!clubButton) {
-                clubButton = __exec_wx__('createGameClubButton', {
-                    icon: icons.indexOf(icon) < 0 ? icons[0] : icon,
-                    style: {
-                        left: left,
-                        top: top,
-                        width: width,
-                        height: height
-                    }
-                });
-                if (clubButton && icons.indexOf(icon) < 0) {
-                    clubButton.image = icon;
-                }
-            }
-            if (clubButton) {
-                clubButton.style.left = left;
-                clubButton.style.top = top;
-                clubButton.style.width = width;
-                clubButton.style.height = height;
-                clubButton.show();
-            }
-        }
-        MiniButton.showGameClubButton = showGameClubButton;
-        function hideGameClubButton() {
-            if (clubButton) {
-                try {
-                    clubButton.style.left = -clubButton.style.width;
-                    clubButton.style.top = -clubButton.style.height;
-                    clubButton.hide();
-                    clubButton.destroy();
-                    clubButton = null;
-                }
-                catch (error) {
-                }
-            }
-        }
-        MiniButton.hideGameClubButton = hideGameClubButton;
-        function checkGetUserInfo(onSuccess, onFail) {
-            __exec_wx__('getUserInfo', {
-                withCredentials: true,
-                success: onSuccess,
-                fail: onFail
-            });
-        }
-        MiniButton.checkGetUserInfo = checkGetUserInfo;
-        function showGetUserInfoButton(image, x, y, w, h, onSuccess, onFail) {
-            var left = fixWidth(x + Tape.Screen.getOffestX());
-            var top = fixHeight(y + Tape.Screen.getOffestY());
-            var width = fixWidth(w);
-            var height = fixHeight(h);
-            hideGetUserInfoButton();
-            if (!userButton) {
-                userButton = __exec_wx__('createUserInfoButton', {
-                    withCredentials: true,
-                    type: 'image',
-                    image: image,
-                    style: {
-                        left: left,
-                        top: top,
-                        width: width,
-                        height: height
-                    }
-                });
-            }
-            if (userButton) {
-                userButton.style.left = left;
-                userButton.style.top = top;
-                userButton.style.width = width;
-                userButton.style.height = height;
-                userButton.onTap(function (res) {
-                    if (res.errMsg.indexOf(':ok') >= 0) {
-                        onSuccess && onSuccess(res);
-                    }
-                    else {
-                        onFail && onFail(res);
-                    }
-                });
-                userButton.show();
-            }
-        }
-        MiniButton.showGetUserInfoButton = showGetUserInfoButton;
-        function hideGetUserInfoButton() {
-            if (userButton) {
-                try {
-                    userButton.style.left = -userButton.style.width;
-                    userButton.style.top = -userButton.style.height;
-                    userButton.hide();
-                    userButton.destroy();
-                    userButton = null;
-                }
-                catch (error) {
-                }
-            }
-        }
-        MiniButton.hideGetUserInfoButton = hideGetUserInfoButton;
-    })(MiniButton = Tape.MiniButton || (Tape.MiniButton = {}));
-    /** MiniRank */
-    var MiniRank;
-    (function (MiniRank) {
-        MiniRank.createRankView = function (x, y, width, height) {
-            if (x === void 0) { x = 0; }
-            if (y === void 0) { y = 0; }
-            if (width === void 0) { width = Laya.stage.width; }
-            if (height === void 0) { height = Laya.stage.height; }
-            var sharedCanvasView = new Laya.Sprite();
-            var rankTexture = __create_rank_texture__();
-            if (rankTexture) {
-                var newTexture = Laya.Texture.createFromTexture(rankTexture, x, y, width, height);
-                newTexture.bitmap.alwaysChange = true;
-                sharedCanvasView.width = width;
-                sharedCanvasView.height = height;
-                sharedCanvasView.graphics.drawTexture(newTexture, 0, 0, newTexture.width, newTexture.height);
-            }
-            return sharedCanvasView;
-        };
-        MiniRank.showRank = function (ui, options, onlyRefreshData) {
-            if (options === void 0) { options = {}; }
-            if (onlyRefreshData === void 0) { onlyRefreshData = false; }
-            __post_message_to_sub_context__({
-                action: onlyRefreshData ? "refreshData" : "showUI",
-                data: onlyRefreshData ? options : Object.assign({
-                    ui: JSON.stringify(ui || {}),
-                }, options)
-            });
-        };
-        MiniRank.hideRank = function () {
-            __post_message_to_sub_context__({ action: 'hideUI' });
-        };
-        MiniRank.setRankData = function (list) {
-            __post_message_to_sub_context__({ action: 'setUserCloudStorage', data: { KVDataList: list } });
-        };
-        MiniRank.setDebug = function (debug) {
-            __post_message_to_sub_context__({
-                action: 'setDebug',
-                data: { debug: debug }
-            });
-        };
-    })(MiniRank = Tape.MiniRank || (Tape.MiniRank = {}));
-})(Tape || (Tape = {}));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Tape;
-(function (Tape) {
-    /** Activity */
-    var Activity = /** @class */ (function (_super) {
-        __extends(Activity, _super);
-        function Activity(options) {
-            var _this = _super.call(this) || this;
-            /** page type */
-            _this.page = null;
-            /** params */
-            _this.params = {};
-            /** turn on and off animation */
-            _this.inEaseDuration = 0;
-            _this.inEase = null;
-            _this.inEaseFromProps = null;
-            _this.inEaseToProps = null;
-            _this.width = Laya.stage.width;
-            _this.height = Laya.stage.height;
-            _this.params = Object.assign({}, options.params || {});
-            _this.page = options.page;
-            return _this;
-        }
-        Activity.open = function (params, action) {
-            Tape.NavigatorStack.navigate(this, params, action);
-        };
-        Activity.finish = function () {
-            Tape.NavigatorStack.finish(this);
-        };
-        Object.defineProperty(Activity.prototype, "ui", {
-            get: function () {
-                return this.getChildByName('_contentView');
-            },
-            set: function (view) {
-                view.name = '_contentView';
-                this.removeChildren();
-                this.addChild(view);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Activity.prototype._focus = function (focus) {
-            this.onFocus && this.onFocus(focus);
-        };
-        Activity.prototype._create = function () {
-            this.onCreate && this.onCreate();
-        };
-        Activity.prototype._resume = function () {
-            this.onResume && this.onResume();
-        };
-        Activity.prototype._pause = function () {
-            this.onPause && this.onPause();
-        };
-        Activity.prototype._destroy = function () {
-            this.onDestroy && this.onDestroy();
-        };
-        Activity.prototype._nextProgress = function (progress) {
-            this.onNextProgress && this.onNextProgress(progress);
-        };
-        //////////////////////////
-        /// navigator function
-        //////////////////////////
-        Activity.prototype.redirectTo = function (page, params) {
-            var _this = this;
-            if (params === void 0) { params = {}; }
-            this.navigate(page, params, function () {
-                _this.back();
-            });
-        };
-        Activity.prototype.link = function (path) {
-            Tape.NavigatorLink.link(path);
-        };
-        Activity.prototype.navigate = function (page, params, action) {
-            if (params === void 0) { params = {}; }
-            if (action === void 0) { action = null; }
-            Tape.NavigatorStack.navigate(page, params, action);
-        };
-        Activity.prototype.back = function () {
-            Tape.NavigatorStack.finish(this.page, this);
-        };
-        Activity.prototype.finish = function (page, instance) {
-            if (instance === void 0) { instance = null; }
-            Tape.NavigatorStack.finish(page, instance);
-        };
-        Activity.prototype.pop = function (number) {
-            Tape.NavigatorStack.pop(number);
-        };
-        Activity.prototype.popToTop = function () {
-            Tape.NavigatorStack.popToTop();
-        };
-        /** res */
-        Activity.res = [];
-        return Activity;
-    }(Laya.Component));
-    Tape.Activity = Activity;
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var Background;
-    (function (Background) {
-        var bgSprite = null;
-        var bgColor = '#000000';
-        function init() {
-            bgSprite = Laya.stage.getChildByName('tape_background_layer');
-            if (!bgSprite) {
-                bgSprite = new Laya.Sprite;
-                bgSprite.name = 'tape_background_layer';
-                Laya.stage.addChild(bgSprite);
-            }
-            bgSprite.x = -Tape.Screen.getOffestX();
-            bgSprite.y = -Tape.Screen.getOffestY();
-            bgSprite.width = Laya.stage.width;
-            bgSprite.height = Laya.stage.height;
-            bgSprite.graphics.clear();
-            bgSprite.graphics.drawRect(0, 0, bgSprite.width, bgSprite.height, bgColor);
-        }
-        Background.init = init;
-        function getBgSprite() {
-            return bgSprite;
-        }
-        Background.getBgSprite = getBgSprite;
-        function setBgColor(color) {
-            bgColor = color;
-            if (!bgSprite) {
-                return;
-            }
-            bgSprite.graphics.clear();
-            bgSprite.graphics.drawRect(0, 0, bgSprite.width, bgSprite.height, color);
-        }
-        Background.setBgColor = setBgColor;
-        function getBgColor() {
-            return bgColor;
-        }
-        Background.getBgColor = getBgColor;
-    })(Background = Tape.Background || (Tape.Background = {}));
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var PopManager;
-    (function (PopManager) {
-        var pops = {};
-        function showPop(pop, params, onHide) {
-            if (params === void 0) { params = null; }
-            if (onHide === void 0) { onHide = null; }
-            var view = pops[pop];
-            if (view) {
-                view.pop = pop;
-                view.params = params || {};
-                view._on_hide = onHide;
-            }
-            else {
-                view = new pop();
-                view.pop = pop;
-                view.params = params || {};
-                view._on_hide = onHide;
-                pops[pop] = view;
-            }
-            view.onShow && view.onShow();
-            Tape.UIManager.addPopUI(view);
-        }
-        PopManager.showPop = showPop;
-        function hidePop(pop) {
-            var view = pops[pop];
-            if (view) {
-                view._on_hide && view._on_hide(view.pop);
-                view.onHide && view.onHide();
-                view.removeSelf && view.removeSelf();
-            }
-            Tape.UIManager.refreshFocus();
-        }
-        PopManager.hidePop = hidePop;
-        function refreshPos() {
-            for (var str in pops) {
-                var view = pops[str];
-                if (view) {
-                    view.resize && view.resize();
-                }
-            }
-        }
-        PopManager.refreshPos = refreshPos;
-    })(PopManager = Tape.PopManager || (Tape.PopManager = {}));
-})(Tape || (Tape = {}));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Tape;
-(function (Tape) {
-    var PopView = /** @class */ (function (_super) {
-        __extends(PopView, _super);
-        function PopView() {
-            var _this = _super.call(this) || this;
-            _this.bgAlpha = 0.5;
-            _this.bgColor = '#000000';
-            _this.isTranslucent = false;
-            _this.canceledOnTouchOutside = false;
-            _this.width = Laya.stage.width;
-            _this.height = Laya.stage.height;
-            setTimeout(function () { return _this.initBackground(); }, 0);
-            return _this;
-        }
-        PopView.show = function (params, onHide) {
-            if (params === void 0) { params = null; }
-            if (onHide === void 0) { onHide = null; }
-            Tape.PopManager.showPop(this, params, onHide);
-        };
-        PopView.hide = function () {
-            Tape.PopManager.hidePop(this);
-        };
-        Object.defineProperty(PopView.prototype, "ui", {
-            get: function () {
-                return this.getChildByName('_contentView');
-            },
-            set: function (view) {
-                this.removeChildren();
-                view.name = '_contentView';
-                this.addChild(view);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        PopView.prototype.initBackground = function () {
-            var _this = this;
-            if (this.isTranslucent) {
-                return;
-            }
-            var bgSprite = new Laya.Sprite();
-            bgSprite.alpha = this.bgAlpha;
-            bgSprite.graphics.clear();
-            bgSprite.graphics.drawRect(0, 0, Laya.stage.width, Laya.stage.height, this.bgColor);
-            bgSprite.x = -Tape.Screen.getOffestX();
-            bgSprite.y = -Tape.Screen.getOffestY();
-            bgSprite.width = Laya.stage.width;
-            bgSprite.height = Laya.stage.height;
-            bgSprite.on(Laya.Event.CLICK, this, function (e) {
-                if (_this.canceledOnTouchOutside) {
-                    _this.finish();
-                }
-                e.stopPropagation();
-            });
-            if (this.canceledOnTouchOutside && this.ui) {
-                this.ui.mouseThrough = true;
-            }
-            this.addChildAt(bgSprite, 0);
-        };
-        PopView.prototype.finish = function () {
-            Tape.PopManager.hidePop(this.pop);
-        };
-        return PopView;
-    }(Laya.Sprite));
-    Tape.PopView = PopView;
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var ToastManager;
-    (function (ToastManager) {
-        var _toasts = [];
-        function showToast(toast, params, onHide) {
-            if (params === void 0) { params = null; }
-            if (onHide === void 0) { onHide = null; }
-            var toastView = new toast;
-            toastView._on_hide = onHide;
-            toastView.toast = toast;
-            toastView.params = params || {};
-            var from = toastView.fromProps || { alpha: 0 };
-            var to = toastView.toProps || { alpha: 1 };
-            var duration = toastView.duration || 800;
-            Object.assign(toastView, from);
-            toastView.onShow && toastView.onShow();
-            Laya.Tween.to(toastView, to, duration, Laya.Ease.quintOut, null, 0);
-            Laya.Tween.to(toastView, from, duration, Laya.Ease.quintOut, Laya.Handler.create(this, function () {
-                if (toastView) {
-                    _toasts.splice(_toasts.indexOf(toastView), 1);
-                    toastView._on_hide && toastView._on_hide(toastView.toast);
-                    toastView.onHide && toastView.onHide();
-                    toastView.destroy();
-                }
-            }), duration);
-            _toasts.push(toastView);
-            Tape.UIManager.addTopUI(toastView);
-        }
-        ToastManager.showToast = showToast;
-        function clearAll() {
-            var list = _toasts.splice(0, _toasts.length);
-            list.forEach(function (view) {
-                view._on_hide && view._on_hide(view.toast);
-                view.onHide && view.onHide();
-                view.destroy();
-            });
-        }
-        ToastManager.clearAll = clearAll;
-    })(ToastManager = Tape.ToastManager || (Tape.ToastManager = {}));
-})(Tape || (Tape = {}));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Tape;
-(function (Tape) {
-    var ToastView = /** @class */ (function (_super) {
-        __extends(ToastView, _super);
-        function ToastView() {
-            var _this = _super.call(this) || this;
-            _this.duration = 800;
-            _this.fromProps = null;
-            _this.toProps = null;
-            _this.width = Laya.stage.width;
-            _this.height = Laya.stage.height;
-            return _this;
-        }
-        ToastView.show = function (params, onHide) {
-            Tape.ToastManager.showToast(this, params, onHide);
-        };
-        Object.defineProperty(ToastView.prototype, "ui", {
-            get: function () {
-                return this.getChildByName('_contentView');
-            },
-            set: function (view) {
-                this.removeChildren();
-                view.name = '_contentView';
-                this.addChild(view);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return ToastView;
-    }(Laya.Sprite));
-    Tape.ToastView = ToastView;
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var UIManager;
-    (function (UIManager) {
-        var inited = false;
-        var mainUILayer;
-        var popUILayer;
-        var topUILayer;
-        function checkInit() {
-            if (inited) {
-                return;
-            }
-            var uiManager = new Laya.Sprite();
-            mainUILayer = new Laya.Sprite();
-            mainUILayer.name = 'tape_main_ui_layer';
-            popUILayer = new Laya.Sprite();
-            mainUILayer.name = 'tape_pop_ui_layer';
-            topUILayer = new Laya.Sprite();
-            mainUILayer.name = 'tape_top_ui_layer';
-            uiManager.addChild(mainUILayer);
-            uiManager.addChild(popUILayer);
-            uiManager.addChild(topUILayer);
-            Laya.stage.addChild(uiManager);
-            inited = true;
-        }
-        function refreshFocus() {
-            if (popUILayer.numChildren > 0) {
-                Tape.NavigatorStack.focus(false);
-            }
-            else {
-                Tape.NavigatorStack.focus(true);
-            }
-        }
-        UIManager.refreshFocus = refreshFocus;
-        function addMainUI(view) {
-            checkInit();
-            view && mainUILayer.addChild(view);
-            refreshFocus();
-        }
-        UIManager.addMainUI = addMainUI;
-        function clearMainUI() {
-            checkInit();
-            mainUILayer.removeChildren();
-            refreshFocus();
-        }
-        UIManager.clearMainUI = clearMainUI;
-        function addPopUI(view) {
-            checkInit();
-            view && popUILayer.addChild(view);
-            refreshFocus();
-        }
-        UIManager.addPopUI = addPopUI;
-        function clearPopUI() {
-            checkInit();
-            popUILayer.removeChildren();
-            refreshFocus();
-        }
-        UIManager.clearPopUI = clearPopUI;
-        function addTopUI(view) {
-            checkInit();
-            view && topUILayer.addChild(view);
-            refreshFocus();
-        }
-        UIManager.addTopUI = addTopUI;
-        function clearTopUI() {
-            checkInit();
-            topUILayer.removeChildren();
-            refreshFocus();
-        }
-        UIManager.clearTopUI = clearTopUI;
-    })(UIManager = Tape.UIManager || (Tape.UIManager = {}));
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var Navigator;
-    (function (Navigator) {
-        var __options__ = null;
-        var __loading__ = false;
-        var __inited__ = false;
-        function init(options) {
-            if (!options || __inited__) {
-                return;
-            }
-            __options__ = options;
-            __enableResourceVersion__();
-            __inited__ = true;
-        }
-        Navigator.init = init;
-        function __enableResourceVersion__() {
-            if (__options__ && __options__.fileVersion) {
-                Laya.ResourceVersion.type = Laya.ResourceVersion.FILENAME_VERSION;
-                Laya.ResourceVersion.enable(__options__.fileVersion, Laya.Handler.create(null, function () {
-                    __beginLoadStaticRes__();
-                }));
-            }
-            else {
-                __beginLoadStaticRes__();
-            }
-        }
-        function __beginLoadStaticRes__() {
-            var res = __options__.commonRes || [];
-            if (res.length > 0) {
-                Laya.loader.load(res, Laya.Handler.create(null, function () {
-                    __onStaticResLoaded__();
-                }));
-            }
-            else {
-                __onStaticResLoaded__();
-            }
-        }
-        function __onStaticResLoaded__() {
-            Tape.NavigatorStack.navigate(__options__.mainPage);
-        }
-    })(Navigator = Tape.Navigator || (Tape.Navigator = {}));
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    var NavigatorLink;
-    (function (NavigatorLink) {
-        var __routes__ = {};
-        function findRoute(path) {
-            var keys = Object.keys(__routes__);
-            for (var index = 0; index < keys.length; index++) {
-                var p = keys[index];
-                var ps = p.split('\/');
-                var paths = path.split('\/');
-                var flag = true;
-                var len = Math.max(ps.length, paths.length);
-                var params = {};
-                for (var i = 0; i < len; i++) {
-                    var l = ps.length > i ? ps[i] : '';
-                    var t = paths.length > i ? paths[i] : '';
-                    if (l.indexOf(':') === 0) {
-                        params[l.substr(1)] = t;
-                    }
-                    else {
-                        flag = flag && l === t;
-                    }
-                }
-                if (flag) {
-                    return {
-                        page: __routes__[p],
-                        params: params
-                    };
-                }
-            }
-            return {
-                page: null,
-                params: {}
-            };
-        }
-        function getRoute(path) {
-            if (!path) {
-                return {
-                    page: null,
-                    params: {}
-                };
-            }
-            var qs = path.split('?');
-            var _a = findRoute(qs[0]), page = _a.page, params = _a.params;
-            if (qs.length > 1) {
-                var strs = qs[1].split("&");
-                for (var i = 0; i < strs.length; i++) {
-                    var ps = strs[i].split("=")[0];
-                    if (ps.length > 1) {
-                        params[ps[0]] = ps[1];
-                    }
-                }
-            }
-            return {
-                page: page,
-                params: params
-            };
-        }
-        function config(routes) {
-            __routes__ = routes;
-        }
-        NavigatorLink.config = config;
-        function link(path) {
-            var _a = getRoute(path), page = _a.page, params = _a.params;
-            if (page) {
-                Tape.NavigatorStack.navigate(page, params);
-            }
-        }
-        NavigatorLink.link = link;
-    })(NavigatorLink = Tape.NavigatorLink || (Tape.NavigatorLink = {}));
-})(Tape || (Tape = {}));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Tape;
-(function (Tape) {
-    var NavigatorLoader = /** @class */ (function (_super) {
-        __extends(NavigatorLoader, _super);
-        function NavigatorLoader(options) {
-            var _this = _super.call(this) || this;
-            _this.__options__ = null;
-            _this.__activity__ = null;
-            _this.__is_show__ = false;
-            _this.__is_focus__ = false;
-            _this.visible = false;
-            _this.__options__ = options;
-            var res = _this.__options__.page.res;
-            if (res && res.length > 0) {
-                Laya.loader.load(res, Laya.Handler.create(_this, function () {
-                    _this.__new_activity__();
-                    _this.__on_loaded__();
-                }), Laya.Handler.create(_this, function (progress) {
-                    _this.__on_load_progress__(progress);
-                }, null, false));
-            }
-            else {
-                _this.__new_activity__();
-                _this.__on_loaded__();
-            }
-            return _this;
-        }
-        NavigatorLoader.prototype.__new_activity__ = function () {
-            if (this.__activity__) {
-                return;
-            }
-            this.__activity__ = new this.__options__.page({
-                page: this.__options__.page,
-                params: this.__options__.params
-            });
-        };
-        NavigatorLoader.prototype.__on_loaded__ = function () {
-            this.__options__.onLoaded && this.__options__.onLoaded(this);
-            this.addChild(this.__activity__);
-            this.__activity__._create();
-            this.__options__.onShow && this.__options__.onShow();
-        };
-        NavigatorLoader.prototype.__on_load_progress__ = function (progress) {
-            this.__options__.onLoadProgress && this.__options__.onLoadProgress(this, progress);
-        };
-        NavigatorLoader.prototype.nextProgress = function (progress) {
-            this.__activity__._nextProgress(progress);
-        };
-        NavigatorLoader.prototype.canFinish = function (page, activity) {
-            if (page === this.__options__.page) {
-                return !activity || activity === this.__activity__;
-            }
-            return false;
-        };
-        NavigatorLoader.prototype.show = function (anim, callback) {
-            if (this.visible) {
-                return;
-            }
-            if (this.__is_show__) {
-                return;
-            }
-            this.__is_show__ = true;
-            var ease = this.__activity__.inEase || Laya.Ease.linearIn;
-            var duration = this.__activity__.inEaseDuration || 0;
-            var fromProps = this.__activity__.inEaseFromProps || {};
-            var toProps = this.__activity__.inEaseToProps || {};
-            if (anim && ease && duration > 0) {
-                Object.assign(this, fromProps);
-                this.__activity__._resume();
-                this.visible = true;
-                Laya.Tween.to(this, toProps, duration, ease, Laya.Handler.create(this, function () {
-                    callback && callback();
-                }));
-            }
-            else {
-                this.__activity__._resume();
-                this.visible = true;
-                callback && callback();
-            }
-            Tape.UIManager.refreshFocus();
-        };
-        NavigatorLoader.prototype.hide = function () {
-            if (!this.visible) {
-                return;
-            }
-            if (!this.__is_show__) {
-                return;
-            }
-            this.__is_show__ = false;
-            this.__activity__._pause();
-            this.visible = false;
-            this.focus(false);
-        };
-        NavigatorLoader.prototype.exit = function () {
-            this.__activity__._destroy();
-            this.destroy();
-        };
-        NavigatorLoader.prototype.focus = function (focus) {
-            if (this.__is_focus__ === focus) {
-                return;
-            }
-            this.__is_focus__ = focus;
-            this.__activity__._focus(focus);
-        };
-        return NavigatorLoader;
-    }(Laya.Component));
-    Tape.NavigatorLoader = NavigatorLoader;
-})(Tape || (Tape = {}));
-
-
-var Tape;
-(function (Tape) {
-    var NavigatorStack;
-    (function (NavigatorStack) {
-        var __loaders__ = [];
-        var __loading__ = false;
-        function all() {
-            return __loaders__;
-        }
-        function length() {
-            return __loaders__.length;
-        }
-        function getStack(index) {
-            if (index === void 0) { index = 0; }
-            var len = length();
-            return len > index ? __loaders__[len - 1 - index] : null;
-        }
-        function showStack(index, anim, callback) {
-            if (index === void 0) { index = 0; }
-            if (anim === void 0) { anim = false; }
-            if (callback === void 0) { callback = null; }
-            var stack = getStack(index);
-            if (!stack) {
-                return;
-            }
-            stack.show(anim && length() > 1, callback);
-        }
-        function pushStack(stack) {
-            __loaders__.push(stack);
-        }
-        function refreshStack(callback) {
-            showStack(0, true, function () {
-                var stack = getStack(1);
-                if (!stack) {
-                    return;
-                }
-                stack.hide();
-                callback && callback();
-            });
-        }
-        function finishStack(stacks) {
-            if (!stacks || stacks.length <= 0) {
-                return;
-            }
-            for (var i = 0; length() > 1 && i < stacks.length; i++) {
-                var stack = stacks[i];
-                __loaders__.splice(__loaders__.indexOf(stack), 1);
-                stack.hide();
-                stack.exit();
-            }
-            showStack(0);
-        }
-        function popStack(count) {
-            if (count >= length()) {
-                count = length() - 1;
-            }
-            if (count <= 0) {
-                return;
-            }
-            var pops = __loaders__.splice(length() - count, count);
-            pops.forEach(function (element) {
-                element.hide();
-                element.exit();
-            });
-            showStack(0);
-        }
-        function focus(focus) {
-            var stack = getStack();
-            if (stack) {
-                stack.focus(focus);
-            }
-        }
-        NavigatorStack.focus = focus;
-        /** navigate */
-        function navigate(page, params, action) {
-            if (params === void 0) { params = {}; }
-            if (action === void 0) { action = null; }
-            new Tape.NavigatorLoader({
-                page: page,
-                params: params,
-                onShow: function () {
-                    refreshStack(function () {
-                        action && action(true);
-                    });
-                },
-                onLoaded: function (loader) {
-                    __loading__ = false;
-                    Tape.UIManager.addMainUI(loader);
-                    pushStack(loader);
-                },
-                onLoadProgress: function (loader, progress) {
-                    if (__loading__) {
-                        var stack = getStack();
-                        stack && stack.nextProgress(progress);
-                    }
-                }
-            });
-        }
-        NavigatorStack.navigate = navigate;
-        /** popToTop */
-        function popToTop() {
-            popStack(length());
-        }
-        NavigatorStack.popToTop = popToTop;
-        /** pop */
-        function pop(number) {
-            if (number === void 0) { number = 1; }
-            popStack(number);
-        }
-        NavigatorStack.pop = pop;
-        /** finish */
-        function finish(page, instance) {
-            if (instance === void 0) { instance = null; }
-            var stacks = [];
-            all().forEach(function (stack) {
-                if (stack.canFinish(page, instance)) {
-                    stacks.push(stack);
-                }
-            });
-            finishStack(stacks);
-        }
-        NavigatorStack.finish = finish;
-    })(NavigatorStack = Tape.NavigatorStack || (Tape.NavigatorStack = {}));
-})(Tape || (Tape = {}));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var runtime;
-(function (runtime) {
-    runtime.clickSound = null;
-    var scaleTime = 100;
-    function center(view) {
-        view.x = view.x + view.width / 2 - view.pivotX;
-        view.y = view.y + view.height / 2 - view.pivotY;
-        view.pivot(view.width / 2, view.height / 2);
-    }
-    function scaleSmal(view) {
-        center(view);
-        Laya.Tween.to(view, { scaleX: 0.8, scaleY: 0.8 }, scaleTime);
-    }
-    function scaleBig(view) {
-        Laya.Tween.to(view, { scaleX: 1, scaleY: 1 }, scaleTime);
-    }
-    function playSound(view, sound) {
-        if (sound) {
-            Laya.SoundManager.playSound(sound, 1);
-        }
-        else if (runtime.clickSound) {
-            Laya.SoundManager.playSound(runtime.clickSound, 1);
-        }
-    }
-    var btn = /** @class */ (function (_super) {
-        __extends(btn, _super);
-        function btn() {
-            var _this = _super.call(this) || this;
-            _this.sound = null;
-            _this.on(Laya.Event.MOUSE_DOWN, _this, function () { return scaleSmal(_this); });
-            _this.on(Laya.Event.MOUSE_UP, _this, function () { return scaleBig(_this); });
-            _this.on(Laya.Event.MOUSE_OUT, _this, function () { return scaleBig(_this); });
-            _this.on(Laya.Event.CLICK, _this, function () { return playSound(_this, _this.sound); });
-            return _this;
-        }
-        return btn;
-    }(Laya.Button));
-    runtime.btn = btn;
-    var btn_img = /** @class */ (function (_super) {
-        __extends(btn_img, _super);
-        function btn_img() {
-            var _this = _super.call(this) || this;
-            _this.sound = null;
-            _this.on(Laya.Event.MOUSE_DOWN, _this, function () { return scaleSmal(_this); });
-            _this.on(Laya.Event.MOUSE_UP, _this, function () { return scaleBig(_this); });
-            _this.on(Laya.Event.MOUSE_OUT, _this, function () { return scaleBig(_this); });
-            _this.on(Laya.Event.CLICK, _this, function () { return playSound(_this, _this.sound); });
-            return _this;
-        }
-        return btn_img;
-    }(Laya.Image));
-    runtime.btn_img = btn_img;
-    var btn_label = /** @class */ (function (_super) {
-        __extends(btn_label, _super);
-        function btn_label() {
-            var _this = _super.call(this) || this;
-            _this.sound = null;
-            _this.on(Laya.Event.MOUSE_DOWN, _this, function () { return scaleSmal(_this); });
-            _this.on(Laya.Event.MOUSE_UP, _this, function () { return scaleBig(_this); });
-            _this.on(Laya.Event.MOUSE_OUT, _this, function () { return scaleBig(_this); });
-            _this.on(Laya.Event.CLICK, _this, function () { return playSound(_this, _this.sound); });
-            return _this;
-        }
-        return btn_label;
-    }(Laya.Label));
-    runtime.btn_label = btn_label;
-})(runtime || (runtime = {}));
-
-var Tape;
-(function (Tape) {
-    var TiledMap = /** @class */ (function () {
-        function TiledMap(url) {
-            this.mCanDrag = false;
-            this.mMapUrl = '';
-            this.mLastMouseX = 0;
-            this.mLastMouseY = 0;
-            this.mX = 0;
-            this.mY = 0;
-            this.onLoaded = null;
-            this.mMapUrl = url;
-            this.mX = 0;
-            this.mY = 0;
-            this.mTiledMap = new Laya.TiledMap();
-            this.loadMap();
-            Laya.stage.on(Laya.Event.MOUSE_DOWN, this, this.mouseDown);
-            Laya.stage.on(Laya.Event.MOUSE_UP, this, this.mouseUp);
-            Laya.stage.on(Laya.Event.RESIZE, this, this.resize);
-        }
-        TiledMap.prototype.setCanDrag = function (canDrag) {
-            this.mCanDrag = canDrag;
-        };
-        TiledMap.prototype.getMap = function () {
-            return this.mTiledMap;
-        };
-        TiledMap.prototype.destroy = function () {
-            if (!this.mTiledMap) {
-                return;
-            }
-            this.mTiledMap.destroy();
-            this.mTiledMap = null;
-        };
-        TiledMap.prototype.show = function () {
-            if (!this.mTiledMap) {
-                return;
-            }
-            this.mTiledMap.mapSprite().visible = true;
-        };
-        TiledMap.prototype.hide = function () {
-            if (!this.mTiledMap) {
-                return;
-            }
-            this.mTiledMap.mapSprite().visible = false;
-        };
-        TiledMap.prototype.loadMap = function () {
-            if (!this.mTiledMap) {
-                return;
-            }
-            this.mTiledMap.createMap(this.mMapUrl, new Laya.Rectangle(0, 0, Laya.stage.width, Laya.stage.height), new Laya.Handler(this, this.completeHandler), new Laya.Rectangle(160, 160, 160, 160), null, true, true);
-        };
-        TiledMap.prototype.completeHandler = function () {
-            if (!this.mTiledMap) {
-                return;
-            }
-            this.onLoaded && this.onLoaded();
-            this.resize();
-        };
-        TiledMap.prototype.mouseDown = function () {
-            this.mLastMouseX = Laya.stage.mouseX;
-            this.mLastMouseY = Laya.stage.mouseY;
-            Laya.stage.on(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
-        };
-        TiledMap.prototype.mouseMove = function () {
-            if (!this.mCanDrag) {
-                return;
-            }
-            if (!this.mTiledMap) {
-                return;
-            }
-            this.mTiledMap.moveViewPort(this.mX - (Laya.stage.mouseX - this.mLastMouseX), this.mY - (Laya.stage.mouseY - this.mLastMouseY));
-        };
-        TiledMap.prototype.mouseUp = function () {
-            this.mX = this.mX - (Laya.stage.mouseX - this.mLastMouseX);
-            this.mY = this.mY - (Laya.stage.mouseY - this.mLastMouseY);
-            Laya.stage.off(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
-        };
-        TiledMap.prototype.resize = function () {
-            if (!this.mTiledMap) {
-                return;
-            }
-            this.mTiledMap.changeViewPort(this.mX, this.mY, Laya.Browser.width, Laya.Browser.height);
-        };
-        return TiledMap;
-    }());
-    Tape.TiledMap = TiledMap;
-})(Tape || (Tape = {}));
-
-var Tape;
-(function (Tape) {
-    /**
-     * 初始化APP
-     * @param width 宽度
-     * @param height 高度
-     * @param options 其他拓展
-     */
-    Tape.init = function (width, height) {
-        var options = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            options[_i - 2] = arguments[_i];
-        }
-        if (Tape.Platform.isWechatApp()) {
-            Tape.MiniHandler.init.apply(Tape.MiniHandler, [width, height].concat(options));
-        }
-        else {
-            Tape.BrowserHandler.init.apply(Tape.BrowserHandler, [width, height].concat(options));
-        }
-    };
-    /**
-     * 退出APP
-     */
-    Tape.exit = function () {
-        if (Tape.Platform.isWechatApp()) {
-            Tape.MiniHandler.exit();
-        }
-        else {
-            Tape.BrowserHandler.exit();
-        }
-    };
-})(Tape || (Tape = {}));
-
-!function(e,t){if("object"==typeof exports&&"object"==typeof module)module.exports=t();else if("function"==typeof define&&define.amd)define([],t);else{var n=t();for(var r in n)("object"==typeof exports?exports:e)[r]=n[r]}}(this,function(){return function(e){var t={};function n(r){if(t[r])return t[r].exports;var o=t[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,n),o.l=!0,o.exports}return n.m=e,n.c=t,n.d=function(e,t,r){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);if(n.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)n.d(r,o,function(t){return e[t]}.bind(null,o));return r},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="",n(n.s=64)}([function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(6),o=r.RuntimeType.Wechat!==r.getRuntimeType(),i=function(){function e(){}return e.setDebug=function(e){o=e},e.debug=function(e){for(var t=[],n=1;n<arguments.length;n++)t[n-1]=arguments[n];o&&console.log.apply(console,["SDK:",e].concat(t))},e}();t.default=i},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(10),o=n(0),i=n(15),u="_user_id",a="_user_token",s=!1,c=[],f=function(){function e(){}return e.getUserId=function(){return r.getStorageData(u)},e.getUserOpenId=function(){return r.getSessionData("_user_openid")},e.setUserOpenId=function(e){r.setSessionData("_user_openid",e)},e.getUserToken=function(){return r.getStorageData(a)},e.getSessionId=function(){var e=r.getStorageData("_user_session");return e||(e=i.randomId(),r.setStorageData("_user_session",e)),e},e.isLoggedIn=function(){return s&&!!r.getStorageData(a)},e.setValid=function(){s||(s=!0,o.default.debug("session.login valid - true",c),c.forEach(function(e){return e(!0)}))},e.login=function(e,t){s=!0,r.setStorageData(u,e),r.setStorageData(a,t),o.default.debug("session.login - true",c),c.forEach(function(e){return e(!0)})},e.logout=function(){s=!1,o.default.debug("session.login - false"),c.forEach(function(e){return e(!1)}),[u,a].forEach(function(e){return r.removeStorageData(e)})},e.registerSessionChangeCallback=function(e){o.default.debug("register session callback"),-1===c.indexOf(e)&&c.push(e)},e.unregisterSessionChangeCallback=function(e){var t=c.indexOf(e);-1!==t&&c.splice(t,1)},e}();t.default=f,t.waitLogin=function(){return f.isLoggedIn()?Promise.resolve():new Promise(function(e){var t=function(n){n?(f.unregisterSessionChangeCallback(t),e()):o.default.debug("!!!warn!!! login callback registered in logged in status")};f.registerSessionChangeCallback(t)})}},function(e,t,n){"use strict";t.__esModule=!0,n(16);var r=void 0;"undefined"==typeof Promise?(r=n(57).Promise,"undefined"!=typeof window&&(window.Promise=r)):r=Promise,t.default=r},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(4),o=n(11),i=n(1),u=[],a={sdk_version:o.getVersion(),session_id:i.default.getSessionId()},s={interval:5};function c(){var e=u.splice(0);e.length>0&&r.default.reportAnalytics(a,e).catch(function(){u.push.apply(u,e)})}var f=null;function l(e){return Object.keys(e).filter(function(t){return void 0!==e[t]}).reduce(function(t,n){return t[n]=e[n],t},{})}var d=function(){function e(){}return e.config=function(e){void 0===e&&(e={}),Object.assign(s,e)},e.setCommonParams=function(e){void 0===e&&(e={}),Object.assign(a,l(e))},e.event=function(e,t){void 0===t&&(t={}),u.push(Object.assign({},{event_id:e,event_time:Math.floor(Date.now()/1e3)},l(t))),function(){if(!f){var e=s.interval;f=setTimeout(function(){c(),f=null},1e3*e)}}()},e.flush=c,e.ReportOptions=s,e}();t.default=d},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(10),o=n(7),i=n(1),u=n(0),a=n(14),s=n(8),c=n(2),f="_api_server_url",l="_api_app_name";function d(){return r.getSessionData(l)}t.initApi=function(e,t){return r.setSessionData(f,e),r.setSessionData(l,t),c.default.resolve()};var p=o.promisify(wx.request);function h(e,t){var n=""+r.getSessionData(f)+e;t.url=n;var o={"Content-Type":"application/json","X-App-Name":d()},s=i.default.getUserToken();return s&&(o.Authorization="Bearer "+s),t.header=Object.assign({},o,t.header),a.onReady().then(function(){return p(t)}).then(function(e){if(e.data&&0===e.data.code)return u.default.debug("request:success",{url:n,res:e}),e.data;throw e}).catch(function(e){throw u.default.debug("request:fail",{url:n,err:e}),e.data&&16===e.data.code&&u.default.debug("---------- SDK TOKEN INVALID ----------"),e})}function g(e,t,n){return void 0===t&&(t={}),void 0===n&&(n={}),h(e,{method:"POST",data:t,header:n})}function v(e,t,n){return void 0===t&&(t={}),void 0===n&&(n={}),h(s.appendQueryParams(e,t),{method:"GET",header:n})}var y=function(){function e(){}return e.getServerTime=function(){return h("/v1/server_time",{method:"GET"})},e.login=function(e){return g("/passport/v1/login_via_code",{code:e})},e.setUserInfo=function(e,t){return g("/passport/v1/wechat/user_info",{encrypted_data:e,iv:t})},e.setPhoneNumber=function(e,t){return g("/passport/v1/wechat/phone_number",{encrypted_data:e,iv:t})},e.getUserInfo=function(){return v("/passport/v1/user/me")},e.createBindToken=function(){return g("/passport/v1/bind/token")},e.bindToToken=function(e){return g("/passport/v1/bind/token/"+e)},e.msgSecCheck=function(e){return g("/wechat/v1/msg_sec_check",{content:e})},e.saveFormId=function(e){return g("/wechat/v1/form_id",{form_id:e})},e.decryptShareInfo=function(e,t){return g("/wechat/v1/share_info",{encrypted_data:e,iv:t})},e.createQrCode=function(e){return g("/wechat/v1/qrcode",e)},e.createQrCodeUnlimit=function(e){return g("/wechat/v1/qrcode_unlimit",e)},e.setCloudData=function(e){return g("/data/v1/set_kv_list",{kv_data_list:e})},e.getCloudData=function(e){return g("/data/v1/get_kv_list",{key_list:e})},e.removeCloudData=function(e){return g("/data/v1/remove_kv_list",{key_list:e})},e.incrGlobalData=function(e){return g("/data/v1/global/incr_kv_list",{kv_data_list:e})},e.getGlobalData=function(e){return g("/data/v1/global/get_kv_list",{key_list:e})},e.removeGlobalData=function(e){return g("/data/v1/global/remove_kv_list",{key_list:e})},e.reportAnalytics=function(e,t){return g("/v1/report",{common:e,events:t})},e.createOauthToken=function(e){return g("/oauth/v1/data/token",{expires_in:e})},e.getOauthTokenInfo=function(e){return v("/oauth/v1/data/token/"+e)},e.getContributorList=function(e){return g("/data/v1/open/get_contributor_list",{app_name_list:e})},e.removeContributorList=function(e){return g("/data/v1/open/remove_contributor_list",{contributor_list:e})},e.getContributorKVList=function(e,t,n,r){return g("/data/v1/open/get_contributor_kv_list",{contributor_list:e,key_list:t,app_name_list:n,include_user_info:r})},e.removeContributorKVList=function(e,t){return g("/data/v1/open/remove_contributor_kv_list",{contributor_list:e,key_list:t})},e.setAuthorKVList=function(e,t){return g("/data/v1/open/set_author_kv_list",{kv_data_list:t},{"X-OAuth-Data-Token":e})},e.getAuthorKVList=function(e,t){return g("/data/v1/open/get_author_kv_list",{key_list:t},{"X-OAuth-Data-Token":e})},e.removeAuthorKVList=function(e,t){return g("/data/v1/open/remove_author_kv_list",{key_list:t},{"X-OAuth-Data-Token":e})},e.getAuthorContributorKVList=function(e,t,n,r){return g("/data/v1/open/get_author_contributor_kv_list",{contributor_list:t,key_list:n,app_name_list:r},{"X-OAuth-Data-Token":e})},e.setRankScore=function(e,t,n){return g("/data/v1/set_rank_score",{score:e,info:t,enable_region:!0,key:n})},e.getRankList=function(e,t){return g("/data/v1/get_rank_list",{count:e,key:t})},e.getRegionRankList=function(e,t){return g("/data/v1/get_region_rank_list",{count:e,key:t})},e.rewardCash=function(e,t,n){return g("/trade/v1/reward/cash",{amount:e,title:t,desc:n})},e.getAssetsCash=function(){return v("/trade/v1/assets/cash")},e.rewardCoin=function(e,t,n){return g("/trade/v1/reward/coin",{amount:e,title:t,desc:n})},e.getAssetsCoin=function(){return v("/trade/v1/assets/coin")},e.withdraw=function(e,t,n,r){return void 0===r&&(r="cash"),g("/trade/v1/withdraw",{amount:e,title:t,desc:n,name:r})},e.withdrawList=function(e,t,n,r){return v("/trade/v1/withdraw/list",{page:e,page_size:t,begin_date:n,end_date:r})},e.withdrawListByState=function(e,t,n,r,o){return v("/trade/v1/withdraw/list/state/"+e,{page:t,page_size:n,begin_date:r,end_date:o})},e.getTradeBook=function(e){return v("/trade/v1/book/"+e)},e.getAd=function(e){return v("/ads/rq",{position:e})},e.clickAd=function(e,t){return g("/ads/click",{ads_id:e,timeline_id:t})},e.appPostRequest=function(e,t,n){return g("/"+d()+"/"+e,t,n)},e.appGetRequest=function(e,t,n){return v("/"+d()+"/"+e,t,n)},e}();t.default=y},function(e,t,n){"use strict";(function(e){var r=t;function o(e,t,n){for(var r=Object.keys(t),o=0;o<r.length;++o)void 0!==e[r[o]]&&n||(e[r[o]]=t[r[o]]);return e}function i(e){function t(e,n){if(!(this instanceof t))return new t(e,n);Object.defineProperty(this,"message",{get:function(){return e}}),Error.captureStackTrace?Error.captureStackTrace(this,t):Object.defineProperty(this,"stack",{value:(new Error).stack||""}),n&&o(this,n)}return(t.prototype=Object.create(Error.prototype)).constructor=t,Object.defineProperty(t.prototype,"name",{get:function(){return e}}),t.prototype.toString=function(){return this.name+": "+this.message},t}r.asPromise=n(54),r.base64=n(53),r.EventEmitter=n(52),r.float=n(51),r.inquire=n(50),r.utf8=n(49),r.pool=n(48),r.LongBits=n(47),r.global="undefined"!=typeof window&&window||void 0!==e&&e||"undefined"!=typeof self&&self||this,r.emptyArray=Object.freeze?Object.freeze([]):[],r.emptyObject=Object.freeze?Object.freeze({}):{},r.isNode=Boolean(r.global.process&&r.global.process.versions&&r.global.process.versions.node),r.isInteger=Number.isInteger||function(e){return"number"==typeof e&&isFinite(e)&&Math.floor(e)===e},r.isString=function(e){return"string"==typeof e||e instanceof String},r.isObject=function(e){return e&&"object"==typeof e},r.isset=r.isSet=function(e,t){var n=e[t];return!(null==n||!e.hasOwnProperty(t))&&("object"!=typeof n||(Array.isArray(n)?n.length:Object.keys(n).length)>0)},r.Buffer=function(){try{var e=r.inquire("buffer").Buffer;return e.prototype.utf8Write?e:null}catch(e){return null}}(),r._Buffer_from=null,r._Buffer_allocUnsafe=null,r.newBuffer=function(e){return"number"==typeof e?r.Buffer?r._Buffer_allocUnsafe(e):new r.Array(e):r.Buffer?r._Buffer_from(e):"undefined"==typeof Uint8Array?e:new Uint8Array(e)},r.Array="undefined"!=typeof Uint8Array?Uint8Array:Array,r.Long=r.global.dcodeIO&&r.global.dcodeIO.Long||r.global.Long||r.inquire("long"),r.key2Re=/^true|false|0|1$/,r.key32Re=/^-?(?:0|[1-9][0-9]*)$/,r.key64Re=/^(?:[\\x00-\\xff]{8}|-?(?:0|[1-9][0-9]*))$/,r.longToHash=function(e){return e?r.LongBits.from(e).toHash():r.LongBits.zeroHash},r.longFromHash=function(e,t){var n=r.LongBits.fromHash(e);return r.Long?r.Long.fromBits(n.lo,n.hi,t):n.toNumber(Boolean(t))},r.merge=o,r.lcFirst=function(e){return e.charAt(0).toLowerCase()+e.substring(1)},r.newError=i,r.ProtocolError=i("ProtocolError"),r.oneOfGetter=function(e){for(var t={},n=0;n<e.length;++n)t[e[n]]=1;return function(){for(var e=Object.keys(this),n=e.length-1;n>-1;--n)if(1===t[e[n]]&&void 0!==this[e[n]]&&null!==this[e[n]])return e[n]}},r.oneOfSetter=function(e){return function(t){for(var n=0;n<e.length;++n)e[n]!==t&&delete this[e[n]]}},r.toJSONOptions={longs:String,enums:String,bytes:String,json:!0},r._configure=function(){var e=r.Buffer;e?(r._Buffer_from=e.from!==Uint8Array.from&&e.from||function(t,n){return new e(t,n)},r._Buffer_allocUnsafe=e.allocUnsafe||function(t){return new e(t)}):r._Buffer_from=r._Buffer_allocUnsafe=null}}).call(this,n(24))},function(e,t,n){"use strict";var r,o;Object.defineProperty(t,"__esModule",{value:!0}),function(e){e[e.Browser=0]="Browser",e[e.Devtools=1]="Devtools",e[e.Wechat=2]="Wechat"}(r=t.RuntimeType||(t.RuntimeType={})),function(e){e[e.App=0]="App",e[e.Game=1]="Game"}(o=t.AppType||(t.AppType={}));var i=r.Browser,u=o.App,a={};"undefined"==typeof wx?(i=r.Browser,u=o.Game):(a=wx.getSystemInfoSync(),i="devtools"===a.platform?r.Devtools:r.Wechat,u="undefined"!=typeof GameGlobal?o.Game:o.App),t.getAppType=function(){return u},t.getRuntimeType=function(){return i},t.getSystemInfo=function(){return a}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(2);t.promisify=function(e){return function(t){for(var n=[],o=1;o<arguments.length;o++)n[o-1]=arguments[o];return new r.default(function(r,o){e.apply(void 0,[Object.assign({},t,{success:r,fail:o})].concat(n))})}}},function(e,t,n){"use strict";function r(e){return Object.keys(e).map(function(t){var n=e[t];return t+"="+encodeURIComponent(n)}).join("&")}function o(e,t){var n=r(t);return e?n?""+e+(-1===e.indexOf("?")&&-1===e.indexOf("=")?"?":"&")+n:e:n}Object.defineProperty(t,"__esModule",{value:!0}),t.decodeQuery=function(e){return Object.keys(e).reduce(function(t,n){var r=e[n];return t[n]=decodeURIComponent(r),t},{})},t.stringifyQuery=r,t.appendQueryParams=o,t.appendRefreshParams=function(e,t){return o(e,{ct:Math.floor(Date.now()/(1e3*t))})}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(0),o=[],i=function(){function e(){}return e.register=function(e,t){var n;o.push(e);var r=e.getPublicInterface&&e.getPublicInterface();r&&Object.assign(t.plugin,((n={})[e.name]=r,n))},e.init=function(e,t){r.default.debug("plugin manager init");var n=o.map(function(n){return n.init(e,t)||Promise.resolve()});return Promise.all(n)},e.onAppShow=function(e,t){o.filter(function(e){return!!e.onAppShow}).forEach(function(n){return n.onAppShow(e,t)})},e.onAppHide=function(){o.filter(function(e){return!!e.onAppHide}).forEach(function(e){return e.onAppHide()})},e.onShareAppMessage=function(e){return o.filter(function(e){return!!e.onShareAppMessage}).reduce(function(e,t){return t.onShareAppMessage(e)},e)},e.onNewUserRegister=function(e){o.filter(function(e){return!!e.onNewUserRegister}).forEach(function(t){return t.onNewUserRegister(e)})},e}();t.default=i},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r={};function o(e){return function(t){return!r.hasOwnProperty(t)&&e&&(r[t]=wx.getStorageSync(t)),r[t]}}function i(e){return function(t,n){r[t]=n,e&&wx.setStorage({key:t,data:n})}}function u(e){return function(t){delete r[t],e&&wx.removeStorage({key:t})}}t.getStorageData=o(!0),t.getSessionData=o(!1),t.setStorageData=i(!0),t.setSessionData=i(!1),t.removeStorageData=u(!0),t.removeSessionData=u(!1)},function(e,t,n){"use strict";function r(e){var t=parseInt(e,10);return isNaN(t)?0:t}Object.defineProperty(t,"__esModule",{value:!0}),t.getVersion=function(){return"0.5.1"},t.compareVersion=function(e,t){for(var n=e.split("."),o=t.split("."),i=Math.max(n.length,o.length),u=0;u<i;u++){var a=n[u],s=o[u];if(a!==s){var c=r(a),f=r(s);if(c!==f)return c<f?-1:1}}return 0}},function(e,t,n){"use strict";t.__esModule=!0;t.success=function(e,t){e.success&&e.success(t),e.complete&&e.complete(t)},t.fail=function(e,t){e.fail&&e.fail(t),e.complete&&e.complete(t)}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.addHook=function(e,t,n,r){void 0===r&&(r=!1);var o=e[t];(o||r)&&Object.defineProperty(e,t,{value:function(){for(var r=[],i=0;i<arguments.length;i++)r[i]=arguments[i];return n.call.apply(n,[this,e,t,o].concat(r))},enumerable:!0,writable:!0,configurable:!0})}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(0),o=n(2),i=!1,u=null,a=new o.default(function(e){u=e});t.onReady=function(){return i?o.default.resolve():a},t.setReady=function(){r.default.debug("setReady..."),i||(i=!0,u(),u=null,a=null)}},function(e,t,n){"use strict";function r(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(e){var t=16*Math.random()|0;return("x"===e?t:3&t|8).toString(16)})}function o(e,t){void 0===t&&(t=0);var n=e+1-t;return Math.floor(Math.random()*n)+t}Object.defineProperty(t,"__esModule",{value:!0}),t.randomGUID=r,t.randomId=function(){return r().replace(/-/g,"")},t.randomInt=o,t.randomItem=function(e){return e[o(e.length-1)]},t.removeItem=function(e,t){var n=e.indexOf(t);-1!==n&&e.splice(n,1)}},function(e,t,n){"use strict";var r=n(6),o=(0,r.getRuntimeType)();(0,r.getAppType)()===r.AppType.Game&&(o===r.RuntimeType.Browser&&(window.GameGlobal=window),"undefined"==typeof window&&(GameGlobal.window=GameGlobal,window.self=window,window.parent=window,window.window=window,window.global=window),"undefined"==typeof wx&&(window.wx={}))},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(0),o=n(1),i=n(4);t.tryBind=function(e,t){var n=e.bind;n&&o.waitLogin().then(function(){return r.default.debug("try bind account..."),i.default.bindToToken(n)}).then(function(){r.default.debug("bind account success")}).catch(function(e){r.default.debug("bind account failed",e)})};var u=function(){return function(){}}();t.default=u},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(3),o=n(10),i=n(1),u=n(0),a=n(2),s=n(9),c=n(20),f="_user_channel",l="user-channel",d="#";function p(e){void 0===e&&(e="");var t=e.split(d),n=t[0],r=t[1],o=t[2],i=t[3],u=t[4];return{id:n=n||"0",scene:r=r?parseInt(r):0,gen:o=o?parseInt(o):1,material:i=i||"0",inviter:u=u||"0"}}function h(e){return["id","scene","gen","material","inviter"].map(function(t){return e[t]}).join(d)}var g=function(){function e(){}return e.init=function(e,t){u.default.debug("channel init: ",e,t);var n=e.promotion;n&&o.setSessionData("_promotion_channel",n);var d,g=p(e.channel);g.scene=g.scene||t,u.default.debug("active channel data:",g),r.default.setCommonParams({channel_active:g.id}),(d=o.getStorageData(f),d?(u.default.debug("channel data on cache: ",d),a.default.resolve(p(d))):i.waitLogin().then(function(){var e=c.getCloudData();return e.onReady.then(function(){var t=e.get(l);return t?(u.default.debug("channel data on server: ",t),p(t)):null})})).then(function(e){if(e)return e;u.default.debug("register channel data:",g),s.default.onNewUserRegister(g);var t=c.getCloudData();return t.onReady.then(function(){t.set(l,h(g))}),g}).then(function(e){u.default.debug("channel source: ",e),r.default.setCommonParams({channel_id:e.id,channel_scene:e.scene,channel_gen:e.gen,channel_material:e.material,channel_inviter_id:e.inviter}),o.setSessionData(l,e),o.setStorageData(f,h(e))})},e.getShareQuery=function(e){var t=o.getSessionData("_promotion_channel");if(t)return{channel:t};var n=o.getSessionData(l);return n?{channel:h(Object.assign({},n,{gen:n.gen+1,material:e||"0",inviter:i.default.getUserId()}))}:{}},e}();t.default=g},function(e,t,n){"use strict";function r(){return Math.floor(Date.now()/1e3)}Object.defineProperty(t,"__esModule",{value:!0}),t.getUnixTimestamp=r;var o=r();t.onAppShow=function(){o=r()},t.getElapsedTime=function(){return r()-o}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(4),o=n(15),i=n(1),u=n(0),a=3;var s=function(){function e(){this._valueByKey={},this._toBeUpdatedKeys=[],this._toBeRemovedKeys=[],this._updateTimeout=null,this._isReady=!1,this._dirtyKeys=[],this._leftRetryTimes=a,this.refresh()}return e.prototype.keys=function(){return Object.keys(this._valueByKey)},e.prototype.get=function(e,t){var n=this._valueByKey[e];if(void 0===n)return t;if("string"!=typeof n)return n;switch(void 0!==t?typeof t:function(e){try{return typeof JSON.parse(e)}catch(n){var t=parseFloat(e);return isNaN(t)||t+""!==e?"string":"number"}}(n)){case"boolean":return function(e){return"true"===e}(n);case"number":return function(e){try{return JSON.parse(e)}catch(t){return parseFloat(e)}}(n);case"object":return function(e){try{return JSON.parse(e)}catch(e){return null}}(n)}return n},e.prototype.set=function(e,t){t!==this._valueByKey[e]&&(this._valueByKey[e]=t,this._onKeyDirty(e),this._removePendingKey(e),this._toBeUpdatedKeys.push(e),this._setDeferUpdate())},e.prototype.remove=function(e){this._valueByKey.hasOwnProperty(e)&&(delete this._valueByKey[e],this._onKeyDirty(e),this._removePendingKey(e),this._toBeRemovedKeys.push(e),this._setDeferUpdate())},e.prototype.clear=function(){var e=this;this.keys().forEach(function(t){return e.remove(t)})},e.prototype.refresh=function(){var e=this;return this._isReady=!1,this.onReady=i.waitLogin().then(function(){return r.default.getCloudData(["*"])}).then(function(t){e._leftRetryTimes=a;var n=t.data;n&&(n.forEach(function(t){var n=t.key,r=t.value;e._dirtyKeys.includes(n)||e._toBeUpdatedKeys.includes(n)||e._toBeRemovedKeys.includes(n)||(e._valueByKey[n]=r)}),e._isReady=!0,e._dirtyKeys.length=0)}).catch(function(t){throw u.default.debug("cloud data refresh failed. ",t),e._leftRetryTimes>0&&(e._leftRetryTimes-=1,e.refresh()),t}),this.onReady},e.prototype.flush=function(){this._update()},e.prototype._removePendingKey=function(e){o.removeItem(this._toBeRemovedKeys,e),o.removeItem(this._toBeUpdatedKeys,e)},e.prototype._setDeferUpdate=function(){var e=this;i.waitLogin().then(function(){e._updateTimeout||(e._updateTimeout=setTimeout(function(){e._update()},1e3))})},e.prototype._onKeyDirty=function(e){this._isReady||-1===this._dirtyKeys.indexOf(e)&&this._dirtyKeys.push(e)},e.prototype._update=function(){var e=this;clearTimeout(this._updateTimeout),this._updateTimeout=null,this._toBeUpdatedKeys.length>0&&(r.default.setCloudData(this._toBeUpdatedKeys.map(function(t){return{key:t,value:e._valueByKey[t]}})),this._toBeUpdatedKeys.length=0),this._toBeRemovedKeys.length>0&&(r.default.removeCloudData(this._toBeRemovedKeys),this._toBeRemovedKeys.length=0)},e}(),c=null;t.getCloudData=function(){return c||(c=new s),c}},function(e,t,n){"use strict";e.exports=s;var r,o=n(5),i=o.LongBits,u=o.utf8;function a(e,t){return RangeError("index out of range: "+e.pos+" + "+(t||1)+" > "+e.len)}function s(e){this.buf=e,this.pos=0,this.len=e.length}var c,f="undefined"!=typeof Uint8Array?function(e){if(e instanceof Uint8Array||Array.isArray(e))return new s(e);throw Error("illegal buffer")}:function(e){if(Array.isArray(e))return new s(e);throw Error("illegal buffer")};function l(){var e=new i(0,0),t=0;if(!(this.len-this.pos>4)){for(;t<3;++t){if(this.pos>=this.len)throw a(this);if(e.lo=(e.lo|(127&this.buf[this.pos])<<7*t)>>>0,this.buf[this.pos++]<128)return e}return e.lo=(e.lo|(127&this.buf[this.pos++])<<7*t)>>>0,e}for(;t<4;++t)if(e.lo=(e.lo|(127&this.buf[this.pos])<<7*t)>>>0,this.buf[this.pos++]<128)return e;if(e.lo=(e.lo|(127&this.buf[this.pos])<<28)>>>0,e.hi=(e.hi|(127&this.buf[this.pos])>>4)>>>0,this.buf[this.pos++]<128)return e;if(t=0,this.len-this.pos>4){for(;t<5;++t)if(e.hi=(e.hi|(127&this.buf[this.pos])<<7*t+3)>>>0,this.buf[this.pos++]<128)return e}else for(;t<5;++t){if(this.pos>=this.len)throw a(this);if(e.hi=(e.hi|(127&this.buf[this.pos])<<7*t+3)>>>0,this.buf[this.pos++]<128)return e}throw Error("invalid varint encoding")}function d(e,t){return(e[t-4]|e[t-3]<<8|e[t-2]<<16|e[t-1]<<24)>>>0}function p(){if(this.pos+8>this.len)throw a(this,8);return new i(d(this.buf,this.pos+=4),d(this.buf,this.pos+=4))}s.create=o.Buffer?function(e){return(s.create=function(e){return o.Buffer.isBuffer(e)?new r(e):f(e)})(e)}:f,s.prototype._slice=o.Array.prototype.subarray||o.Array.prototype.slice,s.prototype.uint32=(c=4294967295,function(){if(c=(127&this.buf[this.pos])>>>0,this.buf[this.pos++]<128)return c;if(c=(c|(127&this.buf[this.pos])<<7)>>>0,this.buf[this.pos++]<128)return c;if(c=(c|(127&this.buf[this.pos])<<14)>>>0,this.buf[this.pos++]<128)return c;if(c=(c|(127&this.buf[this.pos])<<21)>>>0,this.buf[this.pos++]<128)return c;if(c=(c|(15&this.buf[this.pos])<<28)>>>0,this.buf[this.pos++]<128)return c;if((this.pos+=5)>this.len)throw this.pos=this.len,a(this,10);return c}),s.prototype.int32=function(){return 0|this.uint32()},s.prototype.sint32=function(){var e=this.uint32();return e>>>1^-(1&e)|0},s.prototype.bool=function(){return 0!==this.uint32()},s.prototype.fixed32=function(){if(this.pos+4>this.len)throw a(this,4);return d(this.buf,this.pos+=4)},s.prototype.sfixed32=function(){if(this.pos+4>this.len)throw a(this,4);return 0|d(this.buf,this.pos+=4)},s.prototype.float=function(){if(this.pos+4>this.len)throw a(this,4);var e=o.float.readFloatLE(this.buf,this.pos);return this.pos+=4,e},s.prototype.double=function(){if(this.pos+8>this.len)throw a(this,4);var e=o.float.readDoubleLE(this.buf,this.pos);return this.pos+=8,e},s.prototype.bytes=function(){var e=this.uint32(),t=this.pos,n=this.pos+e;if(n>this.len)throw a(this,e);return this.pos+=e,Array.isArray(this.buf)?this.buf.slice(t,n):t===n?new this.buf.constructor(0):this._slice.call(this.buf,t,n)},s.prototype.string=function(){var e=this.bytes();return u.read(e,0,e.length)},s.prototype.skip=function(e){if("number"==typeof e){if(this.pos+e>this.len)throw a(this,e);this.pos+=e}else do{if(this.pos>=this.len)throw a(this)}while(128&this.buf[this.pos++]);return this},s.prototype.skipType=function(e){switch(e){case 0:this.skip();break;case 1:this.skip(8);break;case 2:this.skip(this.uint32());break;case 3:for(;4!=(e=7&this.uint32());)this.skipType(e);break;case 5:this.skip(4);break;default:throw Error("invalid wire type "+e+" at offset "+this.pos)}return this},s._configure=function(e){r=e;var t=o.Long?"toLong":"toNumber";o.merge(s.prototype,{int64:function(){return l.call(this)[t](!1)},uint64:function(){return l.call(this)[t](!0)},sint64:function(){return l.call(this).zzDecode()[t](!1)},fixed64:function(){return p.call(this)[t](!0)},sfixed64:function(){return p.call(this)[t](!1)}})}},function(e,t,n){"use strict";e.exports=f;var r,o=n(5),i=o.LongBits,u=o.base64,a=o.utf8;function s(e,t,n){this.fn=e,this.len=t,this.next=void 0,this.val=n}function c(){}function f(){this.len=0,this.head=new s(c,0,0),this.tail=this.head,this.states=null}function l(e,t,n){t[n]=255&e}function d(e,t){this.len=e,this.next=void 0,this.val=t}function p(e,t,n){for(;e.hi;)t[n++]=127&e.lo|128,e.lo=(e.lo>>>7|e.hi<<25)>>>0,e.hi>>>=7;for(;e.lo>127;)t[n++]=127&e.lo|128,e.lo=e.lo>>>7;t[n++]=e.lo}function h(e,t,n){t[n]=255&e,t[n+1]=e>>>8&255,t[n+2]=e>>>16&255,t[n+3]=e>>>24}f.create=o.Buffer?function(){return(f.create=function(){return new r})()}:function(){return new f},f.alloc=function(e){return new o.Array(e)},o.Array!==Array&&(f.alloc=o.pool(f.alloc,o.Array.prototype.subarray)),f.prototype._push=function(e,t,n){return this.tail=this.tail.next=new s(e,t,n),this.len+=t,this},d.prototype=Object.create(s.prototype),d.prototype.fn=function(e,t,n){for(;e>127;)t[n++]=127&e|128,e>>>=7;t[n]=e},f.prototype.uint32=function(e){return this.len+=(this.tail=this.tail.next=new d((e>>>=0)<128?1:e<16384?2:e<2097152?3:e<268435456?4:5,e)).len,this},f.prototype.int32=function(e){return e<0?this._push(p,10,i.fromNumber(e)):this.uint32(e)},f.prototype.sint32=function(e){return this.uint32((e<<1^e>>31)>>>0)},f.prototype.uint64=function(e){var t=i.from(e);return this._push(p,t.length(),t)},f.prototype.int64=f.prototype.uint64,f.prototype.sint64=function(e){var t=i.from(e).zzEncode();return this._push(p,t.length(),t)},f.prototype.bool=function(e){return this._push(l,1,e?1:0)},f.prototype.fixed32=function(e){return this._push(h,4,e>>>0)},f.prototype.sfixed32=f.prototype.fixed32,f.prototype.fixed64=function(e){var t=i.from(e);return this._push(h,4,t.lo)._push(h,4,t.hi)},f.prototype.sfixed64=f.prototype.fixed64,f.prototype.float=function(e){return this._push(o.float.writeFloatLE,4,e)},f.prototype.double=function(e){return this._push(o.float.writeDoubleLE,8,e)};var g=o.Array.prototype.set?function(e,t,n){t.set(e,n)}:function(e,t,n){for(var r=0;r<e.length;++r)t[n+r]=e[r]};f.prototype.bytes=function(e){var t=e.length>>>0;if(!t)return this._push(l,1,0);if(o.isString(e)){var n=f.alloc(t=u.length(e));u.decode(e,n,0),e=n}return this.uint32(t)._push(g,t,e)},f.prototype.string=function(e){var t=a.length(e);return t?this.uint32(t)._push(a.write,t,e):this._push(l,1,0)},f.prototype.fork=function(){return this.states=new function(e){this.head=e.head,this.tail=e.tail,this.len=e.len,this.next=e.states}(this),this.head=this.tail=new s(c,0,0),this.len=0,this},f.prototype.reset=function(){return this.states?(this.head=this.states.head,this.tail=this.states.tail,this.len=this.states.len,this.states=this.states.next):(this.head=this.tail=new s(c,0,0),this.len=0),this},f.prototype.ldelim=function(){var e=this.head,t=this.tail,n=this.len;return this.reset().uint32(n),n&&(this.tail.next=e.next,this.tail=t,this.len+=n),this},f.prototype.finish=function(){for(var e=this.head.next,t=this.constructor.alloc(this.len),n=0;e;)e.fn(e.val,t,n),n+=e.len,e=e.next;return t},f._configure=function(e){r=e}},function(e,t,n){"use strict";e.exports=n(55)},function(e,t){var n;n=function(){return this}();try{n=n||Function("return this")()||(0,eval)("this")}catch(e){"object"==typeof window&&(n=window)}e.exports=n},function(e,t,n){"use strict";t.__esModule=!0,t.getWxApiObject=function(){return g},n(16);var r=n(6),o=n(61),i=n(60),u=n(12),a=n(59),s=n(58);function c(e){return function(t){return(0,u.success)(t,Object.assign({errMsg:"ok"},e))}}function f(e){return function(t){return(0,u.fail)(t,Object.assign({errMsg:"fail"},e))}}function l(){}var d={postMessage:l,canvas:(0,i.createCanvas)()},p={createCanvas:i.createCanvas,createImage:i.createImage,onShow:l,offShow:l,onHide:l,offHide:l,setKeepScreenOn:l,vibrateShort:l,vibrateLong:l,downloadFile:l,request:o.request,connectSocket:s.connectSocket,checkSession:c({errMsg:"checkSession:ok"}),login:c({errMsg:"login:ok",code:"MOCK_CODE_"+(window&&window.location&&window.location.search?window.location.search.substr(1):"")}),getUserInfo:f({errMsg:"getUserInfo:fail"}),onMessage:l,getOpenDataContext:function(){return d},openCustomerServiceConversation:l,navigateToMiniProgram:f({errMsg:"navigateToMiniProgram:fail"}),navigateBackMiniProgram:f({errMsg:"navigateBackMiniProgram:fail"}),onShareAppMessage:l,shareAppMessage:l,setEnableDebug:l,setStorage:a.setStorage,getStorage:a.getStorage,getStorageInfo:a.getStorageInfo,clearStorage:a.clearStorage,removeStorage:a.removeStorage,setStorageSync:a.setStorageSync,getStorageSync:a.getStorageSync,getStorageInfoSync:a.getStorageInfoSync,clearStorageSync:a.clearStorageSync,removeStorageSync:a.removeStorageSync,previewImage:l,chooseImage:l,saveImageToPhotosAlbum:l,showToast:l,hideToast:l,showLoading:l,hideLoading:l,showModal:l,showActionSheet:l},h=[s.forcePolyfillConnectSocket?"connectSocket":""];var g=void 0;switch((0,r.getAppType)()){case r.AppType.App:g=wx;break;case r.AppType.Game:"undefined"!=typeof window&&(g=window.wx)}g&&Object.keys(p).forEach(function(e){g.hasOwnProperty(e)&&!function(e){return-1!==h.indexOf(e)}(e)||Object.defineProperty(g,e,{value:p[e],enumerable:!0,writable:!0,configurable:!0})})},,,,,function(e,t,n){"use strict";var r=n(6),o=n(13),i=n(19),u=n(8),a=d(n(0)),s=d(n(3)),c=d(n(18)),f=n(17),l=d(n(9));function d(e){return e&&e.__esModule?e:{default:e}}r.AppType.Game===(0,r.getAppType)()&&(wx.onShow(function(e){a.default.debug("wx.onShow",e),(0,i.onAppShow)();var t=e.query,n=e.scene;n=n||0,t=(0,u.decodeQuery)(t),s.default.event("a_1000_1002",{path:(0,u.stringifyQuery)(t),scene:n}),c.default.init(t,n),(0,f.tryBind)(t,n),l.default.onAppShow(t,n),s.default.flush()}),wx.onHide(function(){s.default.event("a_1000_1003",{duration:(0,i.getElapsedTime)()}),l.default.onAppHide(),s.default.flush()}),(0,o.addHook)(wx,"onShareAppMessage",function(e,t,n,r){n.call(this,function(){a.default.debug("onShareAppMessage...");var e=l.default.onShareAppMessage(r.apply(void 0,arguments)),t=e.title,n=e.imageUrl,o=e.query,i=e.success,f=e.fail,d=e.entry,p=e.material;s.default.event("a_1000_2001",{entry:d,material:p});var h={title:t,imageUrl:n,query:(0,u.appendQueryParams)(o,c.default.getShareQuery(p)),success:function(e){a.default.debug("onShareAppMessage: share success: ",e),s.default.event("a_1000_2002",{entry:d,material:p}),i&&i(e)},fail:function(e){a.default.debug("onShareAppMessage: share fail: ",e),s.default.event("a_1000_2003",{entry:d,material:p}),f&&f(e)}};return a.default.debug("share with options: ",h),h})}),(0,o.addHook)(wx,"shareAppMessage",function(e,t,n,r){a.default.debug("shareAppMessage...");var o=l.default.onShareAppMessage(r),i=o.title,f=o.imageUrl,d=o.query,p=o.success,h=o.fail,g=o.entry,v=o.material;s.default.event("a_1000_2001",{entry:g,material:v});var y={title:i,imageUrl:f,query:(0,u.appendQueryParams)(d,c.default.getShareQuery(v)),success:function(e){a.default.debug("shareAppMessage: share success: ",e),s.default.event("a_1000_2002",{entry:g,material:v}),p&&p(e)},fail:function(e){a.default.debug("shareAppMessage: share fail: ",e),s.default.event("a_1000_2003",{entry:g,material:v}),h&&h(e)}};a.default.debug("share with options: ",y),n.call(this,y)}),(0,o.addHook)(wx,"openCustomerServiceConversation",function(e,t,n,r){return s.default.event("a_1000_3001"),n.call(this,r)}))},function(e,t,n){"use strict";var r=n(6),o=n(13),i=n(19),u=n(8),a=d(n(0)),s=d(n(3)),c=d(n(18)),f=n(17),l=d(n(9));function d(e){return e&&e.__esModule?e:{default:e}}!function(){if(r.AppType.App===(0,r.getAppType)()){if("undefined"!=typeof App){var e=App;App=function(t){(0,o.addHook)(t,"onLaunch",function(e,t,n){s.default.event("a_1000_1001");for(var r=arguments.length,o=Array(r>3?r-3:0),i=3;i<r;i++)o[i-3]=arguments[i];return n.call.apply(n,[this].concat(o))}),(0,o.addHook)(t,"onShow",function(e,t,n,r){a.default.debug("wx.onShow",r),(0,i.onAppShow)();var o=r.path,d=r.query,p=r.scene;p=p||0,d=(0,u.decodeQuery)(d),s.default.event("a_1000_1002",{path:(0,u.appendQueryParams)(o,d),scene:p}),c.default.init(d,p),(0,f.tryBind)(d,p),l.default.onAppShow(d,p),n&&n.call(this,r),s.default.flush()},!0),(0,o.addHook)(t,"onHide",function(e,t,n){if(s.default.event("a_1000_1003",{duration:(0,i.getElapsedTime)()}),l.default.onAppHide(),n){for(var r=arguments.length,o=Array(r>3?r-3:0),u=3;u<r;u++)o[u-3]=arguments[u];n.call.apply(n,[this].concat(o))}s.default.flush()},!0),e(t)}}if("undefined"!=typeof Page){var t=Page;Page=function(e){(0,o.addHook)(e,"onShareAppMessage",function(e,t,n){a.default.debug("onShareAppMessage...");for(var r=arguments.length,o=Array(r>3?r-3:0),i=3;i<r;i++)o[i-3]=arguments[i];var f=l.default.onShareAppMessage(n.call.apply(n,[this].concat(o))),d=f.title,p=f.imageUrl,h=f.path,g=f.success,v=f.fail,y=f.entry,m=f.material;s.default.event("a_1000_2001",{entry:y,material:m});var _={title:d,imageUrl:p,path:(0,u.appendQueryParams)(h,c.default.getShareQuery(m)),success:function(e){a.default.debug("onShareAppMessage: share success: ",e),s.default.event("a_1000_2002",{entry:y,material:m}),g&&g(e)},fail:function(e){a.default.debug("onShareAppMessage: share fail: ",e),s.default.event("a_1000_2003",{entry:y,material:m}),v&&v(e)}};return a.default.debug("share with options: ",_),_}),t(e)}}}}()},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),n(31),n(30);var r=n(13),o=n(0),i=n(3);r.addHook(wx,"navigateToMiniProgram",function(e,t,n,r){var u=r.appId,a=r.success,s=r.fail;return o.default.debug("navigateToMiniProgram..."),i.default.event("a_1000_4001",{app_id:u}),n.call(this,Object.assign({},r,{success:function(e){o.default.debug("navigateToMiniProgram success: ",e),i.default.event("a_1000_4002",{app_id:u}),a&&a(e)},fail:function(e){o.default.debug("navigateToMiniProgram fail: ",e),i.default.event("a_1000_4003",{app_id:u}),s&&s(e)}}))})},function(e,t,n){"use strict";t.__esModule=!0,t.default=t.online=void 0;var r=function(e){if(e&&e.__esModule)return e;var t={};if(null!=e)for(var n in e)Object.prototype.hasOwnProperty.call(e,n)&&(t[n]=e[n]);return t.default=e,t}(n(23));var o=r.Reader,i=r.Writer,u=r.util,a=r.roots.default||(r.roots.default={});t.online=a.online=function(){var e={};return e.Login=function(){function e(e){if(e)for(var t=Object.keys(e),n=0;n<t.length;++n)null!=e[t[n]]&&(this[t[n]]=e[t[n]])}return e.prototype.token="",e.encode=function(e,t){return t||(t=i.create()),null!=e.token&&e.hasOwnProperty("token")&&t.uint32(10).string(e.token),t},e.decode=function(e,t){e instanceof o||(e=o.create(e));for(var n=void 0===t?e.len:e.pos+t,r=new a.online.Login;e.pos<n;){var i=e.uint32();switch(i>>>3){case 1:r.token=e.string();break;default:e.skipType(7&i)}}return r},e}(),e.Join=function(){function e(e){if(e)for(var t=Object.keys(e),n=0;n<t.length;++n)null!=e[t[n]]&&(this[t[n]]=e[t[n]])}return e.prototype.match_type=0,e.prototype.match_id="",e.prototype.options="",e.encode=function(e,t){return t||(t=i.create()),null!=e.match_type&&e.hasOwnProperty("match_type")&&t.uint32(8).int32(e.match_type),null!=e.match_id&&e.hasOwnProperty("match_id")&&t.uint32(18).string(e.match_id),null!=e.options&&e.hasOwnProperty("options")&&t.uint32(26).string(e.options),t},e.decode=function(e,t){e instanceof o||(e=o.create(e));for(var n=void 0===t?e.len:e.pos+t,r=new a.online.Join;e.pos<n;){var i=e.uint32();switch(i>>>3){case 1:r.match_type=e.int32();break;case 2:r.match_id=e.string();break;case 3:r.options=e.string();break;default:e.skipType(7&i)}}return r},e}(),e.JoinOk=function(){function e(e){if(e)for(var t=Object.keys(e),n=0;n<t.length;++n)null!=e[t[n]]&&(this[t[n]]=e[t[n]])}return e.prototype.match_id="",e.encode=function(e,t){return t||(t=i.create()),null!=e.match_id&&e.hasOwnProperty("match_id")&&t.uint32(10).string(e.match_id),t},e.decode=function(e,t){e instanceof o||(e=o.create(e));for(var n=void 0===t?e.len:e.pos+t,r=new a.online.JoinOk;e.pos<n;){var i=e.uint32();switch(i>>>3){case 1:r.match_id=e.string();break;default:e.skipType(7&i)}}return r},e}(),e.Ping=function(){function e(e){if(e)for(var t=Object.keys(e),n=0;n<t.length;++n)null!=e[t[n]]&&(this[t[n]]=e[t[n]])}return e.prototype.timestamp=u.Long?u.Long.fromBits(0,0,!1):0,e.encode=function(e,t){return t||(t=i.create()),null!=e.timestamp&&e.hasOwnProperty("timestamp")&&t.uint32(8).int64(e.timestamp),t},e.decode=function(e,t){e instanceof o||(e=o.create(e));for(var n=void 0===t?e.len:e.pos+t,r=new a.online.Ping;e.pos<n;){var i=e.uint32();switch(i>>>3){case 1:r.timestamp=e.int64();break;default:e.skipType(7&i)}}return r},e}(),e.Pong=function(){function e(e){if(e)for(var t=Object.keys(e),n=0;n<t.length;++n)null!=e[t[n]]&&(this[t[n]]=e[t[n]])}return e.prototype.timestamp=u.Long?u.Long.fromBits(0,0,!1):0,e.prototype.server_timestamp=u.Long?u.Long.fromBits(0,0,!1):0,e.encode=function(e,t){return t||(t=i.create()),null!=e.timestamp&&e.hasOwnProperty("timestamp")&&t.uint32(8).int64(e.timestamp),null!=e.server_timestamp&&e.hasOwnProperty("server_timestamp")&&t.uint32(16).int64(e.server_timestamp),t},e.decode=function(e,t){e instanceof o||(e=o.create(e));for(var n=void 0===t?e.len:e.pos+t,r=new a.online.Pong;e.pos<n;){var i=e.uint32();switch(i>>>3){case 1:r.timestamp=e.int64();break;case 2:r.server_timestamp=e.int64();break;default:e.skipType(7&i)}}return r},e}(),e}();t.default=a},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=function(){function e(e){this._samples=[],this._maxSamples=e,this._currentSampleIndex=0,this._currentAverage=0}return e.prototype.append=function(e){void 0===e&&(e=0);var t=this._samples,n=this._currentSampleIndex;t[n]=e,t[n]=this._currentAverage=this._average(),this._currentSampleIndex=(n+1)%this._maxSamples},e.prototype.get=function(){return this._currentAverage},e.prototype._average=function(){for(var e=0,t=this._samples.length,n=0;n<t;n++)e+=this._samples[n];return e/t},e}();t.SmoothSampling=r},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r,o,i,u=n(2),a=n(1),s=n(0),c=n(8),f=n(34),l=n(33),d=l.online.Login,p=l.online.Join,h=l.online.JoinOk,g=l.online.Ping,v=l.online.Pong;!function(e){e[e.Json=1]="Json",e[e.Buffer=2]="Buffer"}(r||(r={})),function(e){e[e.CONNECTING=0]="CONNECTING",e[e.OPEN=1]="OPEN",e[e.CLOSING=2]="CLOSING",e[e.CLOSED=3]="CLOSED"}(o||(o={})),function(e){e[e.CLOSE=8]="CLOSE",e[e.PING=9]="PING",e[e.PONG=10]="PONG",e[e.LOGIN=11]="LOGIN",e[e.LOGIN_OK=12]="LOGIN_OK",e[e.LOGIN_FAILED=13]="LOGIN_FAILED",e[e.JOIN=21]="JOIN",e[e.JOIN_OK=22]="JOIN_OK",e[e.JOIN_FAILED=23]="JOIN_FAILED",e[e.LEAVE=31]="LEAVE"}(i||(i={}));var y,m,_,b,w,S,k,O=3,A=10,x=!1,P=!1;function I(){S=function(){},k=function(){}}I();var T=function(){},M=function(){},E={},j={},C={};C[i.LOGIN]={encode:function(e){return d.encode(e).finish()}},C[i.JOIN]={encode:function(e){var t=e.options||{};return p.encode(Object.assign({},e,{options:JSON.stringify(t)})).finish()}},C[i.JOIN_OK]={decode:function(e){return h.decode(new Uint8Array(e))}},C[i.PING]={encode:function(e){return g.encode(e).finish()}},C[i.PONG]={decode:function(e){return v.decode(new Uint8Array(e))}};var D={encode:function(e){return function(e){for(var t=unescape(encodeURIComponent(e)),n=new ArrayBuffer(t.length),r=new Uint8Array(n),o=0,i=t.length;o<i;o++)r[o]=t.charCodeAt(o);return n}(JSON.stringify(e))},decode:function(e){var t,n,r=(t=e,n=String.fromCharCode.apply(null,new Uint8Array(t)),decodeURIComponent(escape(n)));if(!r)return{};try{return JSON.parse(r)}catch(e){return s.default.debug("websocket error in decode message",r),{}}}};function L(e,t,n){if(void 0===t&&(t={}),void 0===n&&(n=!1),w&&(P||n)){var o;switch(m){case r.Buffer:var i=(C[e]||D).encode(t);o=new ArrayBuffer(i.byteLength+2),new DataView(o,0,2).setUint16(0,e,!0);for(var u=new Uint8Array(i),a=new Uint8Array(o,2),c=0,f=i.byteLength;c<f;c++)a[c]=u[c];break;case r.Json:o=JSON.stringify({cmd:e,pt:JSON.stringify(t)})}w.send({data:o}),s.default.debug("websocket, send message...",e,t)}}function B(){w&&(w.close(),w=null),P=!1,!1}function N(){B(),s.default.debug("websocket.connect..."),!0,P=!1,(w=wx.connectSocket({url:function(){var e;switch(m){case r.Buffer:e="buffer";break;case r.Json:e="json"}return c.appendQueryParams(y,{format:e})}()})).onOpen(z),w.onClose(V),w.onError(Q),w.onMessage(W),G()}function U(){if(b<=0)return s.default.debug("websocket connect failed, no retry times left"),k(),void I();s.default.debug("websocket reconnect..."),b-=1,N()}function R(){s.default.debug("websocket heartbeat timeout."),P&&!x&&M(),U()}j[i.CLOSE]=B;var K=null;function G(){clearTimeout(K),K=setTimeout(R,1e3*A)}var q=new f.SmoothSampling(6),J=new f.SmoothSampling(6);j[i.PONG]=function(e){void 0===e&&(e={});var t=e.timestamp,n=e.server_timestamp,r=Date.now();q.append(r-t);var o=n+q.get()/2-r;J.append(o),b=_,G()};var F=null;function H(){L(i.PING,{timestamp:Date.now()}),clearTimeout(F),F=setTimeout(H,1e3*O)}function z(){var e;!1,e=a.default.getUserToken(),s.default.debug("websocket.login...",e),L(i.LOGIN,{token:e},!0),G()}function V(){!1,P=!1,x||M()}function Q(){s.default.debug("websocket error"),P||(k(),I())}function W(e){var t,n,o=e.data;switch(m){case r.Buffer:t=new DataView(o,0,2).getUint16(0,!0);break;case r.Json:try{var i=JSON.parse(o);t=i.cmd,n=i.pt}catch(e){}}if(t){s.default.debug("websocket, receive message...",t);var u=E[t],a=j[t];if(u||a){var c;switch(m){case r.Buffer:n=o.slice(2),c=(C[t]||D).decode(n);break;case r.Json:try{c=n?JSON.parse(n):{}}catch(e){c={}}}if(u)if(u(c))return;a&&a(c)}else s.default.debug("websocket unhandled cmd",t)}}j[i.LOGIN_OK]=function(){s.default.debug("websocket.login success."),P=!0,H(),S(),T(),I()},j[i.LOGIN_FAILED]=function(){s.default.debug("websocket.login failed."),clearTimeout(K),U()},t.initWebSocket=function(e){y=e.url,m=e.format||r.Buffer,_=e.autoRetryTimes||0};var X=function(){function e(){}return e.connect=function(){return b=_,x=!1,N(),new u.default(function(e,t){P?e():(S=e,k=t)})},e.close=function(){x=!0,B()},e.send=function(e,t){L(e,t,!1)},e.onCommand=function(e,t){E[e]=t},e.registerEncoder=function(e,t){C[e]=t},e.registerEncoders=function(t){Object.keys(t).forEach(function(n){e.registerEncoder(Number(n),t[n])})},e.getConnectionPing=function(){return Math.round(q.get())},e.getServerTime=function(){return Math.round(Date.now()+J.get())},e.getEncoder=function(e){return C[e]},e.onConnectionReady=function(e){T=e},e.onConnectionLost=function(e){M=e},e.getReadyState=function(){return P?o.OPEN:w?o.CONNECTING:o.CLOSED},e}();t.default=X},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(10),o=n(7),i=n(0),u=n(14),a=n(11),s=n(8),c=n(15),f="_asset_server_url",l="_asset_cms_setting";function d(e){return""+r.getSessionData(f)+e}function p(){return r.getSessionData(l)}t.initAsset=function(e,t,n){var o=e+"/"+n+(t?"/beta":"");return r.setSessionData(f,o),g("/cms_setting.json",300).then(function(e){r.setSessionData(l,e)}).catch(function(e){i.default.debug("failed to get cms setting",e),r.setSessionData(l,{})})};var h=o.promisify(wx.request);function g(e,t){var n=s.appendRefreshParams(d(e),t);return u.onReady().then(function(){return h({url:n,method:"GET"})}).then(function(e){if(e.data)return i.default.debug("request:success",{url:n,res:e}),e.data;throw e})}var v=function(){function e(){}return e.getRemoteUrl=function(e){return d(e)},e.fetch=function(e,t){return void 0===t&&(t=300),g(e,t)},e.isVersionOnline=function(e){var t=p();return!(!t||!t.version)&&-1!==a.compareVersion(t.version,e)},e.getShareMessage=function(e,t){var n=p();if(!n||!n.share)return{};var r=n.share,o=r.creatives,u=r.covers;if(!o)return{};var a=c.randomItem(o.filter(function(e){return e.type===t}));if(a||void 0===t||(i.default.debug("no share message for type: "+t+", try default..."),a=c.randomItem(o.filter(function(e){return void 0===e.type}))),!a)return{};var s,f=a.id||"";if(u)if(a.covers){var l=c.randomItem(a.covers);s=u.find(function(e){return e.id===l})}else s=c.randomItem(u);var d=s&&s.id||"";return{title:a.title,imageUrl:s&&s.url,query:"",path:"",entry:e,material:f+"_"+d}},e.getRecommendApp=function(e){var t=p();if(t&&t.recommend){var n=t.recommend,r=n.enabled,o=n.list;if(r&&o){var i=o.filter(function(t){return t.position===e});return c.randomItem(i)}}},e.getCmsSettingItem=function(e){var t=p();if(t&&t.column)return t.column[e]},e.getCmsSetting=p,e}();t.default=v},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(7),o=n(0),i=n(3),u=n(4),a=n(2),s=r.promisify(wx.getUserInfo);function c(e){var t=e.encryptedData,n=e.iv;return t&&n?u.default.setUserInfo(t,n).then(function(){i.default.event("a_1000_1025"),o.default.debug("api.setUserInfo success")}).catch(function(e){throw i.default.event("a_1000_1024"),o.default.debug("api.setUserInfo fail",e),e}):(i.default.event("a_1000_1023"),o.default.debug("no encrypted data - api.setUserInfo skip"),a.default.reject())}t.getUserInfo=function(){o.default.debug("wx.getUserInfo ..."),i.default.event("a_1000_1021");var e={};return s({withCredentials:!0}).catch(function(e){throw i.default.event("a_1000_1023"),o.default.debug("wx.getUserInfo fail",e),e}).then(function(t){i.default.event("a_1000_1022"),o.default.debug("wx.getUserInfo success",t),e=t.userInfo,c(t)}).then(function(){return e})},t.bindGetUserInfo=function(e){var t=e.detail||e;return o.default.debug("wx.getUserInfo callback",t),c(t),t.userInfo}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(7),o=n(1),i=n(0),u=n(3),a=n(4),s=n(2),c=r.promisify(wx.checkSession);t.checkSession=function(){return o.default.getUserToken()?(i.default.debug("wx.checkSession ..."),s.default.all([c(),a.default.getUserInfo()]).then(function(e){i.default.debug("wx.checkSession session valid"),u.default.event("a_1000_1031");var t=e[1];o.default.setUserOpenId(t.data.open_id),o.default.setValid()}).catch(function(e){throw i.default.debug("wx.checkSession session expired"),o.default.logout(),e})):(i.default.debug("checkSession not logged in"),s.default.reject())}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(7),o=n(1),i=n(0),u=n(3),a=n(4),s=r.promisify(wx.login);t.login=function(){return i.default.debug("wx.login ..."),u.default.event("a_1000_1011"),s().catch(function(e){throw i.default.debug("wx.login failed",e),u.default.event("a_1000_1013"),e}).then(function(e){return i.default.debug("wx.login success",e),i.default.debug("api.login ..."),a.default.login(e.code).catch(function(e){throw i.default.debug("api.login failed",e),u.default.event("a_1000_1014"),e})}).then(function(e){i.default.debug("api.login success",e),u.default.event("a_1000_1012");var t=e.data.user||{},n=t.open_id||"";o.default.setUserOpenId(n);var r=t.id||"",a=e.data.token;o.default.login(r,a)})}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(39),o=n(38),i=n(37),u=function(){function e(){}return e.login=r.login,e.checkSession=o.checkSession,e.getUserInfo=i.getUserInfo,e.bindGetUserInfo=i.bindGetUserInfo,e.postMessageToOpenDataContext=function(e,t){void 0===t&&(t={}),wx.getOpenDataContext().postMessage({action:e,data:t})},e}();t.default=u},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(0),o=n(1),i=n(11),u=n(14),a=n(6),s=n(8),c=n(7),f=n(2),l=n(25),d=n(40),p=n(4),h=n(36),g=n(3),v=n(9),y=n(35),m=n(20);n(32);var _=function(){function e(){}return e.init=function(t){if(void 0!==t.debug){r.default.setDebug(t.debug);var n=l.getWxApiObject();n&&Object.defineProperty(n,"yxmp",{value:e,enumerable:!0,writable:!0,configurable:!0})}r.default.debug("init - version: "+i.getVersion());var a=[],s=p.initApi(t.serverUrl,t.appName);a.push(s);var c=h.initAsset(t.asset.server,t.asset.beta,t.appName);a.push(c);var m=o.default.getUserId();m&&g.default.setCommonParams({user_id:m}),u.setReady(),t.webSocket&&y.initWebSocket(t.webSocket);var _=d.default.checkSession().catch(function(){return d.default.login()}).then(function(){var e=o.default.getUserId();r.default.debug("user: "+e),g.default.setCommonParams({user_id:e})});return a.push(_),f.default.all(a).then(function(t){return v.default.init(e,{Promise:f.default,logger:r.default})}).catch(function(e){throw g.default.event("a_1000_9001",{err:e}),e})},e.getUserId=function(){return o.default.getUserId()},e.getUserOpenId=function(){return o.default.getUserOpenId()},e.registerPlugin=function(t){v.default.register(t,e)},e.getAppType=a.getAppType,e.getRuntimeType=a.getRuntimeType,e.wx=d.default,e.report=g.default,e.api=p.default,e.asset=h.default,e.websocket=y.default,e.getCloudData=m.getCloudData,e.plugin={},e.utils={promisify:c.promisify,appendQueryParams:s.appendQueryParams},e}();t.default=_},function(e,t,n){"use strict";e.exports={}},function(e,t,n){"use strict";e.exports=o;var r=n(5);function o(e,t,n){if("function"!=typeof e)throw TypeError("rpcImpl must be a function");r.EventEmitter.call(this),this.rpcImpl=e,this.requestDelimited=Boolean(t),this.responseDelimited=Boolean(n)}(o.prototype=Object.create(r.EventEmitter.prototype)).constructor=o,o.prototype.rpcCall=function e(t,n,o,i,u){if(!i)throw TypeError("request must be specified");var a=this;if(!u)return r.asPromise(e,a,t,n,o,i);if(a.rpcImpl)try{return a.rpcImpl(t,n[a.requestDelimited?"encodeDelimited":"encode"](i).finish(),function(e,n){if(e)return a.emit("error",e,t),u(e);if(null!==n){if(!(n instanceof o))try{n=o[a.responseDelimited?"decodeDelimited":"decode"](n)}catch(e){return a.emit("error",e,t),u(e)}return a.emit("data",n,t),u(null,n)}a.end(!0)})}catch(e){return a.emit("error",e,t),void setTimeout(function(){u(e)},0)}else setTimeout(function(){u(Error("already ended"))},0)},o.prototype.end=function(e){return this.rpcImpl&&(e||this.rpcImpl(null,null,null),this.rpcImpl=null,this.emit("end").off()),this}},function(e,t,n){"use strict";t.Service=n(43)},function(e,t,n){"use strict";e.exports=i;var r=n(21);(i.prototype=Object.create(r.prototype)).constructor=i;var o=n(5);function i(e){r.call(this,e)}o.Buffer&&(i.prototype._slice=o.Buffer.prototype.slice),i.prototype.string=function(){var e=this.uint32();return this.buf.utf8Slice(this.pos,this.pos=Math.min(this.pos+e,this.len))}},function(e,t,n){"use strict";e.exports=u;var r=n(22);(u.prototype=Object.create(r.prototype)).constructor=u;var o=n(5),i=o.Buffer;function u(){r.call(this)}u.alloc=function(e){return(u.alloc=o._Buffer_allocUnsafe)(e)};var a=i&&i.prototype instanceof Uint8Array&&"set"===i.prototype.set.name?function(e,t,n){t.set(e,n)}:function(e,t,n){if(e.copy)e.copy(t,n,0,e.length);else for(var r=0;r<e.length;)t[n++]=e[r++]};function s(e,t,n){e.length<40?o.utf8.write(e,t,n):t.utf8Write(e,n)}u.prototype.bytes=function(e){o.isString(e)&&(e=o._Buffer_from(e,"base64"));var t=e.length>>>0;return this.uint32(t),t&&this._push(a,t,e),this},u.prototype.string=function(e){var t=i.byteLength(e);return this.uint32(t),t&&this._push(s,t,e),this}},function(e,t,n){"use strict";e.exports=o;var r=n(5);function o(e,t){this.lo=e>>>0,this.hi=t>>>0}var i=o.zero=new o(0,0);i.toNumber=function(){return 0},i.zzEncode=i.zzDecode=function(){return this},i.length=function(){return 1};var u=o.zeroHash="\0\0\0\0\0\0\0\0";o.fromNumber=function(e){if(0===e)return i;var t=e<0;t&&(e=-e);var n=e>>>0,r=(e-n)/4294967296>>>0;return t&&(r=~r>>>0,n=~n>>>0,++n>4294967295&&(n=0,++r>4294967295&&(r=0))),new o(n,r)},o.from=function(e){if("number"==typeof e)return o.fromNumber(e);if(r.isString(e)){if(!r.Long)return o.fromNumber(parseInt(e,10));e=r.Long.fromString(e)}return e.low||e.high?new o(e.low>>>0,e.high>>>0):i},o.prototype.toNumber=function(e){if(!e&&this.hi>>>31){var t=1+~this.lo>>>0,n=~this.hi>>>0;return t||(n=n+1>>>0),-(t+4294967296*n)}return this.lo+4294967296*this.hi},o.prototype.toLong=function(e){return r.Long?new r.Long(0|this.lo,0|this.hi,Boolean(e)):{low:0|this.lo,high:0|this.hi,unsigned:Boolean(e)}};var a=String.prototype.charCodeAt;o.fromHash=function(e){return e===u?i:new o((a.call(e,0)|a.call(e,1)<<8|a.call(e,2)<<16|a.call(e,3)<<24)>>>0,(a.call(e,4)|a.call(e,5)<<8|a.call(e,6)<<16|a.call(e,7)<<24)>>>0)},o.prototype.toHash=function(){return String.fromCharCode(255&this.lo,this.lo>>>8&255,this.lo>>>16&255,this.lo>>>24,255&this.hi,this.hi>>>8&255,this.hi>>>16&255,this.hi>>>24)},o.prototype.zzEncode=function(){var e=this.hi>>31;return this.hi=((this.hi<<1|this.lo>>>31)^e)>>>0,this.lo=(this.lo<<1^e)>>>0,this},o.prototype.zzDecode=function(){var e=-(1&this.lo);return this.lo=((this.lo>>>1|this.hi<<31)^e)>>>0,this.hi=(this.hi>>>1^e)>>>0,this},o.prototype.length=function(){var e=this.lo,t=(this.lo>>>28|this.hi<<4)>>>0,n=this.hi>>>24;return 0===n?0===t?e<16384?e<128?1:2:e<2097152?3:4:t<16384?t<128?5:6:t<2097152?7:8:n<128?9:10}},function(e,t,n){"use strict";e.exports=function(e,t,n){var r=n||8192,o=r>>>1,i=null,u=r;return function(n){if(n<1||n>o)return e(n);u+n>r&&(i=e(r),u=0);var a=t.call(i,u,u+=n);return 7&u&&(u=1+(7|u)),a}}},function(e,t,n){"use strict";var r=t;r.length=function(e){for(var t=0,n=0,r=0;r<e.length;++r)(n=e.charCodeAt(r))<128?t+=1:n<2048?t+=2:55296==(64512&n)&&56320==(64512&e.charCodeAt(r+1))?(++r,t+=4):t+=3;return t},r.read=function(e,t,n){if(n-t<1)return"";for(var r,o=null,i=[],u=0;t<n;)(r=e[t++])<128?i[u++]=r:r>191&&r<224?i[u++]=(31&r)<<6|63&e[t++]:r>239&&r<365?(r=((7&r)<<18|(63&e[t++])<<12|(63&e[t++])<<6|63&e[t++])-65536,i[u++]=55296+(r>>10),i[u++]=56320+(1023&r)):i[u++]=(15&r)<<12|(63&e[t++])<<6|63&e[t++],u>8191&&((o||(o=[])).push(String.fromCharCode.apply(String,i)),u=0);return o?(u&&o.push(String.fromCharCode.apply(String,i.slice(0,u))),o.join("")):String.fromCharCode.apply(String,i.slice(0,u))},r.write=function(e,t,n){for(var r,o,i=n,u=0;u<e.length;++u)(r=e.charCodeAt(u))<128?t[n++]=r:r<2048?(t[n++]=r>>6|192,t[n++]=63&r|128):55296==(64512&r)&&56320==(64512&(o=e.charCodeAt(u+1)))?(r=65536+((1023&r)<<10)+(1023&o),++u,t[n++]=r>>18|240,t[n++]=r>>12&63|128,t[n++]=r>>6&63|128,t[n++]=63&r|128):(t[n++]=r>>12|224,t[n++]=r>>6&63|128,t[n++]=63&r|128);return n-i}},function(module,exports,__webpack_require__){"use strict";function inquire(moduleName){try{var mod=eval("quire".replace(/^/,"re"))(moduleName);if(mod&&(mod.length||Object.keys(mod).length))return mod}catch(e){}return null}module.exports=inquire},function(e,t,n){"use strict";function r(e){return"undefined"!=typeof Float32Array?function(){var t=new Float32Array([-0]),n=new Uint8Array(t.buffer),r=128===n[3];function o(e,r,o){t[0]=e,r[o]=n[0],r[o+1]=n[1],r[o+2]=n[2],r[o+3]=n[3]}function i(e,r,o){t[0]=e,r[o]=n[3],r[o+1]=n[2],r[o+2]=n[1],r[o+3]=n[0]}function u(e,r){return n[0]=e[r],n[1]=e[r+1],n[2]=e[r+2],n[3]=e[r+3],t[0]}function a(e,r){return n[3]=e[r],n[2]=e[r+1],n[1]=e[r+2],n[0]=e[r+3],t[0]}e.writeFloatLE=r?o:i,e.writeFloatBE=r?i:o,e.readFloatLE=r?u:a,e.readFloatBE=r?a:u}():function(){function t(e,t,n,r){var o=t<0?1:0;if(o&&(t=-t),0===t)e(1/t>0?0:2147483648,n,r);else if(isNaN(t))e(2143289344,n,r);else if(t>3.4028234663852886e38)e((o<<31|2139095040)>>>0,n,r);else if(t<1.1754943508222875e-38)e((o<<31|Math.round(t/1.401298464324817e-45))>>>0,n,r);else{var i=Math.floor(Math.log(t)/Math.LN2);e((o<<31|i+127<<23|8388607&Math.round(t*Math.pow(2,-i)*8388608))>>>0,n,r)}}function n(e,t,n){var r=e(t,n),o=2*(r>>31)+1,i=r>>>23&255,u=8388607&r;return 255===i?u?NaN:o*(1/0):0===i?1.401298464324817e-45*o*u:o*Math.pow(2,i-150)*(u+8388608)}e.writeFloatLE=t.bind(null,o),e.writeFloatBE=t.bind(null,i),e.readFloatLE=n.bind(null,u),e.readFloatBE=n.bind(null,a)}(),"undefined"!=typeof Float64Array?function(){var t=new Float64Array([-0]),n=new Uint8Array(t.buffer),r=128===n[7];function o(e,r,o){t[0]=e,r[o]=n[0],r[o+1]=n[1],r[o+2]=n[2],r[o+3]=n[3],r[o+4]=n[4],r[o+5]=n[5],r[o+6]=n[6],r[o+7]=n[7]}function i(e,r,o){t[0]=e,r[o]=n[7],r[o+1]=n[6],r[o+2]=n[5],r[o+3]=n[4],r[o+4]=n[3],r[o+5]=n[2],r[o+6]=n[1],r[o+7]=n[0]}function u(e,r){return n[0]=e[r],n[1]=e[r+1],n[2]=e[r+2],n[3]=e[r+3],n[4]=e[r+4],n[5]=e[r+5],n[6]=e[r+6],n[7]=e[r+7],t[0]}function a(e,r){return n[7]=e[r],n[6]=e[r+1],n[5]=e[r+2],n[4]=e[r+3],n[3]=e[r+4],n[2]=e[r+5],n[1]=e[r+6],n[0]=e[r+7],t[0]}e.writeDoubleLE=r?o:i,e.writeDoubleBE=r?i:o,e.readDoubleLE=r?u:a,e.readDoubleBE=r?a:u}():function(){function t(e,t,n,r,o,i){var u=r<0?1:0;if(u&&(r=-r),0===r)e(0,o,i+t),e(1/r>0?0:2147483648,o,i+n);else if(isNaN(r))e(0,o,i+t),e(2146959360,o,i+n);else if(r>1.7976931348623157e308)e(0,o,i+t),e((u<<31|2146435072)>>>0,o,i+n);else{var a;if(r<2.2250738585072014e-308)e((a=r/5e-324)>>>0,o,i+t),e((u<<31|a/4294967296)>>>0,o,i+n);else{var s=Math.floor(Math.log(r)/Math.LN2);1024===s&&(s=1023),e(4503599627370496*(a=r*Math.pow(2,-s))>>>0,o,i+t),e((u<<31|s+1023<<20|1048576*a&1048575)>>>0,o,i+n)}}}function n(e,t,n,r,o){var i=e(r,o+t),u=e(r,o+n),a=2*(u>>31)+1,s=u>>>20&2047,c=4294967296*(1048575&u)+i;return 2047===s?c?NaN:a*(1/0):0===s?5e-324*a*c:a*Math.pow(2,s-1075)*(c+4503599627370496)}e.writeDoubleLE=t.bind(null,o,0,4),e.writeDoubleBE=t.bind(null,i,4,0),e.readDoubleLE=n.bind(null,u,0,4),e.readDoubleBE=n.bind(null,a,4,0)}(),e}function o(e,t,n){t[n]=255&e,t[n+1]=e>>>8&255,t[n+2]=e>>>16&255,t[n+3]=e>>>24}function i(e,t,n){t[n]=e>>>24,t[n+1]=e>>>16&255,t[n+2]=e>>>8&255,t[n+3]=255&e}function u(e,t){return(e[t]|e[t+1]<<8|e[t+2]<<16|e[t+3]<<24)>>>0}function a(e,t){return(e[t]<<24|e[t+1]<<16|e[t+2]<<8|e[t+3])>>>0}e.exports=r(r)},function(e,t,n){"use strict";function r(){this._listeners={}}e.exports=r,r.prototype.on=function(e,t,n){return(this._listeners[e]||(this._listeners[e]=[])).push({fn:t,ctx:n||this}),this},r.prototype.off=function(e,t){if(void 0===e)this._listeners={};else if(void 0===t)this._listeners[e]=[];else for(var n=this._listeners[e],r=0;r<n.length;)n[r].fn===t?n.splice(r,1):++r;return this},r.prototype.emit=function(e){var t=this._listeners[e];if(t){for(var n=[],r=1;r<arguments.length;)n.push(arguments[r++]);for(r=0;r<t.length;)t[r].fn.apply(t[r++].ctx,n)}return this}},function(e,t,n){"use strict";var r=t;r.length=function(e){var t=e.length;if(!t)return 0;for(var n=0;--t%4>1&&"="===e.charAt(t);)++n;return Math.ceil(3*e.length)/4-n};for(var o=new Array(64),i=new Array(123),u=0;u<64;)i[o[u]=u<26?u+65:u<52?u+71:u<62?u-4:u-59|43]=u++;r.encode=function(e,t,n){for(var r,i=null,u=[],a=0,s=0;t<n;){var c=e[t++];switch(s){case 0:u[a++]=o[c>>2],r=(3&c)<<4,s=1;break;case 1:u[a++]=o[r|c>>4],r=(15&c)<<2,s=2;break;case 2:u[a++]=o[r|c>>6],u[a++]=o[63&c],s=0}a>8191&&((i||(i=[])).push(String.fromCharCode.apply(String,u)),a=0)}return s&&(u[a++]=o[r],u[a++]=61,1===s&&(u[a++]=61)),i?(a&&i.push(String.fromCharCode.apply(String,u.slice(0,a))),i.join("")):String.fromCharCode.apply(String,u.slice(0,a))};r.decode=function(e,t,n){for(var r,o=n,u=0,a=0;a<e.length;){var s=e.charCodeAt(a++);if(61===s&&u>1)break;if(void 0===(s=i[s]))throw Error("invalid encoding");switch(u){case 0:r=s,u=1;break;case 1:t[n++]=r<<2|(48&s)>>4,r=s,u=2;break;case 2:t[n++]=(15&r)<<4|(60&s)>>2,r=s,u=3;break;case 3:t[n++]=(3&r)<<6|s,u=0}}if(1===u)throw Error("invalid encoding");return n-o},r.test=function(e){return/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(e)}},function(e,t,n){"use strict";e.exports=function(e,t){var n=new Array(arguments.length-1),r=0,o=2,i=!0;for(;o<arguments.length;)n[r++]=arguments[o++];return new Promise(function(o,u){n[r]=function(e){if(i)if(i=!1,e)u(e);else{for(var t=new Array(arguments.length-1),n=0;n<t.length;)t[n++]=arguments[n];o.apply(null,t)}};try{e.apply(t||null,n)}catch(e){i&&(i=!1,u(e))}})}},function(e,t,n){"use strict";var r=t;function o(){r.Reader._configure(r.BufferReader),r.util._configure()}r.build="minimal",r.Writer=n(22),r.BufferWriter=n(46),r.Reader=n(21),r.BufferReader=n(45),r.util=n(5),r.rpc=n(44),r.roots=n(42),r.configure=o,r.Writer._configure(r.BufferWriter),o()},function(e,t){var n,r,o=e.exports={};function i(){throw new Error("setTimeout has not been defined")}function u(){throw new Error("clearTimeout has not been defined")}function a(e){if(n===setTimeout)return setTimeout(e,0);if((n===i||!n)&&setTimeout)return n=setTimeout,setTimeout(e,0);try{return n(e,0)}catch(t){try{return n.call(null,e,0)}catch(t){return n.call(this,e,0)}}}!function(){try{n="function"==typeof setTimeout?setTimeout:i}catch(e){n=i}try{r="function"==typeof clearTimeout?clearTimeout:u}catch(e){r=u}}();var s,c=[],f=!1,l=-1;function d(){f&&s&&(f=!1,s.length?c=s.concat(c):l=-1,c.length&&p())}function p(){if(!f){var e=a(d);f=!0;for(var t=c.length;t;){for(s=c,c=[];++l<t;)s&&s[l].run();l=-1,t=c.length}s=null,f=!1,function(e){if(r===clearTimeout)return clearTimeout(e);if((r===u||!r)&&clearTimeout)return r=clearTimeout,clearTimeout(e);try{r(e)}catch(t){try{return r.call(null,e)}catch(t){return r.call(this,e)}}}(e)}}function h(e,t){this.fun=e,this.array=t}function g(){}o.nextTick=function(e){var t=new Array(arguments.length-1);if(arguments.length>1)for(var n=1;n<arguments.length;n++)t[n-1]=arguments[n];c.push(new h(e,t)),1!==c.length||f||a(p)},h.prototype.run=function(){this.fun.apply(null,this.array)},o.title="browser",o.browser=!0,o.env={},o.argv=[],o.version="",o.versions={},o.on=g,o.addListener=g,o.once=g,o.off=g,o.removeListener=g,o.removeAllListeners=g,o.emit=g,o.prependListener=g,o.prependOnceListener=g,o.listeners=function(e){return[]},o.binding=function(e){throw new Error("process.binding is not supported")},o.cwd=function(){return"/"},o.chdir=function(e){throw new Error("process.chdir is not supported")},o.umask=function(){return 0}},function(e,t,n){(function(t,n){
-/*!
- * @overview es6-promise - a tiny implementation of Promises/A+.
- * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
- * @license   Licensed under MIT license
- *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
- * @version   v4.2.4+314e4831
- */var r;r=function(){"use strict";function e(e){return"function"==typeof e}var r=Array.isArray?Array.isArray:function(e){return"[object Array]"===Object.prototype.toString.call(e)},o=0,i=void 0,u=void 0,a=function(e,t){h[o]=e,h[o+1]=t,2===(o+=2)&&(u?u(g):b())};var s="undefined"!=typeof window?window:void 0,c=s||{},f=c.MutationObserver||c.WebKitMutationObserver,l="undefined"==typeof self&&void 0!==t&&"[object process]"==={}.toString.call(t),d="undefined"!=typeof Uint8ClampedArray&&"undefined"!=typeof importScripts&&"undefined"!=typeof MessageChannel;function p(){var e=setTimeout;return function(){return e(g,1)}}var h=new Array(1e3);function g(){for(var e=0;e<o;e+=2){(0,h[e])(h[e+1]),h[e]=void 0,h[e+1]=void 0}o=0}var v,y,m,_,b=void 0;function w(e,t){var n=this,r=new this.constructor(O);void 0===r[k]&&R(r);var o=n._state;if(o){var i=arguments[o-1];a(function(){return N(o,r,i,n._result)})}else L(n,r,e,t);return r}function S(e){if(e&&"object"==typeof e&&e.constructor===this)return e;var t=new this(O);return E(t,e),t}l?b=function(){return t.nextTick(g)}:f?(y=0,m=new f(g),_=document.createTextNode(""),m.observe(_,{characterData:!0}),b=function(){_.data=y=++y%2}):d?((v=new MessageChannel).port1.onmessage=g,b=function(){return v.port2.postMessage(0)}):b=void 0===s?function(){try{var e=Function("return this")().require("vertx");return void 0!==(i=e.runOnLoop||e.runOnContext)?function(){i(g)}:p()}catch(e){return p()}}():p();var k=Math.random().toString(36).substring(2);function O(){}var A=void 0,x=1,P=2,I={error:null};function T(e){try{return e.then}catch(e){return I.error=e,I}}function M(t,n,r){n.constructor===t.constructor&&r===w&&n.constructor.resolve===S?function(e,t){t._state===x?C(e,t._result):t._state===P?D(e,t._result):L(t,void 0,function(t){return E(e,t)},function(t){return D(e,t)})}(t,n):r===I?(D(t,I.error),I.error=null):void 0===r?C(t,n):e(r)?function(e,t,n){a(function(e){var r=!1,o=function(e,t,n,r){try{e.call(t,n,r)}catch(e){return e}}(n,t,function(n){r||(r=!0,t!==n?E(e,n):C(e,n))},function(t){r||(r=!0,D(e,t))},e._label);!r&&o&&(r=!0,D(e,o))},e)}(t,n,r):C(t,n)}function E(e,t){var n,r;e===t?D(e,new TypeError("You cannot resolve a promise with itself")):(r=typeof(n=t),null===n||"object"!==r&&"function"!==r?C(e,t):M(e,t,T(t)))}function j(e){e._onerror&&e._onerror(e._result),B(e)}function C(e,t){e._state===A&&(e._result=t,e._state=x,0!==e._subscribers.length&&a(B,e))}function D(e,t){e._state===A&&(e._state=P,e._result=t,a(j,e))}function L(e,t,n,r){var o=e._subscribers,i=o.length;e._onerror=null,o[i]=t,o[i+x]=n,o[i+P]=r,0===i&&e._state&&a(B,e)}function B(e){var t=e._subscribers,n=e._state;if(0!==t.length){for(var r=void 0,o=void 0,i=e._result,u=0;u<t.length;u+=3)r=t[u],o=t[u+n],r?N(n,r,o,i):o(i);e._subscribers.length=0}}function N(t,n,r,o){var i=e(r),u=void 0,a=void 0,s=void 0,c=void 0;if(i){if((u=function(e,t){try{return e(t)}catch(e){return I.error=e,I}}(r,o))===I?(c=!0,a=u.error,u.error=null):s=!0,n===u)return void D(n,new TypeError("A promises callback cannot return that same promise."))}else u=o,s=!0;n._state!==A||(i&&s?E(n,u):c?D(n,a):t===x?C(n,u):t===P&&D(n,u))}var U=0;function R(e){e[k]=U++,e._state=void 0,e._result=void 0,e._subscribers=[]}var K=function(){function e(e,t){this._instanceConstructor=e,this.promise=new e(O),this.promise[k]||R(this.promise),r(t)?(this.length=t.length,this._remaining=t.length,this._result=new Array(this.length),0===this.length?C(this.promise,this._result):(this.length=this.length||0,this._enumerate(t),0===this._remaining&&C(this.promise,this._result))):D(this.promise,new Error("Array Methods must be provided an Array"))}return e.prototype._enumerate=function(e){for(var t=0;this._state===A&&t<e.length;t++)this._eachEntry(e[t],t)},e.prototype._eachEntry=function(e,t){var n=this._instanceConstructor,r=n.resolve;if(r===S){var o=T(e);if(o===w&&e._state!==A)this._settledAt(e._state,t,e._result);else if("function"!=typeof o)this._remaining--,this._result[t]=e;else if(n===G){var i=new n(O);M(i,e,o),this._willSettleAt(i,t)}else this._willSettleAt(new n(function(t){return t(e)}),t)}else this._willSettleAt(r(e),t)},e.prototype._settledAt=function(e,t,n){var r=this.promise;r._state===A&&(this._remaining--,e===P?D(r,n):this._result[t]=n),0===this._remaining&&C(r,this._result)},e.prototype._willSettleAt=function(e,t){var n=this;L(e,void 0,function(e){return n._settledAt(x,t,e)},function(e){return n._settledAt(P,t,e)})},e}();var G=function(){function e(t){this[k]=U++,this._result=this._state=void 0,this._subscribers=[],O!==t&&("function"!=typeof t&&function(){throw new TypeError("You must pass a resolver function as the first argument to the promise constructor")}(),this instanceof e?function(e,t){try{t(function(t){E(e,t)},function(t){D(e,t)})}catch(t){D(e,t)}}(this,t):function(){throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.")}())}return e.prototype.catch=function(e){return this.then(null,e)},e.prototype.finally=function(e){var t=this.constructor;return this.then(function(n){return t.resolve(e()).then(function(){return n})},function(n){return t.resolve(e()).then(function(){throw n})})},e}();return G.prototype.then=w,G.all=function(e){return new K(this,e).promise},G.race=function(e){var t=this;return r(e)?new t(function(n,r){for(var o=e.length,i=0;i<o;i++)t.resolve(e[i]).then(n,r)}):new t(function(e,t){return t(new TypeError("You must pass an array to race."))})},G.resolve=S,G.reject=function(e){var t=new this(O);return D(t,e),t},G._setScheduler=function(e){u=e},G._setAsap=function(e){a=e},G._asap=a,G.polyfill=function(){var e=void 0;if(void 0!==n)e=n;else if("undefined"!=typeof self)e=self;else try{e=Function("return this")()}catch(e){throw new Error("polyfill failed because global object is unavailable in this environment")}var t=e.Promise;if(t){var r=null;try{r=Object.prototype.toString.call(t.resolve())}catch(e){}if("[object Promise]"===r&&!t.cast)return}e.Promise=G},G.Promise=G,G},e.exports=r()}).call(this,n(56),n(24))},function(e,t,n){"use strict";t.__esModule=!0,t.forcePolyfillConnectSocket=void 0,t.connectSocket=function(e){if(!s)return void(0,i.fail)(e,{errMsg:"connectSocket:fail"});return new s(e)};var r=n(6),o=n(11),i=n(12);function u(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}var a=Object.freeze({OPEN:1}),s=void 0;if((0,r.getRuntimeType)()===r.RuntimeType.Browser&&"undefined"!=typeof WebSocket)s=function(){function e(t){u(this,e);var n=t.url;this._ws=new WebSocket(n),this._ws.binaryType="arraybuffer",(0,i.success)(t,{errMsg:"websocket:ok"})}return e.prototype.send=function(e){if(this._ws.readyState===a.OPEN){var t=e.data;this._ws.send(t),(0,i.success)(e)}else(0,i.fail)(e,{errMsg:"send:websocket is not ready"})},e.prototype.close=function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},t=e.code,n=e.reason;this._ws.close(t,n),(0,i.success)(e)},e.prototype.onOpen=function(e){this._ws.onopen=e},e.prototype.onClose=function(e){this._ws.onclose=e},e.prototype.onError=function(e){this._ws.onerror=e},e.prototype.onMessage=function(e){this._ws.onmessage=e},e}();else{var c=(0,r.getSystemInfo)().SDKVersion;if(!c||-1===(0,o.compareVersion)(c,"1.7.0")){var f=wx,l=f.connectSocket,d=f.sendSocketMessage,p=f.closeSocket,h=f.onSocketOpen,g=f.onSocketClose,v=f.onSocketError,y=f.onSocketMessage;s=function(){function e(t){u(this,e),l(t)}return e.prototype.send=function(e){d(e)},e.prototype.close=function(e){p(e)},e.prototype.onOpen=function(e){h(e)},e.prototype.onClose=function(e){g(e)},e.prototype.onError=function(e){v(e)},e.prototype.onMessage=function(e){y(e)},e}()}}t.forcePolyfillConnectSocket=!!s},function(e,t,n){"use strict";t.__esModule=!0,t.clearStorageSync=t.removeStorageSync=t.getStorageInfoSync=t.getStorageSync=t.setStorageSync=t.clearStorage=t.removeStorage=t.getStorageInfo=t.getStorage=t.setStorage=void 0;var r=n(12),o=(t.setStorage=function(e){c(e.key,e.data),(0,r.success)(e)},t.getStorage=function(e){(0,r.success)(e,{data:f(e.key)})},t.getStorageInfo=function(e){l(e.key),(0,r.success)(e)},t.removeStorage=function(e){l(e.key),(0,r.success)(e)},t.clearStorage=function(e){d(),(0,r.success)(e)},{}),i=function(e,t){o[e]=t},u=function(e){return o[e]},a=function(e){delete o[e]},s=function(){Object.keys(o).forEach(function(e){delete o[e]})},c=t.setStorageSync=function(e,t){i(e,t)},f=t.getStorageSync=function(e){return u(e)},l=(t.getStorageInfoSync=function(e){return{}},t.removeStorageSync=function(e){a(e)}),d=t.clearStorageSync=function(){s()}},function(e,t,n){"use strict";t.__esModule=!0,t.createImage=function(){try{return new Image}catch(e){return{}}},t.createCanvas=function(){try{return document.createElement("canvas")}catch(e){return{}}}},function(e,t,n){"use strict";t.__esModule=!0,t.request=void 0;var r=n(12);t.request=function(){var e={};arguments.length>0&&(e=arguments.length<=0?void 0:arguments[0]);var t=e.method||"GET",n=e.url||"",o=e.header||{},i=e.data||{},u=new XMLHttpRequest;if(u.open(t.toUpperCase(),n,!0),o)for(var a in o)u.setRequestHeader(a,o[a]);return u.onreadystatechange=function(){if(4==u.readyState){var t=u.getAllResponseHeaders(),n={};if(t)t.split("\n").forEach(function(e){if(e){var t=e.split(": ");t.length>1&&(n[t[0]]=t[1])}});if(u.status>=200&&u.status<300){var o={errMsg:"request:ok"};try{var i=JSON.parse(u.response);o.data=i}catch(e){o.data=u.response}o.header=n,(0,r.success)(e,o)}else(0,r.fail)(e,{errMsg:"request:fail",data:u.response,header:n})}},u.send(JSON.stringify(i)),u}},function(e,t,n){"use strict";"function"!=typeof Object.assign&&Object.defineProperty(Object,"assign",{value:function(e,t){if(null==e)throw new TypeError("Cannot convert undefined or null to object");for(var n=Object(e),r=1;r<arguments.length;r++){var o=arguments[r];if(null!=o)for(var i in o)Object.prototype.hasOwnProperty.call(o,i)&&(n[i]=o[i])}return n},writable:!0,configurable:!0}),Array.prototype.find||Object.defineProperty(Array.prototype,"find",{value:function(e){if(null==this)throw new TypeError('"this" is null or not defined');var t=Object(this),n=t.length>>>0;if("function"!=typeof e)throw new TypeError("predicate must be a function");for(var r=arguments[1],o=0;o<n;){var i=t[o];if(e.call(r,i,o,t))return i;o++}},configurable:!0,writable:!0}),Array.prototype.includes||Object.defineProperty(Array.prototype,"includes",{value:function(e,t){if(null==this)throw new TypeError('"this" is null or not defined');var n=Object(this),r=n.length>>>0;if(0===r)return!1;var o,i,u=0|t,a=Math.max(u>=0?u:r-Math.abs(u),0);for(;a<r;){if((o=n[a])===(i=e)||"number"==typeof o&&"number"==typeof i&&isNaN(o)&&isNaN(i))return!0;a++}return!1}})},function(e,t,n){"use strict";n(16),n(62),n(25)},function(e,t,n){"use strict";n(63);var r=u(n(2)),o=u(n(23)),i=u(n(41));function u(e){return e&&e.__esModule?e:{default:e}}"undefined"!=typeof window&&(window.yxmp=i.default,window.$protobuf=o.default),e.exports={yxmp:i.default,Promise:r.default,$protobuf:o.default}}])});
-//# sourceMappingURL=yxmp.js.map
-!function(e,t){if("object"==typeof exports&&"object"==typeof module)module.exports=t();else if("function"==typeof define&&define.amd)define([],t);else{var n=t();for(var r in n)("object"==typeof exports?exports:e)[r]=n[r]}}(this,function(){return function(e){var t={};function n(r){if(t[r])return t[r].exports;var o=t[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,n),o.l=!0,o.exports}return n.m=e,n.c=t,n.d=function(e,t,r){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);if(n.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)n.d(r,o,function(t){return e[t]}.bind(null,o));return r},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="",n(n.s=27)}({26:function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=null,o={},i=null,u=null;function p(){i&&!r&&i.api.createOauthToken(15552e3).then(function(e){r=e.data.token})}function f(){if(i){var e=o.h_token||"",t=o.h_type||"",n=o.h_user||"";if(i.getUserId()!=n&&e){var r=u&&u(t);r&&r.then(function(n){n&&i.api.setAuthorKVList(e,[{key:t,value:JSON.stringify({data:n})}])})}}}t.initHelp=function(e){i=e,p(),f()},t.handleShowOptions=function(e){o=(e||{}).query||{},p(),f()},t.getShareOptions=function(e,t){var n={h_token:r,h_type:e,h_user:i.getUserId()},o=t.query,u=t.path;return Object.assign({},t,{query:i.utils.appendQueryParams(o,n),path:i.utils.appendQueryParams(u,n)})},t.getHelpList=function(e){return i.api.getContributorKVList([-1],[e])},t.onHelp=function(e){u=e}},27:function(e,t,n){"use strict";var r=n(26),o=new(function(){function e(){this.name="help"}return e.prototype.init=function(e,t){r.initHelp(e)},e.prototype.getPublicInterface=function(){return{onHelp:r.onHelp,getHelpList:r.getHelpList,getShareOptions:r.getShareOptions}},e.prototype.onAppShow=function(e){r.handleShowOptions({query:e})},e}());"undefined"!=typeof window&&(window.yxmpHelp=o),e.exports=o}})});
-//# sourceMappingURL=plugin.help.js.map
 
 (function(window,document,Laya){
 	var __un=Laya.un,__uns=Laya.uns,__static=Laya.static,__class=Laya.class,__getset=Laya.getset,__newvec=Laya.__newvec;
@@ -49858,6 +48297,17 @@ var xframe;
             return true;
         };
         /**
+         * 删除数组某个元素
+         * @param src 原数组
+         * @param item 需要删除的数据;
+         */
+        XUtils.delArrItem = function (src, item) {
+            var index = src.indexOf(item);
+            if (index > -1) {
+                src.splice(index, 1);
+            }
+        };
+        /**
          * 数字跳动效果
          * @param curNum 当前值
          * @param targetNum 目标值
@@ -49903,6 +48353,43 @@ var xframe;
             return dis.visible && dis.mouseX > 0 && dis.mouseY > 0 && dis.mouseX <= dis.width && dis.mouseY <= dis.height;
         };
         /**
+         * 数组随机排序
+         * @param arr 源数组
+         * @return 新数组
+         *
+        */
+        XUtils.randomArr = function (arr) {
+            var outputArr = arr.slice();
+            var i = outputArr.length;
+            var temp;
+            var indexA;
+            var indexB;
+            while (i) {
+                indexA = i - 1;
+                indexB = Math.floor(Math.random() * i);
+                i--;
+                if (indexA == indexB)
+                    continue;
+                temp = outputArr[indexA];
+                outputArr[indexA] = outputArr[indexB];
+                outputArr[indexB] = temp;
+            }
+            return outputArr;
+        };
+        /**随机从数组中取出一个值 */
+        XUtils.arrRandomValue = function (arr) {
+            if (arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+            return null;
+        };
+        /**判定时间戳ts比ts1晚 1天及以上 */
+        XUtils.checkDate = function (ts, ts1) {
+            var d1 = new Date(ts);
+            var d2 = new Date(ts1);
+            return d1.getFullYear() > d2.getFullYear() || d1.getMonth() > d2.getMonth() || d1.getDate() > d2.getDate();
+        };
+        /**
          * 画椭圆
          * @param sp 绘图Graphics
          * @param x 起始点x
@@ -49936,6 +48423,915 @@ var xframe;
     xframe.XUtils = XUtils;
 })(xframe || (xframe = {}));
 
+/**
+* name
+*/
+var HttpRequest = Laya.HttpRequest;
+var xframe;
+(function (xframe) {
+    var HttpCmd = /** @class */ (function () {
+        function HttpCmd() {
+        }
+        /**
+         * 发送http请求
+         * @param handler 请求回调；
+         * @param m 模块
+         * @param action 方法
+         * @param srvArgs 参数；
+        */
+        HttpCmd.callServer = function (handler, m, action, srvArgs) {
+            var xhr = Laya.Pool.getItem("HttpRequest");
+            if (!xhr) {
+                xhr = new HttpRequest();
+            }
+            xhr.http.timeout = 2000; //设置超时时间；
+            xhr.once(Laya.Event.COMPLETE, null, completeHandler);
+            xhr.once(Laya.Event.ERROR, null, errorHandler);
+            //数据拼接
+            xhr.send(HttpCmd.httpRoot + m + "/" + action + parseArgs(srvArgs), null, "get");
+            function parseArgs(args) {
+                if (typeof args === "string") {
+                    return args;
+                }
+                var str = '';
+                for (var i in args) {
+                    str += "&" + i + "=" + args[i];
+                }
+                xframe.trace("str______________", str, args);
+                return str;
+            }
+            function completeHandler(data) {
+                handler && handler.runWith(data);
+                recover();
+            }
+            function errorHandler(data, e) {
+                //需要一些特殊的处理
+                handler && handler.runWith(data);
+                recover();
+            }
+            function recover() {
+                xhr.off(Laya.Event.COMPLETE, null, completeHandler);
+                xhr.off(Laya.Event.ERROR, null, errorHandler);
+                Laya.Pool.recover("HttpRequest", xhr);
+            }
+        };
+        /**host*/
+        //http://127.0.0.1/web/index.php?r=srv/login
+        HttpCmd.httpRoot = "http://127.0.0.1/byphp/web/index.php?r=";
+        return HttpCmd;
+    }());
+    xframe.HttpCmd = HttpCmd;
+})(xframe || (xframe = {}));
+
+/*
+* name;
+*/
+var FakeWX = /** @class */ (function () {
+    function FakeWX() {
+    }
+    FakeWX.prototype.showShareMenu = function () { };
+    ;
+    FakeWX.prototype.onHide = function () { };
+    ;
+    return FakeWX;
+}());
+
+/**
+* name
+*/
+var xframe;
+(function (xframe) {
+    var AniUtil = /** @class */ (function () {
+        function AniUtil() {
+        }
+        /**
+         * 动画效果-入场，从下到当前位置，alpha从0到1
+         * @param target 动画对象
+         * @param time 动画时间
+         * @param distance 移动距离
+         */
+        AniUtil.flowIn = function (target, time, distance) {
+            if (time === void 0) { time = 200; }
+            if (distance === void 0) { distance = 200; }
+            Laya.Tween.from(target, { alpha: 0.5, y: target.y + distance }, time);
+        };
+        /**
+         * 动画效果-出场，从当前位置往上，alpha从0到1
+         * @param target 动画对象
+         * @param callback 动画结束回调
+         * @param time 动画时间
+         * @param distance 移动距离
+         */
+        AniUtil.flowOut = function (target, callback, time, distance) {
+            if (time === void 0) { time = 150; }
+            if (distance === void 0) { distance = 200; }
+            Laya.Tween.to(target, { alpha: 0, y: target.y - distance }, time, null, Handler.create(null, function () {
+                target.alpha = 1;
+                callback.run();
+            }));
+        };
+        /**
+         * 动画效果-出场2，从当前位置往下，alpha从0到1
+         * @param target 动画对象
+         * @param callback 动画结束回调
+         * @param time 动画时间
+         * @param distance 移动距离
+         */
+        AniUtil.flowBack = function (target, callback, time, distance) {
+            if (time === void 0) { time = 150; }
+            if (distance === void 0) { distance = 200; }
+            Laya.Tween.to(target, { alpha: 0, y: target.y + distance }, time, null, Handler.create(null, function () {
+                target.alpha = 1;
+                callback.run();
+            }));
+        };
+        /**
+         * 动画效果-入场，弹出一个窗口,注意，只有没设置中心点或中心点坐标为(0,0)或中心坐标居中可用
+         * @param target 动画对象
+         * @param time 动画时间
+         * @param distance 移动距离
+         */
+        AniUtil.popIn = function (target, time, distance) {
+            if (time === void 0) { time = 200; }
+            if (distance === void 0) { distance = 200; }
+            Laya.Tween.clearTween(target);
+            if (target.anchorX != 0.5) {
+                target.anchorX = target.anchorY = 0.5;
+                target.x += target.width * 0.5;
+                target.y += target.height * 0.5;
+            }
+            target.scale(0.5, 0.5);
+            Laya.Tween.to(target, { scaleX: 1, scaleY: 1, ease: Laya.Ease.backOut }, 300, null, Handler.create(null, function () {
+                target.anchorX = target.anchorY = 0;
+                target.scaleX = target.scaleY = 1;
+                target.x -= target.width * 0.5;
+                target.y -= target.height * 0.5;
+            }));
+        };
+        /**
+         * 动画效果-出场，从当前位置往上，alpha从1到0
+         * @param target 动画对象
+         * @param callback 动画结束回调
+         * @param time 动画时间
+         * @param distance 移动距离
+         */
+        AniUtil.popOut = function (target, callback, time, distance) {
+            if (time === void 0) { time = 150; }
+            if (distance === void 0) { distance = 200; }
+            Laya.Tween.clearTween(target);
+            target.anchorX = 0.5;
+            target.anchorY = 0.5;
+            target.x += target.width * 0.5;
+            target.y += target.height * 0.5;
+            Laya.Tween.to(target, { scaleX: 0.5, scaleY: 0.5 }, time, null, Handler.create(null, function () {
+                target.anchorX = 0;
+                target.anchorY = 0;
+                target.scaleX = target.scaleY = 1;
+                target.x -= target.width * 0.5;
+                target.y -= target.height * 0.5;
+                callback.run();
+            }));
+        };
+        return AniUtil;
+    }());
+    xframe.AniUtil = AniUtil;
+})(xframe || (xframe = {}));
+
+/**
+* name
+*/
+var trace = xframe.trace;
+var xframe;
+(function (xframe) {
+    var XFacade = /** @class */ (function () {
+        function XFacade() {
+        }
+        /**
+         * 初始化
+         * @param app 游戏C层实例。
+         * @param resCfg 资源配置地址,数据格式
+         * {
+                "modules":
+                {
+                    "LoginView":["atlas/comp.json","config/by_monster.json"],
+                }
+            }
+         * @param uiCfg UI配置地址,编辑器生成;
+         * @param unpackCfg 未打包资源配置，编辑器生成;
+         */
+        XFacade.prototype.init = function (app, resCfg, uiCfg, unpackCfg) {
+            if (resCfg === void 0) { resCfg = null; }
+            if (uiCfg === void 0) { uiCfg = null; }
+            if (unpackCfg === void 0) { unpackCfg = null; }
+            this._app = app;
+            xframe.LayerManager.init();
+            xframe.ModuleManager.init();
+            if (!Laya.Browser.window["wx"]) {
+                Laya.Browser.window["wx"] = new FakeWX();
+            }
+            xframe.RES.init(resCfg, uiCfg, unpackCfg, Handler.create(this, this.start));
+        };
+        XFacade.prototype.start = function () {
+            if (this._app) {
+                this._app.start();
+            }
+            else {
+                xframe.trace("需要一个顶级C");
+            }
+        };
+        /**
+         * 显示一个模块,加入到舞台
+         * @param type 类型
+         * @param args 数据;
+         */
+        XFacade.prototype.showModule = function (type) {
+            var args = [];
+            for (var _i = 1; _i < arguments.length; _i++) {
+                args[_i - 1] = arguments[_i];
+            }
+            console.log("showModule=======>", type.name, "<==========");
+            return xframe.ModuleManager.showModule.apply(xframe.ModuleManager, [type].concat(args));
+        };
+        /**
+         * 关闭一个模块,从舞台移除
+         * @param type 类型
+         */
+        XFacade.prototype.closeModule = function (type) {
+            if (xframe.ModuleManager.hasModule(type)) {
+                xframe.ModuleManager.getModule(type).close();
+            }
+        };
+        /**
+         * 根据类型获取一个窗体实例;
+         * @param type 类型，实现IXWindow接口的类型（!!）;
+         * */
+        XFacade.prototype.getView = function (type) {
+            return xframe.ModuleManager.getModule(type);
+        };
+        /**
+         * 销毁一个实例，确定短时间内不再重用
+         * @param view 销毁的模块。
+         */
+        XFacade.prototype.disposeView = function (view) {
+            xframe.ModuleManager.disposeModule(view);
+        };
+        /**
+         * 给一个对象注册TIP,当TIP显示时，会调用TIP对象的show()方法，并传入需要解析的数据，形如show(data);
+         * 注意当模块进入休眠状体（close）时，最好调用removeTip回收掉！！
+         * @param target 目标
+         * @param data tip对象的数据
+         * @param tipType tip类型,(注意是类型，不是实例)
+         * */
+        XFacade.prototype.addTip = function (target, data, tipType) {
+            if (tipType === void 0) { tipType = null; }
+            xframe.XTipManager.addTip(target, data, tipType);
+        };
+        /**
+         * 移除TIP
+         * @param target 注册过TIP的对象;
+         * */
+        XFacade.prototype.removeTip = function (target) {
+            xframe.XTipManager.removeTip(target);
+        };
+        Object.defineProperty(XFacade, "instance", {
+            /**单例*/
+            get: function () {
+                if (!XFacade._instance) {
+                    XFacade._instance = new XFacade();
+                }
+                return XFacade._instance;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return XFacade;
+    }());
+    xframe.XFacade = XFacade;
+})(xframe || (xframe = {}));
+
+
+/**
+* name
+*/
+var xframe;
+(function (xframe) {
+    var XTipManager = /** @class */ (function () {
+        function XTipManager() {
+        }
+        /**
+         * 给一个对象注册TIP,当TIP显示时，会调用TIP对象的show()方法，并传入需要解析的数据，形如show(data);
+         * 注意当模块进入休眠状体（close）时，最好调用removeTip回收掉！！
+         * @param target 目标
+         * @param data tip对象的数据
+         * @param tipType tip类型,(注意是类型，不是实例)
+         * */
+        XTipManager.addTip = function (target, data, tipType) {
+            if (tipType === void 0) { tipType = null; }
+            if (!tipType) {
+                tipType = xframe.XToolTip;
+            }
+            this._dic.set(target, { data: data, type: tipType });
+            target.on(Laya.Event.CLICK, this, this.onShowTip);
+        };
+        /**
+         * 移除TIP
+         * @param target 注册过TIP的对象;
+         * */
+        XTipManager.removeTip = function (target) {
+            if (target && this._dic.get(target)) {
+                target.off(Laya.Event.CLICK, this, this.onShowTip);
+                this._dic.remove(target);
+            }
+        };
+        /**
+         * 主动显示一个tip
+         * @param data 数据
+         * @param type Tip类型 (注意是类型，不是实例)
+         * @param setPos 是否需要设定位置
+         * @param target TIP目标对象;
+         * */
+        XTipManager.showTip = function (data, type, setPos, target) {
+            if (type === void 0) { type = null; }
+            if (setPos === void 0) { setPos = true; }
+            if (target === void 0) { target = null; }
+            if (!type) {
+                type = xframe.XToolTip;
+            }
+            if (data) {
+                this.setCurTip(xframe.ModuleManager.showModule(type, data, target));
+                //this._curTip = ModuleManager.showModule(type, data);
+                setPos && this.showToStage(this._curTip);
+            }
+            else {
+                this.hideTip();
+            }
+        };
+        /**隐藏TIP,*/
+        XTipManager.hideTip = function () {
+            if (this._curTip && this._curTip.displayedInStage) {
+                this._curTip.close();
+            }
+        };
+        Object.defineProperty(XTipManager, "curTip", {
+            /** */
+            get: function () {
+                return this._curTip;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        XTipManager.setCurTip = function (tip) {
+            if (this._curTip && this._curTip != tip) {
+                this._curTip.close();
+            }
+            this._curTip = tip;
+        };
+        /**
+         * @private
+         */
+        XTipManager.showToStage = function (dis, offX, offY) {
+            if (offX === void 0) { offX = 10; }
+            if (offY === void 0) { offY = 10; }
+            var rec = dis.getBounds();
+            dis.x = Laya.stage.mouseX + offX;
+            dis.y = Laya.stage.mouseY + offY;
+            if (dis.x + rec.width > Laya.stage.width) {
+                dis.x -= rec.width + offX;
+            }
+            if (dis.y + rec.height > Laya.stage.height) {
+                dis.y -= rec.height + offY;
+            }
+        };
+        //
+        XTipManager.onShowTip = function (e) {
+            var data = this._dic.get(e.currentTarget);
+            this.showTip(data.data, data.type, true, e.currentTarget);
+        };
+        /**
+         * tip 数据字典
+         */
+        XTipManager._dic = new Laya.Dictionary();
+        return XTipManager;
+    }());
+    xframe.XTipManager = XTipManager;
+})(xframe || (xframe = {}));
+
+/*
+* name;数据管理
+*/
+var XDB = /** @class */ (function () {
+    function XDB() {
+    }
+    /**获取服务端数据 */
+    XDB.fetchSrvData = function (cb) {
+        //todo 获取远程数据
+        //xframe.HttpCmd.callServer()
+        //测试用，读取本地数据
+        var data = Laya.LocalStorage.getItem(this.NAME);
+        this.init(data);
+        cb.run();
+    };
+    /**init with data*/
+    XDB.init = function (data) {
+        if (typeof data === "string") {
+            trace("data:::::::", data);
+            this._data = JSON.parse(data);
+        }
+        else {
+            this._data = data;
+        }
+    };
+    /**del local data */
+    XDB.delLocalData = function () {
+        Laya.LocalStorage.removeItem(this.NAME);
+    };
+    /**get value by key */
+    XDB.getData = function (key) {
+        return this.data[key];
+    };
+    /**save */
+    XDB.save = function (key, value) {
+        this.data[key] = value;
+        //save to local
+        Laya.LocalStorage.setItem(this.NAME, JSON.stringify(this.data));
+        //todo：save to srv
+    };
+    XDB.push2Srv = function () {
+        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { kv: "xxoo" });
+    };
+    Object.defineProperty(XDB, "data", {
+        get: function () {
+            if (!this._data) {
+                this._data = {};
+            }
+            return this._data;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**KEY-USER INFO */
+    XDB.USER = "user";
+    /**KEY-BAG */
+    XDB.BAG = "bag";
+    /**local save key */
+    XDB.NAME = "xdb";
+    return XDB;
+}());
+
+/**
+* name
+*/
+var xframe;
+(function (xframe) {
+    var RES = /** @class */ (function () {
+        function RES() {
+        }
+        /**
+         * 初始化
+         * @param resUrl		模块配置
+         * @param uiUrl			UI配置
+         * @param unpackUrl		未打包资源配置
+         * @param cb 			回调
+         */
+        RES.init = function (resUrl, uiUrl, unpackUrl, cb) {
+            var _this = this;
+            var arr = [];
+            resUrl && arr.push(resUrl);
+            uiUrl && arr.push(uiUrl);
+            unpackUrl && arr.push(unpackUrl);
+            if (arr.length) {
+                Laya.loader.load(arr, Handler.create(null, function () {
+                    _this._resCfg = Laya.loader.getRes(resUrl) || {};
+                    _this._moduleCfg = _this._resCfg.modules;
+                    unpackUrl && (_this._unpackCfg = _this.getRes(unpackUrl));
+                    uiUrl && (View.uiMap = Laya.loader.getRes(uiUrl));
+                    cb.run();
+                }));
+            }
+            else {
+                cb.run();
+            }
+        };
+        /**
+         * 加载RES指定资源。
+         * @param	group 资源组, RES.json配置的名字,一般使用模块
+         * @param	complete 结束回调，如果加载失败，则返回 null 。
+         * @param	progress 进度回调，回调参数为当前文件加载的进度信息(0-1)。
+         * @param	type 资源类型。
+         * @param	priority 优先级，0-4，五个优先级，0优先级最高，默认为1。
+         * @param	cache 是否缓存加载结果。
+         */
+        RES.load = function (group, complete, progress, type, priority, cache) {
+            if (complete === void 0) { complete = null; }
+            if (progress === void 0) { progress = null; }
+            if (type === void 0) { type = null; }
+            if (priority === void 0) { priority = 1; }
+            if (cache === void 0) { cache = true; }
+            var urlArr = this.getUrlList(group, true);
+            if (urlArr == null || urlArr.length < 1) {
+                complete.run();
+            }
+            else {
+                Laya.loader.load(urlArr, Handler.create(null, this.loadItemComplete, [complete]), Handler.create(null, this.onLoadProgress, [group, progress], false), type, priority, cache, group);
+            }
+        };
+        //资源组加载完成
+        RES.loadItemComplete = function (handler) {
+            handler && handler.run();
+        };
+        //资源组加载中
+        RES.onLoadProgress = function (name, proHandler, progress) {
+            proHandler && proHandler.runWith(progress);
+            xframe.trace("RES::onLoadProgress->" + name + "  progress:  " + progress);
+        };
+        /**
+         * 获取资源，地址可以是配置res.json里面的配置
+         * @param url
+         */
+        RES.getRes = function (url) {
+            if (url.indexOf(this.URL_PRE) == -1) {
+                url = this.URL_PRE + url;
+            }
+            return Loader.getRes(url);
+        };
+        /**
+         * 按组卸载资源,供框架底层调用
+         * @param group 组名，对应类名（潜规则!）
+         * */
+        RES.unloadGroup = function (group) {
+            var urlArr = this.getUrlList(group);
+            for (var i in urlArr) {
+                this.unload(urlArr[i].url);
+            }
+        };
+        /**
+         * 卸载资源
+         * @param url 资源地址
+         * @param unpackOnly 是否作为未打包资源处理
+         * */
+        RES.unload = function (url, unpackOnly) {
+            if (unpackOnly === void 0) { unpackOnly = false; }
+            if (unpackOnly) {
+                if (this._unpackCfg.indexOf(url) != -1) {
+                    this.delQuote(url);
+                }
+            }
+            else {
+                this.delQuote(url);
+            }
+        };
+        /**
+         * 增加未打包资源引用
+         * @param view 界面视图
+         * */
+        RES.addUnpackQuote = function (view) {
+            for (var i in view._childs) {
+                var skin = (view._childs[i] && view._childs[i].skin);
+                if (skin && this._unpackCfg.indexOf(skin) != -1) {
+                    this.addQuote(skin);
+                }
+            }
+        };
+        /**
+         * 删除未打包资源引用
+         * @param view 界面视图
+         * */
+        RES.delUnpackQuote = function (view) {
+            for (var i in view._childs) {
+                var skin = (view._childs[i] && view._childs[i].skin);
+                if (skin && this._unpackCfg.indexOf(skin) != -1) {
+                    this.delQuote(skin);
+                }
+            }
+        };
+        /**增加引用计数--*/
+        RES.addQuote = function (url) {
+            if (this._quoteDic[url]) {
+                this._quoteDic[url] = this._quoteDic[url] + 1;
+            }
+            else {
+                this._quoteDic[url] = 1;
+            }
+        };
+        /**删除引用计数*/
+        RES.delQuote = function (url) {
+            if (this._quoteDic[url]) {
+                this._quoteDic[url] -= 1;
+                if (this._quoteDic[url] <= 0) {
+                    Loader.clearRes(url);
+                    delete this._quoteDic[url];
+                }
+            }
+        };
+        /**根据组名获取资源列表
+         * @param group 组名，潜规则由类名担当
+         * @param quote 使用需要建立引用。
+         * */
+        RES.getUrlList = function (group, quote) {
+            if (quote === void 0) { quote = false; }
+            var arr = this._moduleCfg[group];
+            if (arr) {
+                for (var i in arr) {
+                    if (arr[i] instanceof String) {
+                        arr[i] = { url: this.URL_PRE + arr[i], type: this.getTypeFromUrl(arr[i]), size: 1, priority: 1 };
+                    }
+                    //建立引用计数=====================================================
+                    if (quote) {
+                        this.addQuote(arr[i].url);
+                    }
+                }
+            }
+            return arr;
+        };
+        /**
+         * 获取指定资源地址的数据类型,潜规则。
+         * @param	url 资源地址。
+         * @return 数据类型。
+         */
+        RES.getTypeFromUrl = function (url) {
+            var tmp = (url + "").split(".");
+            var type = tmp[tmp.length - 1];
+            if (type) {
+                type = Loader.typeMap[type.toLowerCase()];
+                if (type == Loader.JSON && url.indexOf(this.URL_ATLAS) > -1) {
+                    type = Loader.ATLAS;
+                }
+                return type;
+            }
+            xframe.trace("RES::Unkown file suffix", url);
+            return Loader.TEXT;
+        };
+        /**未打包资源配置*/
+        RES._unpackCfg = [];
+        /**引用计数列表*/
+        RES._quoteDic = {};
+        /**资源路径头*/
+        RES.URL_PRE = "res/";
+        /**图集路径头*/
+        RES.URL_ATLAS = "atlas/";
+        return RES;
+    }());
+    xframe.RES = RES;
+})(xframe || (xframe = {}));
+
+/**
+* name
+*/
+var xframe;
+(function (xframe) {
+    var ModuleManager = /** @class */ (function () {
+        function ModuleManager() {
+        }
+        /**初始化*/
+        ModuleManager.init = function () {
+            Laya.timer.loop(ModuleManager.RECOVER_INTERVAL, ModuleManager, ModuleManager.recover);
+            Laya.stage.on(Laya.Event.RESIZE, ModuleManager, ModuleManager.onResize);
+            XEvent.instance.on(XEvent.CLOSE, null, this.onModuleClose);
+        };
+        /**
+         * 显示一个模块
+         * @param compClass 类型
+         * @param args 参数
+         */
+        ModuleManager.showModule = function (compClass) {
+            var args = [];
+            for (var _i = 1; _i < arguments.length; _i++) {
+                args[_i - 1] = arguments[_i];
+            }
+            var baseView;
+            if (compClass) {
+                baseView = ModuleManager.getModule(compClass);
+                baseView.show.apply(baseView, args);
+            }
+            return baseView;
+        };
+        /**
+         * 获取一个实例,必须实现了IXWindow接口
+         * @param compClass 类型
+         */
+        ModuleManager.getModule = function (compClass) {
+            var tmp;
+            for (var i in ModuleManager.viewsInfo) {
+                tmp = ModuleManager.viewsInfo[i];
+                if (tmp && tmp.view instanceof compClass) {
+                    return tmp.view;
+                }
+            }
+            //没找到缓存的实例对象
+            var baseView = new compClass();
+            ModuleManager.viewsInfo.push({ view: baseView });
+            return baseView;
+        };
+        /**
+         * 判断是否有该类型实例
+         * @param compClass 类型
+         */
+        ModuleManager.hasModule = function (compClass) {
+            var tmp;
+            for (var i in ModuleManager.viewsInfo) {
+                tmp = ModuleManager.viewsInfo[i];
+                if (tmp && tmp.view instanceof compClass) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        /**
+         * 将一个已经生成的实例加入实例控制
+         * @param view 模块实例
+         * @param compClass 模块类型
+        */
+        ModuleManager.addModule = function (view, compClass) {
+            if (!this.hasModule(compClass)) {
+                ModuleManager.viewsInfo.push({ view: view });
+            }
+            return view;
+        };
+        /**
+         * 销毁一个实例
+         * @param view 实例对象
+         * */
+        ModuleManager.disposeModule = function (view) {
+            var tmp;
+            for (var i in ModuleManager.viewsInfo) {
+                tmp = ModuleManager.viewsInfo[i];
+                if (tmp && tmp.view == view) {
+                    view.destroy(true);
+                    ModuleManager.viewsInfo.splice(parseInt(i), 1);
+                    break;
+                }
+            }
+        };
+        /**回收*/
+        ModuleManager.recover = function () {
+            var tmp;
+            var view;
+            var time = Laya.Browser.now();
+            for (var i = 0; i < ModuleManager.viewsInfo.length; i++) {
+                tmp = ModuleManager.viewsInfo[i];
+                view = tmp ? tmp.view : null;
+                if (view && !view.displayedInStage && view.autoDispose) {
+                    if (time - tmp.time > ModuleManager.RECOVER_TIME) {
+                        view.destroy(true);
+                        ModuleManager.viewsInfo.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            //如果内存超标，强制销毁最早生成的模块------------------
+            if (Laya.ResourceManager.systemResourceManager.memorySize > ModuleManager.MAX_MEMO_SIZE) {
+                for (i = 0; i < ModuleManager.viewsInfo.length; i++) {
+                    tmp = ModuleManager.viewsInfo[i];
+                    view = tmp ? tmp.view : null;
+                    if (view && !view.displayedInStage && view.autoDispose) {
+                        view.destroy(true);
+                        ModuleManager.viewsInfo.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        };
+        /**重新布局*/
+        ModuleManager.onResize = function () {
+            var tmp;
+            var view;
+            for (var i in ModuleManager.viewsInfo) {
+                tmp = ModuleManager.viewsInfo[i];
+                view = tmp ? tmp.view : null;
+                if (view && view.displayedInStage) {
+                    view.onStageResize();
+                }
+            }
+        };
+        /**模块关闭*/
+        ModuleManager.onModuleClose = function (v) {
+            var tmp;
+            for (var i in ModuleManager.viewsInfo) {
+                tmp = ModuleManager.viewsInfo[i];
+                if (tmp && tmp.view == v) {
+                    tmp.time = Laya.Browser.now();
+                    //排到队列后面去
+                    ModuleManager.viewsInfo.splice(parseInt(i), 1);
+                    ModuleManager.viewsInfo.push(tmp);
+                    break;
+                }
+            }
+        };
+        /**模块信息记录*/
+        ModuleManager.viewsInfo = [];
+        /**回收执行间隔-毫秒*/
+        ModuleManager.RECOVER_INTERVAL = 10 * 1000;
+        /**实例回收时间-毫秒*/
+        ModuleManager.RECOVER_TIME = 0.5 * 60 * 1000;
+        /**最大安全内存值-超过将强行开始回收掉实例*/
+        ModuleManager.MAX_MEMO_SIZE = 256 * 1024 * 1024;
+        return ModuleManager;
+    }());
+    xframe.ModuleManager = ModuleManager;
+})(xframe || (xframe = {}));
+
+/**
+* name
+*/
+var xframe;
+(function (xframe) {
+    var LayerManager = /** @class */ (function () {
+        function LayerManager() {
+        }
+        /**初始化 */
+        LayerManager.init = function () {
+            LayerManager._container = new Laya.Sprite();
+            Laya.stage.addChild(LayerManager._container);
+        };
+        /**
+         *  打开界面，自动设定层级并对齐
+         * @param view 功能界面,
+         */
+        LayerManager.openWindow = function (view) {
+            if (!view.displayedInStage) {
+                LayerManager.setLayer(view, view.layer);
+            }
+            LayerManager.setPosition(view, view.align);
+        };
+        /**
+         *  设置功能界面层级
+         * @param view 功能界面
+         * @param layer 层级类型
+         */
+        LayerManager.setLayer = function (view, layer) {
+            if (layer === void 0) { layer = LayerManager.LAYER_PANEL; }
+            var len = LayerManager._container.numChildren;
+            var win;
+            for (var i = len - 1; i >= 0; i--) {
+                win = LayerManager._container.getChildAt(i);
+                if (win.layer && win.layer <= layer) {
+                    //找到相应的位置，返回-
+                    xframe.trace("setLayer__________________");
+                    xframe.trace(win);
+                    LayerManager._container.addChildAt(view, i + 1);
+                    return;
+                }
+            }
+            //层级最小
+            LayerManager._container.addChildAt(view, 0);
+        };
+        /**
+         * 设置面板位置
+         * @param view 面板
+         * @param postTpye 位置类型
+         */
+        LayerManager.setPosition = function (view, postTpye) {
+            switch (postTpye) {
+                case LayerManager.ALIGN_UP:
+                    view.x = (Laya.stage.width - view.width) / 2;
+                    view.y = 0;
+                    break;
+                case LayerManager.ALIGN_DOWN:
+                    view.x = (Laya.stage.width - view.width) / 2;
+                    view.y = Laya.stage.height - view.height;
+                    break;
+                case LayerManager.ALIGN_LEFTUP:
+                    view.x = 0;
+                    view.y = 0;
+                    break;
+                case LayerManager.ALIGN_CENTER:
+                    view.x = (Laya.stage.width - view.width) / 2;
+                    view.y = (Laya.stage.height - view.height) / 2;
+                    break;
+                default:
+                    break;
+            }
+        };
+        /**层级-底层-如地图*/
+        LayerManager.LAYER_FIXED = 1;
+        /**层级-普通窗体层*/
+        LayerManager.LAYER_PANEL = 2;
+        /**层级-固定UI层位-仅在需要压在窗体上面时使用*/
+        LayerManager.LAYER_UI = 3;
+        /**层级-弹出窗体层*/
+        LayerManager.LAYER_POP = 4;
+        /**层级-TIPS层级*/
+        LayerManager.LAYER_TIP = 5;
+        /**层级-顶层*/
+        LayerManager.LAYER_TOP = 6;
+        //LEFTUP////////////////UP////////////////RIGHTUP////
+        /////////////////////////////////////////////////////
+        //LEFT////////////////CENTER/////////////////RIGHT///
+        /////////////////////////////////////////////////////
+        //LEFTDOWN////////////DOWN/////////////RIGHTDOWN/////
+        /**对齐-左上角，XWindow默认对齐方式*/
+        LayerManager.ALIGN_LEFTUP = 0;
+        /**对齐-居中上对齐*/
+        LayerManager.ALIGN_UP = 1;
+        /**对齐-居中,XMWindow默认对齐方式*/
+        LayerManager.ALIGN_CENTER = 4;
+        /**对齐-居中下对齐*/
+        LayerManager.ALIGN_DOWN = 7;
+        return LayerManager;
+    }());
+    xframe.LayerManager = LayerManager;
+})(xframe || (xframe = {}));
+
 var ossGameVersion = "/1.0.0";
 /**
  * 获取游戏模式列表
@@ -49949,6 +49345,20 @@ var fetchGameModeList = function () {
  */
 var fetchModeDetail = function (modeId) {
     var path = "";
+    return yxmp.asset.fetch(path, 5 * 60);
+};
+/**
+ * 获取角色列表
+ */
+var fetchRoleList = function () {
+    var path = ossGameVersion + "/role.json";
+    return yxmp.asset.fetch(path, 5 * 60);
+};
+/**
+ *  获取签到配置表
+ */
+var fetchSignList = function () {
+    var path = ossGameVersion + "/sign.json";
     return yxmp.asset.fetch(path, 5 * 60);
 };
 
@@ -50121,23 +49531,26 @@ var LoaderManager;
     };
 })(LoaderManager || (LoaderManager = {}));
 
+// 关卡解锁
 var helpUnlock = "helpUnlock";
+// 分享音乐卡片
+var shareMuiscCard = "musicCard";
 var HelpUtil;
 (function (HelpUtil) {
-    function gethelplist() {
+    function gethelplist(key) {
         return new Promise(function (resolve) {
-            yxmp.plugin.help.getHelpList(helpUnlock).then(function (res) {
+            yxmp.plugin.help.getHelpList(key).then(function (res) {
                 if (res) {
                     var contributions = res.data.concat([]);
                     var result_1 = [];
-                    console.error("gethelplist", res);
+                    // console.error("gethelplist", res);
                     contributions.forEach(function (element) {
-                        if (element.app_name == "paperlimbo") {
+                        if (element.app_name == "perfectline") {
                             element.kv_data_list.forEach(function (kv) {
-                                if (kv.key == "inviteFriend") {
-                                    var value = JSON.parse(kv.value);
-                                    var obj = { contributor_id: element.contributor_id, value: value };
-                                    result_1.push(obj);
+                                if (kv.key == key) {
+                                    // let value = JSON.parse(kv.value);
+                                    // let obj = { contributor_id: element.contributor_id, value: value };
+                                    result_1.push(kv);
                                 }
                             });
                         }
@@ -50151,53 +49564,222 @@ var HelpUtil;
         });
     }
     HelpUtil.gethelplist = gethelplist;
+    // 合成分享图片
+    function shareByView(view, x, y, w, h) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (w === void 0) { w = view.width; }
+        if (h === void 0) { h = view.height; }
+        try {
+            var htmlCanvas = view.drawToCanvas(w, h, x, y);
+            var canvas = htmlCanvas.getCanvas();
+            var url = canvas.toTempFilePathSync();
+            // let opts = (<any>Object).assign({}, options || {}, { imageUrl: url });
+            // wx.shareAppMessage(getShareOptions(opts, type));
+            return url;
+        }
+        catch (error) {
+            // console.log(error);
+            // wx.shareAppMessage(getShareOptions(options, type));
+        }
+    }
+    HelpUtil.shareByView = shareByView;
 })(HelpUtil || (HelpUtil = {}));
 
-var UserInfoManager = /** @class */ (function () {
-    function UserInfoManager() {
+/**
+* name
+*/
+var Handler = Laya.Handler;
+var xframe;
+(function (xframe) {
+    var AniUtil = /** @class */ (function () {
+        function AniUtil() {
+        }
+        /**动画效果-入场，淡入 */
+        AniUtil.fadeIn = function (target, time, delay) {
+            if (time === void 0) { time = 200; }
+            if (delay === void 0) { delay = 0; }
+            target.alpha = 0;
+            Laya.Tween.to(target, { alpha: 1 }, time, null, null, delay);
+        };
+        /**
+         * 动画效果-入场，从下到当前位置，alpha从0到1
+         * @param target 动画对象
+         * @param time 动画时间
+         * @param distance 移动距离
+         */
+        AniUtil.flowIn = function (target, time, distance) {
+            if (time === void 0) { time = 200; }
+            if (distance === void 0) { distance = 200; }
+            Laya.Tween.from(target, { alpha: 0.5, y: target.y + distance }, time);
+        };
+        /**
+         * 动画效果-出场，从当前位置往上，alpha从0到1
+         * @param target 动画对象
+         * @param callback 动画结束回调
+         * @param time 动画时间
+         * @param distance 移动距离
+         */
+        AniUtil.flowOut = function (target, callback, time, distance) {
+            if (time === void 0) { time = 150; }
+            if (distance === void 0) { distance = 200; }
+            Laya.Tween.to(target, { alpha: 0, y: target.y - distance }, time, null, Handler.create(null, onflowOut, [target, callback]));
+            function onflowOut(target, callback) {
+                target.alpha = 1;
+                callback.run();
+            }
+        };
+        /**
+         * 动画效果-出场2，从当前位置往下，alpha从0到1
+         * @param target 动画对象
+         * @param callback 动画结束回调
+         * @param time 动画时间
+         * @param distance 移动距离
+         */
+        AniUtil.flowBack = function (target, callback, time, distance) {
+            if (time === void 0) { time = 150; }
+            if (distance === void 0) { distance = 200; }
+            Laya.Tween.to(target, { alpha: 0, y: target.y + distance }, time, null, Handler.create(null, onflowBack, [target, callback]));
+            function onflowBack(target, callback) {
+                target.alpha = 1;
+                callback.run();
+            }
+        };
+        /**
+         * 动画效果-入场，弹出一个窗口,注意，只有没设置中心点或者中心点坐标为(0,0)可用
+         * @param target 动画对象
+         * @param time 动画时间
+         */
+        AniUtil.popIn = function (target, time) {
+            if (time === void 0) { time = 200; }
+            Laya.Tween.clearTween(target);
+            target.anchorX = target.anchorY = 0.5;
+            target.x += target.width * 0.5;
+            target.y += target.height * 0.5;
+            target.scale(0.5, 0.5);
+            Laya.Tween.to(target, { scaleX: 1, scaleY: 1, ease: Laya.Ease.backOut }, 300, null, Handler.create(null, onPopIn));
+            function onPopIn() {
+                target.anchorX = target.anchorY = 0;
+                target.scaleX = target.scaleY = 1;
+                target.x -= target.width * 0.5;
+                target.y -= target.height * 0.5;
+            }
+        };
+        /**
+         * 动画效果-出场，从当前位置往上，alpha从1到0
+         * @param target 动画对象
+         * @param callback 动画结束回调
+         * @param time 动画时间
+         */
+        AniUtil.popOut = function (target, callback, time) {
+            if (time === void 0) { time = 150; }
+            Laya.Tween.clearTween(target);
+            target.anchorX = 0.5;
+            target.anchorY = 0.5;
+            target.x += target.width * 0.5;
+            target.y += target.height * 0.5;
+            Laya.Tween.to(target, { scaleX: 0.5, scaleY: 0.5 }, time, null, Handler.create(null, onPopOut));
+            function onPopOut() {
+                target.anchorX = 0;
+                target.anchorY = 0;
+                target.scaleX = target.scaleY = 1;
+                target.x -= target.width * 0.5;
+                target.y -= target.height * 0.5;
+                callback.run();
+            }
+        };
+        return AniUtil;
+    }());
+    xframe.AniUtil = AniUtil;
+})(xframe || (xframe = {}));
+
+var AdUtil;
+(function (AdUtil) {
+    function aa() {
+    }
+    AdUtil.aa = aa;
+})(AdUtil || (AdUtil = {}));
+
+/*
+* name 角色数据配置
+*/
+var DBGame = /** @class */ (function () {
+    function DBGame() {
+    }
+    /**获取关卡信息 */
+    DBGame.getStageInfo = function (id) {
+        var source = Laya.loader.getRes("res/cfg/stage.json");
+        for (var i in source) {
+            if (source[i].id == id) {
+                return source[i];
+            }
+        }
+    };
+    /**计算进度*/
+    DBGame.calcPro = function (nowTime, arr) {
+        var pro;
+        var stars = 0;
+        if (nowTime < arr[0]) {
+            pro = nowTime * 0.333 / arr[0];
+        }
+        else if (nowTime < arr[1]) {
+            pro = 0.333;
+            pro += (nowTime - arr[0]) * 0.333 / (arr[1] - arr[0]);
+            stars = 1;
+        }
+        else if (nowTime < arr[2]) {
+            pro = 0.666;
+            pro += (nowTime - arr[1]) * 0.333 / (arr[2] - arr[1]);
+            stars = 2;
+        }
+        else {
+            pro = 1;
+            stars = 3;
+        }
+        return { pro: pro, stars: stars };
+    };
+    /**暂停-复活倒计时 */
+    DBGame.countdown = function (time, callback, updateHander) {
+        var countView = new ui.views.CountDownViewUI();
+        countView.countLabel.text = time + "";
+        Laya.stage.addChild(countView);
+        Laya.timer.loop(1000, null, update);
+        function update() {
+            time--;
+            countView.countLabel.text = time + "";
+            !updateHander || updateHander.run();
+            if (time <= 0) {
+                Laya.timer.clear(null, update);
+                callback.run();
+                countView.removeSelf();
+            }
+        }
+    };
+    /**常量-最大复活次数 */
+    DBGame.ReviveTimes = 1;
+    DBGame.roleInfo = {
+        1: { skin: "game_xhj", shadow: "yy_xhj", rotate: true },
+        2: { skin: "ppx" },
+        3: { skin: "hbd" },
+        4: { skin: "game_mmq", shadow: "yy_mmq", rotate: true },
+        5: { skin: "xq" },
+        6: { skin: "game_qklq", shadow: "yy_qklq", rotate: true },
+        7: { skin: "ppc" },
+        8: { skin: "mmj" },
+        9: { skin: "xfq" },
+        10: { skin: "game_8b", shadow: "yy_8b", rotate: true }
+    };
+    return DBGame;
+}());
+
+var User = /** @class */ (function () {
+    function User() {
         this.roles = [];
         this.cards = [];
     }
-    Object.defineProperty(UserInfoManager, "instace", {
-        get: function () {
-            if (!UserInfoManager._instace) {
-                UserInfoManager._instace = new UserInfoManager();
-                UserInfoManager._instace.initdData();
-            }
-            return UserInfoManager._instace;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    UserInfoManager.prototype.initdData = function () {
-        if (DataManager.hasData(usercloudCardKey)) {
-            this.cards = GameDataManager.instance.getUserCardsData();
-        }
-        else {
-            GameDataManager.instance.recordUserCardsData([]);
-        }
-        if (DataManager.hasData(usercloudRoleKey)) {
-            this.roles = GameDataManager.instance.getUserRolesData();
-        }
-        else {
-            GameDataManager.instance.recordUserRolesData([]);
-        }
-        if (DataManager.hasData(usercloudInfoKey)) {
-            this._userInfo = GameDataManager.instance.getUserGameData();
-        }
-        else {
-            this._userInfo = {
-                id: "",
-                avatar: "",
-                nickname: "",
-                coin: 0,
-                power: 0,
-                star: 0
-            };
-            GameDataManager.instance.recordUserGameData(this._userInfo);
-        }
+    User.prototype.initdData = function () {
     };
-    Object.defineProperty(UserInfoManager.prototype, "userInfo", {
+    Object.defineProperty(User.prototype, "userInfo", {
         /**
          * 获取用户信息
          */
@@ -50207,6 +49789,9 @@ var UserInfoManager = /** @class */ (function () {
                     avatar: "",
                     id: "",
                     nickname: "",
+                    gold: 0,
+                    star: 0,
+                    power: 10,
                 };
             }
             return this._userInfo;
@@ -50223,9 +49808,31 @@ var UserInfoManager = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    return UserInfoManager;
+    /**
+     * 是否拥有此角色
+     * @param roleid 角色id
+     */
+    User.prototype.checkIsOwnRoleById = function (roleid) {
+        var role = this.roles.find(function (item) {
+            return item.id == roleid;
+        });
+        return role ? true : false;
+    };
+    Object.defineProperty(User, "instace", {
+        get: function () {
+            if (!this._instace) {
+                this._instace = new User();
+            }
+            return this._instace;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return User;
 }());
 
+var SignKey = "signrecord";
+var HadRole = "haveGetRole";
 var SigninManager;
 (function (SigninManager) {
     var __dateTimeLong__ = 0;
@@ -50276,15 +49883,15 @@ var SigninManager;
     function checkSigninState(onFinish) {
         checkLoginTime(false, function () {
             var sundayDate = getSundayDate(__dateTimeLong__);
-            DataManager.getData("signin-" + sundayDate).then(function (value) {
-                try {
-                    __signinState__ = JSON.parse(value);
-                }
-                catch (error) {
-                    __signinState__ = {};
-                }
-                onFinish && onFinish();
-            });
+            // DataManager.getData(`signin-${sundayDate}`).then(value => {
+            //     try {
+            //         __signinState__ = JSON.parse(value);
+            //     } catch (error) {
+            //         __signinState__ = {};
+            //     }
+            //     onFinish && onFinish();
+            // });
+            DataManager.getData("signin-" + sundayDate);
         });
     }
     /** 检测登录时间 */
@@ -50330,6 +49937,119 @@ var SigninManager;
         var sundayDate = sunday.getFullYear() + "-" + (sunday.getMonth() + 1) + "-" + sunday.getDate();
         return sundayDate;
     }
+    //------------------------------------------------------//////////////////////////////////////////////-------------------------------------------
+    /**
+     *
+     * @param data 签到
+     */
+    function sign(data) {
+        var signObj = new Object();
+        var list = DataManager.getData(SignKey);
+        if (!list) {
+            list = [];
+        }
+        var timeString = GameDataManager.instance.serverTime;
+        var signId = data.id;
+        signObj.time = timeString;
+        signObj.signId = signId;
+        list.push(signObj);
+        DataManager.setData(SignKey, list);
+        if (list.length >= 7 && !DataManager.getData(HadRole)) {
+            if (data.type == 3) {
+                DataManager.setData(HadRole, data);
+                // 角色列表更新 保存角色id
+                GameDataManager.instance.recordUserRolesData({ id: data.target });
+            }
+        }
+    }
+    SigninManager.sign = sign;
+    /**
+     *  判断今天距离最后一次签到是否断签
+     */
+    function checkSignBreak() {
+        var list = DataManager.getData(SignKey);
+        if (!list || list.length == 0) {
+            return true;
+        }
+        if (hadSign()) {
+            return false;
+        }
+        var lastSign = list[list.length - 1];
+        var lastTime = parseInt(lastSign.time);
+        var serverTime = GameDataManager.instance.serverTime;
+        var isBreak = compareDifferentDaysByMillisecond(serverTime, lastTime);
+        if (isBreak) {
+            DataManager.setData(SignKey, []);
+        }
+        else {
+            if (list.length == 7) {
+                DataManager.setData(SignKey, []);
+            }
+        }
+        return isBreak;
+    }
+    SigninManager.checkSignBreak = checkSignBreak;
+    /**
+     * 通过时间秒毫秒数判断两个时间的间隔
+     * @param currentTime 当前时间
+     * @param lastTime 最后一次签到时间
+     * @return
+     */
+    function compareDifferentDaysByMillisecond(currentTime, lastTime) {
+        var days = (currentTime - lastTime) / (1000 * 3600 * 24);
+        // 大于两天可能断签了
+        if (days >= 2) {
+            return true;
+        }
+        var newTimeTemp = lastTime + (1000 * 3600 * 24);
+        if (isToday(currentTime, newTimeTemp)) {
+            //昨天签到
+            return false;
+        }
+        //前天签到
+        return true;
+    }
+    /**
+     * 判断是否是同一天
+     * @param currentTime
+     * @param lastTime
+     */
+    function isToday(currentTime, lastTime) {
+        var time1 = new Date(currentTime).toDateString();
+        var time2 = new Date(lastTime).toDateString();
+        if (time1 === time2) {
+            return true;
+        }
+        return false;
+    }
+    SigninManager.isToday = isToday;
+    /**
+     * 判断今天是否已经签到
+     */
+    function hadSign() {
+        var list = DataManager.getData(SignKey);
+        if (list && list.length > 0) {
+            var lastSign = list[list.length - 1];
+            var lastTime = parseInt(lastSign.time);
+            var serverTime = GameDataManager.instance.serverTime;
+            if (isToday(serverTime, lastTime)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    SigninManager.hadSign = hadSign;
+    /**
+     * 签到第几天
+     */
+    function signIndex() {
+        var list = DataManager.getData(SignKey);
+        if (!list || list.length == 0) {
+            return 0;
+        }
+        return list.length;
+    }
+    SigninManager.signIndex = signIndex;
 })(SigninManager || (SigninManager = {}));
 
 var ShareManager;
@@ -50353,12 +50073,29 @@ var ShareManager;
     ShareManager.share = share;
 })(ShareManager || (ShareManager = {}));
 
+/*
+* name;
+*/
+var ReportCmd = /** @class */ (function () {
+    function ReportCmd() {
+    }
+    //加载开始
+    ReportCmd.loadStart = "4000_4001_start";
+    //加载成功
+    ReportCmd.loadSuccess = "4000_4002_success";
+    //加载失败
+    ReportCmd.loadFail = "4000_4003_fail";
+    //复活
+    ReportCmd.relive = "3000_3001_click";
+    return ReportCmd;
+}());
+
 var usercloudInfoKey = "userdata";
 var usercloudCardKey = "usercard";
 var usercloudRoleKey = "userrole";
 var GameDataManager = /** @class */ (function () {
     function GameDataManager() {
-        this.modeList = []; // 游戏章节列表
+        this.roleLIst = []; // 角色配置表
     }
     Object.defineProperty(GameDataManager, "instance", {
         get: function () {
@@ -50370,19 +50107,36 @@ var GameDataManager = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(GameDataManager.prototype, "cardConfig", {
+        /** 卡片分享贴图位置 */
+        get: function () {
+            return {
+                "1": [531, 254],
+                "2": [375, 379],
+                "3": [375, 379],
+                "4": [531, 254],
+                "5": [519, 446],
+                "6": [519, 446],
+                "7": [443, 171],
+                "8": [443, 171],
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * {解锁条件 邀请人数 获得星星数量}
      * @param modeId 判断当前章节是否解锁
      */
     GameDataManager.prototype.checkModeIslock = function (modeId) {
-        if (DataManager.hasData(modeId)) {
+        if (DataManager.hasData(modeId + '')) {
             var data = DataManager.getData(modeId);
             if (data.lock.length > 0) {
                 var type = data.lock[0];
                 if (type == 1) {
                     // 收集多少星
                     var star = data.lock[1];
-                    if (UserInfoManager.instace.userInfo.star >= star) {
+                    if (User.instace.userInfo.star >= star) {
                         data.lock = [];
                         this.recordModeById(modeId, data);
                     }
@@ -50413,7 +50167,7 @@ var GameDataManager = /** @class */ (function () {
                     if (type == 1) {
                         // 收集多少星
                         var star = mode.lock[1];
-                        if (UserInfoManager.instace.userInfo.star >= star) {
+                        if (User.instace.userInfo.star >= star) {
                             mode.lock = [];
                         }
                     }
@@ -50436,7 +50190,7 @@ var GameDataManager = /** @class */ (function () {
      * @param modeId
      */
     GameDataManager.prototype.getModeRecordDataById = function (modeId) {
-        return DataManager.getData(modeId);
+        return DataManager.getData(modeId + '');
     };
     /**
      * 记录当前游戏结果
@@ -50444,21 +50198,14 @@ var GameDataManager = /** @class */ (function () {
      * @param value
      */
     GameDataManager.prototype.recordMusicById = function (musicId, value) {
-        DataManager.setData(musicId, value);
-    };
-    /**
-     * 获取对应音乐关卡数据
-     * @param musicId
-     */
-    GameDataManager.prototype.getRecordMusic = function (musicId) {
-        return DataManager.getData(musicId);
+        DataManager.setData("musicData" + musicId, value);
     };
     /**
      * 记录用户游戏相关数据
      * @param value
      */
-    GameDataManager.prototype.recordUserGameData = function (value) {
-        DataManager.setData(usercloudInfoKey, value);
+    GameDataManager.prototype.recordUserGameData = function () {
+        DataManager.setData(usercloudInfoKey, User.instace.userInfo);
     };
     /**
      * 获取用户游戏相关数据
@@ -50471,7 +50218,12 @@ var GameDataManager = /** @class */ (function () {
      * @param value
      */
     GameDataManager.prototype.recordUserCardsData = function (value) {
-        DataManager.setData(usercloudCardKey, value);
+        if (value) {
+            var time = new Date().getTime();
+            var newObj = Object.assign({ timeTemp: time }, value);
+            User.instace.cards.unshift(newObj);
+            DataManager.setData(usercloudCardKey, User.instace.cards);
+        }
     };
     /**
      * 获取用户卡片数据
@@ -50484,7 +50236,10 @@ var GameDataManager = /** @class */ (function () {
      * @param value
      */
     GameDataManager.prototype.recordUserRolesData = function (value) {
-        DataManager.setData(usercloudRoleKey, value);
+        if (value) {
+            User.instace.roles.push(value);
+            DataManager.setData(usercloudRoleKey, User.instace.roles);
+        }
     };
     /**
      * 获取用户角色数据
@@ -50492,6 +50247,214 @@ var GameDataManager = /** @class */ (function () {
     GameDataManager.prototype.getUserRolesData = function () {
         return DataManager.getData(usercloudRoleKey);
     };
+    /**
+     * 最后一次玩的篇章的索引
+     */
+    GameDataManager.prototype.nearestPlayChapterIndex = function () {
+        var chapterId = '';
+        if (!chapterId) {
+            return 0;
+        }
+        var chapter = this.getChapterById(chapterId);
+        if (chapter) {
+            return this.modeList.indexOf(chapter);
+        }
+        return 0;
+    };
+    /**
+     *
+     * @param chapterId 篇章id
+     * @param musicId 音乐id
+     */
+    GameDataManager.prototype.recordNearestMusic = function (chapterId, musicId) {
+        DataManager.setData("chapter" + chapterId, musicId);
+    };
+    /**
+     * 获取当前篇章最近玩的关卡
+     * @param chapter 篇章id
+     */
+    GameDataManager.prototype.nearestPlayMusic = function (chapter) {
+        var musicId = '';
+        var chapterMusics = this.getMuicList(chapter);
+        var music = chapterMusics.find(function (item) {
+            return item.id == musicId;
+        });
+        if (music) {
+            return music;
+        }
+        return chapterMusics[0];
+    };
+    /**
+     * 设置开放域数据
+     */
+    GameDataManager.prototype.uploadCloudData = function () {
+        var score = User.instace.userInfo.star;
+        var obj = { wxgame: { score: score, update: 0 } };
+        Tape.MiniRank.setRankData([{
+                key: "star_score",
+                value: JSON.stringify(obj)
+            }]);
+    };
+    /**上报单个音乐排行榜 音乐id 音乐分数 到开放域*/
+    GameDataManager.prototype.uploadMusicCloudData = function (musicId, score) {
+        var obj = { wxgame: { score: score, update: 0 } };
+        Tape.MiniRank.setRankData([{
+                key: "music_" + musicId,
+                value: JSON.stringify(obj)
+            }]);
+    };
+    /**
+     * 设置单个音乐的分数
+     */
+    GameDataManager.prototype.updateMusicGrade = function (score, musicId) {
+        yxmp.api.setRankScore(score, {}, "music" + musicId);
+    };
+    /**
+     *
+     * @param musicId 获取单个音乐排行榜
+     */
+    GameDataManager.prototype.getMusicRankList = function (musicId) {
+        return yxmp.api.getRankList(100, "music" + musicId);
+    };
+    /**
+     * 获取当前模式的音乐列表
+     * @param mode
+     */
+    GameDataManager.prototype.getMuicList = function (mode) {
+        var source = Laya.loader.getRes("res/cfg/stage.json");
+        var list = source.filter(function (item) {
+            return item.cid == mode.id;
+        });
+        return list;
+    };
+    /**
+     * 根据当前的星星数量，判断获取的金币
+     */
+    GameDataManager.prototype.rewardCoinByStar = function (starNum) {
+        var list = [[2, 3], [6, 7], [8, 9], [12, 13]];
+        if (starNum < list.length) {
+            var coins = list[starNum];
+            var randomNum = Math.round(Math.random());
+            return coins[randomNum];
+        }
+        return 0;
+    };
+    /**
+     * 章节的当前获得的星星，总共的星星
+     * @param chapterId 当前章节的id
+     */
+    GameDataManager.prototype.chapterStarProgress = function (chapterId) {
+        var _this = this;
+        var stars = 0;
+        var total = 0;
+        var chapter = this.modeList.find(function (item) {
+            return item.id == chapterId;
+        });
+        if (chapter) {
+            var musics = this.getMuicList(chapter);
+            musics.forEach(function (item, index) {
+                total += 3;
+                var musicRecord = _this.getRecordMusic(item.id);
+                if (musicRecord) {
+                    stars += musicRecord.star;
+                }
+            });
+        }
+        return [stars, total];
+    };
+    /**
+     * 判断游戏结束后是否解锁下一关卡
+     */
+    GameDataManager.prototype.chapterAutoRelease = function (chapterId, callBack) {
+        var item = this.nextChapter(chapterId);
+        if (item) {
+            var condition = item.lock;
+            var type = condition[0];
+            var target = condition[1];
+            // 需要星星解锁
+            if (type == 1 && target > 0) {
+                // 判断是否已经解锁过了
+                var chapter = this.getModeRecordDataById(item.id);
+                if (!chapter || chapter.lock.length > 0) {
+                    var ownStar = User.instace.userInfo.star;
+                    if (ownStar >= target) {
+                        // 提示解锁
+                        callBack && callBack();
+                    }
+                }
+            }
+        }
+    };
+    /**
+     * 获取篇章
+     * @param targetId 篇章id
+     */
+    GameDataManager.prototype.getChapterById = function (targetId) {
+        var item = this.modeList.find(function (item) {
+            return item.id == targetId;
+        });
+        return item;
+    };
+    /**
+     * 下一章节
+     */
+    GameDataManager.prototype.nextChapter = function (targetId) {
+        var item = this.getChapterById(targetId);
+        var index = this.modeList.indexOf(item);
+        if (index >= this.modeList.length - 1) {
+            // 最后一篇章 
+            return null;
+        }
+        var nextChapter = this.modeList[index + 1];
+        return nextChapter;
+    };
+    /**
+    *  当前正在使用的角色
+    */
+    GameDataManager.prototype.currentUsedRoleId = function () {
+        return Laya.LocalStorage.getItem(usedRoleKey);
+    };
+    /** 当前角色图片 */
+    GameDataManager.prototype.currentUserRoleImg = function () {
+        var roleId = this.currentUsedRoleId();
+        var item = this.roleLIst.find(function (item) {
+            return item.id == roleId;
+        });
+        if (item) {
+            return "res/ic_role/" + item.img + ".png";
+        }
+        return "";
+    };
+    /** 判断是否自动展示签到层 */
+    GameDataManager.prototype.checkIsFristOpen = function () {
+        var time = Laya.LocalStorage.getItem(hadShowSignView);
+        if (time) {
+            var sameDay = SigninManager.isToday(parseInt(time), this.serverTime);
+            if (!sameDay && !SigninManager.hadSign()) {
+                this.fristOpen = true;
+                Laya.LocalStorage.setItem(hadShowSignView, this.serverTime);
+                Laya.stage.event(noticficationShowSign);
+            }
+        }
+        else {
+            if (!this.isNewUser && !SigninManager.hadSign()) {
+                this.fristOpen = true;
+                Laya.LocalStorage.setItem(hadShowSignView, this.serverTime);
+                Laya.stage.event(noticficationShowSign);
+            }
+        }
+    };
+    Object.defineProperty(GameDataManager.prototype, "modeList", {
+        get: function () {
+            if (!this._modeList) {
+                this._modeList = Laya.loader.getRes("res/cfg/game.json");
+                this._modeList = this._modeList.list;
+            }
+            return this._modeList;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return GameDataManager;
 }());
 
@@ -50539,8 +50502,14 @@ var updateData = function () {
 };
 var DataManager;
 (function (DataManager) {
+    // 用户跟新的
     DataManager.setData = function (key, value) {
-        yxmp.getCloudData().set(key, value);
+        if (typeof value == "string") {
+            yxmp.getCloudData().set(key, value);
+            return;
+        }
+        var obj = JSON.parse(JSON.stringify(value));
+        yxmp.getCloudData().set(key, obj);
     };
     DataManager.getData = function (key, def) {
         if (def === void 0) { def = ''; }
@@ -50554,7 +50523,7 @@ var DataManager;
 var Package = /** @class */ (function () {
     function Package() {
     }
-    Package.version = '1.0';
+    Package.version = '1.2';
     Package.description = "";
     return Package;
 }());
@@ -50579,6 +50548,226 @@ var Conf = /** @class */ (function () {
     return Conf;
 }());
 
+
+/*
+* name;
+*/
+var App = /** @class */ (function () {
+    function App() {
+    }
+    App.prototype.start = function () {
+        XFacade.instance.showModule(LoadingView);
+    };
+    return App;
+}());
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+* name
+*/
+var xframe;
+(function (xframe) {
+    var XWindow = /** @class */ (function (_super) {
+        __extends(XWindow, _super);
+        function XWindow() {
+            var _this = _super.call(this) || this;
+            /**层级,常量定义在LayerManager中*/
+            _this._layer = xframe.LayerManager.LAYER_PANEL;
+            /**对齐方式,默认左上角*/
+            _this._align = xframe.LayerManager.ALIGN_LEFTUP;
+            /**是否自动销毁*/
+            _this._autoDispose = true;
+            /**ui是否初始化 */
+            _this._hasInit = false;
+            return _this;
+        }
+        /**
+         * 显示处理逻辑,每次打开界面会调用
+         * @param args 接受任意类型参数
+         */
+        XWindow.prototype.show = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            if (!this._hasInit) {
+                this._hasInit = true;
+                this.createUI();
+            }
+            this.initEvent();
+            xframe.LayerManager.openWindow(this);
+        };
+        /**关闭 */
+        XWindow.prototype.close = function () {
+            this.removeEvent();
+            this.removeSelf();
+            XEvent.instance.event(XEvent.CLOSE, this);
+        };
+        /**自适应方法,窗口大小变化时供底层调用,在UI需要自动布局是需要*/
+        XWindow.prototype.onStageResize = function () {
+        };
+        /**初始化UI */
+        XWindow.prototype.createUI = function () {
+            if (this.ui) {
+                this.addChild(this.ui);
+            }
+        };
+        /**添加事件 */
+        XWindow.prototype.initEvent = function () {
+        };
+        /**移除事件 */
+        XWindow.prototype.removeEvent = function () {
+        };
+        Object.defineProperty(XWindow.prototype, "layer", {
+            get: function () {
+                return this._layer;
+            },
+            /**设置层级,层级定义在LayerManager中*/
+            set: function (v) {
+                this._layer = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(XWindow.prototype, "align", {
+            get: function () {
+                return this._align;
+            },
+            /**设置对齐方式*/
+            set: function (v) {
+                this._align = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(XWindow.prototype, "autoDispose", {
+            get: function () {
+                return this._autoDispose;
+            },
+            /**设置是否自动销毁*/
+            set: function (v) {
+                this._autoDispose = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return XWindow;
+    }(Laya.Component));
+    xframe.XWindow = XWindow;
+    /**模式窗口，默认不可穿透 */
+    var XMWindow = /** @class */ (function (_super) {
+        __extends(XMWindow, _super);
+        function XMWindow() {
+            var _this = _super.call(this) || this;
+            //蒙板颜色
+            _this._bgColor = "#000000";
+            //蒙板透明都
+            _this._bgAlpha = 0.01;
+            //是否模式窗口状态,默认模式窗口，不可穿透
+            _this._isModel = true;
+            //是否可以点空白区域关闭，只有在模式窗窗口下有效,如果覆盖addEventListener,需要调用super.addEventListener();
+            _this._closeOnBlank = false;
+            _this._layer = xframe.LayerManager.LAYER_POP;
+            _this._align = xframe.LayerManager.ALIGN_CENTER;
+            _this.bg.alpha = _this._bgAlpha;
+            return _this;
+        }
+        XMWindow.prototype.onStageResize = function () {
+            this.bg.size(Laya.stage.width, Laya.stage.height);
+            xframe.LayerManager.setPosition(this, this._align);
+        };
+        /**
+         * 显示
+         */
+        XMWindow.prototype.show = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            _super.prototype.show.call(this);
+            if (!this.bg.displayedInStage) {
+                this.parent.addChildAt(this.bg, this.parent.getChildIndex(this));
+                this.bg.size(Laya.stage.width, Laya.stage.height);
+                this.bg.graphics.clear();
+                this.bg.graphics.drawRect(0, 0, Laya.stage.width, Laya.stage.height, this._bgColor);
+            }
+        };
+        /**关闭*/
+        XMWindow.prototype.close = function () {
+            this.bg.removeSelf();
+            _super.prototype.close.call(this);
+        };
+        Object.defineProperty(XMWindow.prototype, "isModel", {
+            /**是否模式窗口状态*/
+            get: function () {
+                return this._isModel;
+            },
+            /**是否模式窗口状态*/
+            set: function (v) {
+                this._isModel = v;
+                this.bg.visible = this._isModel;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(XMWindow.prototype, "closeOnBlank", {
+            get: function () {
+                return this._closeOnBlank;
+            },
+            set: function (v) {
+                this._closeOnBlank = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(XMWindow.prototype, "bgAlpha", {
+            get: function () {
+                return this._bgAlpha;
+            },
+            set: function (v) {
+                this._bgAlpha = v;
+                this._bg && (this._bg.alpha = v);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(XMWindow.prototype, "bg", {
+            /**取得蒙板对象*/
+            get: function () {
+                if (!this._bg) {
+                    this._bg = new Laya.Component();
+                    this._bg.mouseEnabled = true;
+                }
+                return this._bg;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        XMWindow.prototype._onClick = function () {
+            if (this._closeOnBlank) {
+                this.close();
+            }
+        };
+        XMWindow.prototype.initEvent = function () {
+            this.bg.on(Laya.Event.CLICK, this, this._onClick);
+        };
+        XMWindow.prototype.removeEvent = function () {
+            this.bg.off(Laya.Event.CLICK, this, this._onClick);
+        };
+        return XMWindow;
+    }(xframe.XWindow));
+    xframe.XMWindow = XMWindow;
+})(xframe || (xframe = {}));
+
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -50594,6 +50783,7 @@ var MusicCard = /** @class */ (function (_super) {
     function MusicCard() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.ui = new ui.pages.MusicCardUI();
+        _this.months = ["JANUARY", "FEBURARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
         return _this;
     }
     MusicCard.prototype.onCreate = function () {
@@ -50602,9 +50792,14 @@ var MusicCard = /** @class */ (function (_super) {
             _this.back();
         });
         this.ui.topImg.on(Laya.Event.CLICK, null, function () {
-            console.log("跳转开始游戏");
         });
-        this.ui.cardList.array = [];
+        if (User.instace.cards.length > 0) {
+            this.ui.tipsLabel.visible = false;
+        }
+        else {
+            this.ui.tipsLabel.visible = true;
+        }
+        this.ui.cardList.array = User.instace.cards;
         this.ui.cardList.itemRender = ui.views.CardRenderItemUI;
         this.ui.cardList.vScrollBarSkin = null;
         this.ui.cardList.scrollBar.elasticBackTime = 200;
@@ -50615,26 +50810,33 @@ var MusicCard = /** @class */ (function (_super) {
         this.ui.cardList.mouseHandler = Laya.Handler.create(this, function (event, index) {
             _this.mouseItem(event, index);
         }, null, false);
-        this.ui.cardList.array = [1, 3, 2, 3, 5, 4, 3, 2, 2, 1];
     };
     MusicCard.prototype.renderItem = function (item, index) {
         var data = this.ui.cardList.array[index];
         var cell = item;
-        // cell.cover.skin = "";
-        // cell.name.text = "";
-        // cell.auth.text = "";
+        cell.cover.skin = "https://s.xiuwu.me/perfectline/res/map/" + data.card + ".png";
+        var time = data.timeTemp;
+        var date = new Date(time);
+        cell.dayLabel.text = date.getDate().toString();
+        cell.yearLabel.text = date.getFullYear().toString();
+        cell.mounthLabel.text = this.months[date.getMonth()];
+        var positions = GameDataManager.instance.cardConfig[data.cid];
+        if (positions.length > 0) {
+            cell.roleImg.skin = GameDataManager.instance.currentUserRoleImg();
+            cell.roleImg.x = positions[0] * 346 / 750 - 4;
+            cell.roleImg.y = positions[1] * 346 / 750 - 4;
+        }
     };
     MusicCard.prototype.mouseItem = function (event, index) {
         if (event && event.type == Laya.Event.CLICK) {
             var data = this.ui.cardList.array[index];
-            console.log("点击了卡片 =======>", index);
-            Tape.PopManager.showPop(BigCardView);
+            Tape.PopManager.showPop(BigCardView, data);
         }
     };
     MusicCard.prototype.onResume = function () {
     };
     return MusicCard;
-}(Tape.Activity));
+}(xframe.XWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -50664,6 +50866,9 @@ var DevActivity = /** @class */ (function (_super) {
         this.ui.panelOutput.vScrollBarSkin = null;
         this.ui.btnAddCoin.on(Laya.Event.CLICK, null, function () {
             // TODO:添加1000金币
+            User.instace.userInfo.coin += 1000;
+            User.instace.userInfo.power += 10;
+            GameDataManager.instance.recordUserGameData();
         });
         this.ui.btnClearLocalData.on(Laya.Event.CLICK, null, function () {
             _this.ui.labelOutput.text = '本地数据清除成功\n';
@@ -50685,7 +50890,7 @@ var DevActivity = /** @class */ (function (_super) {
         });
     };
     return DevActivity;
-}(Tape.Activity));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -50701,125 +50906,260 @@ var GameActivity = /** @class */ (function (_super) {
     __extends(GameActivity, _super);
     function GameActivity() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.pageUI = new ui.pages.GamePageUI();
-        _this.isPaused = false;
+        _this.ui = new ui.pages.GamePageUI();
+        //
+        _this._items = [];
+        //是否已经加入最后节点
+        _this._autoLast = false;
+        _this._reviveTimes = 0;
+        //
+        _this._awsomeTime = 0;
+        //是否可项目
+        _this._turnable = true;
         _this.curX = Laya.stage.width / 2;
         _this.curY = Laya.stage.height / 2;
-        _this.speed = 4;
-        _this.angle = Math.PI / 4;
         _this.delX = 0;
         _this.delY = 0;
         _this.speedX = 0;
         _this.speedY = 0;
         _this.dir = 1;
-        _this.updateTime = 20;
         //误差；
-        _this.deviation = 12;
+        _this.deviation = 80;
         _this.targetX = _this.curX;
         _this.targetY = _this.curY;
-        _this.path = [_this.curX, _this.curY];
-        _this.aniType = 0;
         return _this;
     }
-    GameActivity.prototype.onCreate = function () {
-        this.addChild(this.pageUI);
+    GameActivity.prototype.createUI = function () {
+        var _this = this;
+        _super.prototype.createUI.call(this);
+        //this.ui.bg.skin = "res/map/bj"+this.params.id+"1.jpg";
+        this.starContainer = new Laya.Sprite();
+        this.ui.addChildAt(this.starContainer, this.ui.getChildIndex(this.ui.btnPause));
+        this.map = new Laya.Sprite();
+        this.ui.addChildAt(this.map, this.ui.getChildIndex(this.ui.btnPause));
         this.pathSp = new Laya.Sprite();
-        this.addChild(this.pathSp);
-        this.bg = new Laya.Sprite();
-        this.pageUI.addChildAt(this.bg, this.pageUI.getChildIndex(this.pageUI.btnPause));
+        this.ui.addChildAt(this.pathSp, this.ui.getChildIndex(this.ui.btnPause));
+        this.effContainer = new Laya.Sprite();
+        this.ui.addChild(this.effContainer);
+        this._eff = new Laya.Image("res/game/spot_s.png");
+        this._eff.anchorX = this._eff.anchorY = 0.5;
+        this._eff2 = new Laya.Image("res/game/light.png");
+        this._eff2.anchorX = this._eff2.anchorY = 0.5;
+        this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        this.ui.selectBox.cacheAsBitmap = true;
         this.init();
-        this.initEvent();
+        //this.initEvent();
+        //自动暂停
+        wx.onHide(function () {
+            if (_this.soundChannel && !_this.soundChannel.paused) {
+                _this.pause();
+            }
+        });
     };
     GameActivity.prototype.init = function () {
         var _this = this;
-        this.pageUI.btnPause.on(Laya.Event.CLICK, null, function () {
+        this.ui.btnPause.on(Laya.Event.CLICK, null, function () {
             _this.pause();
         });
-        this.pageUI.btnSelSong.on(Laya.Event.CLICK, null, function () {
-            Tape.PopManager.showPop(LevelsActivity);
+        this.ui.btnSelSong.on(Laya.Event.CLICK, null, function () {
+            XFacade.instance.showModule(LevelsActivity, _this.params);
         });
-        this.pageUI.btnStart.on(Laya.Event.CLICK, this, this.onStart);
+        this.ui.backBtn.on(Laya.Event.CLICK, null, function () {
+            _this.close();
+        });
+        this.ui.btnStart.on(Laya.Event.CLICK, this, this.onStart);
+    };
+    GameActivity.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this.params = args[0];
+        trace("args..........", args);
+        this.ui.tfChap.text = this.params.name;
+        this.ui.btnPause.visible = false;
+        // loading frist music
+        var fristMusic = GameDataManager.instance.nearestPlayMusic(this.params);
+        XFacade.instance.showModule(GameLoading, fristMusic);
     };
     GameActivity.prototype.initEvent = function () {
+        XEvent.instance.on(GameEvent.ERR, this, this.onGameEvent, [GameEvent.ERR]);
         XEvent.instance.on(GameEvent.BACK, this, this.onGameEvent, [GameEvent.BACK]);
+        XEvent.instance.on(GameEvent.OVER, this, this.onGameEvent, [GameEvent.OVER]);
         XEvent.instance.on(GameEvent.RESTART, this, this.onGameEvent, [GameEvent.RESTART]);
         XEvent.instance.on(GameEvent.SELECTED, this, this.onGameEvent, [GameEvent.SELECTED]);
+        XEvent.instance.on(GameEvent.NEXTCHAPTER, this, this.onGameEvent, [GameEvent.NEXTCHAPTER]);
     };
     GameActivity.prototype.removeEVent = function () {
+        XEvent.instance.off(GameEvent.ERR, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.OVER, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.BACK, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.RESTART, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.SELECTED, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.NEXTCHAPTER, this, this.onGameEvent);
     };
     GameActivity.prototype.onGameEvent = function (type, data) {
         if (data === void 0) { data = null; }
         switch (type) {
             case GameEvent.BACK:
                 this.stop();
-                this.back();
+                this.close();
+                break;
+            case GameEvent.OVER:
+                this.over();
                 break;
             case GameEvent.RESTART:
                 this.restart();
                 break;
             case GameEvent.SELECTED:
-                this.pageUI.tfName.text = data.name + "";
+                this._data = data;
+                var record = null;
+                if (record) {
+                    this.ui.tfName.text = data.name;
+                }
+                else {
+                    var list = GameDataManager.instance.getMuicList(this.params);
+                    var index = list.indexOf(data) + 1;
+                    this.ui.tfName.text = "第" + index + "首";
+                }
+                this.ui.selectBox.visible = true;
+                this.ui.btnPause.visible = false;
+                this.ui.backBtn.visible = true;
+                this.initMap();
+                break;
+            case GameEvent.NEXTCHAPTER:
+                this.params = data;
+                this.ui.bg.skin = "res/map/bj" + this.params.id + "1.png";
+                this.ui.tfChap.text = this.params.name;
+                this.ui.selectBox.visible = true;
+                var fristMusic = GameDataManager.instance.nearestPlayMusic(this.params);
+                XFacade.instance.showModule(GameLoading, fristMusic);
+                break;
+            case GameEvent.ERR:
+                XAlert.showAlert("哎呀，网络不太好~返回再试试吧", Laya.Handler.create(this, this.close));
                 break;
         }
     };
     GameActivity.prototype.onStart = function (e) {
         e.stopPropagation();
-        this.startWithCfg();
-        this.pageUI.selectBox.visible = false;
+        if (User.instace.userInfo.power > 0) {
+            User.instace.userInfo.power -= 1;
+            this.startWithCfg();
+            this.ui.selectBox.visible = false;
+            this.ui.btnPause.visible = true;
+            this.ui.backBtn.visible = false;
+            //record nearest play music in chapter
+        }
+        else {
+            XFacade.instance.showModule(PopAddPower);
+        }
     };
     GameActivity.prototype.pause = function () {
-        if (!this.soundChannel) {
-            return;
+        if (this.soundChannel) {
+            Star.sleep();
+            try {
+                this.soundChannel.pause();
+            }
+            catch (e) {
+            }
+            Laya.timer.clear(this, this.update);
+            Laya.timer.clear(this, this.update2);
+            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+            PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
+            //暂停无敌状态
+            Laya.timer.clear(this, this.refreshState);
         }
-        this.isPaused = true;
-        this.soundChannel.pause();
-        Laya.timer.clear(this, this.update);
-        Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-        //Laya.timer.once(100,Laya.stage,Laya.stage.on,[Laya.Event.CLICK, this, this.resume])
-        PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
-        //Laya.stage.on(Laya.Event.CLICK, this, this.resume);
     };
     //继续
     GameActivity.prototype.toResume = function () {
-        Laya.stage.on(Laya.Event.CLICK, this, this.resume);
+        DBGame.countdown(3, Laya.Handler.create(this, this.resume));
     };
     //重新开始
     GameActivity.prototype.restart = function () {
-        this.stop();
-        this.dir = 1;
-        var cfg = Laya.loader.getRes(GameActivity.cfg);
-        var posArr = [];
-        for (var i = 0; i < cfg.nodes.length; i++) {
-            posArr.push(cfg.nodes[i].x, cfg.nodes[i].y);
+        if (User.instace.userInfo.power > 0) {
+            User.instace.userInfo.power -= 1;
+            GameDataManager.instance.recordUserGameData();
         }
-        this.posInfo = xframe.XUtils.clone(cfg.nodes);
-        this.srcPosInfo = xframe.XUtils.clone(cfg.nodes);
-        var node = this.srcPosInfo.shift();
-        this.curX = this.targetX = node.x;
-        this.curY = this.targetY = node.y;
-        this.speedX = node.sx;
-        this.speedY = cfg.speed;
-        this.path = [this.curX, this.curY];
-        this.bg.y = this.pathSp.y = 0;
-        this.soundChannel = Laya.SoundManager.playSound(GameActivity.mp3, 1, Laya.Handler.create(this, this.gemeEnd), null, 0);
-        this.soundChannel.play();
-        this.soundChannel.loops = 1;
-        trace(this.soundChannel.position);
-        Laya.timer.loop(20, this, this.update);
-        Laya.stage.on(Laya.Event.CLICK, this, this.onC);
-        this._curTime = Laya.Browser.now();
+        else {
+            XFacade.instance.showModule(PopAddPower);
+            return;
+        }
+        this.stop();
+        this.initMap(false);
+        //DBGame.countdown(3, Laya.Handler.create(this, this.startWithCfg));
+        this.startWithCfg();
+    };
+    //继续
+    GameActivity.prototype.revive = function () {
+        var _this = this;
+        if (User.instace.userInfo.power > 0) {
+            User.instace.userInfo.power -= 1;
+            GameDataManager.instance.recordUserGameData();
+        }
+        else {
+            XFacade.instance.showModule(PopAddPower);
+            return;
+        }
+        this._reviveTimes--;
+        var p = this.getStdPoint(this._startTime);
+        this.targetX = p.x;
+        this.targetY = p.y;
+        this.ball.pos(p.x, p.y);
+        this.ball.reset();
+        this.dir = 1;
+        var stdNode = this.getStdNode(this._startTime);
+        this.speedX = stdNode.sx;
+        DBGame.countdown(3, Handler.create(null, function () {
+            //this.soundChannel.play();
+            //this._curTime = Laya.Browser.now();
+            //this._startTime = this._curTime-this._startTime;
+            _this.soundChannel.play();
+            //Laya.timer.frameLoop(1, this, this.update)
+            //Laya.stage.on(Laya.Event.CLICK, this, this.onC);
+            _this._awsomeTime = 3;
+            _this.showAwesome();
+        }));
+    };
+    GameActivity.prototype.showAwesome = function () {
+        /**
+            Laya.timer.once(this._awsomeTime * 1000, null, () => {
+                this.ball.removeFlash();
+                this.dir = 1;
+                this._awsomeTime = 0;
+            });
+            Laya.timer.once((this._awsomeTime + 1) * 1000, null, () => {
+                this._turnable = true;
+            });
+             */
+        if (this._awsomeTime > 0) {
+            this._turnable = false;
+            this.ball.flash();
+            Laya.timer.loop(100, this, this.refreshState);
+        }
+    };
+    GameActivity.prototype.refreshState = function () {
+        var _this = this;
+        this._awsomeTime -= 0.1;
+        if (this._awsomeTime <= 0) {
+            this.ball.removeFlash();
+            this.dir = 1;
+            this._awsomeTime = 0;
+            Laya.timer.clear(this, this.refreshState);
+            Laya.timer.once(1000, null, function () {
+                _this._turnable = true;
+            });
+        }
     };
     GameActivity.prototype.stop = function () {
         if (this.soundChannel) {
-            this.isPaused = true;
             this.soundChannel.stop();
+            Laya.SoundManager.removeChannel(this.soundChannel);
             this.soundChannel.completeHandler = null;
-            this.soundChannel = null;
         }
+        Star.sleep();
         Laya.timer.clear(this, this.update);
+        Laya.timer.clear(this, this.update2);
         Laya.stage.off(Laya.Event.CLICK, this, this.onC);
         Laya.SoundManager.destroySound(GameActivity.mp3);
     };
@@ -50827,91 +51167,571 @@ var GameActivity = /** @class */ (function (_super) {
         if (!this.soundChannel) {
             return;
         }
-        this.isPaused = false;
-        this.soundChannel.resume();
-        Laya.timer.loop(20, this, this.update);
-        Laya.stage.on(Laya.Event.CLICK, this, this.onC);
-        Laya.stage.off(Laya.Event.CLICK, this, this.resume);
-        this._curTime = Laya.Browser.now();
-    };
-    GameActivity.prototype.startWithCfg = function () {
-        var cfg = Laya.loader.getRes(GameActivity.cfg);
-        var posArr = [];
-        for (var i = 0; i < cfg.nodes.length; i++) {
-            posArr.push(cfg.nodes[i].x, cfg.nodes[i].y);
+        // this._curTime = Laya.Browser.now();
+        // this._startTime = this._curTime-this._startTime;
+        this.soundChannel.play();
+        //继续无敌状态
+        this.showAwesome();
+        /*
+        if(!this.soundChannel){
+            return;
         }
-        this.bg.graphics.clear();
-        this.bg.graphics.drawLines(0, 0, posArr, "#ff6600", 120);
+
+        this._curTime = this.soundChannel.position;
+        Laya.timer.frameLoop(1, null, syncSnd);
+        var $this = this;
+        function syncSnd():void{
+            if($this.soundChannel.position >= $this._curTime){
+                Laya.timer.clear(null, syncSnd);
+                $this.update();
+                Laya.timer.frameLoop(1, $this, $this.update)
+                Laya.stage.on(Laya.Event.CLICK, $this, $this.onC);
+                Laya.stage.off(Laya.Event.CLICK, $this, $this.resume);
+            }
+        }
+
+        this.soundChannel.resume();
+        */
+    };
+    GameActivity.prototype.over = function () {
+        if (this._score > 0) {
+            this.showResult();
+        }
+        else {
+            this.back();
+        }
+    };
+    GameActivity.prototype.initMap = function (firstTime) {
+        if (firstTime === void 0) { firstTime = true; }
+        this._rendIndex = 1;
+        this._starNum = this._score = this._awsomeTime = this._curTime = this._startTime = 0;
+        this._autoLast = false;
+        this.showPro(null);
+        this.ui.tfScore.text = "0";
+        this._reviveTimes = DBGame.ReviveTimes;
+        this._mapArr = [];
+        for (var i = 0; i < this._items.length; i++) {
+            this._items[i].removeSelf();
+        }
+        this._items.length = 0;
+        while (this.effContainer.numChildren) {
+            this.effContainer.removeChildAt(0);
+        }
+        var cfg = Laya.loader.getRes('res/snd/' + this._data.json + '.json');
+        this._starCfg = (this._data.stars + "").split("|");
+        for (var i = 0; i < this._starCfg.length; i++) {
+            this._starCfg[i] = parseInt(this._starCfg[i]);
+        }
+        //克隆资源列表 
+        this._resList = xframe.XUtils.clone(cfg.items) || [];
+        this._resList.sort(function (a, b) {
+            return a.t - b.t;
+        });
+        trace("this._resList..................................", this._resList);
+        if (firstTime) {
+            //生成星星
+            Star.shine(30, this.starContainer);
+        }
+        this.stop();
+        //设定初始点=============================
         this.posInfo = xframe.XUtils.clone(cfg.nodes);
         this.srcPosInfo = xframe.XUtils.clone(cfg.nodes);
         var node = this.srcPosInfo.shift();
         this.curX = this.targetX = node.x;
-        this.curY = this.targetY = node.y;
+        this.curY = this.targetY = this.offsetY = node.y;
         this.speedX = node.sx;
         this.speedY = cfg.speed;
-        this.soundChannel = Laya.SoundManager.playSound(GameActivity.mp3, 1, Laya.Handler.create(this, this.gemeEnd));
-        this.soundChannel.startTime = 1000;
-        this.soundChannel.play();
-        this.ball = new Ball();
-        this.pathSp.addChild(this.ball);
-        this.ball.visible = this.aniType == 1;
-        Laya.timer.loop(20, this, this.update);
-        Laya.stage.on(Laya.Event.CLICK, this, this.onC);
-        this._curTime = Laya.Browser.now();
+        this.rendMap();
+        //生成角色========================================
+        if (!this.ball) {
+            this.ball = new Ball();
+            this.ball.shadow(4);
+            this.pathSp.addChild(this.ball);
+        }
+        this.ball.setSkin(1, this.speedY);
+        this.ball.reset();
+        this.ball.pos(this.curX, this.curY);
+        this.map.y = this.pathSp.y = 0;
     };
-    GameActivity.prototype.update = function () {
+    GameActivity.prototype.rendMap = function () {
+        //0，判断是否需要重新绘制地图;
+        var maxHeight = 4096; //2048
+        var curY = this.targetY - this.offsetY;
+        if (this._mapArr.length) {
+            if (this._autoLast || curY - this._mapArr[this._mapArr.length - 1] > 120) {
+                return;
+            }
+        }
+        var cfg = Laya.loader.getRes('res/snd/' + this._data.json + '.json');
+        //1根据当前位置计算出初始节点及结束点；
+        //a,取当前节点
+        var midIndex;
+        var startIndex;
+        for (var i = cfg.nodes.length - 1; i >= 0; i--) {
+            if (cfg.nodes[i].y > curY) {
+                midIndex = i;
+                break;
+            }
+        }
+        //trace("midIndex============================",midIndex)
+        //取开始节点
+        for (i = midIndex; i >= 0; i--) {
+            if (cfg.nodes[i].y - curY >= Laya.stage.height) {
+                break;
+            }
+        }
+        startIndex = Math.max(0, i);
+        //trace("startIndex============================",i)
+        //2,生成地图==========================
+        curY = cfg.nodes[startIndex].y;
+        this._mapArr.length = 0;
+        for (i = startIndex; i < cfg.nodes.length; i++) {
+            //trace("delY============================",curY - cfg.nodes[i].y)
+            if (curY - cfg.nodes[i].y < maxHeight) {
+                this._mapArr.push(cfg.nodes[i].x, cfg.nodes[i].y);
+            }
+            else {
+                break;
+            }
+        }
+        //3，绘制地图
+        this.map.graphics.clear();
+        if (startIndex == 0) { //画起点
+            this.map.graphics.drawCircle(this._mapArr[0], this._mapArr[1], 160, "#ffffff");
+            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), this._mapArr[0] - 200, this._mapArr[1] - 200);
+        }
+        this.map.graphics.drawLines(0, 0, this._mapArr, "#ffffff", 160); //160
+        if (i >= cfg.nodes.length && this.soundChannel.duration) {
+            this._autoLast = true;
+            var last = this.posInfo[this.posInfo.length - 1];
+            var total = this.soundChannel.duration * 1000;
+            trace("end=========================", this.soundChannel, last, this.soundChannel.duration);
+            var info = { x: last.x, y: last.y - (total - last.t) * this.speedY, sx: 0, sy: last.sy, t: total };
+            this.posInfo.push(info);
+            this.srcPosInfo.push(info);
+            this.map.graphics.drawLine(last.x, last.y, info.x, info.y, "#ffffff", 160);
+            this.map.graphics.drawCircle(info.x, info.y, 160, "#ffffff");
+            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), info.x - 200, info.y - 200);
+        }
+        var offset = this._autoLast ? 3 : 1;
+        i = startIndex == 0 ? 2 : 0;
+        for (i; i < this._mapArr.length - offset; i++) {
+            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
+            //画引导res/game/click.png
+            if (this._data.id == "1" && startIndex < 27) {
+                if (this._mapArr[i] > this.ui.width / 2) {
+                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] + 135, this._mapArr[i + 1] - 32);
+                }
+                else {
+                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] - 195, this._mapArr[i + 1] - 32);
+                }
+            }
+            i++;
+        }
+        //4，缓存；
+        //this.map.cacheAsBitmap = true;
+    };
+    GameActivity.prototype.startWithCfg = function () {
+        this.start();
+        //this._awsomeTime = 1;
+        return;
+        this.stop();
+        this.soundChannel = Laya.SoundManager.playSound(GameActivity.mp3, 1, Laya.Handler.create(this, this.gemeEnd));
+        this._curTime = this.soundChannel.position;
+        Laya.timer.frameLoop(1, this, this.update);
+        Laya.stage.on(Laya.Event.CLICK, this, this.onC);
+        /**预加载*/
+        var res = [
+            { url: 'res/map/bj' + this.params.id + '2.jpg', type: Laya.Loader.IMAGE },
+            { url: 'res/map/bj' + this.params.id + '3.jpg', type: Laya.Loader.IMAGE }
+        ];
+        Laya.loader.load(res);
+    };
+    //使用微信接口方法;
+    GameActivity.prototype.start = function () {
+        var _this = this;
+        var url = encodeURI(Laya.URL.basePath + GameActivity.mp3);
+        if (this.soundChannel && this.soundChannel.src != url) {
+            this.soundChannel.destroy();
+            //清理掉
+        }
+        this.soundChannel = wx.createInnerAudioContext();
+        this.soundChannel.src = url;
+        this.soundChannel.play();
+        this.soundChannel.onPlay(function () {
+            if (_this._startTime == 0) {
+                _this._curTime = _this._startTime = Laya.Browser.now();
+            }
+            else {
+                _this._curTime = Laya.Browser.now();
+                _this._startTime = _this._curTime - _this._startTime;
+            }
+            Laya.timer.frameLoop(1, _this, _this.update2);
+            Laya.stage.on(Laya.Event.CLICK, _this, _this.onC);
+            trace("start======================", _this.soundChannel);
+        });
+        this.soundChannel.onEnded(function () {
+            _this.gemeEnd();
+            trace("onEnded======================");
+        });
+        this.soundChannel.onPause(function () {
+            //记录播放的时间---
+            _this._startTime = Laya.Browser.now() - _this._startTime;
+            trace("onPause======================");
+        });
+        this.soundChannel.onError(function () {
+            XEvent.instance.event(GameEvent.ERR);
+            //播放失败，返回体力
+            User.instace.userInfo.power += 1;
+            GameDataManager.instance.recordUserGameData();
+            trace("onError======================");
+        });
+        /**预加载*/
+        var res = [
+            { url: 'res/map/bj' + this.params.id + '2.jpg', type: Laya.Loader.IMAGE },
+            { url: 'res/map/bj' + this.params.id + '3.jpg', type: Laya.Loader.IMAGE }
+        ];
+        Laya.loader.load(res);
+    };
+    /**核心驱动方法 */
+    GameActivity.prototype.update2 = function () {
+        var _this = this;
+        this._rendIndex++;
+        var exeIndex = this._rendIndex % 5;
+        var end = false;
         var tmpTime = Laya.Browser.now() - this._curTime;
         this._curTime = Laya.Browser.now();
-        this.targetY -= this.speedY * tmpTime;
-        this.targetX += this.speedX * tmpTime * this.dir;
-        if (this.aniType == 0) {
-            this.pathSp.graphics.clear();
-            this.pathSp.graphics.drawLines(0, 0, this.path.concat([this.targetX, this.targetY]), "#ffffff", 10);
+        var position = this._curTime - this._startTime;
+        Star.active();
+        if (this._awsomeTime) {
+            var p = this.getStdPoint(position);
+            this.targetY = p.y;
+            this.targetX = p.x;
+            if (exeIndex == 4) {
+                var targetPoint = this.getTargetPoint(true, 6);
+                var now = this._score;
+                if (targetPoint) {
+                    this.speedX = targetPoint.sx;
+                    this._score += 10;
+                    xframe.XUtils.showTxtEffect(now, this._score, Laya.Handler.create(null, function (n) {
+                        _this.ui.tfScore.text = n + "";
+                    }));
+                }
+            }
         }
         else {
-            this.ball.x = this.targetX;
-            this.ball.y = this.targetY;
+            this.targetY = this.offsetY - this.speedY * position;
+            this.targetX += this.speedX * tmpTime * this.dir;
         }
-        this.pathSp.y += this.speedY * tmpTime;
-        this.bg.y = this.pathSp.y;
-        if (this.srcPosInfo.length && this.getStdPoint(this.soundChannel.position * 1000).distance(this.targetX, this.targetY) > 120) { //120
+        this.ball.update();
+        this.ball.x = this.targetX;
+        this.ball.y = this.targetY;
+        this.pathSp.y = this.offsetY - this.targetY;
+        this.map.y = this.pathSp.y;
+        if (exeIndex == 1) {
+            var targetPoint_1 = this.getTargetPoint(false);
+            if (this.srcPosInfo.length <= 2) {
+                this.ui.btnPause.visible = false;
+            }
+            else if (targetPoint_1) {
+                if (targetPoint_1.y - this.targetY > 150) {
+                    end = true;
+                }
+            }
+        }
+        else if (exeIndex == 2) {
+            this.showPro(DBGame.calcPro(position, this._starCfg));
+        }
+        else if (exeIndex == 4) {
+            this.rendMap();
+        }
+        else if (exeIndex == 0) {
+            this.rendMapItems(position);
+        }
+        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
+            end = true;
+            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
+        }
+        if (end) {
+            Star.sleep();
+            this.soundChannel.pause();
+            Laya.timer.clear(this, this.update);
+            Laya.timer.clear(this, this.update2);
+            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+            if (this._starNum > 0 && this._reviveTimes) {
+                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
+            }
+            else {
+                this.showResult();
+            }
+        }
+    };
+    /**核心驱动方法 */
+    GameActivity.prototype.update = function () {
+        this._rendIndex++;
+        var exeIndex = this._rendIndex % 5;
+        var end = false;
+        var tmpTime = (this.soundChannel.position - this._curTime) * 1000;
+        var position = this.soundChannel.position * 1000;
+        //timeOver
+        if (tmpTime < 0 || position == 0) {
+            return;
+        }
+        else if (tmpTime > 500) { //无效的音频，扔掉
+            trace("Update Error：：Time offset is over..", tmpTime, this.soundChannel.position, this._curTime);
             this.stop();
-            //GameOverPop.show(true, Laya.Handler.create(this, this.back), "GAME OVER");
-            Tape.PopManager.showPop(GameResultView);
+            Laya.timer.once(1000, this, this.startWithCfg);
+            return;
         }
-        // if(targetX <0 || targetX > Laya.stage.width){
-        //Laya.timer.clear(null, update);
-        //alert("done");
-        // }
+        this._curTime = this.soundChannel.position;
+        Star.active();
+        if (this._awsomeTime) {
+            var p = this.getStdPoint(position);
+            this.targetY = p.y;
+            this.targetX = p.x;
+            if (exeIndex == 4) {
+                var targetPoint = this.getTargetPoint();
+                if (targetPoint) {
+                    this._score += 10;
+                    this.speedX = targetPoint.sx;
+                    this.ui.tfScore.text = this._score + "";
+                }
+            }
+        }
+        else {
+            this.targetY = this.offsetY - this.speedY * position;
+            this.targetX += this.speedX * tmpTime * this.dir;
+        }
+        this.ball.update();
+        this.ball.x = this.targetX;
+        this.ball.y = this.targetY;
+        this.pathSp.y = this.offsetY - this.targetY;
+        this.map.y = this.pathSp.y;
+        if (exeIndex == 1) {
+            var targetPoint_2 = this.getTargetPoint(false);
+            if (this.srcPosInfo.length <= 2) {
+                this.ui.btnPause.visible = false;
+            }
+            else if (targetPoint_2) {
+                if (targetPoint_2.y - this.targetY > 150) {
+                    end = true;
+                }
+            }
+        }
+        else if (exeIndex == 2) {
+            this.showPro(DBGame.calcPro(position, this._starCfg));
+        }
+        else if (exeIndex == 4) {
+            this.rendMap();
+        }
+        else if (exeIndex == 0) {
+            this.rendMapItems(this._curTime * 1000);
+        }
+        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
+            end = true;
+            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
+        }
+        if (end) {
+            Star.sleep();
+            this.soundChannel.pause();
+            Laya.timer.clear(this, this.update);
+            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+            if (this._starNum > 0 && this._reviveTimes) {
+                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
+            }
+            else {
+                this.showResult();
+            }
+        }
     };
     GameActivity.prototype.onC = function () {
+        var _this = this;
         this.curX = this.targetX;
         this.curY = this.targetY;
-        this.path.push(this.curX, this.curY);
         var targetPoint = this.getTargetPoint();
         if (targetPoint) {
             this.dir = 1;
             this.speedX = targetPoint.sx;
-            if (targetPoint.sy) {
-                this.speedY = targetPoint.sy;
+            //效果判定---
+            var delX = Math.abs(targetPoint.x - this.ball.x);
+            var delY = Math.abs(targetPoint.y - this.ball.y);
+            var nowScore = this._score;
+            if (delX < 12 && delY < 15) { //5
+                this.shine(targetPoint.x, targetPoint.y);
+                this._score += 10;
             }
+            else if (delX < 36 && delY < 25) { //3
+                this.showEff(targetPoint.x, targetPoint.y);
+                this._score += 5;
+            }
+            else { //2
+                this._score += 3;
+            }
+            xframe.XUtils.showTxtEffect(nowScore, this._score, Laya.Handler.create(null, function (n) {
+                _this.ui.tfScore.text = n + "";
+            }));
+            //动效====================================
+            //this.fly();
         }
-        else { //翻转{
-            if (this.srcPosInfo.length) {
+        else { //翻转
+            if (this.srcPosInfo.length && this._turnable) {
                 this.dir *= -1;
             }
         }
     };
-    //以Y轴作为参照坐标
-    GameActivity.prototype.getTargetPoint = function () {
+    GameActivity.prototype.showResult = function () {
+        this.stop();
+        var params = {
+            music: this._data,
+            star: this._starNum,
+            score: this._score
+        };
+        XFacade.instance.showModule(GameResultView, params);
+    };
+    /**
+     * 渲染地图元素
+     * 1,渲染不根据时间变化的元素，生成变化元素列表；
+     * 2，渲染变化元素；
+     * */
+    GameActivity.prototype.rendMapItems = function (time) {
+        for (var i = 0; i < this._items.length; i++) {
+            if (this._items[i].y - this.targetY > Laya.stage.height) {
+                this._items[i].removeSelf();
+                trace(this._items[i].name);
+                this._items.splice(i--, 1);
+            }
+            else {
+                break;
+            }
+        }
+        var delTime = Laya.stage.height * .35 / this.speedY;
+        for (var i = 0; i < this._resList.length; i++) {
+            if (this._resList[i].t < time + delTime) {
+                var item = new Laya.Image();
+                item.pos(this._resList[i].x, this._resList[i].y);
+                var url = "res/map/" + this._resList[i].id + ".png";
+                Laya.loader.load(url, Laya.Handler.create(null, function () {
+                    item.skin = url;
+                    xframe.AniUtil.popIn(item, 200);
+                }));
+                item.scaleX = this._resList[i].s;
+                trace("rendMapItems", item.x, item.y, this._resList[i]);
+                item.name = item.x + "_" + item.y;
+                this.pathSp.addChild(item);
+                //行为控制
+                //xframe.AniUtil.popIn(item, 200)
+                /*
+                if(Math.random()>.5){
+                    xframe.AniUtil.fadeIn(item, 200);
+                }else{
+                    xframe.AniUtil.popIn(item, 200)
+                }*/
+                this._resList.splice(i--, 1);
+                this._items.push(item);
+            }
+            else {
+                break;
+            }
+        }
+    };
+    GameActivity.prototype.showPro = function (proInfo) {
+        var _this = this;
+        if (proInfo) {
+            this.ui.bar.value = proInfo.pro || 0;
+            this._starNum = proInfo.stars;
+            if (proInfo.stars == 3) {
+                this.ui.star_2.skin = "res/game/star_w.png";
+                this.ui.star_1.skin = "res/game/star_w.png";
+                this.ui.star_0.skin = "res/game/star_w.png";
+            }
+            else if (proInfo.stars == 2) {
+                this.ui.star_2.skin = "res/game/star_b.png";
+                this.ui.star_1.skin = "res/game/star_w.png";
+                this.ui.star_0.skin = "res/game/star_w.png";
+                Laya.loader.load("res/map/bj" + this.params.id + "3.jpg", Laya.Handler.create(null, function () {
+                    _this.switchSkin("res/map/bj" + _this.params.id + "3.jpg");
+                }));
+            }
+            else if (proInfo.stars == 1) {
+                this.ui.star_2.skin = "res/game/star_b.png";
+                this.ui.star_1.skin = "res/game/star_b.png";
+                this.ui.star_0.skin = "res/game/star_w.png";
+                Laya.loader.load("res/map/bj" + this.params.id + "2.jpg", Laya.Handler.create(null, function () {
+                    _this.switchSkin("res/map/bj" + _this.params.id + "2.jpg");
+                }));
+            }
+        }
+        else {
+            this.ui.bar.value = 0;
+            this.ui.star_2.skin = "res/game/star_b.png";
+            this.ui.star_1.skin = "res/game/star_b.png";
+            this.ui.star_0.skin = "res/game/star_b.png";
+            this.ui.bg.skin = "res/map/bj" + this.params.id + "1.jpg";
+        }
+        this.ui.proBox.cacheAsBitmap = true;
+    };
+    GameActivity.prototype.switchSkin = function (skinStr) {
+        if (this.ui.bg.skin != skinStr) {
+            var img = new Laya.Image(this.ui.bg.skin);
+            img.size(Laya.stage.width, Laya.stage.height);
+            this.ui.bg.parent.addChildAt(img, this.ui.bg.parent.getChildIndex(this.ui.bg));
+            Laya.Tween.to(img, { alpha: 0 }, 500, null, Laya.Handler.create(img, img.removeSelf));
+            this.ui.bg.skin = skinStr;
+            this.ui.bg.alpha = 0;
+            Laya.Tween.to(this.ui.bg, { alpha: 1 }, 500);
+        }
+    };
+    /**显示经过特效 */
+    GameActivity.prototype.showEff = function (x, y) {
+        this._eff.pos(x, y);
+        this.pathSp.addChild(this._eff);
+        Laya.timer.once(248, this._eff, this._eff.removeSelf);
+    };
+    /**精准打击特效 */
+    GameActivity.prototype.shine = function (x, y) {
+        this._eff2.pos(x, y);
+        this._eff2.alpha = 1;
+        this._eff2.scale(0.5, 0.5);
+        this.pathSp.addChildAt(this._eff2, 0);
+        Laya.Tween.to(this._eff2, { scaleX: 1.2, scaleY: 1.2, alpha: 0 }, 200, null, Laya.Handler.create(this._eff2, this._eff2.removeSelf));
+        /*
+        this._eff2.scaleX = this._eff2.scaleY = 0.5;
+        Laya.Tween.to(this._eff2, {scaleX:1,scaleY:1}, 20, null, Laya.Handler.create(null, ()=>{
+            Laya.Tween.to(this._eff2, {scaleX:1.5, scaleY:1.5},60,null, Laya.Handler.create(this._eff2, this._eff2.removeSelf))
+        }))
+        */
+    };
+    /**飞特效 */
+    GameActivity.prototype.fly = function () {
+        //动效===
+        var img = Laya.Pool.getItemByClass("eff", Laya.Image);
+        img.skin = "res/game/origin.png";
+        this.effContainer.addChild(img);
+        img.pos(this.curX + 40, this.curY + this.pathSp.y);
+        var rnd = Math.random() * 400;
+        Laya.Tween.to(img, { x: 200 + rnd, y: 150 + rnd }, 150 + rnd / 4, null, Laya.Handler.create(null, function () {
+            Laya.Tween.to(img, { x: 80, y: 414 }, 150 + rnd / 4, null, Laya.Handler.create(null, function () {
+                img.removeSelf();
+                Laya.Pool.recover("eff", img);
+            }));
+        }));
+    };
+    //获取目标节点
+    GameActivity.prototype.getTargetPoint = function (modify, deviation) {
+        if (modify === void 0) { modify = true; }
+        if (deviation === void 0) { deviation = -1; }
         var targetPoint;
         if (this.srcPosInfo.length) {
             for (var i = 0; i < this.srcPosInfo.length; i++) {
                 var posInfo = this.srcPosInfo[i];
-                if (Math.abs(posInfo.y - this.targetY) <= this.deviation || posInfo.y > this.targetY) {
+                if (deviation == -1) {
+                    deviation = this.deviation;
+                }
+                if (Math.abs(posInfo.y - this.targetY) <= deviation || posInfo.y > this.targetY) {
                     targetPoint = posInfo;
-                    this.srcPosInfo.shift();
-                    i--;
+                    modify && this.srcPosInfo.shift();
+                    break;
+                    //修改成点击一下取一个节点
                 }
                 else {
                     break;
@@ -50933,39 +51753,52 @@ var GameActivity = /** @class */ (function (_super) {
         }
         var delTime = now - tmp.t;
         this._stdP.x = tmp.x + tmp.sx * delTime;
-        //this._stdP.y = tmp.y - tmp.sy * delTime;//改成Y速度固定
         this._stdP.y = tmp.y - this.speedY * delTime;
-        //trace(this._stdP)
         return this._stdP;
     };
+    /**获取标准的节点-重置操作点 */
+    GameActivity.prototype.getStdNode = function (now) {
+        var tmp;
+        for (var i = this.posInfo.length - 1; i >= 0; i--) {
+            if (this.posInfo[i].t <= now) {
+                tmp = this.posInfo[i];
+                break;
+            }
+        }
+        this.srcPosInfo = [];
+        for (i = i + 1; i < this.posInfo.length - 1; i++) {
+            this.srcPosInfo.push(this.posInfo[i]);
+        }
+        return tmp;
+    };
     GameActivity.prototype.gemeEnd = function () {
-        //GameOverPop.show(true, Laya.Handler.create(this, this.back), "HURRAH!!");
-        Tape.PopManager.showPop(GameResultView);
+        trace("gameEnd---------------------------------------------->>");
+        var params = {
+            music: this._data,
+            star: this._starNum,
+            score: this._score
+        };
+        XFacade.instance.showModule(GameResultView, params);
         this.stop();
-        //this.back();
     };
     GameActivity.prototype.onDestroy = function () {
+        Laya.loader.clearRes("res/map/bj" + this.params.id + "1.jpg");
+        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
+        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
+        //this._data && Laya.loader.clearRes('res/snd/' + this._data.json + '.json');
+        Laya.loader.clearRes(GameActivity.mp3);
+        Star.destroy();
+        this.soundChannel && this.soundChannel.destroy();
+        this.ball && this.ball.stop();
         Laya.timer.clear(this, this.update);
         Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-        this.pageUI.btnStart.off(Laya.Event.CLICK, this, this.onStart);
+        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onStart);
         Laya.stage.off(Laya.Event.CLICK, this, this.resume);
         this.removeEVent();
+        this.stop();
     };
     return GameActivity;
-}(Tape.Activity));
-//小球，测试用
-var Ball = /** @class */ (function (_super) {
-    __extends(Ball, _super);
-    function Ball() {
-        var _this = _super.call(this) || this;
-        _this.init();
-        return _this;
-    }
-    Ball.prototype.init = function () {
-        this.graphics.drawCircle(-10, -10, 20, "#ffffff");
-    };
-    return Ball;
-}(Laya.Sprite));
+}(xframe.XWindow));
 /**游戏事件 */
 var GameEvent = /** @class */ (function () {
     function GameEvent() {
@@ -50976,215 +51809,16 @@ var GameEvent = /** @class */ (function () {
     GameEvent.RESTART = "restart";
     /**事件-选中歌曲 */
     GameEvent.SELECTED = 'selected';
+    /**下一章节 */
+    GameEvent.NEXTCHAPTER = "nextchapter";
+    /**跳转到解锁篇章 */
+    GameEvent.HOMECHAPTER = "homechapter";
+    /**加载错误 */
+    GameEvent.ERR = "err";
+    /**结束歌曲 */
+    GameEvent.OVER = "over";
     return GameEvent;
 }());
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var HomeActivity = /** @class */ (function (_super) {
-    __extends(HomeActivity, _super);
-    function HomeActivity() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.HomePageUI();
-        _this.selectIndex = 0;
-        _this.recommendApp = null;
-        return _this;
-    }
-    HomeActivity.prototype.onCreate = function () {
-        this.init();
-    };
-    HomeActivity.prototype.init = function () {
-        var _this = this;
-        this.ui.btnDev.visible = Tape.Env.isDev();
-        this.ui.btnDev.on(Laya.Event.CLICK, null, function () {
-            _this.navigate(DevActivity);
-        });
-        this.ui.actionView.btnStart.on(Laya.Event.CLICK, null, function () {
-            //this.navigate(LevelsActivity)
-            _this.navigate(GameActivity);
-            GameLoading.show();
-        });
-        this.ui.actionView.btnRank.on(Laya.Event.CLICK, null, function () {
-            RankPop.show(true);
-        });
-        this.ui.actionView.btnSignin.on(Laya.Event.CLICK, null, function () {
-            SigninPop.show(true);
-        });
-        this.ui.actionView.roleBtn.on(Laya.Event.CLICK, null, function () {
-            Tape.PopManager.showPop(RoleList);
-        });
-        this.ui.actionView.btnMore.on(Laya.Event.CLICK, null, function () {
-        });
-        this.ui.actionView.btnAddPower.on(Laya.Event.CLICK, null, function () {
-            PopAddPower.show();
-        });
-        this.ui.actionView.btnUserInfo.on(Laya.Event.CLICK, null, function () {
-            PopUserInfo.show();
-        });
-        this.ui.recommendImg.on(Laya.Event.CLICK, null, function () {
-            _this.clickRecommend();
-        });
-        this.ui.actionView.cardBtn.on(Laya.Event.CLICK, null, function () {
-            _this.navigate(MusicCard);
-        });
-        this.ui.actionView.btnInvite.on(Laya.Event.CLICK, null, function () {
-            var option = yxmp.plugin.help.getShareOptions(helpUnlock, {});
-            wx.shareAppMessage(option);
-            //临时加的
-            _this.navigate(GameActivity);
-            GameLoading.show();
-        });
-        SigninPop.show();
-        RankPop.show();
-        HelpUtil.gethelplist().then(function (res) {
-        });
-        this.ui.actionView.btnUserInfo.skin = UserInfoManager.instace.userInfo.avatar;
-        //暂时注释
-        // wx.showShareMenu({ withShareTicket: true });
-        // wx.onShow((options) => {
-        //     RankPop.show(false, options);
-        // });
-        Tape.MiniRank.showRank(ui.rank.RankOpenUI.uiView, {
-            keyList: ['star_score'],
-            sortList: ['data.star_score.wxgame.score']
-        });
-        this.ui.actionView.chapList.array = GameDataManager.instance.modeList;
-        this.ui.actionView.chapList.hScrollBarSkin = "";
-        this.ui.actionView.chapList.renderHandler = Laya.Handler.create(this, function (item, index) {
-            var cell = item;
-            var obj = GameDataManager.instance.modeList[index];
-            cell.pic.skin = obj.cover;
-        }, null, false);
-        Laya.stage.on(refreshModelList, this, function () {
-            _this.ui.actionView.chapList.array = GameDataManager.instance.modeList;
-            _this.ui.actionView.chapList.refresh();
-            _this.checkCurrentModeStatus();
-        });
-        this.updateTopUi();
-        this.showMoveStar();
-        // SigninPop.show();
-        // RankPop.show();
-    };
-    // 判断当前章节状态
-    HomeActivity.prototype.checkCurrentModeStatus = function () {
-        var mode = GameDataManager.instance.modeList[this.selectIndex];
-        this.updateGameStatus(mode);
-    };
-    // 更新用户数据展示
-    HomeActivity.prototype.updateTopUi = function () {
-        this.ui.actionView.coinNum.text = UserInfoManager.instace.userInfo.coin + '';
-        this.ui.actionView.starNum.text = UserInfoManager.instace.userInfo.star + '';
-        this.ui.actionView.heartNum.text = UserInfoManager.instace.userInfo.power + '';
-    };
-    // 更新关卡对应的信息
-    HomeActivity.prototype.updateGameStatus = function (mode) {
-        var lock = GameDataManager.instance.checkModeIslock(mode.id);
-        var type = 0;
-        if (lock.length > 0) {
-            type = lock[0];
-        }
-        this.ui.actionView.modeLabel.text = mode.name;
-        if (type == 1) {
-            this.ui.actionView.conditionLabel.text = "收集      " + lock[1] + "可解锁";
-            this.ui.actionView.conditionStar.x = 400;
-            this.ui.actionView.conditionStar.visible = true;
-            this.ui.actionView.btnStart.visible = false;
-            this.ui.actionView.btnInvite.visible = false;
-            this.ui.actionView.conditionStar.x = 320;
-        }
-        else if (type == 2) {
-            var modeRecord = GameDataManager.instance.getModeRecordDataById(mode.id);
-            this.ui.actionView.conditionLabel.text = "邀请好友解锁篇章（" + modeRecord.invite + "/" + lock[1] + "）";
-            this.ui.actionView.conditionStar.visible = false;
-            this.ui.actionView.btnStart.visible = false;
-            this.ui.actionView.btnInvite.visible = true;
-        }
-        else {
-            this.ui.actionView.btnStart.visible = true;
-            this.ui.actionView.btnInvite.visible = false;
-            this.ui.actionView.conditionStar.visible = true;
-            this.ui.actionView.conditionLabel.text = "      5/15";
-            this.ui.actionView.conditionStar.x = 320;
-        }
-    };
-    // lifecycle
-    HomeActivity.prototype.onResume = function () {
-        this.showRecommend();
-    };
-    // 点击推荐位
-    HomeActivity.prototype.clickRecommend = function () {
-        var _this = this;
-        if (this.recommendApp != undefined) {
-            if (this.recommendApp.appid && this.recommendApp.appid != "") {
-                wx.navigateToMiniProgram({
-                    appid: this.recommendApp.appid,
-                    path: this.recommendApp.path,
-                    success: function (res) {
-                    },
-                    fail: function (err) {
-                        wx.previewImage({
-                            urls: [_this.recommendApp.poster]
-                        });
-                    }
-                });
-            }
-            else {
-                wx.previewImage({
-                    urls: [this.recommendApp.poster]
-                });
-            }
-        }
-    };
-    // 展示推荐位
-    HomeActivity.prototype.showRecommend = function () {
-        var app = yxmp.asset.getRecommendApp('home');
-        if (app && app.icon) {
-            this.ui.recommendImg.skin = app.icon;
-            this.ui.recommendImg.visible = true;
-            this.recommendApp = app;
-        }
-        else {
-            this.ui.recommendImg.visible = false;
-        }
-    };
-    // 背景星星
-    HomeActivity.prototype.showMoveStar = function () {
-        for (var index = 0; index < 20; index++) {
-            var point = new Laya.Label();
-            point.bgColor = "#ffffff";
-            point.x = Math.random() * 750;
-            point.y = Math.random() * 1334;
-            point.width = 6;
-            point.height = 6;
-            this.ui.addChild(point);
-            this.ui.setChildIndex(point, 1);
-            //创建遮罩对象
-            var cMask = new Laya.Sprite();
-            //画一个圆形的遮罩区域
-            cMask.graphics.drawCircle(0, 0, 3, "#ffffff");
-            //圆形所在的位置坐标
-            cMask.pos(3, 3);
-            //实现img显示对象的遮罩效果
-            point.mask = cMask;
-            var xOffset = 0;
-            var yOffset = 0;
-            var x = [0, Laya.stage.width];
-            var y = [0, Laya.stage.height];
-            xOffset = x[Math.floor(Math.random() * 2)];
-            yOffset = y[Math.floor(Math.random() * 2)];
-            Laya.Tween.to(point, { x: xOffset, y: yOffset }, 500000, Laya.Ease.linearIn);
-        }
-    };
-    return HomeActivity;
-}(Tape.Activity));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51200,63 +51834,73 @@ var LevelsActivity = /** @class */ (function (_super) {
     __extends(LevelsActivity, _super);
     function LevelsActivity() {
         var _this = _super.call(this) || this;
-        _this.pageUI = new ui.pages.LevelPageUI();
-        _this.addChild(_this.pageUI);
+        _this.ui = new ui.pages.LevelPageUI();
+        _this.source = [];
         _this.initView();
         return _this;
     }
-    LevelsActivity.prototype.onResume = function () {
-    };
     LevelsActivity.prototype.initView = function () {
         var _this = this;
-        this.pageUI.btnBack.on(Laya.Event.CLICK, null, function () {
-            Tape.PopManager.hidePop(LevelsActivity);
+        this.ui.btnBack.on(Laya.Event.CLICK, null, function () {
+            _this.close();
         });
-        this.pageUI.list.array = [];
-        this.pageUI.list.itemRender = ui.views.LevelRenderViewUI;
-        this.pageUI.list.vScrollBarSkin = null;
-        this.pageUI.list.scrollBar.elasticBackTime = 200;
-        this.pageUI.list.scrollBar.elasticDistance = 200;
-        this.pageUI.list.renderHandler = Laya.Handler.create(this, function (item, index) {
+        this.ui.list.array = [];
+        this.ui.list.itemRender = ui.views.LevelRenderViewUI;
+        this.ui.list.vScrollBarSkin = null;
+        this.ui.list.scrollBar.elasticBackTime = 200;
+        this.ui.list.scrollBar.elasticDistance = 200;
+        this.ui.list.renderHandler = Laya.Handler.create(this, function (item, index) {
             _this.renderItem(item, index);
         }, null, false);
-        this.pageUI.list.mouseHandler = Laya.Handler.create(this, function (event, index) {
+        this.ui.list.mouseHandler = Laya.Handler.create(this, function (event, index) {
             _this.mouseItem(event, index);
         }, null, false);
-        //需要传入数据-----------------------；
-        this.pageUI.list.array = Laya.loader.getRes("res/cfg/stage.json");
+    };
+    LevelsActivity.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this.params = args[0];
+    };
+    LevelsActivity.prototype.onShow = function () {
+        trace("params::", this.params);
+        this.ui.list.array = GameDataManager.instance.getMuicList(this.params);
     };
     LevelsActivity.prototype.renderItem = function (item, index) {
-        var data = this.pageUI.list.array[index];
+        var data = this.ui.list.array[index];
         var itemRender = item;
-        itemRender.title.text = data.name;
-        itemRender.tfAuthor.text = data.author + "";
+        var musicRecord = null;
+        if (musicRecord) {
+            itemRender.title.text = data.name;
+            itemRender.tfAuthor.text = data.author;
+            for (var i = 1; i < 4; i++) {
+                if (i > musicRecord.star) {
+                    itemRender["star_" + (i - 1)].skin = "res/game/ic_star_result_gray_s.png";
+                }
+                else {
+                    itemRender["star_" + (i - 1)].skin = "res/game/ic_star_result_s.png";
+                }
+            }
+        }
+        else {
+            itemRender.title.text = "挑战后可获得音乐信息";
+            itemRender.tfAuthor.text = "";
+            itemRender.star_1.skin = "res/game/ic_star_result_gray_s.png";
+            itemRender.star_2.skin = "res/game/ic_star_result_gray_s.png";
+            itemRender.star_0.skin = "res/game/ic_star_result_gray_s.png";
+        }
     };
     LevelsActivity.prototype.mouseItem = function (event, index) {
         if (event && event.type === Laya.Event.CLICK) {
-            var item = event.currentTarget;
-            if (xframe.XUtils.checkHit(item.btnStart)) {
-                Tape.PopManager.hidePop(LevelsActivity);
-                var data = this.pageUI.list.array[index];
-                GameLoading.show(data);
-            }
-            //this.navigate(GameActivity, { data });
-            //加载配置
-            /*
-            var res:any[] =  [
-                { url: 'res/snd/'+data.mp3+'.mp3', type:Laya.Loader.SOUND},
-                { url: 'res/snd/'+data.json+'.json', type:Laya.Loader.JSON}
-            ]
-            GameActivity.mp3 = 'res/snd/'+data.mp3+'.mp3';
-            GameActivity.cfg = 'res/snd/'+data.json+'.json';
-            Laya.loader.load(res, Laya.Handler.create(null, ()=>{
-                //this.navigate(GameActivity, { data });
-            }))
-            */
+            var data = this.ui.list.array[index];
+            XFacade.instance.showModule(GameLoading, data);
+            this.close();
         }
     };
     return LevelsActivity;
-}(Tape.PopView));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51268,80 +51912,158 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var refreshModelList = "reloadModeList";
-var LoadingActivity = /** @class */ (function (_super) {
-    __extends(LoadingActivity, _super);
-    function LoadingActivity() {
+var MusicFriendRank = /** @class */ (function (_super) {
+    __extends(MusicFriendRank, _super);
+    function MusicFriendRank() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.LoadingPageUI();
+        _this.ui = new ui.pages.MusicRankPageUI();
         return _this;
     }
-    LoadingActivity.prototype.onCreate = function () {
-        this.initSDK();
-    };
-    LoadingActivity.prototype.initSDK = function () {
+    MusicFriendRank.prototype.onCreate = function () {
         var _this = this;
-        wx.showLoading({
-            title: '正在初始化'
+        this.ui.backBtn.on(Laya.Event.CLICK, null, function () {
+            _this.back();
         });
-        yxmp.registerPlugin(yxmpHelp);
-        yxmp.init(Conf.sdkOptions).then(function (res) {
-            wx.showLoading({
-                title: '正在加载配置表'
-            });
-            wx.hideLoading();
-            yxmp.plugin.help.onHelp(function (type) {
-                console.error("yxmp.plugin.help", type);
-                if (type == "helpUnlock") {
-                    return Promise.resolve({
-                        help: 1
-                    });
-                }
-            });
-            // var options:any = wx.getLaunchOptionsSync();
-            // console.log("启动小游戏",options);
-            // wx.onShow((res) => {
-            //     console.log("启动中再次进入小游戏",res);
-            // });
-            yxmp.api.getUserInfo().then(function (res) {
-                UserInfoManager.instace.userInfo = res.data;
-                _this.redirectTo(HomeActivity);
-                // 获取游戏配置表
-                fetchGameModeList().then(function (res) {
-                    if (res && res.list) {
-                        GameDataManager.instance.modeList = res.list;
-                        Laya.stage.event(refreshModelList);
-                    }
-                });
-            });
-            // 授权
-            LoginPop.check(function () {
-            });
-            // 微信自带分享入口
-            wx.onShareAppMessage(function () {
-                return yxmp.asset.getShareMessage("", "1");
-            });
-        }).catch(function (res) {
-            wx.hideLoading();
-            wx.showModal({
-                title: '提示',
-                content: '抱歉，游戏初始化失败，请检查网络是否正常连接！',
-                showCancel: true,
-                cancelText: '退出',
-                confirmText: '重新加载',
+        var _self = this;
+        this.ui.groupBtn.on(Laya.Event.CLICK, null, function () {
+            yxmp.report.event('2000_2005_click');
+            wx.shareAppMessage(Object.assign(yxmp.asset.getShareMessage("2000_2005_click", "1002"), {
+                query: "action=musicRank&id=" + _this.musicId + "&author=" + _this.author + "&musicName=" + _this.musicName,
                 success: function (res) {
-                    if (res.confirm) {
-                        _this.initSDK();
-                    }
-                    if (res.cancel) {
-                        Tape.exit();
+                    if (res && res.shareTickets) {
+                        if (res.shareTickets.length > 0) {
+                            _self.showRankView(res.shareTickets[0]);
+                        }
                     }
                 }
-            });
+            }));
         });
+        if (this.params.query) {
+            this.musicName = this.params.query.musicName;
+            this.author = this.params.query.author;
+            this.musicId = this.params.query.id;
+        }
+        else {
+            this.musicName = this.params.name;
+            this.author = this.params.author;
+            this.musicId = this.params.id;
+        }
+        this.ui.musicAuthor.text = this.author;
+        this.ui.musicName.text = this.musicName;
+        this.ui.rankBox.addChild(RankPop.createSharedCanvasView());
+        this.ui.groupBtn.visible = (this.params || {}).shareTicket ? false : true;
+        var key = "music_" + this.musicId;
+        var sortKey = "data." + key + ".wxgame.score";
+        Tape.MiniRank.showRank(ui.rank.MusicRankOpenUI.uiView, {
+            shareTicket: (this.params || {}).shareTicket,
+            keyList: [key],
+            sortList: [sortKey],
+            whereList: ['score'],
+            mapList: [{ from: sortKey, key: "score" }]
+        }, false);
     };
-    return LoadingActivity;
-}(Tape.Activity));
+    MusicFriendRank.prototype.onDestroy = function () {
+        this.showSelfRank();
+    };
+    /** 分享到群后，展示群排行榜 */
+    MusicFriendRank.prototype.showRankView = function (shareTicket) {
+        this.ui.groupBtn.visible = false;
+        var key = "music_" + this.musicId;
+        var sortKey = "data." + key + ".wxgame.score";
+        Tape.MiniRank.showRank(ui.rank.MusicRankOpenUI.uiView, {
+            shareTicket: shareTicket,
+            keyList: [key],
+            sortList: [sortKey],
+            whereList: ['score'],
+            mapList: [{ from: sortKey, key: "score" }]
+        }, false);
+    };
+    /** 再次展示结果页面的 */
+    MusicFriendRank.prototype.showSelfRank = function () {
+        if (!this.params.query) {
+            var key = "music_" + this.musicId;
+            var sortKey = "data." + key + ".wxgame.score";
+            Tape.MiniRank.showRank(ui.rank.ResultOpenUI.uiView, {
+                shareTicket: "",
+                keyList: [key],
+                sortList: [sortKey],
+                whereList: ['score'],
+                mapList: [{ from: sortKey, key: "score" }]
+            }, false);
+        }
+    };
+    return MusicFriendRank;
+}(xframe.XMWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var MusicRank = /** @class */ (function (_super) {
+    __extends(MusicRank, _super);
+    function MusicRank() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.ui = new ui.pages.MusicRankUI();
+        return _this;
+    }
+    MusicRank.prototype.onCreate = function () {
+        var _this = this;
+        this.ui.groupbtn.on(Laya.Event.CLICK, null, function () {
+        });
+        this.ui.backbtn.on(Laya.Event.CLICK, null, function () {
+            _this.back();
+        });
+        this.ui.musicname.text = this.params.music.name;
+        this.ui.musicauth.text = this.params.music.author;
+        this.ui.musiclist.array = this.params.list;
+        this.ui.musiclist.vScrollBarSkin = null;
+        this.ui.musiclist.itemRender = ui.views.MusicRankRenderUI;
+        this.ui.musiclist.renderHandler = Laya.Handler.create(this, function (item, index) {
+            _this.renderItem(item, index);
+        }, null, false);
+        if (this.params && this.params.myData) {
+            this.ui.myrank.text = this.params.myData.rank + "";
+            this.ui.myscore.text = this.params.myData.score + "分";
+        }
+        else {
+            this.ui.myrank.text = "---";
+            this.ui.myscore.text = "---";
+        }
+        this.ui.myavatar.skin = User.instace.userInfo.avatarUrl;
+        this.ui.mynick.text = User.instace.userInfo.nickName;
+    };
+    MusicRank.prototype.renderItem = function (item, index) {
+        var data = this.ui.musiclist.array[index];
+        item.avatarImg.skin = data.avatar;
+        item.nickLabel.text = data.nickname;
+        item.scoreLabel.text = data.score + "分";
+        if (data.rank == 1) {
+            item.rankImg.skin = "res/role/ic_1.png";
+            item.rankLabel.text = "";
+        }
+        else if (data.rank == 2) {
+            item.rankLabel.text = "";
+            item.rankImg.skin = "res/role/ic_2.png";
+        }
+        else if (data.rank == 3) {
+            item.rankImg.skin = "res/role/ic_3.png";
+            item.rankLabel.text = "";
+        }
+        else {
+            item.rankImg.skin = "";
+            item.rankLabel.text = data.rank + "";
+        }
+    };
+    MusicRank.prototype.onResume = function () {
+    };
+    return MusicRank;
+}(xframe.XWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51358,18 +52080,173 @@ var ShareEnter = /** @class */ (function (_super) {
     function ShareEnter() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.ui = new ui.pages.ShareEnterUI();
+        _this.months = ["JANUARY", "FEBURARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
         return _this;
     }
     ShareEnter.prototype.onCreate = function () {
         var _this = this;
-        this.ui.avatar.skin = "";
-        this.ui.topImg.skin = "";
         this.ui.getBtn.on(Laya.Event.CLICK, null, function () {
-            _this.navigate(HomeActivity);
+            _this.back();
         });
+        this.init();
+    };
+    ShareEnter.prototype.init = function () {
+        var lanunch = GameDataManager.instance.lanuchInfo;
+        var cid = lanunch.cid;
+        // var id = lanunch.id;
+        var bgImg = lanunch.cover;
+        var time = parseInt(lanunch.time);
+        var positions = GameDataManager.instance.cardConfig[cid];
+        this.ui.cardView.roleImg.skin = GameDataManager.instance.currentUserRoleImg();
+        this.ui.cardView.roleImg.x = positions[0] * 50 / 75 - 4;
+        this.ui.cardView.roleImg.y = positions[1] * 50 / 75 - 4;
+        var date = new Date(time);
+        this.ui.cardView.dateDay.text = date.getDate().toString();
+        this.ui.cardView.dateMonth.text = this.months[date.getMonth()];
+        this.ui.cardView.dateYear.text = date.getFullYear().toString();
+        this.ui.avatar.skin = lanunch.avatar;
+        this.ui.cardView.bgImg.skin = "https://s.xiuwu.me/perfectline/res/map/" + bgImg + ".png";
     };
     return ShareEnter;
-}(Tape.Activity));
+}(xframe.XWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+//小球
+var Ball = /** @class */ (function (_super) {
+    __extends(Ball, _super);
+    function Ball() {
+        var _this = _super.call(this) || this;
+        //影子
+        _this._shadows = [];
+        //
+        _this._posArr = [];
+        _this._needAni = false;
+        _this._maxNode = 40;
+        _this.init();
+        return _this;
+    }
+    Ball.prototype.init = function () {
+        this.$shadow = new Laya.Image();
+        this.$shadow.anchorX = 0.5;
+        this.$shadow.anchorY = 0.477;
+        this.addChild(this.$shadow);
+        this.$image = new Laya.Image();
+        this.$image.anchorX = 0.5;
+        this.$image.anchorY = 0.46;
+        this.addChild(this.$image);
+    };
+    /**设定皮肤 */
+    Ball.prototype.setSkin = function (id, speed) {
+        //if(this._id != id){
+        var info = DBGame.roleInfo[id];
+        this._roleData = info;
+        if (info) {
+            this.$image.skin = "res/ic_role/" + info.skin + ".png";
+            if (info.shadow) {
+                this.$shadow.skin = "res/ic_role/" + info.shadow + ".png";
+            }
+            else {
+                this.$shadow.skin = "";
+            }
+            this._needAni = info.rotate;
+            if (speed <= 0.3) {
+                this._roleData.rendFrame = 10;
+            }
+            else if (speed < 0.5) {
+                this._roleData.rendFrame = 8;
+            }
+            else {
+                this._roleData.rendFrame = 6;
+            }
+            this._maxNode = info.rendFrame * (this._shadows.length + 2) - 3;
+            for (var i = 0; i < this._shadows.length; i++) {
+                this._shadows[i].skin = this.$image.skin;
+            }
+        }
+        //}
+        this._needAni && this.play();
+    };
+    Ball.prototype.reset = function () {
+        for (var i = 0; i < this._shadows.length; i++) {
+            this._shadows[i].visible = false;
+        }
+        this._posArr.length = 0;
+    };
+    Ball.prototype.play = function () {
+        this.frameLoop(2, this, this.onPlay);
+    };
+    Ball.prototype.stop = function () {
+        this.clearTimer(this, this.onPlay);
+    };
+    Ball.prototype.onPlay = function () {
+        this.$image.rotation += Ball.ROTATE;
+    };
+    Ball.prototype.flash = function () {
+        Laya.timer.frameLoop(3, this, this.doFlash);
+    };
+    Ball.prototype.removeFlash = function () {
+        this.alpha = 1;
+        Laya.timer.clear(this, this.doFlash);
+    };
+    Ball.prototype.doFlash = function () {
+        if (this.alpha == 1) {
+            this.alpha = 0.5;
+        }
+        else {
+            this.alpha = 1;
+        }
+    };
+    Ball.prototype.update = function () {
+        this._posArr.push({ x: Math.floor(this.x), y: Math.floor(this.y) });
+        while (this._posArr.length > this._maxNode) {
+            this._posArr.shift();
+        }
+        var index;
+        var shadow;
+        for (var i = this._roleData.rendFrame; i < this._posArr.length; i++) {
+            if (this._posArr[i]) {
+                if ((i - 1) % this._roleData.rendFrame == 0) {
+                    index = (i - 1) / this._roleData.rendFrame - 1;
+                    shadow = this._shadows[index];
+                    if (shadow) {
+                        shadow.visible = true;
+                        shadow.pos(this._posArr[i].x, this._posArr[i].y);
+                        if (!shadow.parent) {
+                            this.parent.addChildAt(shadow, this.parent.getChildIndex(this));
+                        }
+                    }
+                }
+            }
+        }
+        for (var i = index; i < this._shadows.length - 1; i++) {
+            this._shadows[i].visible = false;
+        }
+    };
+    /**影子效果 */
+    Ball.prototype.shadow = function (showNum) {
+        this._shadows.length = 0; //res/game/style_0.png
+        this._renderIndex = 0;
+        this._posArr.length = 0;
+        var img;
+        for (var i = 0; i < showNum; i++) {
+            img = new Laya.Image();
+            img.anchorX = img.anchorY = 0.5;
+            img.scale(0.5, 0.5);
+            this._shadows.push(img);
+        }
+    };
+    Ball.ROTATE = 6;
+    return Ball;
+}(Laya.Sprite));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51418,7 +52295,91 @@ var PopGamePause = /** @class */ (function (_super) {
         Tape.PopManager.showPop(PopGamePause);
     };
     return PopGamePause;
-}(Tape.PopView));
+}(xframe.XMWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var PopGameRevive = /** @class */ (function (_super) {
+    __extends(PopGameRevive, _super);
+    function PopGameRevive() {
+        var _this = _super.call(this) || this;
+        _this.ui = new ui.views.GameReviveUI();
+        _this.createUI();
+        return _this;
+    }
+    PopGameRevive.prototype.onBtnClick = function (e) {
+        switch (e.target) {
+            case this.ui.btnConfirm:
+                this.params.yes.run();
+                this.close();
+                break;
+            case this.ui.btnBack:
+                this.params.no.run();
+                this.close();
+                break;
+        }
+    };
+    PopGameRevive.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this.params = args[0];
+    };
+    PopGameRevive.prototype.initEvet = function () {
+        _super.prototype.initEvent.call(this);
+        this.ui.btnConfirm.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnConfirm.on(Laya.Event.CLICK, this, this.onBtnClick);
+    };
+    PopGameRevive.prototype.removeEvent = function () {
+        _super.prototype.removeEvent.call(this);
+        this.ui.btnConfirm.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnConfirm.off(Laya.Event.CLICK, this, this.onBtnClick);
+    };
+    return PopGameRevive;
+}(xframe.XMWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var PopNoPower = /** @class */ (function (_super) {
+    __extends(PopNoPower, _super);
+    function PopNoPower() {
+        var _this = _super.call(this) || this;
+        _this.ui = new ui.views.NoPowerTipUI;
+        _this.ui.btnClose.on(Laya.Event.CLICK, null, function () {
+            _this.params.run();
+            _this.finish();
+        });
+        return _this;
+    }
+    PopNoPower.prototype.onShow = function () {
+        trace("PopNoPower show");
+    };
+    return PopNoPower;
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51432,44 +52393,1239 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var GameLoading = /** @class */ (function (_super) {
     __extends(GameLoading, _super);
-    /**事件-处理完成 */
     function GameLoading() {
         var _this = _super.call(this) || this;
-        _this.createUI();
+        _this.ui = new ui.views.LoadingViewUI();
         return _this;
     }
-    GameLoading.prototype.createUI = function () {
-        this._view = new ui.views.LoadingViewUI();
-        this.addChild(this._view);
+    GameLoading.prototype.showLoading = function () {
+        this.ui.loading.rotation -= 5;
+    };
+    GameLoading.prototype.close = function () {
+        _super.prototype.close.call(this);
+        Laya.timer.clear(this, this.showLoading);
     };
     //
-    GameLoading.show = function (data) {
-        if (data === void 0) { data = null; }
-        Tape.PopManager.showPop(GameLoading);
-        this.loadRes(data);
-    };
-    /**加载资源 */
-    GameLoading.loadRes = function (data) {
-        if (data === void 0) { data = null; }
-        if (!data) {
-            data = Laya.loader.getRes("res/cfg/stage.json")[0];
+    GameLoading.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
         }
+        this.params = args[0];
+        _super.prototype.show.call(this);
+        this.onShow();
+        Laya.timer.frameLoop(1, this, this.showLoading);
+    };
+    GameLoading.prototype.onShow = function () {
         //加载配置
+        var cid = 0;
+        /**
+         * var res:any[] =  [
+            { url: 'res/snd/' + this.params.json + '.json', type:Laya.Loader.JSON},
+            { url: 'res/map/bj' + cid + '1.jpg', type:Laya.Loader.IMAGE},
+            { url: 'res/map/bj' + cid + '2.jpg', type:Laya.Loader.IMAGE},
+            { url: 'res/map/bj' + cid + '3.jpg', type:Laya.Loader.IMAGE}
+        ]
+         */
         var res = [
-            { url: 'res/snd/' + data.mp3 + '.mp3', type: Laya.Loader.SOUND },
-            { url: 'res/snd/' + data.json + '.json', type: Laya.Loader.JSON }
+            { url: 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
         ];
-        GameActivity.mp3 = 'res/snd/' + data.mp3 + '.mp3';
-        GameActivity.cfg = 'res/snd/' + data.json + '.json';
-        XEvent.instance.event(GameEvent.SELECTED, data);
-        Laya.loader.load(res, Laya.Handler.create(null, function () {
-            //this.navigate(GameActivity, { data });
-            XEvent.instance.event(Laya.Event.COMPLETE);
-            Tape.PopManager.hidePop(GameLoading);
-        }));
+        //预加载2张背景图
+        var res2 = [
+            { url: 'res/map/bj' + cid + '2.jpg', type: Laya.Loader.IMAGE },
+            { url: 'res/map/bj' + cid + '3.jpg', type: Laya.Loader.IMAGE }
+        ];
+        //Laya.loader.load(res);
+        console.log(Laya.URL.basePath + 'res/snd/' + this.params.mp3 + '.mp3');
+        GameActivity.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
+        Laya.timer.once(22000, this, this.onErr);
+        Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
+    };
+    GameLoading.prototype.loadSnd = function () {
+        var _this = this;
+        console.log('启动歌曲加载-----------------------');
+        XEvent.instance.event(GameEvent.SELECTED, this.params);
+        this.close();
+        return;
+        if (Laya.loader.getRes('res/snd/' + this.params.json + '.json')) {
+            XEvent.instance.event(GameEvent.SELECTED, this.params);
+        }
+        else {
+            Laya.timer.clear(this, this.onErr);
+            this.onErr();
+            return;
+        }
+        trace("xxxxxxxxxx__", GameActivity.mp3);
+        Laya.loader.load(GameActivity.mp3, Laya.Handler.create(null, function () {
+            //trace(Laya.MiniAdpter["getFileList"]());
+            Laya.timer.clear(_this, _this.onErr);
+            _this.close();
+        }), null, Laya.Loader.SOUND);
+    };
+    GameLoading.prototype.onErr = function () {
+        Laya.URL.version[GameActivity.mp3] = Math.random();
+        XEvent.instance.event(GameEvent.ERR);
     };
     return GameLoading;
-}(Tape.PopView));
+}(xframe.XMWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var Star = /** @class */ (function (_super) {
+    __extends(Star, _super);
+    function Star() {
+        var _this = _super.call(this) || this;
+        _this.MaxAlpha = 1;
+        _this.MinAlpha = 0.5;
+        _this.skin = "res/game/dot.png";
+        var rnd = Math.random();
+        _this._sleepTime = rnd * 4000 + 2000;
+        _this._offsetY = rnd * 150 + 600;
+        if (rnd < 0.7) {
+            _this.alpha = _this.MaxAlpha;
+            if (rnd < 0.15) {
+                _this.MaxAlpha = 0.6;
+                _this.MinAlpha = 0.4;
+                _this.scale(0.5, 0.5);
+            }
+            else {
+                _this.MaxAlpha = 0.75;
+                _this.scale(0.7, 0.7);
+            }
+        }
+        _this.visible = false;
+        Laya.timer.once(rnd * 2000, _this, _this.reborn);
+        return _this;
+    }
+    /**闪烁 */
+    Star.prototype.flash = function () {
+        var _this = this;
+        Laya.Tween.to(this, { alphp: this.MinAlpha }, 200, null, Laya.Handler.create(null, function () {
+            Laya.Tween.to(_this, { alphp: _this.MaxAlpha }, 200, null, Laya.Handler.create(null, function () {
+                Laya.Tween.to(_this, { alpha: _this.MinAlpha }, 1000, null, Laya.Handler.create(null, function () {
+                    Laya.timer.once(500, null, function () {
+                        _this.visible = false;
+                    });
+                    Laya.Tween.to(_this, { x: _this.x }, 1, null, Handler.create(_this, _this.reborn), _this._sleepTime);
+                }));
+            }));
+        }));
+    };
+    Star.prototype.move = function () {
+        if (!Star._sleep) {
+            this._moveTween = Laya.Tween.to(this, { y: this.y + this._offsetY }, 2200);
+        }
+    };
+    /**生成 */
+    Star.prototype.reborn = function () {
+        this.visible = true;
+        this.alpha = this.MaxAlpha;
+        this.x = Math.floor(Math.random() * Laya.stage.width);
+        this.y = Math.floor(Math.random() * (Laya.stage.height - 200)) - 200;
+        this.flash();
+        this.move();
+    };
+    Star.prototype.__sleep = function () {
+        Laya.Tween.clear(this._moveTween);
+    };
+    Star.prototype.die = function () {
+        Laya.Tween.clearAll(this);
+        this.removeSelf();
+    };
+    Star.shine = function (num, disc) {
+        this.destroy();
+        for (var i = 0; i < num; i++) {
+            this._stars.push(new Star());
+            disc.addChild(this._stars[i]);
+        }
+    };
+    /**休眠 */
+    Star.sleep = function () {
+        if (!this._sleep) {
+            this._sleep = true;
+            for (var i = 0; i < this._stars.length; i++) {
+                this._stars[i].__sleep();
+            }
+        }
+    };
+    /**激活 */
+    Star.active = function () {
+        if (this._sleep) {
+            this._sleep = false;
+            for (var i = 0; i < this._stars.length; i++) {
+                this._stars[i].move();
+            }
+        }
+    };
+    /**销毁 */
+    Star.destroy = function () {
+        for (var i = 0; i < this._stars.length; i++) {
+            this._stars[i].die();
+        }
+        this._stars.length = 0;
+    };
+    Star._sleep = true;
+    /**闪烁 */
+    Star._stars = [];
+    return Star;
+}(Laya.Image));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var HomeView = /** @class */ (function (_super) {
+    __extends(HomeView, _super);
+    function HomeView() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.ui = new ui.pages.HomePageUI();
+        _this.recommendApp = null;
+        return _this;
+    }
+    HomeView.prototype.show = function () {
+        _super.prototype.show.call(this);
+    };
+    HomeView.prototype.createUI = function () {
+        var _this = this;
+        _super.prototype.createUI.call(this);
+        //暂时注释
+        wx.showShareMenu({ withShareTicket: true });
+        this.ui.btnDev.on(Laya.Event.CLICK, null, function () {
+            _this.navigate(DevActivity);
+        });
+        this.ui.actionView.btnStart.on(Laya.Event.CLICK, null, function () {
+            var mode = _this.ui.actionView.chapList.selectedItem;
+            XFacade.instance.showModule(GameActivity, mode);
+        });
+        this.ui.actionView.btnSignin.on(Laya.Event.CLICK, null, function () {
+            SigninPop.show(true);
+        });
+        this.ui.actionView.roleBtn.on(Laya.Event.CLICK, null, function () {
+            Tape.PopManager.showPop(RoleList);
+        });
+        this.ui.actionView.btnAddPower.on(Laya.Event.CLICK, null, function () {
+            PopAddPower.show(null, function () {
+                _this.updateTopUi();
+            });
+        });
+        this.ui.actionView.btnUserInfo.on(Laya.Event.CLICK, null, function () {
+            PopUserInfo.show();
+        });
+        this.ui.actionView.cardBtn.on(Laya.Event.CLICK, null, function () {
+            _this.navigate(MusicCard);
+        });
+        Laya.stage.on(noticficationRefreshMainData, this, function () {
+            _this.updateTopUi();
+        });
+        if (GameDataManager.instance.fristOpen) {
+            SigninPop.autoFlag = true;
+            Tape.PopManager.showPop(SigninPop);
+        }
+        else {
+            Laya.stage.on(noticficationShowSign, this, function () {
+                SigninPop.autoFlag = true;
+                Tape.PopManager.showPop(SigninPop);
+            });
+        }
+        XEvent.instance.on(GameEvent.HOMECHAPTER, null, function (type, data) {
+            if (data === void 0) { data = null; }
+            var index = GameDataManager.instance.nearestPlayChapterIndex();
+            _this.scrollToIndex(index + 1);
+        }, [GameEvent.HOMECHAPTER]);
+        this.ui.actionView.chapList.array = [null].concat(GameDataManager.instance.modeList, [{ cover: "https://s.xiuwu.me/perfectline/res/map/futureChapter.png" }, null]);
+        this.ui.actionView.chapList.hScrollBarSkin = "";
+        this.ui.actionView.chapList.scrollBar.elasticBackTime = 100;
+        this.ui.actionView.chapList.scrollBar.rollRatio = 0.7;
+        this.ui.actionView.chapList.selectedIndex = 1;
+        this.checkCurrentModeStatus();
+        //滑动逻辑
+        this.selectedItem = this.ui.actionView.chapList.getCell(1);
+        this.ui.actionView.chapList.scrollBar.on(Laya.Event.END, null, function () {
+            var index = Math.round(_this.ui.actionView.chapList.scrollBar.value / 480);
+            _this.scrollToIndex(index);
+        });
+        this.ui.actionView.chapList.mouseHandler = Laya.Handler.create(null, function (e, index) {
+            if (e.type == Laya.Event.CLICK) {
+                if (index == _this.ui.actionView.chapList.selectedIndex) {
+                    if (_this.ui.actionView.btnStart.visible) {
+                        _this.ui.actionView.btnStart.event(Laya.Event.CLICK);
+                    }
+                    else if (_this.ui.actionView.btnInvite.visible) {
+                        _this.ui.actionView.btnInvite.event(Laya.Event.CLICK);
+                    }
+                }
+                else {
+                    _this.scrollToIndex(index - 1);
+                }
+            }
+        }, null, false);
+        Laya.stage.on(refreshModelList, this, function () {
+            _this.ui.actionView.chapList.array = [null].concat(GameDataManager.instance.modeList, [{ cover: "https://s.xiuwu.me/perfectline/res/map/futureChapter.png" }, null]);
+            _this.checkCurrentModeStatus();
+            _this.ui.actionView.chapList.selectedIndex = GameDataManager.instance.nearestPlayChapterIndex();
+            _this.scrollToIndex(GameDataManager.instance.nearestPlayChapterIndex());
+        });
+        //
+        XEvent.instance.on(RoleList.UPDATE, null, function () {
+            _this.updateTopUi();
+        });
+        this.updateTopUi();
+        this.showMoveStar();
+    };
+    //滑动到指定位置
+    HomeView.prototype.scrollToIndex = function (index) {
+        this.ui.actionView.chapList.tweenTo(index);
+        this.ui.actionView.chapList.selectedIndex = index + 1;
+        this.selectedItem = this.ui.actionView.chapList.getCell(index + 1);
+        this.checkCurrentModeStatus();
+    };
+    Object.defineProperty(HomeView.prototype, "selectedItem", {
+        //
+        set: function (item) {
+            if (this._selectedItem != item) {
+                if (this._selectedItem) {
+                    this._selectedItem.selected = false;
+                }
+                this._selectedItem = item;
+                if (this._selectedItem) {
+                    this._selectedItem.selected = true;
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    // 判断当前章节状态
+    HomeView.prototype.checkCurrentModeStatus = function () {
+        var mode = this.ui.actionView.chapList.selectedItem;
+        mode && this.updateGameStatus(mode);
+    };
+    // 更新用户数据展示
+    HomeView.prototype.updateTopUi = function () {
+        this.ui.actionView.coinNum.text = User.instace.userInfo.gold + '';
+        this.ui.actionView.starNum.text = User.instace.userInfo.star + '';
+        this.ui.actionView.heartNum.text = User.instace.userInfo.power + '';
+        this.ui.actionView.btnAddPower.visible = User.instace.userInfo.power < 30;
+        this.ui.actionView.btnUserInfo.skin = User.instace.userInfo.avatarUrl;
+    };
+    // 更新关卡对应的信息
+    HomeView.prototype.updateGameStatus = function (mode) {
+        if (!mode.id) {
+            this.ui.actionView.conditionLabel.text = "";
+            this.ui.actionView.conditionStar.visible = false;
+            this.ui.actionView.btnStart.visible = false;
+            this.ui.actionView.btnInvite.visible = false;
+            this.ui.actionView.modeLabel.text = "敬请期待";
+            return;
+        }
+    };
+    // lifecycle
+    HomeView.prototype.onResume = function () {
+        this.updateTopUi();
+        this.showMoveStar();
+        this.ui.actionView.chapList.refresh();
+        this.checkCurrentModeStatus();
+    };
+    // 背景星星
+    HomeView.prototype.showMoveStar = function () {
+        Star.shine(30, this.ui.bgView);
+    };
+    return HomeView;
+}(xframe.XWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var refreshModelList = "reloadModeList";
+var refreshRoleList = "loadingRoleList";
+var noticficationShowSign = "fristShowSign";
+var noticficationRefreshMainData = "refreshUserData";
+var LoadingView = /** @class */ (function (_super) {
+    __extends(LoadingView, _super);
+    function LoadingView() {
+        var _this = _super.call(this) || this;
+        _this.ui = new ui.pages.LoadingPageUI();
+        _this.initSDK();
+        return _this;
+    }
+    LoadingView.prototype.show = function () {
+        _super.prototype.show.call(this);
+        Laya.timer.frameLoop(1, this, this.showLoading);
+        //加载资源
+        //初始化主场景
+        //显示主场景
+        XFacade.instance.showModule(HomeView);
+        //获取数据
+        User.instace.initdData();
+        ;
+        //关闭界面
+        this.close();
+    };
+    LoadingView.prototype.close = function () {
+        Laya.timer.clear(this, this.showLoading);
+    };
+    LoadingView.prototype.showLoading = function () {
+        this.ui.loading.rotation -= 5;
+    };
+    LoadingView.prototype.initSDK = function () {
+        //do sth.
+    };
+    return LoadingView;
+}(xframe.XWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var View = laya.ui.View;
+var Dialog = laya.ui.Dialog;
+var ui;
+(function (ui) {
+    var common;
+    (function (common) {
+        var BgViewUI = /** @class */ (function (_super) {
+            __extends(BgViewUI, _super);
+            function BgViewUI() {
+                return _super.call(this) || this;
+            }
+            BgViewUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.common.BgViewUI.uiView);
+            };
+            BgViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Rect", "props": { "width": 750, "lineWidth": 1, "height": 1334, "fillColor": "#333333" } }] };
+            return BgViewUI;
+        }(View));
+        common.BgViewUI = BgViewUI;
+    })(common = ui.common || (ui.common = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var common;
+    (function (common) {
+        var HomeViewUI = /** @class */ (function (_super) {
+            __extends(HomeViewUI, _super);
+            function HomeViewUI() {
+                return _super.call(this) || this;
+            }
+            HomeViewUI.prototype.createChildren = function () {
+                View.regComponent("ChaperItem", ChaperItem);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.common.HomeViewUI.uiView);
+            };
+            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 1159, "x": 330, "var": "roleBtn", "skin": "res/main/btn_role.png" } }, { "type": "Image", "props": { "y": 1159, "x": 64, "var": "btnRank", "skin": "res/main/btn_ranking.png" } }, { "type": "Image", "props": { "y": 1041, "x": 520, "visible": false, "var": "btnMore", "skin": "res/common/ic_more.png" } }, { "type": "Image", "props": { "y": 1020, "x": 242, "var": "btnStart", "skin": "res/main/btn_play.png" } }, { "type": "Image", "props": { "y": 244, "x": 24, "var": "btnSignin", "skin": "res/main/btn_sign.png" } }, { "type": "List", "props": { "y": 372, "x": -324, "width": 1433, "var": "chapList", "repeatY": 1, "height": 484 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "runtime": "ChaperItem", "name": "render" } }] }, { "type": "Image", "props": { "y": 116, "x": 20, "width": 88, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "renderType": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "y": 28, "x": 20 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_star.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 362 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 31, "x": 190 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 52, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 45, "x": 304, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }, { "type": "Image", "props": { "y": 1159, "x": 605, "var": "cardBtn", "skin": "res/main/btn_card.png" } }, { "type": "Label", "props": { "y": 1279, "x": 71, "text": "排行榜", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 350, "text": "角色", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 600, "text": "音乐卡片", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 324, "x": 36, "text": "\b签到", "fontSize": 25, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 872, "x": 126, "width": 498, "var": "modeLabel", "text": "夜 空 漫 游 指 南", "height": 40, "fontSize": 40, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 943, "x": 96, "width": 558, "var": "conditionLabel", "valign": "middle", "text": "    解锁条件", "height": 53, "fontSize": 30, "color": "#ededed", "align": "center" } }, { "type": "Image", "props": { "y": 946, "x": 284, "var": "conditionStar", "skin": "res/main/ic_star1.png" } }, { "type": "Image", "props": { "y": 1022, "x": 242, "visible": false, "var": "btnInvite", "skin": "res/main/btn_invite.png" } }] };
+            return HomeViewUI;
+        }(View));
+        common.HomeViewUI = HomeViewUI;
+    })(common = ui.common || (ui.common = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var dialogs;
+    (function (dialogs) {
+        var SigninDialogUI = /** @class */ (function (_super) {
+            __extends(SigninDialogUI, _super);
+            function SigninDialogUI() {
+                return _super.call(this) || this;
+            }
+            SigninDialogUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.dialogs.SigninDialogUI.uiView);
+            };
+            SigninDialogUI.uiView = { "type": "Dialog", "props": { "width": 750, "height": 1334 } };
+            return SigninDialogUI;
+        }(Dialog));
+        dialogs.SigninDialogUI = SigninDialogUI;
+    })(dialogs = ui.dialogs || (ui.dialogs = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var DevPageUI = /** @class */ (function (_super) {
+            __extends(DevPageUI, _super);
+            function DevPageUI() {
+                return _super.call(this) || this;
+            }
+            DevPageUI.prototype.createChildren = function () {
+                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
+                View.regComponent("runtime.btn_label", runtime.btn_label);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.DevPageUI.uiView);
+            };
+            DevPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" } }, { "type": "Panel", "props": { "y": 355, "x": 65, "width": 620, "var": "panelOutput", "height": 900 }, "child": [{ "type": "Rect", "props": { "width": 620, "lineWidth": 1, "lineColor": "#333333", "height": 900, "fillColor": "#eeeeee" } }, { "type": "Label", "props": { "y": 0, "x": 0, "wordWrap": true, "width": 620, "var": "labelOutput", "fontSize": 40 } }] }, { "type": "Box", "props": { "y": 235, "x": 65 }, "child": [{ "type": "Label", "props": { "y": 0, "x": 0, "width": 300, "var": "btnClearLocalData", "valign": "middle", "text": "清空本地数据", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }, { "type": "Label", "props": { "y": 0, "x": 320, "width": 300, "var": "btnClearRemoteData", "valign": "middle", "text": "清空远程数据", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }] }, { "type": "Box", "props": { "y": 115, "x": 65 }, "child": [{ "type": "Label", "props": { "y": 0, "x": 0, "width": 300, "var": "btnAddCoin", "valign": "middle", "text": "1000金币10体力", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }, { "type": "Label", "props": { "y": 0, "x": 320, "width": 300, "var": "btnExit", "valign": "middle", "text": "退出小游戏", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }] }, { "type": "Image", "props": { "y": 24, "x": 24, "var": "btnBack", "skin": "res/common/ic_back.png" } }] };
+            return DevPageUI;
+        }(View));
+        pages.DevPageUI = DevPageUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var GamePageUI = /** @class */ (function (_super) {
+            __extends(GamePageUI, _super);
+            function GamePageUI() {
+                return _super.call(this) || this;
+            }
+            GamePageUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.GamePageUI.uiView);
+            };
+            GamePageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 750, "var": "bg", "height": 1334 } }, { "type": "Image", "props": { "y": 56, "x": 40, "var": "btnPause", "skin": "res/game/btn_pause.png" } }, { "type": "Box", "props": { "y": 932, "x": 18, "var": "selectBox" }, "child": [{ "type": "Rect", "props": { "y": 110, "x": 165, "width": 380, "lineWidth": 1, "height": 60, "fillColor": "#3A4B63" } }, { "type": "Image", "props": { "skin": "res/game/bj_play_tc.png" } }, { "type": "Button", "props": { "y": 210, "x": 222, "var": "btnStart", "stateNum": 1, "skin": "res/game/btn_go.png" } }, { "type": "Label", "props": { "y": 28, "x": 0, "width": 711, "var": "tfChap", "text": "仲夏夜之梦", "height": 49, "fontSize": 44, "font": "Arial", "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 121, "x": 151, "width": 407, "var": "tfName", "text": "第1首", "height": 40, "fontSize": 36, "font": "Arial", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 122, "x": 520, "width": 154, "var": "btnSelSong", "text": "选择音乐", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "right" }, "child": [{ "type": "Button", "props": { "y": 8, "x": 159, "stateNum": 1, "skin": "res/game/btn_enter.png", "scaleY": 0.8, "scaleX": 0.8 } }] }, { "type": "Image", "props": { "y": 329, "x": 304, "skin": "res/game/ic_power1.png" } }, { "type": "Label", "props": { "y": 342, "x": 371, "width": 154, "text": "-1", "height": 32, "fontSize": 24, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "left" } }] }, { "type": "Box", "props": { "y": 166, "x": 64, "width": 35, "var": "proBox", "height": 259 }, "child": [{ "type": "ProgressBar", "props": { "y": 252, "x": 14, "width": 240, "var": "bar", "value": 0, "skin": "res/game/progress.png", "rotation": -90 } }, { "type": "Image", "props": { "y": -7, "x": 0, "var": "star_2", "skin": "res/game/star_b.png" } }, { "type": "Image", "props": { "y": 78, "x": 0, "var": "star_1", "skin": "res/game/star_b.png" } }, { "type": "Image", "props": { "y": 157, "x": 0, "var": "star_0", "skin": "res/game/star_b.png" } }, { "type": "Image", "props": { "y": 237, "x": 6, "skin": "res/game/origin.png" } }] }, { "type": "Label", "props": { "y": 100, "x": 536, "width": 189, "var": "tfScore", "valign": "middle", "text": "0", "height": 96, "fontSize": 76, "font": "Arial", "color": "#ffffff", "align": "right" } }, { "type": "Image", "props": { "y": 51, "x": 39, "var": "backBtn", "skin": "res/game/btn_home.png" } }] };
+            return GamePageUI;
+        }(View));
+        pages.GamePageUI = GamePageUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var HomePageUI = /** @class */ (function (_super) {
+            __extends(HomePageUI, _super);
+            function HomePageUI() {
+                return _super.call(this) || this;
+            }
+            HomePageUI.prototype.createChildren = function () {
+                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
+                View.regComponent("ui.common.HomeViewUI", ui.common.HomeViewUI);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.HomePageUI.uiView);
+            };
+            HomePageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }] }, { "type": "HomeView", "props": { "y": 0, "x": 0, "var": "actionView", "runtime": "ui.common.HomeViewUI" } }, { "type": "Label", "props": { "y": 152, "x": 501, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 955, "x": 683, "width": 100, "var": "recommendImg", "height": 146, "anchorY": 0.5, "anchorX": 0.5 } }], "animations": [{ "nodes": [{ "target": 16, "keyframes": { "x": [{ "value": 633, "tweenMethod": "linearNone", "tween": true, "target": 16, "key": "x", "index": 0 }, { "value": 633, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "x", "index": 15 }, { "value": 633, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "x", "index": 25 }], "rotation": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 16, "key": "rotation", "index": 0 }, { "value": 10, "tweenMethod": "linearNone", "tween": true, "target": 16, "key": "rotation", "index": 5 }, { "value": -10, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "rotation", "index": 10 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "rotation", "index": 15 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "rotation", "index": 25 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
+            return HomePageUI;
+        }(View));
+        pages.HomePageUI = HomePageUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var LevelPageUI = /** @class */ (function (_super) {
+            __extends(LevelPageUI, _super);
+            function LevelPageUI() {
+                return _super.call(this) || this;
+            }
+            LevelPageUI.prototype.createChildren = function () {
+                View.regComponent("ui.views.LevelRenderViewUI", ui.views.LevelRenderViewUI);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.LevelPageUI.uiView);
+            };
+            LevelPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 194, "x": 650, "var": "btnBack", "skin": "res/game/btn_close.png" } }, { "type": "List", "props": { "y": 371, "x": 55, "width": 640, "var": "list", "spaceY": 15, "height": 868 }, "child": [{ "type": "LevelRenderView", "props": { "name": "render", "runtime": "ui.views.LevelRenderViewUI" } }] }, { "type": "Image", "props": { "y": 231, "x": 59, "skin": "res/game/bj_music.png" }, "child": [{ "type": "Label", "props": { "y": 11, "x": 173, "width": 301, "valign": "middle", "text": "选择音乐", "height": 51, "fontSize": 40, "color": "#ffffff", "bold": true, "align": "center" } }] }] };
+            return LevelPageUI;
+        }(View));
+        pages.LevelPageUI = LevelPageUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var LoadingPageUI = /** @class */ (function (_super) {
+            __extends(LoadingPageUI, _super);
+            function LoadingPageUI() {
+                return _super.call(this) || this;
+            }
+            LoadingPageUI.prototype.createChildren = function () {
+                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.LoadingPageUI.uiView);
+            };
+            LoadingPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" } }, { "type": "Image", "props": { "y": 298, "x": 119, "skin": "res/main/ic_ear.png" } }, { "type": "Image", "props": { "y": 1031, "x": 375, "var": "loading", "skin": "res/main/loading.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 787, "x": 153, "width": 444, "text": "佩戴耳机体验更好哦~", "height": 54, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#FFAB20", "align": "center" } }] };
+            return LoadingPageUI;
+        }(View));
+        pages.LoadingPageUI = LoadingPageUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var MusicCardUI = /** @class */ (function (_super) {
+            __extends(MusicCardUI, _super);
+            function MusicCardUI() {
+                return _super.call(this) || this;
+            }
+            MusicCardUI.prototype.createChildren = function () {
+                View.regComponent("ui.views.CardRenderItemUI", ui.views.CardRenderItemUI);
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.MusicCardUI.uiView);
+            };
+            MusicCardUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Sprite", "props": {}, "child": [{ "type": "Rect", "props": { "y": 0, "x": 0, "width": 750, "lineWidth": 1, "height": 1334, "fillColor": "#323445" } }] }, { "type": "Image", "props": { "y": 139, "x": 20, "var": "topImg", "skin": "res/card/banner.png" } }, { "type": "List", "props": { "y": 366, "x": 16, "width": 710, "var": "cardList", "spaceY": 20, "spaceX": 19, "repeatX": 2, "height": 931 }, "child": [{ "type": "CardRenderItem", "props": { "name": "render", "runtime": "ui.views.CardRenderItemUI" } }] }, { "type": "Image", "props": { "y": 36, "x": 22, "var": "backBtn", "skin": "res/card/btn_return.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 653, "x": 123, "visible": false, "var": "tipsLabel", "text": "你还没有获得音乐卡片哦，快去挑战吧～", "fontSize": 28, "color": "#d6d6d6" } }] };
+            return MusicCardUI;
+        }(View));
+        pages.MusicCardUI = MusicCardUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var MusicRankUI = /** @class */ (function (_super) {
+            __extends(MusicRankUI, _super);
+            function MusicRankUI() {
+                return _super.call(this) || this;
+            }
+            MusicRankUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.MusicRankUI.uiView);
+            };
+            MusicRankUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 150, "x": 55, "skin": "res/role/bi_single.png" }, "child": [{ "type": "Label", "props": { "y": 30, "x": 173, "var": "musicname", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 173, "var": "musicauth", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }, { "type": "Image", "props": { "y": 362, "x": 55, "width": 640, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 752 }, "child": [{ "type": "Sprite", "props": { "y": 58, "width": 640, "height": 120 }, "child": [{ "type": "Rect", "props": { "width": 640, "lineWidth": 1, "height": 120, "fillColor": "#646AFF " } }, { "type": "Label", "props": { "y": 45, "x": 4, "width": 62, "var": "myrank", "text": "100", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 20, "x": 70, "width": 80, "var": "myavatar", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 42, "x": 162, "width": 222, "var": "mynick", "text": "讲真的", "height": 35, "fontSize": 35, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 42, "x": 456, "width": 164, "var": "myscore", "text": "54分", "right": 20, "height": 35, "fontSize": 32, "color": "#ffffff", "bold": true, "align": "right" } }] }, { "type": "List", "props": { "y": 178, "x": 0, "width": 640, "var": "musiclist", "repeatX": 1, "height": 572 } }] }, { "type": "Image", "props": { "y": 314, "x": 129, "skin": "res/role/bj_ranking_single.png" }, "child": [{ "type": "Label", "props": { "y": 10, "x": 146, "width": 200, "valign": "middle", "text": "单曲排行榜", "height": 52, "fontSize": 40, "color": "#ffffff", "bold": true } }] }, { "type": "Image", "props": { "y": 24, "x": 22, "var": "backbtn", "skin": "res/role/btn_return.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 1146, "x": 201, "var": "groupbtn", "skin": "res/role/btn_see.png", "runtime": "runtime.btn_img" } }] };
+            return MusicRankUI;
+        }(View));
+        pages.MusicRankUI = MusicRankUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var MusicRankPageUI = /** @class */ (function (_super) {
+            __extends(MusicRankPageUI, _super);
+            function MusicRankPageUI() {
+                return _super.call(this) || this;
+            }
+            MusicRankPageUI.prototype.createChildren = function () {
+                View.regComponent("ui.rank.MusicRankOpenUI", ui.rank.MusicRankOpenUI);
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.MusicRankPageUI.uiView);
+            };
+            MusicRankPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Sprite", "props": { "width": 750, "var": "rankBox", "height": 1334 } }, { "type": "MusicRankOpen", "props": { "y": 0, "x": 0, "visible": false, "var": "rankPreview", "runtime": "ui.rank.MusicRankOpenUI" } }, { "type": "Image", "props": { "y": 1146, "x": 204, "var": "groupBtn", "skin": "res/role/btn_see.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 23, "x": 23, "var": "backBtn", "skin": "res/role/btn_return.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 149, "x": 55, "skin": "res/role/bi_single.png" }, "child": [{ "type": "Label", "props": { "y": 30, "x": 173, "var": "musicName", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 173, "var": "musicAuthor", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }] };
+            return MusicRankPageUI;
+        }(View));
+        pages.MusicRankPageUI = MusicRankPageUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var RankPageUI = /** @class */ (function (_super) {
+            __extends(RankPageUI, _super);
+            function RankPageUI() {
+                return _super.call(this) || this;
+            }
+            RankPageUI.prototype.createChildren = function () {
+                View.regComponent("ui.rank.RankOpenUI", ui.rank.RankOpenUI);
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.RankPageUI.uiView);
+            };
+            RankPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Sprite", "props": { "width": 750, "var": "rankBox", "height": 1334 } }, { "type": "RankOpen", "props": { "y": 0, "x": 0, "visible": false, "var": "rankPreview", "runtime": "ui.rank.RankOpenUI" } }, { "type": "Image", "props": { "y": 1123, "x": 211, "var": "btnRankGroup", "skin": "res/role/btn_see.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 204, "x": 645, "var": "btnBack", "skin": "res/game/btn_close.png" } }] };
+            return RankPageUI;
+        }(View));
+        pages.RankPageUI = RankPageUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var pages;
+    (function (pages) {
+        var ShareEnterUI = /** @class */ (function (_super) {
+            __extends(ShareEnterUI, _super);
+            function ShareEnterUI() {
+                return _super.call(this) || this;
+            }
+            ShareEnterUI.prototype.createChildren = function () {
+                View.regComponent("ui.views.CardViewUI", ui.views.CardViewUI);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.pages.ShareEnterUI.uiView);
+            };
+            ShareEnterUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 41, "x": 305, "width": 140, "var": "avatar", "height": 140 }, "child": [{ "type": "Sprite", "props": { "width": 140, "renderType": "mask", "height": 140 }, "child": [{ "type": "Circle", "props": { "y": 70, "x": 70, "radius": 70, "lineWidth": 1, "fillColor": "#ff0000" } }] }] }, { "type": "Label", "props": { "y": 210, "x": 54, "width": 642, "var": "content", "text": "我在完美音轨获得一张音乐卡片", "height": 35, "fontSize": 35, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 1200, "x": 242, "var": "getBtn", "skin": "res/card/btn_too.png" } }, { "type": "Image", "props": { "y": 271, "x": 158, "width": 500, "skin": "res/main/bj_piece.png", "sizeGrid": "30,50,100,50", "height": 890 } }, { "type": "CardView", "props": { "y": 296, "x": 120, "var": "cardView", "runtime": "ui.views.CardViewUI" } }] };
+            return ShareEnterUI;
+        }(View));
+        pages.ShareEnterUI = ShareEnterUI;
+    })(pages = ui.pages || (ui.pages = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var plugins;
+    (function (plugins) {
+        var SignInUI = /** @class */ (function (_super) {
+            __extends(SignInUI, _super);
+            function SignInUI() {
+                return _super.call(this) || this;
+            }
+            SignInUI.prototype.createChildren = function () {
+                View.regComponent("ui.plugins.SignInItemUI", ui.plugins.SignInItemUI);
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.plugins.SignInUI.uiView);
+            };
+            SignInUI.uiView = { "type": "View", "props": { "y": 667, "x": 375, "width": 750, "height": 1334, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 608, "x": 381, "skin": "res/signin/bj_sign_tc.png", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 113, "x": 37, "width": 571, "skin": "res/signin/item_bg3.png", "sizeGrid": "55,48,47,42", "height": 801 } }, { "type": "Box", "props": { "y": 145, "x": 70, "width": 500, "height": 600 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "SignInItem", "props": { "y": 0, "x": 0, "var": "sign1", "runtime": "ui.plugins.SignInItemUI" } }, { "type": "SignInItem", "props": { "y": 0, "x": 353, "var": "sign3", "runtime": "ui.plugins.SignInItemUI" } }, { "type": "SignInItem", "props": { "y": 0, "x": 176, "var": "sign2", "runtime": "ui.plugins.SignInItemUI" } }] }, { "type": "Box", "props": { "y": 262, "x": 0 }, "child": [{ "type": "SignInItem", "props": { "y": 0, "x": 0, "var": "sign4", "runtime": "ui.plugins.SignInItemUI" } }, { "type": "SignInItem", "props": { "y": 0, "x": 353, "var": "sign6", "runtime": "ui.plugins.SignInItemUI" } }, { "type": "SignInItem", "props": { "y": 0, "x": 176, "var": "sign5", "runtime": "ui.plugins.SignInItemUI" } }] }, { "type": "Box", "props": { "y": 511, "x": -18 }, "child": [{ "type": "View", "props": { "y": 8, "x": -1, "width": 546, "visible": false, "var": "sign8", "height": 211 }, "child": [{ "type": "Rect", "props": { "y": 0, "x": -2, "width": 550, "lineWidth": 1, "height": 47, "fillColor": "#e67178" } }, { "type": "Image", "props": { "y": 47, "x": -3, "skin": "res/ic_role/ic_signRole.png" } }, { "type": "Label", "props": { "y": 10, "x": 134, "width": 277, "var": "sevenRoleLabel", "text": "第七天", "height": 25, "fontSize": 25, "color": "#ffffff", "align": "center" } }] }, { "type": "SignInItem", "props": { "y": 11, "x": 177, "var": "sign7", "runtime": "ui.plugins.SignInItemUI" } }] }] }, { "type": "Image", "props": { "y": 1022, "x": 309, "visible": false, "var": "btnReceice", "skin": "res/signin/btn_get.png", "runtime": "runtime.btn_img", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 127, "x": -99, "width": 491, "text": "连续签到可以获得更多奖励！", "height": 26, "fontSize": 24, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }] }, { "type": "Image", "props": { "y": 72, "x": 607, "var": "btnClose", "skin": "res/game/btn_close.png", "runtime": "runtime.btn_img", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 9, "x": 214, "width": 211, "text": "每日签到", "height": 53, "fontSize": 40, "font": "PingFangSC-Semibold", "color": "#ffffff", "bold": true, "align": "center" } }] }] };
+            return SignInUI;
+        }(View));
+        plugins.SignInUI = SignInUI;
+    })(plugins = ui.plugins || (ui.plugins = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var plugins;
+    (function (plugins) {
+        var SignInItemUI = /** @class */ (function (_super) {
+            __extends(SignInItemUI, _super);
+            function SignInItemUI() {
+                return _super.call(this) || this;
+            }
+            SignInItemUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.plugins.SignInItemUI.uiView);
+            };
+            SignInItemUI.uiView = { "type": "View", "props": { "width": 146, "height": 230 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 13, "skin": "res/signin/item_bg1.png" }, "child": [{ "type": "Label", "props": { "y": 21, "x": 60, "width": 78, "var": "tfType", "text": "体力", "height": 29, "fontSize": 25, "color": "#ffffff", "bold": false, "anchorY": 0.5, "anchorX": 0.5, "align": "center" } }] }, { "type": "Label", "props": { "y": 212, "x": 73, "width": 146, "var": "dayLabel", "text": "第1天", "height": 25, "fontSize": 25, "color": "#FF6788", "bold": false, "anchorY": 0.5, "anchorX": 0.5, "align": "center" } }, { "type": "Image", "props": { "y": 48, "x": 13, "var": "rewardImg", "skin": "res/signin/ic_coin.png" } }, { "type": "Image", "props": { "y": 108, "x": 104, "visible": false, "var": "stateImg", "skin": "res/signin/btn_choose.png" } }, { "type": "Image", "props": { "y": 154, "x": 16, "width": 114, "skin": "res/signin/item_bg2.png", "sizeGrid": "0,0,0,0", "height": 37 }, "child": [{ "type": "Label", "props": { "y": 18, "x": 57, "width": 146, "var": "rewardCountLabel", "text": "x50", "height": 25, "fontSize": 25, "color": "#4A74C3", "bold": false, "anchorY": 0.5, "anchorX": 0.5, "align": "center" } }] }, { "type": "Image", "props": { "y": 175, "x": 74, "visible": false, "var": "buqianBtn", "skin": "res/signin/supplement.png", "runtime": "runtime.btn_img", "anchorY": 0.5, "anchorX": 0.5 } }] };
+            return SignInItemUI;
+        }(View));
+        plugins.SignInItemUI = SignInItemUI;
+    })(plugins = ui.plugins || (ui.plugins = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var plugins;
+    (function (plugins) {
+        var SignResultUI = /** @class */ (function (_super) {
+            __extends(SignResultUI, _super);
+            function SignResultUI() {
+                return _super.call(this) || this;
+            }
+            SignResultUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.plugins.SignResultUI.uiView);
+            };
+            SignResultUI.uiView = { "type": "View", "props": { "y": 667, "x": 375, "width": 750, "height": 1334, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 325, "x": 220, "skin": "res/signin/bj_get.png" }, "child": [{ "type": "Label", "props": { "y": 18, "x": 55, "text": "恭喜你获得", "fontSize": 40, "color": "#ffffff" } }] }, { "type": "Label", "props": { "y": 962, "x": 195, "text": "连续签到可以获得更多奖励", "fontSize": 30, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 436, "x": 135, "var": "rewardImg", "skin": "res/signin/ic_power_get.png" } }, { "type": "Image", "props": { "y": 1077, "x": 242, "var": "getBtn", "skin": "res/signin/btn_sure.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 806, "x": 339, "var": "rewardLabel", "text": "X10", "fontSize": 40, "color": "#ffffff", "align": "center" } }] };
+            return SignResultUI;
+        }(View));
+        plugins.SignResultUI = SignResultUI;
+    })(plugins = ui.plugins || (ui.plugins = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var rank;
+    (function (rank) {
+        var MusicRankOpenUI = /** @class */ (function (_super) {
+            __extends(MusicRankOpenUI, _super);
+            function MusicRankOpenUI() {
+                return _super.call(this) || this;
+            }
+            MusicRankOpenUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.rank.MusicRankOpenUI.uiView);
+            };
+            MusicRankOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 361, "x": 55, "width": 640, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 752 } }, { "type": "Image", "props": { "y": 313, "x": 129, "skin": "res/role/bj_ranking_single.png" }, "child": [{ "type": "Label", "props": { "y": 10, "x": 146, "width": 200, "valign": "middle", "text": "单曲排行榜", "height": 52, "fontSize": 40, "color": "#ffffff", "bold": true } }] }, { "type": "List", "props": { "y": 539, "x": 55, "width": 640, "repeatX": 1, "name": "rankList", "height": 572 }, "child": [{ "type": "Box", "props": { "width": 640, "name": "render", "height": 120 }, "child": [{ "type": "Box", "props": { "y": 34, "x": 12, "name": "_index|eq|1" }, "child": [{ "type": "Image", "props": { "skin": "res/role/ic_1.png" } }] }, { "type": "Box", "props": { "y": 34, "x": 12, "name": "_index|eq|2" }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/ic_2.png" } }] }, { "type": "Box", "props": { "y": 34, "x": 12, "name": "_index|eq|3" }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/ic_3.png" } }] }, { "type": "Image", "props": { "y": 20, "x": 70, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 46, "x": 162, "width": 329, "text": "隔壁泰山", "overflow": "hidden", "name": "nickname", "height": 28, "fontSize": 28, "color": "#404040" } }, { "type": "Label", "props": { "y": 44, "width": 123, "text": "888分", "right": 20, "name": "score|default|0分|append|分", "height": 32, "fontSize": 32, "color": "#4860EB", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 119, "x": 20, "width": 600, "height": 1, "bgColor": "#F1F1F1" } }, { "type": "Label", "props": { "y": 44, "x": 6, "width": 55, "text": "4", "name": "_index|gt|3", "height": 30, "fontSize": 30, "color": "#979797", "bold": true, "align": "center" } }] }] }, { "type": "Box", "props": { "y": 361, "x": 55, "name": "rankSelf" }, "child": [{ "type": "Label", "props": { "y": 58, "x": 0, "width": 640, "height": 120, "bgColor": "#646AFF" } }, { "type": "Label", "props": { "y": 103, "x": 4, "width": 62, "text": "100", "name": "_index", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 78, "x": 70, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 100, "x": 162, "width": 356, "text": "讲真的", "overflow": "hidden", "name": "nickname", "height": 35, "fontSize": 35, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 100, "x": 456, "width": 164, "text": "54分", "right": 20, "name": "score|default|0|append|分", "height": 35, "fontSize": 32, "color": "#ffffff", "bold": true, "align": "right" } }] }] };
+            return MusicRankOpenUI;
+        }(View));
+        rank.MusicRankOpenUI = MusicRankOpenUI;
+    })(rank = ui.rank || (ui.rank = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var rank;
+    (function (rank) {
+        var RankOpenUI = /** @class */ (function (_super) {
+            __extends(RankOpenUI, _super);
+            function RankOpenUI() {
+                return _super.call(this) || this;
+            }
+            RankOpenUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.rank.RankOpenUI.uiView);
+            };
+            RankOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 149, "x": 55, "skin": "res/role/bj_ranking_tc.png" } }, { "type": "Label", "props": { "y": 157, "x": 245, "width": 260, "valign": "middle", "text": "好友排行榜", "height": 53, "fontSize": 40, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 262, "x": 75, "width": 600, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 680 } }, { "type": "List", "props": { "y": 262, "x": 75, "width": 600, "name": "rankList", "height": 680 }, "child": [{ "type": "Box", "props": { "width": 588, "name": "render", "height": 116 }, "child": [{ "type": "Box", "props": { "y": 30, "x": 20, "name": "_index|eq|1" }, "child": [{ "type": "Image", "props": { "y": 2, "x": 11, "skin": "res/role/ic_1.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 20, "name": "_index|eq|2" }, "child": [{ "type": "Image", "props": { "y": 4, "x": 11, "skin": "res/role/ic_2.png" } }] }, { "type": "Box", "props": { "y": 30, "x": 20, "name": "_index|eq|3" }, "child": [{ "type": "Image", "props": { "y": 2, "x": 11, "skin": "res/role/ic_3.png" } }] }, { "type": "Label", "props": { "y": 41, "x": 186, "width": 271, "text": "昵称", "overflow": "hidden", "name": "nickname", "height": 33, "fontSize": 33, "font": "SimHei", "color": "#404040" } }, { "type": "Image", "props": { "y": 18, "x": 92, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 38, "x": 506, "width": 77, "text": "0", "name": "data.star_score.wxgame.score|default|0", "height": 40, "fontSize": 40, "color": "#EF7700", "align": "right" } }, { "type": "Image", "props": { "y": 37, "x": 471, "skin": "res/main/ic_star1.png" } }, { "type": "Label", "props": { "x": 10, "width": 580, "height": 1, "bottom": 0, "bgColor": "#F1F1F1" } }, { "type": "Label", "props": { "y": 36, "x": 25, "width": 47, "valign": "middle", "text": "10", "name": "_index|gt|3", "height": 43, "fontSize": 30, "color": "#979797", "align": "center" } }] }] }, { "type": "Box", "props": { "name": "rankSelf" }, "child": [{ "type": "Image", "props": { "y": 950, "x": 74, "skin": "res/role/bj_own.png" } }, { "type": "Label", "props": { "y": 984, "x": 187, "width": 262, "valign": "middle", "text": "火焰山奶奶", "overflow": "hidden", "name": "nickname", "height": 63, "fontSize": 32, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 974, "x": 90, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Image", "props": { "y": 945, "x": 432, "skin": "res/role/ic_placing.png" } }, { "type": "Label", "props": { "y": 955, "x": 443, "width": 66, "text": "88", "name": "_index", "height": 30, "fontSize": 30, "color": "#5e6eaa", "align": "center" } }, { "type": "Image", "props": { "y": 992, "x": 554, "skin": "res/main/ic_star1.png" } }, { "type": "Label", "props": { "y": 974, "x": 569, "width": 90, "var": "star", "valign": "middle", "text": "55", "name": "data.star_score.wxgame.score", "height": 83, "fontSize": 32, "color": "#ffffff", "align": "right" } }] }] };
+            return RankOpenUI;
+        }(View));
+        rank.RankOpenUI = RankOpenUI;
+    })(rank = ui.rank || (ui.rank = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var rank;
+    (function (rank) {
+        var ResultOpenUI = /** @class */ (function (_super) {
+            __extends(ResultOpenUI, _super);
+            function ResultOpenUI() {
+                return _super.call(this) || this;
+            }
+            ResultOpenUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.rank.ResultOpenUI.uiView);
+            };
+            ResultOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Box", "props": { "width": 750, "name": "rankSelf", "height": 1334 }, "child": [{ "type": "Label", "props": { "y": 873, "x": 123, "name": "_index|default|0|append|名", "fontSize": 40, "color": "#ffffff", "bold": true } }, { "type": "Label", "props": { "y": 873, "x": 78, "text": "第", "fontSize": 40, "color": "#ffffff", "bold": true } }] }] };
+            return ResultOpenUI;
+        }(View));
+        rank.ResultOpenUI = ResultOpenUI;
+    })(rank = ui.rank || (ui.rank = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var CardRenderItemUI = /** @class */ (function (_super) {
+            __extends(CardRenderItemUI, _super);
+            function CardRenderItemUI() {
+                return _super.call(this) || this;
+            }
+            CardRenderItemUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.CardRenderItemUI.uiView);
+            };
+            CardRenderItemUI.uiView = { "type": "View", "props": { "width": 346, "height": 615 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 346, "var": "cover", "height": 615 } }, { "type": "Label", "props": { "y": 515, "x": 14, "var": "dayLabel", "text": "15", "fontSize": 70, "color": "#000000" } }, { "type": "Label", "props": { "y": 557, "x": 125, "var": "yearLabel", "text": "2018", "fontSize": 12, "color": "#666666" } }, { "type": "Label", "props": { "y": 572, "x": 84, "width": 89, "var": "mounthLabel", "text": "AUGUST", "height": 17, "fontSize": 12, "color": "#666666", "align": "center" } }, { "type": "Label", "props": { "y": 556, "x": 99, "width": 20, "text": "/", "height": 15, "fontSize": 12, "color": "#666666", "align": "center" } }, { "type": "Image", "props": { "width": 30, "var": "roleImg", "height": 30 } }] };
+            return CardRenderItemUI;
+        }(View));
+        views.CardRenderItemUI = CardRenderItemUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var CardViewUI = /** @class */ (function (_super) {
+            __extends(CardViewUI, _super);
+            function CardViewUI() {
+                return _super.call(this) || this;
+            }
+            CardViewUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.CardViewUI.uiView);
+            };
+            CardViewUI.uiView = { "type": "View", "props": { "width": 500, "height": 890 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 500, "var": "bgImg", "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 890 } }, { "type": "Label", "props": { "y": 748, "x": 26, "var": "dateDay", "text": "15", "fontSize": 100, "align": "center" } }, { "type": "Label", "props": { "y": 803, "x": 176, "width": 33.369140625, "var": "dateYear", "text": "2018", "height": 15, "fontSize": 15, "color": "#666666" } }, { "type": "Label", "props": { "y": 824, "x": 153, "var": "dateMonth", "text": "AUGUST", "fontSize": 15, "color": "#666666" } }, { "type": "Label", "props": { "y": 805, "x": 153, "width": 3.333984375, "text": "/", "height": 12, "fontSize": 15, "color": "#666666" } }, { "type": "Label", "props": { "y": 849, "x": 360, "text": "来自完美音轨", "fontSize": 15, "color": "#666666" } }, { "type": "Image", "props": { "y": 690, "x": 330, "width": 150, "visible": true, "var": "codeImg", "skin": "res/common/ic_qrcode.png", "height": 150 } }, { "type": "Image", "props": { "y": 143, "x": 237, "width": 40, "var": "roleImg", "skin": "res/ic_role/mmj.png", "height": 40 } }] };
+            return CardViewUI;
+        }(View));
+        views.CardViewUI = CardViewUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var CountDownViewUI = /** @class */ (function (_super) {
+            __extends(CountDownViewUI, _super);
+            function CountDownViewUI() {
+                return _super.call(this) || this;
+            }
+            CountDownViewUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.CountDownViewUI.uiView);
+            };
+            CountDownViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Sprite", "props": { "width": 750, "height": 1334, "alpha": 0.8 }, "child": [{ "type": "Rect", "props": { "width": 750, "lineWidth": 1, "height": 1334, "fillColor": "#000000" } }, { "type": "Label", "props": { "y": 473, "x": 187, "width": 376, "var": "countLabel", "valign": "middle", "text": "3", "height": 388, "fontSize": 200, "color": "#ffffff", "align": "center" } }] }] };
+            return CountDownViewUI;
+        }(View));
+        views.CountDownViewUI = CountDownViewUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var GamePauseUI = /** @class */ (function (_super) {
+            __extends(GamePauseUI, _super);
+            function GamePauseUI() {
+                return _super.call(this) || this;
+            }
+            GamePauseUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.GamePauseUI.uiView);
+            };
+            GamePauseUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 67, "x": 54, "var": "btnHome", "skin": "res/game/btn_home.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 945, "x": 420, "var": "btnRestart", "skin": "res/game/btn_again.png", "runtime": "runtime.btn_img" } }, { "type": "Button", "props": { "y": 945, "x": 87, "var": "btnResume", "stateNum": 1, "skin": "res/game/btn_continue.png" } }, { "type": "Label", "props": { "y": 546, "x": 224, "width": 301, "text": "暂停", "height": 66, "fontSize": 76, "color": "#ffffff", "align": "center" } }] };
+            return GamePauseUI;
+        }(View));
+        views.GamePauseUI = GamePauseUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var GameResultViewUI = /** @class */ (function (_super) {
+            __extends(GameResultViewUI, _super);
+            function GameResultViewUI() {
+                return _super.call(this) || this;
+            }
+            GameResultViewUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                View.regComponent("ui.rank.ResultOpenUI", ui.rank.ResultOpenUI);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.GameResultViewUI.uiView);
+            };
+            GameResultViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 51, "x": 39, "var": "homebtn", "skin": "res/game/btn_home.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 379, "x": 210, "var": "star1", "skin": "res/game/ic_star_result_b.png", "rotation": -30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 380, "x": 542, "var": "star3", "skin": "res/game/ic_star_result_gray_b.png", "rotation": 30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 187, "x": 305, "var": "star2", "skin": "res/game/ic_star_result_gray_b.png" } }, { "type": "Label", "props": { "y": 478, "x": 224, "width": 301, "var": "scorelabel", "text": "14分", "height": 66, "fontSize": 60, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 598, "x": 219, "var": "tip", "text": "加油哦", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 567, "x": 369, "skin": "res/game/ic_coin.png" } }, { "type": "Label", "props": { "y": 598, "x": 476, "var": "coinLabel", "text": "X10", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 684, "x": 55, "skin": "res/game/bj_single.png" }, "child": [{ "type": "Label", "props": { "y": 35, "x": 172, "var": "musicname", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 88, "x": 172, "var": "authname", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }, { "type": "Image", "props": { "y": 856, "x": 57, "skin": "res/game/bj_ranking_single.png" }, "child": [{ "type": "Label", "props": { "y": 16, "x": 24, "width": 140, "visible": false, "var": "rankingLabel", "height": 43, "fontSize": 40, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 23, "x": 378, "var": "rankbtn", "text": "查看单曲排行榜", "fontSize": 30, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 24, "x": 602, "skin": "res/game/btn_enter.png" } }] }, { "type": "Image", "props": { "y": 1011, "x": 242, "var": "restartbtn", "skin": "res/game/btn_again.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 1011, "x": 238, "visible": false, "var": "nextBtn", "skin": "res/game/btn_next.png", "runtime": "runtime.btn_img" } }, { "type": "ResultOpen", "props": { "var": "rankPreview", "runtime": "ui.rank.ResultOpenUI" } }] };
+            return GameResultViewUI;
+        }(View));
+        views.GameResultViewUI = GameResultViewUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var GameReviveUI = /** @class */ (function (_super) {
+            __extends(GameReviveUI, _super);
+            function GameReviveUI() {
+                return _super.call(this) || this;
+            }
+            GameReviveUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.GameReviveUI.uiView);
+            };
+            GameReviveUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 945, "x": 242, "var": "btnConfirm", "skin": "res/game/btn_sure.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 546, "x": 224, "width": 301, "text": "复活", "height": 66, "fontSize": 76, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 709, "x": 150, "width": 160, "text": "使用", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "right" } }, { "type": "Image", "props": { "y": 708, "x": 324, "skin": "res/main/ic_power.png" } }, { "type": "Label", "props": { "y": 710, "x": 436, "width": 160, "text": "复活", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 714, "x": 393, "width": 59, "text": "-1", "height": 52, "fontSize": 36, "color": "#ffffff", "align": "left" } }, { "type": "Image", "props": { "y": 24, "x": 22, "var": "btnBack", "skin": "res/role/btn_return.png", "runtime": "runtime.btn_img" } }] };
+            return GameReviveUI;
+        }(View));
+        views.GameReviveUI = GameReviveUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var home;
+        (function (home) {
+            var AddPowerUI = /** @class */ (function (_super) {
+                __extends(AddPowerUI, _super);
+                function AddPowerUI() {
+                    return _super.call(this) || this;
+                }
+                AddPowerUI.prototype.createChildren = function () {
+                    View.regComponent("runtime.btn", runtime.btn);
+                    _super.prototype.createChildren.call(this);
+                    this.createView(ui.views.home.AddPowerUI.uiView);
+                };
+                AddPowerUI.uiView = { "type": "View", "props": { "width": 750, "height": 1134 }, "child": [{ "type": "Image", "props": { "y": 287, "x": 55, "width": 642, "skin": "res/main/bj_power_tc.png", "sizeGrid": "150,50,50,50", "height": 577 } }, { "type": "Label", "props": { "y": 316, "x": 269, "width": 211, "text": "获取体力", "height": 54, "fontSize": 38, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 302, "x": 641, "var": "btnClose", "stateNum": 1, "skin": "res/main/btn_close.png" } }, { "type": "Button", "props": { "y": 723, "x": 260, "var": "btnWatch", "stateNum": 1, "skin": "res/main/btn_watch.png", "runtime": "runtime.btn" } }, { "type": "Image", "props": { "y": 428, "x": 271, "skin": "res/main/ic_add_power.png" } }, { "type": "Label", "props": { "y": 668, "x": 220, "width": 211, "text": "看视频增加体力", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#666666", "align": "right" } }, { "type": "Image", "props": { "y": 654, "x": 438, "skin": "res/main/ic_power1.png" } }, { "type": "Label", "props": { "y": 668, "x": 500, "width": 211, "text": "x1", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#666666", "align": "left" } }] };
+                return AddPowerUI;
+            }(View));
+            home.AddPowerUI = AddPowerUI;
+        })(home = views.home || (views.home = {}));
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var home;
+        (function (home) {
+            var ChapterItemUI = /** @class */ (function (_super) {
+                __extends(ChapterItemUI, _super);
+                function ChapterItemUI() {
+                    return _super.call(this) || this;
+                }
+                ChapterItemUI.prototype.createChildren = function () {
+                    _super.prototype.createChildren.call(this);
+                    this.createView(ui.views.home.ChapterItemUI.uiView);
+                };
+                ChapterItemUI.uiView = { "type": "View", "props": { "width": 480, "height": 480 }, "child": [{ "type": "Box", "props": { "y": 241, "x": 239, "var": "box", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 51, "var": "bg", "skin": "res/main/bj_piece.png" } }, { "type": "Image", "props": { "y": 26, "x": 3, "width": 440, "var": "pic", "height": 440 } }] }] };
+                return ChapterItemUI;
+            }(View));
+            home.ChapterItemUI = ChapterItemUI;
+        })(home = views.home || (views.home = {}));
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var home;
+        (function (home) {
+            var UserInfoUI = /** @class */ (function (_super) {
+                __extends(UserInfoUI, _super);
+                function UserInfoUI() {
+                    return _super.call(this) || this;
+                }
+                UserInfoUI.prototype.createChildren = function () {
+                    _super.prototype.createChildren.call(this);
+                    this.createView(ui.views.home.UserInfoUI.uiView);
+                };
+                UserInfoUI.uiView = { "type": "View", "props": { "width": 750, "height": 1134 }, "child": [{ "type": "Image", "props": { "y": 287, "x": 55, "skin": "res/main/bj_user_tc.png" } }, { "type": "Button", "props": { "y": 302, "x": 641, "var": "btnClose", "stateNum": 1, "skin": "res/main/btn_close.png" } }, { "type": "Label", "props": { "y": 479, "x": 269, "width": 211, "var": "nickLabel", "text": "我本有心向明月", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 624, "x": 569, "skin": "res/main/ic_user_coin.png" } }, { "type": "Image", "props": { "y": 624, "x": 337, "skin": "res/main/ic_user_power.png" } }, { "type": "Image", "props": { "y": 624, "x": 104, "skin": "res/main/ic_user_star.png" } }, { "type": "Label", "props": { "y": 718, "x": 78, "width": 121, "var": "starLabel", "text": "44", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#484848", "align": "center" } }, { "type": "Label", "props": { "y": 718, "x": 315, "width": 121, "var": "heartLabel", "text": "55", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#484848", "align": "center" } }, { "type": "Label", "props": { "y": 718, "x": 551, "width": 121, "var": "musicLabel", "text": "77", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#484848", "align": "center" } }, { "type": "Label", "props": { "y": 528, "x": 269, "width": 211, "var": "userId", "text": "ID 9527", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 317, "x": 305, "width": 140, "var": "avatar", "height": 140 }, "child": [{ "type": "Sprite", "props": { "width": 140, "renderType": "mask", "height": 140 }, "child": [{ "type": "Circle", "props": { "y": 70, "x": 70, "radius": 70, "lineWidth": 1, "fillColor": "#ff0000" } }] }] }] };
+                return UserInfoUI;
+            }(View));
+            home.UserInfoUI = UserInfoUI;
+        })(home = views.home || (views.home = {}));
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var LevelRenderViewUI = /** @class */ (function (_super) {
+            __extends(LevelRenderViewUI, _super);
+            function LevelRenderViewUI() {
+                return _super.call(this) || this;
+            }
+            LevelRenderViewUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.LevelRenderViewUI.uiView);
+            };
+            LevelRenderViewUI.uiView = { "type": "View", "props": { "width": 640, "height": 160 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/game/bj_choose music.png" } }, { "type": "Label", "props": { "y": 21, "x": 155, "width": 364, "var": "title", "text": "新手", "height": 43, "fontSize": 32, "color": "#666666", "bold": true } }, { "type": "Label", "props": { "y": 71, "x": 156, "width": 364, "var": "tfAuthor", "text": "新手", "height": 26, "fontSize": 26, "color": "#999999" } }, { "type": "Image", "props": { "y": 107, "x": 147, "var": "star_0", "skin": "res/game/ic_star_result_s.png" } }, { "type": "Image", "props": { "y": 107, "x": 200, "var": "star_1", "skin": "res/game/ic_star_result_gray_s.png" } }, { "type": "Image", "props": { "y": 107, "x": 252, "var": "star_2", "skin": "res/game/ic_star_result_gray_s.png" } }, { "type": "Button", "props": { "y": 47, "x": 518, "var": "btnStart", "stateNum": 1, "skin": "res/game/btn_play.png" } }] };
+            return LevelRenderViewUI;
+        }(View));
+        views.LevelRenderViewUI = LevelRenderViewUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var LoadingViewUI = /** @class */ (function (_super) {
+            __extends(LoadingViewUI, _super);
+            function LoadingViewUI() {
+                return _super.call(this) || this;
+            }
+            LoadingViewUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.LoadingViewUI.uiView);
+            };
+            LoadingViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1134 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 298, "x": 119, "skin": "res/main/ic_ear.png" } }, { "type": "Image", "props": { "y": 1031, "x": 375, "var": "loading", "skin": "res/main/loading.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 787, "x": 153, "width": 444, "text": "佩戴耳机体验更好哦~", "height": 54, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#FFAB20", "align": "center" } }] };
+            return LoadingViewUI;
+        }(View));
+        views.LoadingViewUI = LoadingViewUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var MusicRankRenderUI = /** @class */ (function (_super) {
+            __extends(MusicRankRenderUI, _super);
+            function MusicRankRenderUI() {
+                return _super.call(this) || this;
+            }
+            MusicRankRenderUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.MusicRankRenderUI.uiView);
+            };
+            MusicRankRenderUI.uiView = { "type": "View", "props": { "width": 640, "height": 116 }, "child": [{ "type": "Image", "props": { "y": 33, "x": 12, "var": "rankImg", "skin": "res/role/ic_1.png" } }, { "type": "Image", "props": { "y": 18, "x": 70, "width": 80, "var": "avatarImg", "height": 80 }, "child": [{ "type": "Sprite", "props": { "width": 80, "renderType": "mask", "height": 80 }, "child": [{ "type": "Circle", "props": { "y": 40, "x": 40, "radius": 40, "lineWidth": 1, "fillColor": "#ff0000" } }] }] }, { "type": "Label", "props": { "y": 38, "x": 162, "width": 255, "var": "nickLabel", "text": "隔壁泰山", "height": 40, "fontSize": 35, "color": "#404040" } }, { "type": "Label", "props": { "y": 43, "width": 150, "var": "scoreLabel", "text": "888分", "right": 20, "height": 30, "fontSize": 32, "color": "#4860EB", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 43, "x": 4, "width": 62, "var": "rankLabel", "text": "5", "height": 30, "fontSize": 30, "color": "#979797", "bold": true, "align": "center" } }, { "type": "Sprite", "props": { "y": 115, "x": 10, "width": 620, "height": 1 }, "child": [{ "type": "Rect", "props": { "width": 620, "lineWidth": 1, "height": 1, "fillColor": "#f1f1f1" } }] }] };
+            return MusicRankRenderUI;
+        }(View));
+        views.MusicRankRenderUI = MusicRankRenderUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var NoPowerTipUI = /** @class */ (function (_super) {
+            __extends(NoPowerTipUI, _super);
+            function NoPowerTipUI() {
+                return _super.call(this) || this;
+            }
+            NoPowerTipUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.NoPowerTipUI.uiView);
+            };
+            NoPowerTipUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 423, "x": 55, "width": 642, "skin": "res/main/bj_power_tc.png", "sizeGrid": "124,0,75,0", "height": 434 } }, { "type": "Label", "props": { "y": 452, "x": 269, "width": 211, "var": "tfTitle", "text": "体力不足", "height": 54, "fontSize": 42, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 604, "x": 175, "wordWrap": true, "width": 400, "var": "tfContent", "text": "   今天的体力用完了， 明天再来宠幸我吧~", "leading": 10, "height": 98, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#666666", "align": "center" } }, { "type": "Button", "props": { "y": 735, "x": 260, "var": "btnClose", "stateNum": 1, "skin": "res/game/btn_sure2.png" } }] };
+            return NoPowerTipUI;
+        }(View));
+        views.NoPowerTipUI = NoPowerTipUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var PopBigCardUI = /** @class */ (function (_super) {
+            __extends(PopBigCardUI, _super);
+            function PopBigCardUI() {
+                return _super.call(this) || this;
+            }
+            PopBigCardUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.PopBigCardUI.uiView);
+            };
+            PopBigCardUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 136, "x": 125, "width": 500, "var": "bigImg", "height": 890 } }, { "type": "Image", "props": { "y": 1079, "x": 242, "var": "shareBtn", "skin": "res/card/btn_share.png", "runtime": "runtime.btn_img" } }] };
+            return PopBigCardUI;
+        }(View));
+        views.PopBigCardUI = PopBigCardUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var RoleItemRenderUI = /** @class */ (function (_super) {
+            __extends(RoleItemRenderUI, _super);
+            function RoleItemRenderUI() {
+                return _super.call(this) || this;
+            }
+            RoleItemRenderUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.RoleItemRenderUI.uiView);
+            };
+            RoleItemRenderUI.uiView = { "type": "View", "props": { "width": 600, "height": 120 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 600, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 120 } }, { "type": "Image", "props": { "y": 10, "x": 14, "width": 100, "var": "roleimg", "skin": "res/ic_role/xhj.png", "height": 100 } }, { "type": "Label", "props": { "y": 23, "x": 134, "var": "rolename", "text": "角色", "fontSize": 30, "color": "#404040" } }, { "type": "Label", "props": { "y": 69, "x": 134, "var": "tip", "text": "连续签到七天可以解锁", "fontSize": 20, "color": "#999999" } }, { "type": "Image", "props": { "y": 27, "x": 487, "var": "useBtn", "skin": "res/role/btn_use.png", "runtime": "runtime.btn_img" } }] };
+            return RoleItemRenderUI;
+        }(View));
+        views.RoleItemRenderUI = RoleItemRenderUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var RoleViewUI = /** @class */ (function (_super) {
+            __extends(RoleViewUI, _super);
+            function RoleViewUI() {
+                return _super.call(this) || this;
+            }
+            RoleViewUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                View.regComponent("ui.views.RoleItemRenderUI", ui.views.RoleItemRenderUI);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.RoleViewUI.uiView);
+            };
+            RoleViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 199, "x": 55, "skin": "res/role/bj_role_tc.png" }, "child": [{ "type": "Label", "props": { "y": 14, "x": 280, "width": 80, "text": "角色", "height": 40, "fontSize": 40, "color": "#ffffff", "bold": true } }, { "type": "Image", "props": { "y": 57, "x": 587, "var": "closebtn", "skin": "res/main/btn_close.png", "runtime": "runtime.btn_img" } }, { "type": "List", "props": { "y": 135, "x": 20, "width": 600, "var": "rolelist", "spaceY": 12, "repeatX": 1, "height": 785 }, "child": [{ "type": "RoleItemRender", "props": { "name": "render", "runtime": "ui.views.RoleItemRenderUI" } }] }] }] };
+            return RoleViewUI;
+        }(View));
+        views.RoleViewUI = RoleViewUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var SettingComUI = /** @class */ (function (_super) {
+            __extends(SettingComUI, _super);
+            function SettingComUI() {
+                return _super.call(this) || this;
+            }
+            SettingComUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.SettingComUI.uiView);
+            };
+            SettingComUI.uiView = { "type": "View", "props": { "width": 600, "height": 600 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 600, "skin": "res/signin/item_bg3.png", "sizeGrid": "20,12,14,14", "height": 600 } }, { "type": "Label", "props": { "y": 21, "x": 16, "fontSize": 24, "color": "#000000" } }, { "type": "Label", "props": { "y": 129, "x": 16, "width": 75, "text": "动画表现", "height": 18, "fontSize": 24, "color": "#000000" } }, { "type": "Label", "props": { "y": 195, "x": 16, "text": "旋转角度", "fontSize": 24, "color": "#000000" } }, { "type": "Label", "props": { "y": 308, "x": 16, "text": "滚屏速度", "fontSize": 24, "color": "#000000" } }, { "type": "Tab", "props": { "y": 28, "x": 117, "width": 211, "visible": false, "var": "tabSong", "skin": "res/common/tab.png", "selectedIndex": 1, "scaleY": 2, "scaleX": 2.2, "labels": "狐狸小姐,钢琴块,G小调", "height": 26 } }, { "type": "Tab", "props": { "y": 107, "x": 117, "width": 145, "var": "tabAni", "skin": "res/common/tab.png", "selectedIndex": 0, "scaleY": 2, "scaleX": 2.2, "labels": "线条,小球", "height": 26 } }, { "type": "Tab", "props": { "y": 177, "x": 117, "width": 145, "var": "tabRotate", "skin": "res/common/tab.png", "selectedIndex": 0, "scaleY": 2, "scaleX": 2.2, "labels": "固定角度,变化角度", "height": 26 } }, { "type": "Tab", "props": { "y": 241, "x": 117, "width": 80, "var": "tabSpeed", "skin": "res/common/tab.png", "selectedIndex": 0, "scaleY": 2, "scaleX": 2.2, "labels": "4,5,6", "height": 80, "direction": "vertical" } }, { "type": "Button", "props": { "y": 530, "x": 185, "width": 169, "var": "btnStart", "stateNum": 1, "skin": "res/signin/item_bg1.png", "sizeGrid": "18,14,12,20", "labelSize": 32, "labelColors": "#ffffff,#ffffff,#ffffff", "label": "start", "height": 50 } }, { "type": "Label", "props": { "y": 435, "x": 16, "text": "其他", "fontSize": 24, "color": "#000000" } }, { "type": "Tab", "props": { "y": 417, "x": 117, "width": 145, "var": "tabSpeedType", "skin": "res/common/tab.png", "selectedIndex": 0, "scaleY": 2, "scaleX": 2.2, "labels": "垂直速不变,速度不变", "height": 26 } }] };
+            return SettingComUI;
+        }(View));
+        views.SettingComUI = SettingComUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var ShareMenuUI = /** @class */ (function (_super) {
+            __extends(ShareMenuUI, _super);
+            function ShareMenuUI() {
+                return _super.call(this) || this;
+            }
+            ShareMenuUI.prototype.createChildren = function () {
+                View.regComponent("runtime.btn_img", runtime.btn_img);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.ShareMenuUI.uiView);
+            };
+            ShareMenuUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "View", "props": { "y": 1038, "x": 0, "width": 750, "var": "bottomView", "height": 296 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 750, "height": 296, "alpha": 0.88 }, "child": [{ "type": "Rect", "props": { "width": 750, "lineWidth": 1, "height": 296, "fillColor": "#00000000" } }] }, { "type": "Image", "props": { "y": 115, "x": 168, "var": "pyq", "skin": "res/common/pyq.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 115, "x": 481, "var": "wxBtn", "skin": "res/common/wechat.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 51, "x": 330, "text": "分享到", "fontSize": 30, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 238, "x": 177, "text": "朋友圈", "fontSize": 28, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 240, "x": 476, "text": "微信好友", "fontSize": 28, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 17, "x": 698, "var": "closeBtn", "skin": "res/game/btn_close.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 66, "x": 202, "width": 96, "height": 1, "bgColor": "#e1e1e1" } }, { "type": "Label", "props": { "y": 66, "x": 452, "width": 96, "height": 1, "bgColor": "#e1e1e1" } }] }] };
+            return ShareMenuUI;
+        }(View));
+        views.ShareMenuUI = ShareMenuUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var StarUI = /** @class */ (function (_super) {
+            __extends(StarUI, _super);
+            function StarUI() {
+                return _super.call(this) || this;
+            }
+            StarUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.StarUI.uiView);
+            };
+            StarUI.uiView = { "type": "View", "props": { "width": 20, "height": 20 }, "child": [{ "type": "Sprite", "props": { "width": 20, "height": 20 }, "child": [{ "type": "Circle", "props": { "y": 10, "x": 10, "radius": 10, "lineWidth": 0, "fillColor": "#ffffff" } }] }] };
+            return StarUI;
+        }(View));
+        views.StarUI = StarUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var TipsUI = /** @class */ (function (_super) {
+            __extends(TipsUI, _super);
+            function TipsUI() {
+                return _super.call(this) || this;
+            }
+            TipsUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.TipsUI.uiView);
+            };
+            TipsUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 423, "x": 55, "width": 642, "skin": "res/main/bj_power_tc.png", "sizeGrid": "138,0,63,0", "height": 439 } }, { "type": "Label", "props": { "y": 452, "x": 269, "width": 211, "var": "tfTitle", "text": "出错了", "height": 54, "fontSize": 42, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 599, "x": 175, "wordWrap": true, "width": 400, "var": "tfContent", "text": "哎呀，服务器在打盹儿，等会再来吧~", "leading": 10, "height": 98, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#666666", "align": "center" } }, { "type": "Button", "props": { "y": 738, "x": 260, "var": "btnClose", "stateNum": 1, "skin": "res/game/btn_sure2.png" } }] };
+            return TipsUI;
+        }(View));
+        views.TipsUI = TipsUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var TopToastViewUI = /** @class */ (function (_super) {
+            __extends(TopToastViewUI, _super);
+            function TopToastViewUI() {
+                return _super.call(this) || this;
+            }
+            TopToastViewUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.TopToastViewUI.uiView);
+            };
+            TopToastViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 60 }, "child": [{ "type": "Sprite", "props": { "width": 750, "height": 60, "alpha": 0.8 }, "child": [{ "type": "Rect", "props": { "width": 750, "lineWidth": 1, "height": 60, "fillColor": "#000000" } }] }, { "type": "Label", "props": { "y": 15, "x": 102, "width": 545, "text": "下一篇章已经解锁", "height": 30, "fontSize": 30, "color": "#666666", "align": "center" } }] };
+            return TopToastViewUI;
+        }(View));
+        views.TopToastViewUI = TopToastViewUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* name;
+*/
+var ChaperItem = /** @class */ (function (_super) {
+    __extends(ChaperItem, _super);
+    function ChaperItem() {
+        var _this = _super.call(this) || this;
+        _this._selected = false;
+        _this.box.scaleX = _this.box.scaleY = 0.8;
+        _this.bg.visible = false;
+        return _this;
+    }
+    Object.defineProperty(ChaperItem.prototype, "dataSource", {
+        set: function (data) {
+            if (data) {
+                this.visible = true;
+                this.pic.skin = data.cover + "";
+            }
+            else {
+                this.visible = false;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ChaperItem.prototype, "selected", {
+        get: function () {
+            return this._selected;
+        },
+        set: function (v) {
+            if (this._selected != v) {
+                this._selected = v;
+                if (this._selected) {
+                    this.bg.visible = true;
+                    Laya.Tween.to(this.box, { scaleX: 1, scaleY: 1 }, 200);
+                }
+                else {
+                    this.bg.visible = false;
+                    Laya.Tween.to(this.box, { scaleX: 0.8, scaleY: 0.8 }, 200);
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return ChaperItem;
+}(ui.views.home.ChapterItemUI));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51486,26 +53642,19 @@ var __extends = (this && this.__extends) || (function () {
 */
 var PopAddPower = /** @class */ (function (_super) {
     __extends(PopAddPower, _super);
-    //private ui:ui.views.home.AddPowerUI;
     function PopAddPower() {
         var _this = _super.call(this) || this;
-        _this.createUI();
+        _this.ui = new ui.views.home.AddPowerUI();
+        _this.ui.btnClose.on(Laya.Event.CLICK, null, function () {
+            _this.close();
+        });
+        _this.ui.btnWatch.on(Laya.Event.CLICK, null, function () {
+            //watch
+        });
         return _this;
     }
-    PopAddPower.prototype.createUI = function () {
-        var _this = this;
-        this.ui = new ui.views.home.AddPowerUI();
-        this.addChild(this.ui);
-        this.ui.btnClose.on(Laya.Event.CLICK, null, function () {
-            _this.finish();
-        });
-    };
-    /** */
-    PopAddPower.show = function () {
-        Tape.PopManager.showPop(PopAddPower);
-    };
     return PopAddPower;
-}(Tape.PopView));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51530,13 +53679,13 @@ var PopUserInfo = /** @class */ (function (_super) {
     }
     PopUserInfo.prototype.createUI = function () {
         var _this = this;
-        this.ui.avatar.skin = UserInfoManager.instace.userInfo.avatar;
-        this.ui.nickLabel.text = UserInfoManager.instace.userInfo.nickname;
-        this.ui.userId.text = "ID：" + UserInfoManager.instace.userInfo.id;
-        this.ui.heartLabel.text = UserInfoManager.instace.userInfo.power + '';
-        this.ui.starLabel.text = UserInfoManager.instace.userInfo.star + '';
+        this.ui.avatar.skin = User.instace.userInfo.avatarUrl;
+        this.ui.nickLabel.text = User.instace.userInfo.nickName;
+        this.ui.userId.text = "ID：" + User.instace.userInfo.id;
+        this.ui.heartLabel.text = User.instace.userInfo.power + '';
+        this.ui.starLabel.text = User.instace.userInfo.star + '';
         ;
-        this.ui.musicLabel.text = UserInfoManager.instace.userInfo.coin + '';
+        this.ui.musicLabel.text = User.instace.userInfo.coin + '';
         this.ui.btnClose.on(Laya.Event.CLICK, null, function () {
             _this.finish();
         });
@@ -51545,7 +53694,7 @@ var PopUserInfo = /** @class */ (function (_super) {
         Tape.PopManager.showPop(PopUserInfo);
     };
     return PopUserInfo;
-}(Tape.PopView));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51613,7 +53762,7 @@ var LoginPop = /** @class */ (function (_super) {
         });
     };
     return LoginPop;
-}(Tape.PopView));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51630,9 +53779,66 @@ var BigCardView = /** @class */ (function (_super) {
     function BigCardView() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.views.PopBigCardUI();
+        _this.cardView = new ui.views.CardViewUI();
+        _this.shareMenu = new ui.views.ShareMenuUI();
+        _this.months = ["JANUARY", "FEBURARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        _this.bgAlpha = 0.8;
         // 分享卡片
         _this.ui.shareBtn.on(Laya.Event.CLICK, null, function (event) {
+            // 阻止事件往下传递
             event.stopPropagation();
+            // 弹出底部分享选择框
+            _this.shareMenu.bottomView.y = 1334;
+            Laya.Tween.to(_this.shareMenu.bottomView, { y: 1038 }, 300, Laya.Ease.linearInOut);
+            _this.ui.addChild(_this.shareMenu);
+            _this.shareMenu.on(Laya.Event.CLICK, null, function () {
+                // 阻止事件往下传递
+                event.stopPropagation();
+                _this.clearShareMenu();
+            });
+            _this.shareMenu.wxBtn.on(Laya.Event.CLICK, null, function () {
+                // 分享
+                var avatarImg = User.instace.userInfo.avatarUrl;
+                var shareImgPath = HelpUtil.shareByView(_this.cardView, -30, -50, 440, 440); // HelpUtil.shareByView(this.cardView);
+                var title1 = "《" + _this.params.name + "》" + "--" + _this.params.author;
+                var title2 = "今日份的音乐心情";
+                var titles = [title1, title2];
+                var materialIds = ['15350799111612', '15350799122613'];
+                var randomNum = Math.round(Math.random());
+                yxmp.report.event('2000_2004_click');
+                var shareObj = {
+                    title: titles[randomNum],
+                    imageUrl: shareImgPath,
+                    entry: '2000_2004_click',
+                    material: materialIds[randomNum],
+                    query: "cover=" + _this.params.card + "&avatar=" + avatarImg + "&id=" + _this.params.id + "&cid=" + _this.params.cid + "&time=" + _this.time
+                };
+                var options = yxmp.plugin.help.getShareOptions(shareMuiscCard, shareObj);
+                wx.shareAppMessage(options);
+            });
+            _this.shareMenu.pyq.on(Laya.Event.CLICK, null, function () {
+                yxmp.report.event('2000_2003_click');
+                var shareImgPath = HelpUtil.shareByView(_this.cardView);
+                wx.saveImageToPhotosAlbum({
+                    filePath: shareImgPath,
+                    success: function (res) {
+                        wx.showToast({
+                            icon: "none",
+                            title: "已保存至相册，记得去分享哦～"
+                        });
+                    },
+                    fail: function (err) {
+                        wx.showToast({
+                            icon: "none",
+                            title: "保存失败, 点击右上角=>关于完美音轨=>设置=>保存到相册"
+                        });
+                    }
+                });
+            });
+            _this.shareMenu.closeBtn.on(Laya.Event.CLICK, null, function () {
+                console.log("关闭");
+                _this.clearShareMenu();
+            });
         });
         _this.ui.on(Laya.Event.CLICK, null, function () {
             _this.finish();
@@ -51640,107 +53846,31 @@ var BigCardView = /** @class */ (function (_super) {
         return _this;
     }
     BigCardView.prototype.onShow = function () {
-        if (this.params && this.params.image) {
-            this.ui.bigImg.skin = this.params.image;
+        if (this.params && this.params.card) {
+            this.cardView.bgImg.skin = "https://s.xiuwu.me/perfectline/res/map/" + this.params.card + ".png";
         }
+        var date = new Date();
+        if (this.params.timeTemp) {
+            date = new Date(this.params.timeTemp);
+        }
+        this.time = date.getTime();
+        this.cardView.dateDay.text = date.getDate().toString();
+        this.cardView.dateMonth.text = this.months[date.getMonth()];
+        this.cardView.dateYear.text = date.getFullYear().toString();
+        this.ui.bigImg.addChild(this.cardView);
+        var positions = GameDataManager.instance.cardConfig[this.params.cid];
+        this.cardView.roleImg.skin = GameDataManager.instance.currentUserRoleImg();
+        this.cardView.roleImg.x = positions[0] * 50 / 75 - 4;
+        this.cardView.roleImg.y = positions[1] * 50 / 75 - 4;
+    };
+    BigCardView.prototype.clearShareMenu = function () {
+        var _this = this;
+        Laya.Tween.to(this.shareMenu.bottomView, { y: 1334 }, 300, Laya.Ease.linearInOut, Laya.Handler.create(this, function () {
+            _this.shareMenu.removeSelf();
+        }));
     };
     return BigCardView;
-}(Tape.PopView));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-/*
-* name;
-*/
-var GameOverPop = /** @class */ (function (_super) {
-    __extends(GameOverPop, _super);
-    function GameOverPop() {
-        var _this = _super.call(this) || this;
-        _this.createUI();
-        return _this;
-    }
-    GameOverPop.prototype.createUI = function () {
-        this._view = new ui.views.LoseViewUI();
-        this.addChild(this._view);
-        this._view.tfResult.text = GameOverPop.label + "";
-        this._view.btnBack.clickHandler = Laya.Handler.create(null, function () {
-            Tape.PopManager.hidePop(GameOverPop);
-            if (GameOverPop.hander) {
-                GameOverPop.hander.run();
-                GameOverPop.hander.recover();
-                GameOverPop.hander = null;
-            }
-        });
-    };
-    //
-    GameOverPop.show = function (force, opt, lb) {
-        if (force === void 0) { force = false; }
-        if (opt === void 0) { opt = null; }
-        if (lb === void 0) { lb = ""; }
-        this.hander = opt;
-        this.label = lb;
-        Tape.PopManager.showPop(GameOverPop);
-    };
-    return GameOverPop;
-}(Tape.PopView));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var RankPop = /** @class */ (function (_super) {
-    __extends(RankPop, _super);
-    function RankPop() {
-        var _this = _super.call(this) || this;
-        _this.pageUI = new ui.pages.RankPageUI();
-        _this.isTranslucent = false;
-        _this.addChild(_this.pageUI);
-        _this.pageUI.btnBack.on(Laya.Event.CLICK, null, function () {
-            _this.finish();
-        });
-        _this.pageUI.btnRankGroup.on(Laya.Event.CLICK, null, function () {
-            wx.shareAppMessage({
-                query: 'action=GroupRank'
-            });
-        });
-        _this.pageUI.rankBox.addChild(Tape.MiniRank.createRankView());
-        return _this;
-    }
-    RankPop.show = function (force, options) {
-        if (force === void 0) { force = false; }
-        if (options === void 0) { options = null; }
-        if (force) {
-            Tape.PopManager.showPop(RankPop);
-            return;
-        }
-        if (options && options.query && options.query.action == 'GroupRank') {
-            Tape.PopManager.showPop(RankPop, options);
-        }
-    };
-    RankPop.prototype.onShow = function () {
-        this.pageUI.btnRankGroup.visible = (this.data || {}).shareTicket ? false : true;
-        Tape.MiniRank.showRank(ui.rank.RankOpenUI.uiView, {
-            shareTicket: (this.data || {}).shareTicket,
-            keyList: ['star_score'],
-            sortList: ['data.star_score.wxgame.score']
-        }, true);
-    };
-    return RankPop;
-}(Tape.PopView));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51757,37 +53887,128 @@ var GameResultView = /** @class */ (function (_super) {
     function GameResultView() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.views.GameResultViewUI();
+        _this.topToast = new ui.views.TopToastViewUI();
         _this.init();
         return _this;
     }
     GameResultView.prototype.init = function () {
+        var _this = this;
         this.ui.homebtn.on(Laya.Event.CLICK, null, function () {
             // 返回
             XEvent.instance.event(GameEvent.BACK);
-            Tape.PopManager.hidePop(GameResultView);
+            _this.close();
         });
         this.ui.restartbtn.on(Laya.Event.CLICK, null, function (e) {
             // 重新开始
             e.stopPropagation();
             XEvent.instance.event(GameEvent.RESTART);
-            Tape.PopManager.hidePop(GameResultView);
+            _this.close();
         });
-        this.ui.rankingLabel.on(Laya.Event.CLICK, null, function () {
-            // 查看单曲排行榜
+        this.ui.nextBtn.on(Laya.Event.CLICK, null, function () {
+            // 下一首
+            _this.chooseNextMusic();
+            _this.close();
         });
+    };
+    GameResultView.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this.params = args[0];
     };
     GameResultView.prototype.onShow = function () {
-        this.ui.musicname.text = "隔壁泰山";
-        this.ui.authname.text = "阿里郎";
-        this.ui.scorelabel.text = "250分";
-        this.ui.tip.text = "加油哦";
-        this.ui.rankingLabel.text = "第3名";
-        this.ui.star1.skin = "res/main/ic_star.png";
-        this.ui.star2.skin = "res/game/ic_star.png";
-        this.ui.star3.skin = "res/game/ic_star.png";
+        // 金币的数量
+        this._rewardCoin = GameDataManager.instance.rewardCoinByStar(this.params.star);
+        this.updateUi();
+        User.instace.userInfo.coin += this._rewardCoin;
     };
+    GameResultView.prototype.updateUi = function () {
+        for (var i = 1; i < 4; i++) {
+            if (i > this.params.star) {
+                this.ui["star" + i].skin = "res/game/ic_star_result_gray_b.png";
+            }
+            else {
+                this.ui["star" + i].skin = "res/game/ic_star_result_b.png";
+            }
+        }
+        if (this.params.star > 2) {
+            this.ui.restartbtn.visible = false;
+            this.ui.nextBtn.visible = true;
+        }
+        //需要数据支撑~~
+        this.ui.musicname.text = this.params.music.name;
+        this.ui.authname.text = this.params.music.author;
+        this.ui.scorelabel.text = this.params.score + "分";
+        this.ui.rankingLabel.text = "读取中...";
+        this.ui.tip.text = GameResultView.tipArrays[this.params.star];
+        this.ui.coinLabel.text = "X" + this._rewardCoin;
+    };
+    GameResultView.prototype.updateData = function () {
+        // 好友排行榜
+        GameDataManager.instance.uploadCloudData();
+        // 保存单曲结果
+        GameDataManager.instance.recordMusicById(this.params.music.id, {
+            score: this.params.score,
+            star: this.params.star,
+            name: this.params.music.name
+        });
+    };
+    //上传分数
+    GameResultView.prototype.updateScore = function () {
+        // 单曲排行榜 开放域排行
+        GameDataManager.instance.uploadMusicCloudData(this.params.music.id, this.params.score);
+        // 单曲排行榜 世界排行
+        // GameDataManager.instance.updateMusicGrade(this.params.score, this.params.music.id);
+    };
+    // 选择下一首音乐
+    GameResultView.prototype.chooseNextMusic = function () {
+        var music = this.params.music;
+        var modeId = music.cid;
+        var list = GameDataManager.instance.getMuicList({ id: modeId });
+        var index = list.indexOf(music);
+        if (index < list.length - 1) {
+            var nextMusic = list[index + 1];
+            XFacade.instance.showModule(GameLoading, nextMusic);
+        }
+        else {
+            // 最后一首 ，下章节没有解锁
+            var nextChapter = GameDataManager.instance.nextChapter(modeId);
+            if (nextChapter) {
+                var lock = GameDataManager.instance.checkModeIslock(nextChapter.id);
+                if (lock.length > 0) {
+                    // 下一章节没有解锁
+                    xframe.XTip.showTip("coming soon---------------");
+                }
+                else {
+                }
+            }
+            else {
+                // 敬请期待
+                xframe.XTip.showTip("coming soon---------------");
+                XEvent.instance.event(GameEvent.HOMECHAPTER);
+            }
+        }
+    };
+    // 提示解锁下一篇章
+    GameResultView.prototype.toastReleaseNextChapter = function () {
+        var _self = this;
+        this.topToast.y = -60;
+        this.ui.addChild(this.topToast);
+        Laya.Tween.to(this.topToast, { y: 0 }, 500, Laya.Ease.linearIn, Laya.Handler.create(this, function () {
+            setTimeout(function () {
+                Laya.Tween.to(_self.topToast, { y: -60 }, 500, Laya.Ease.linearIn, Laya.Handler.create(_self, function () {
+                    Laya.Tween.clearTween(_self.topToast);
+                    _self.ui.removeChild(_self.topToast);
+                    _self.topToast = null;
+                }));
+            }, 2000);
+        }));
+    };
+    GameResultView.tipArrays = ["加油哦", "不错！", "腻害了", "棒极了"];
     return GameResultView;
-}(Tape.PopView));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51799,11 +54020,13 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var usedRoleKey = "nowUseRole";
 var RoleList = /** @class */ (function (_super) {
     __extends(RoleList, _super);
     function RoleList() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.views.RoleViewUI();
+        _this.bgAlpha = 0.8;
         _this.init();
         return _this;
     }
@@ -51815,25 +54038,110 @@ var RoleList = /** @class */ (function (_super) {
         this.ui.rolelist.renderHandler = Laya.Handler.create(this, function (item, index) {
             _this.renderItem(item, index);
         }, null, false);
-        this.ui.rolelist.hScrollBarSkin = null;
-        this.ui.rolelist.array = [1, 2, 4, 5];
+        this.ui.rolelist.vScrollBarSkin = null;
+        this.ui.rolelist.scrollBar.elasticBackTime = 200;
+        this.ui.rolelist.scrollBar.elasticDistance = 200;
+        this.ui.rolelist.array = GameDataManager.instance.roleLIst;
+        Laya.stage.on(refreshRoleList, this, function () {
+            _this.ui.rolelist.array = GameDataManager.instance.roleLIst;
+        });
+    };
+    RoleList.prototype.renderItem = function (item, index) {
+        var _this = this;
+        var data = GameDataManager.instance.roleLIst[index];
+        var cell = item;
+        cell.useBtn.offAll(Laya.Event.CLICK);
+        if (data.id == Laya.LocalStorage.getItem(usedRoleKey)) {
+            cell.useBtn.skin = "res/role/ic_used.png";
+        }
+        else if (User.instace.checkIsOwnRoleById(data.id)) {
+            cell.useBtn.skin = "res/role/btn_use.png";
+            cell.useBtn.on(Laya.Event.CLICK, null, function () {
+                _this.userRole(data);
+            });
+        }
+        else if (data.type == 1) {
+            cell.useBtn.skin = "res/role/btn_use.png";
+            cell.useBtn.on(Laya.Event.CLICK, null, function () {
+                _this.userRole(data);
+            });
+        }
+        else {
+            cell.useBtn.skin = "res/role/btn_release.png";
+            cell.useBtn.on(Laya.Event.CLICK, null, function () {
+                _this.releaseRole(data, index);
+            });
+        }
+        var tip = "";
+        if (data.type == 1) {
+            tip = "免费使用";
+        }
+        else if (data.type == 2) {
+            tip = "花费" + data.cost + "个金币解锁";
+        }
+        else if (data.type == 3) {
+            tip = "连续签到七天可解锁";
+        }
+        cell.roleimg.skin = "res/ic_role/" + data.img + ".png";
+        cell.rolename.text = data.name;
+        cell.tip.text = tip;
+    };
+    // 解锁角色
+    RoleList.prototype.releaseRole = function (data, index) {
+        var _this = this;
+        if (data.type == 2) { //购买
+            if (User.instace.userInfo.coin >= data.cost) {
+                wx.showModal({
+                    title: '提示',
+                    content: '获取当前角色需要消耗' + data.cost + "金币",
+                    showCancel: true,
+                    cancelText: '取消',
+                    confirmText: '确定',
+                    success: function (res) {
+                        if (res.confirm) {
+                            _this.getRole(data);
+                        }
+                        if (res.cancel) {
+                        }
+                    }
+                });
+            }
+            else {
+                wx.showToast({
+                    icon: 'none',
+                    title: '金币不够'
+                });
+            }
+        }
+        else if (data.type == 3) { // 签到
+            Tape.PopManager.showPop(SigninPop);
+        }
+    };
+    RoleList.prototype.getRole = function (data) {
+        wx.showToast({
+            icon: 'none',
+            title: '解锁成功'
+        });
+        // 记录金币
+        User.instace.userInfo.coin -= data.cost;
+        GameDataManager.instance.recordUserGameData();
+        // 记录角色
+        GameDataManager.instance.recordUserRolesData(data);
+        // 更改按钮状态
+        this.ui.rolelist.refresh();
+        // 刷新主界面
+        XEvent.instance.event(RoleList.UPDATE);
+    };
+    RoleList.prototype.userRole = function (data) {
+        Laya.LocalStorage.setItem(usedRoleKey, data.id);
+        this.ui.rolelist.refresh();
     };
     RoleList.prototype.onShow = function () {
     };
-    RoleList.prototype.renderItem = function (item, index) {
-        var cell = item;
-        // res/role/ic_used.png  res/role/btn_release.png  res/role/btn_use.png
-        // cell.useBtn.skin = "";
-        // cell.roleimg.skin = "";
-        // cell.rolename.text = "";
-        // cell.tip.text = "";
-        cell.useBtn.offAll(Laya.Event.CLICK);
-        cell.useBtn.on(Laya.Event.CLICK, null, function () {
-            console.log("点击角色状态按钮");
-        });
-    };
+    /**事件-更新用户金币 */
+    RoleList.UPDATE = "update";
     return RoleList;
-}(Tape.PopView));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51845,38 +54153,49 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var hadShowSignView = "hadShowSignView";
 var SigninPop = /** @class */ (function (_super) {
     __extends(SigninPop, _super);
     function SigninPop() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.plugins.SignInUI();
-        // private view: ui.plugins.SignInUI;
-        _this.coins = [50, 50, 50, 50, 50, 50, 150];
-        _this.imgs = ["res/signin/ic_power.png", "res/signin/ic_coin.png", "res/signin/ic_power1.png", "res/signin/ic_coin1.png", "res/signin/ic_power.png", "res/signin/ic_coin.png", ""];
-        _this.titles = ["体力", "金币", "体力", "金币", "体力", "金币", "第七天"];
+        _this.bgAlpha = 0.8;
+        _this.isTranslucent = false;
+        _this.canceledOnTouchOutside = false;
+        _this.visible = !SigninPop.autoFlag;
         _this.ui.btnClose.on(Laya.Event.CLICK, _this, function () {
             _this.finish();
         });
         _this.ui.btnReceice.on(Laya.Event.CLICK, _this, function () {
-            SigninManager.signin(0, function (flag, day) {
-                if (flag) {
-                    console.log('TODO:签到成功，发送奖励:', _this.coins[day - 1]);
-                    var a = _this.titles[day - 1];
-                    // this.showAddCoinToast(this.coins[day - 1]);
-                    _this.showAddCoinToast({ "img": a, "num": _this.coins[day - 1] });
-                    // 关闭签到卡片
-                    _this.ui.btnReceice.visible = false;
-                    _this.init();
-                    _this.finish();
+            var index = SigninManager.signIndex();
+            var signData = _this.configList[index];
+            SigninManager.sign(signData);
+            _this.showAddCoinToast(signData);
+            // 关闭签到卡片
+            _this.ui.btnReceice.visible = false;
+        });
+        var _self = _this;
+        fetchSignList().then(function (res) {
+            if (res && res.list) {
+                var source = res.list;
+                var lastItem = source[source.length - 1];
+                var rewards = lastItem.rewards;
+                var type;
+                if (DataManager.getData(HadRole)) {
+                    type = 2;
                 }
-            });
+                else {
+                    type = 3;
+                }
+                var reward = rewards.find(function (item) {
+                    return item.type = type;
+                });
+                lastItem.type = type;
+                lastItem.target = reward.target;
+                _self.configList = res.list;
+                _self.updateUI();
+            }
         });
-        SigninManager.signinState(0, function (state) {
-            _this.ui.btnReceice.visible = state == -1 || state == 0;
-        });
-        _this.isTranslucent = false;
-        _this.canceledOnTouchOutside = false;
-        _this.init(true);
         return _this;
     }
     SigninPop.show = function (force) {
@@ -51890,54 +54209,74 @@ var SigninPop = /** @class */ (function (_super) {
     };
     /**显示加金币提示 */
     SigninPop.prototype.showAddCoinToast = function (data) {
-        // wx.showToast({
-        //     title: "+" + coinNum,
-        //     image: "res/signin/ic_coin.png",
-        //     duration: 1000,
-        // });
         SignResultView.show(data);
     };
-    SigninPop.prototype.init = function (frist) {
+    SigninPop.prototype.updateUI = function (frist) {
         var _this = this;
         if (frist === void 0) { frist = false; }
-        this.coins.forEach(function (element, index) {
+        if (!this.ui) {
+            return;
+        }
+        this.configList.forEach(function (element, index) {
             var sign = _this.ui["sign" + (index + 1)];
-            if (frist) {
-                sign.buqianBtn.on(Laya.Event.CLICK, _this, function () {
-                    console.log('TODO:点击了补签，执行补签逻辑');
-                    SigninManager.signin(index + 1, function (flag, day) {
-                        if (flag) {
-                            console.log('补签成功，发送奖励:', _this.coins[day - 1]);
-                            // this.showAddCoinToast(this.coins[day - 1]);
-                            var a = _this.titles[day - 1];
-                            _this.showAddCoinToast({ "img": a, "num": _this.coins[day - 1] });
-                        }
-                    });
-                });
-                sign.rewardImg.skin = _this.imgs[index];
-                sign.tfType.text = _this.titles[index];
+            var type = element.type;
+            sign.rewardCountLabel.text = "X" + element.target;
+            sign.dayLabel.text = "\u7B2C" + (index + 1) + "\u5929";
+            // 1 体力 2 金币 3 角色
+            if (type == 1) {
+                sign.rewardImg.skin = "res/signin/ic_power.png";
+                sign.tfType.text = "体力";
             }
-            SigninManager.signinState(index + 1, function (state) {
-                sign.rewardCountLabel.text = "+ " + element;
-                sign.dayLabel.text = "\u7B2C" + (index + 1) + "\u5929";
-                sign.stateImg.visible = true;
-                if (state == 1) {
-                    sign.stateImg.skin = 'res/signin/ic_status_1.png';
-                    sign.dayLabel.text = "已领取";
-                }
-                else if (state == 2) {
-                    sign.stateImg.skin = 'res/signin/ic_status_2.png';
-                    sign.dayLabel.text = "已领取";
+            else if (type == 2) {
+                sign.rewardImg.skin = "res/signin/ic_coin.png";
+                sign.tfType.text = "金币";
+            }
+            else if (type == 3) {
+                sign.visible = false;
+                sign = _this.ui["sign" + (7 + 1)];
+                sign.visible = true;
+            }
+        });
+        // 没有断签
+        if (!SigninManager.checkSignBreak()) {
+            var list = DataManager.getData(SignKey);
+            list.forEach(function (element, index) {
+                if (element.type == 3) {
+                    _this.ui.sevenRoleLabel.text = "已领取";
                 }
                 else {
-                    sign.stateImg.visible = false;
+                    var sign = _this.ui["sign" + (index + 1)];
+                    sign.dayLabel.text = "已领取";
+                    sign.stateImg.visible = true;
+                    sign.stateImg.skin = 'res/signin/btn_choose.png';
                 }
-                sign.buqianBtn.visible = state == -1;
             });
-        });
+        }
+        // 是否显示领取按钮
+        if (SigninManager.hadSign()) { //已签到
+            this.ui.btnReceice.visible = false;
+            if (SigninPop.autoFlag) {
+                this.finish();
+            }
+        }
+        else {
+            this.ui.btnReceice.visible = true;
+            if (SigninPop.autoFlag) {
+                this.visible = true;
+            }
+        }
+        SigninPop.autoFlag = false;
     };
+    SigninPop.prototype.onShow = function () {
+        Laya.stage.on(refreshSign, this, this.updateUI);
+    };
+    SigninPop.prototype.onHide = function () {
+        Laya.stage.off(refreshSign, this, this.updateUI);
+    };
+    //自动弹出标注
+    SigninPop.autoFlag = false;
     return SigninPop;
-}(Tape.PopView));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -51949,6 +54288,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var refreshSign = "updateSignUI";
 var SignResultView = /** @class */ (function (_super) {
     __extends(SignResultView, _super);
     function SignResultView() {
@@ -51958,601 +54298,46 @@ var SignResultView = /** @class */ (function (_super) {
         return _this;
     }
     SignResultView.prototype.init = function () {
-        var _this = this;
+        this.isTranslucent = false;
+        this.canceledOnTouchOutside = false;
         this.ui.scale(0, 0);
         this.bgAlpha = 0.8;
         Laya.Tween.to(this.ui, { scaleX: 1, scaleY: 1 }, 500, Laya.Ease.linearOut);
-        this.ui.getBtn.on(Laya.Event.CLICK, this, function () {
-            _this.finish();
-        });
     };
     SignResultView.prototype.onShow = function () {
+        var _this = this;
         if (this.params) {
-            if (this.params.img == "体力") {
+            if (this.params.type == 1) {
                 this.ui.rewardImg.skin = "res/signin/ic_power_get.png";
             }
-            else if (this.params.img == "金币") {
+            else if (this.params.type == 2) {
                 this.ui.rewardImg.skin = "res/signin/ic_coin_get.png";
             }
-            else {
+            else if (this.params.type == 2) {
+                //待定
             }
         }
-        this.ui.rewardLabel.text = "X" + this.params.num;
+        this.ui.rewardLabel.text = "X" + this.params.target;
+        this.ui.getBtn.on(Laya.Event.CLICK, this, function () {
+            if (_this.params.type == 1) {
+                User.instace.userInfo.power += _this.params.target;
+            }
+            else if (_this.params.type == 2) {
+                User.instace.userInfo.coin += _this.params.target;
+            }
+            else if (_this.params.type == 3) {
+            }
+            GameDataManager.instance.recordUserGameData();
+            Laya.stage.event(refreshSign);
+            Laya.stage.event(noticficationRefreshMainData);
+            _this.finish();
+        });
     };
     SignResultView.prototype.show = function (data) {
         Tape.PopManager.showPop(SignResultView, data);
     };
     return SignResultView;
-}(Tape.PopView));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var View = laya.ui.View;
-var Dialog = laya.ui.Dialog;
-var ui;
-(function (ui) {
-    var common;
-    (function (common) {
-        var BgViewUI = /** @class */ (function (_super) {
-            __extends(BgViewUI, _super);
-            function BgViewUI() {
-                return _super.call(this) || this;
-            }
-            BgViewUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.common.BgViewUI.uiView);
-            };
-            BgViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Rect", "props": { "width": 750, "lineWidth": 1, "height": 1334, "fillColor": "#333333" } }] };
-            return BgViewUI;
-        }(View));
-        common.BgViewUI = BgViewUI;
-    })(common = ui.common || (ui.common = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var common;
-    (function (common) {
-        var HomeViewUI = /** @class */ (function (_super) {
-            __extends(HomeViewUI, _super);
-            function HomeViewUI() {
-                return _super.call(this) || this;
-            }
-            HomeViewUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                View.regComponent("ui.views.home.ChapterItemUI", ui.views.home.ChapterItemUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.common.HomeViewUI.uiView);
-            };
-            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 1159, "x": 330, "var": "roleBtn", "skin": "res/main/btn_role.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 1159, "x": 64, "var": "btnRank", "skin": "res/main/btn_ranking.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 1041, "x": 520, "visible": false, "var": "btnMore", "skin": "res/common/ic_more.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 1020, "x": 242, "var": "btnStart", "skin": "res/main/btn_play.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 244, "x": 24, "var": "btnSignin", "skin": "res/main/btn_sign.png", "runtime": "runtime.btn_img" } }, { "type": "List", "props": { "y": 372, "x": -370, "width": 1433, "var": "chapList", "repeatY": 1, "height": 484 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "name": "render", "runtime": "ui.views.home.ChapterItemUI" } }] }, { "type": "Image", "props": { "y": 116, "x": 20, "width": 88, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "runtime": "runtime.btn_img", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "renderType": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "y": 28, "x": 20 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_star.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 190 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 31, "x": 360 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 45, "x": 492, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }, { "type": "Image", "props": { "y": 1159, "x": 605, "var": "cardBtn", "skin": "res/main/btn_card.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 1279, "x": 71, "text": "排行榜", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 350, "text": "角色", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 600, "text": "音乐卡片", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 324, "x": 36, "text": "\b签到", "fontSize": 25, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 872, "x": 126, "width": 498, "var": "modeLabel", "text": "夜 空 漫 游 指 南", "height": 40, "fontSize": 40, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 943, "x": 96, "width": 558, "var": "conditionLabel", "valign": "middle", "text": "    解锁条件", "height": 53, "fontSize": 30, "color": "#ededed", "align": "center" } }, { "type": "Image", "props": { "y": 946, "x": 284, "var": "conditionStar", "skin": "res/main/ic_star1.png" } }, { "type": "Image", "props": { "y": 1022, "x": 242, "visible": false, "var": "btnInvite", "skin": "res/main/btn_invite.png", "runtime": "runtime.btn_img" } }] };
-            return HomeViewUI;
-        }(View));
-        common.HomeViewUI = HomeViewUI;
-    })(common = ui.common || (ui.common = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var dialogs;
-    (function (dialogs) {
-        var SigninDialogUI = /** @class */ (function (_super) {
-            __extends(SigninDialogUI, _super);
-            function SigninDialogUI() {
-                return _super.call(this) || this;
-            }
-            SigninDialogUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.dialogs.SigninDialogUI.uiView);
-            };
-            SigninDialogUI.uiView = { "type": "Dialog", "props": { "width": 750, "height": 1334 } };
-            return SigninDialogUI;
-        }(Dialog));
-        dialogs.SigninDialogUI = SigninDialogUI;
-    })(dialogs = ui.dialogs || (ui.dialogs = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var DevPageUI = /** @class */ (function (_super) {
-            __extends(DevPageUI, _super);
-            function DevPageUI() {
-                return _super.call(this) || this;
-            }
-            DevPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
-                View.regComponent("runtime.btn_label", runtime.btn_label);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.DevPageUI.uiView);
-            };
-            DevPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" } }, { "type": "Panel", "props": { "y": 355, "x": 65, "width": 620, "var": "panelOutput", "height": 900 }, "child": [{ "type": "Rect", "props": { "width": 620, "lineWidth": 1, "lineColor": "#333333", "height": 900, "fillColor": "#eeeeee" } }, { "type": "Label", "props": { "y": 0, "x": 0, "wordWrap": true, "width": 620, "var": "labelOutput", "fontSize": 40 } }] }, { "type": "Box", "props": { "y": 235, "x": 65 }, "child": [{ "type": "Label", "props": { "y": 0, "x": 0, "width": 300, "var": "btnClearLocalData", "valign": "middle", "text": "清空本地数据", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }, { "type": "Label", "props": { "y": 0, "x": 320, "width": 300, "var": "btnClearRemoteData", "valign": "middle", "text": "清空远程数据", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }] }, { "type": "Box", "props": { "y": 115, "x": 65 }, "child": [{ "type": "Label", "props": { "y": 0, "x": 0, "width": 300, "var": "btnAddCoin", "valign": "middle", "text": "添加1000金币", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }, { "type": "Label", "props": { "y": 0, "x": 320, "width": 300, "var": "btnExit", "valign": "middle", "text": "退出小游戏", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }] }, { "type": "Image", "props": { "y": 24, "x": 24, "var": "btnBack", "skin": "res/common/ic_back.png" } }] };
-            return DevPageUI;
-        }(View));
-        pages.DevPageUI = DevPageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var GamePageUI = /** @class */ (function (_super) {
-            __extends(GamePageUI, _super);
-            function GamePageUI() {
-                return _super.call(this) || this;
-            }
-            GamePageUI.prototype.createChildren = function () {
-                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.GamePageUI.uiView);
-            };
-            GamePageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" } }, { "type": "Image", "props": { "y": 56, "x": 40, "var": "btnPause", "skin": "res/game/btn_pause.png" } }, { "type": "Box", "props": { "y": 932, "x": 18, "var": "selectBox" }, "child": [{ "type": "Image", "props": { "skin": "res/game/bj_play_tc.png" } }, { "type": "Button", "props": { "y": 216, "x": 232, "var": "btnStart", "stateNum": 1, "skin": "res/game/btn_go.png" } }, { "type": "Label", "props": { "y": 39, "x": 213, "width": 283, "var": "tfChap", "text": "仲夏夜之梦", "height": 39, "fontSize": 38, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 108, "x": 208, "width": 283, "var": "tfName", "text": "第一首", "height": 30, "fontSize": 24, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 112, "x": 515, "width": 154, "var": "btnSelSong", "text": "选择音乐", "height": 27, "fontSize": 20, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "right" }, "child": [{ "type": "Button", "props": { "y": 0, "x": 159, "stateNum": 1, "skin": "res/game/btn_enter.png", "scaleY": 0.8, "scaleX": 0.8 } }] }, { "type": "Rect", "props": { "y": 101, "x": 235, "width": 240, "lineWidth": 1, "height": 40, "fillColor": "#0e1217" } }, { "type": "Image", "props": { "y": 330, "x": 323, "skin": "res/game/ic_power1.png" } }, { "type": "Label", "props": { "y": 343, "x": 389, "width": 154, "text": "-1", "height": 32, "fontSize": 24, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "left" } }] }] };
-            return GamePageUI;
-        }(View));
-        pages.GamePageUI = GamePageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var HomePageUI = /** @class */ (function (_super) {
-            __extends(HomePageUI, _super);
-            function HomePageUI() {
-                return _super.call(this) || this;
-            }
-            HomePageUI.prototype.createChildren = function () {
-                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
-                View.regComponent("ui.common.HomeViewUI", ui.common.HomeViewUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.HomePageUI.uiView);
-            };
-            HomePageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }] }, { "type": "HomeView", "props": { "y": 0, "x": 0, "var": "actionView", "runtime": "ui.common.HomeViewUI" } }, { "type": "Label", "props": { "y": 152, "x": 501, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 955, "x": 683, "width": 100, "var": "recommendImg", "height": 146, "anchorY": 0.5, "anchorX": 0.5 } }], "animations": [{ "nodes": [{ "target": 16, "keyframes": { "x": [{ "value": 633, "tweenMethod": "linearNone", "tween": true, "target": 16, "key": "x", "index": 0 }, { "value": 633, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "x", "index": 15 }, { "value": 633, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "x", "index": 25 }], "rotation": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 16, "key": "rotation", "index": 0 }, { "value": 10, "tweenMethod": "linearNone", "tween": true, "target": 16, "key": "rotation", "index": 5 }, { "value": -10, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "rotation", "index": 10 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "rotation", "index": 15 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "rotation", "index": 25 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
-            return HomePageUI;
-        }(View));
-        pages.HomePageUI = HomePageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var LevelPageUI = /** @class */ (function (_super) {
-            __extends(LevelPageUI, _super);
-            function LevelPageUI() {
-                return _super.call(this) || this;
-            }
-            LevelPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.views.LevelRenderViewUI", ui.views.LevelRenderViewUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.LevelPageUI.uiView);
-            };
-            LevelPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 194, "x": 650, "var": "btnBack", "skin": "res/game/btn_close.png" } }, { "type": "List", "props": { "y": 371, "x": 55, "width": 640, "var": "list", "spaceY": 15, "height": 868 }, "child": [{ "type": "LevelRenderView", "props": { "name": "render", "runtime": "ui.views.LevelRenderViewUI" } }] }, { "type": "Image", "props": { "y": 231, "x": 59, "skin": "res/game/bj_music.png" }, "child": [{ "type": "Label", "props": { "y": 11, "x": 173, "width": 301, "text": "选择音乐", "height": 51, "fontSize": 50, "color": "#ffffff", "align": "center" } }] }] };
-            return LevelPageUI;
-        }(View));
-        pages.LevelPageUI = LevelPageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var LoadingPageUI = /** @class */ (function (_super) {
-            __extends(LoadingPageUI, _super);
-            function LoadingPageUI() {
-                return _super.call(this) || this;
-            }
-            LoadingPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.LoadingPageUI.uiView);
-            };
-            LoadingPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" } }, { "type": "Label", "props": { "y": 639, "x": 277, "text": "Loading", "fontSize": 55, "color": "#ffffff" } }] };
-            return LoadingPageUI;
-        }(View));
-        pages.LoadingPageUI = LoadingPageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var MusicCardUI = /** @class */ (function (_super) {
-            __extends(MusicCardUI, _super);
-            function MusicCardUI() {
-                return _super.call(this) || this;
-            }
-            MusicCardUI.prototype.createChildren = function () {
-                View.regComponent("ui.views.CardRenderItemUI", ui.views.CardRenderItemUI);
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.MusicCardUI.uiView);
-            };
-            MusicCardUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Sprite", "props": {}, "child": [{ "type": "Rect", "props": { "y": 0, "x": 0, "width": 750, "lineWidth": 1, "height": 1334, "fillColor": "#323445" } }] }, { "type": "Image", "props": { "y": 139, "x": 20, "var": "topImg", "skin": "res/card/banner.png" } }, { "type": "List", "props": { "y": 366, "x": 20, "width": 710, "var": "cardList", "spaceY": 20, "spaceX": 19, "repeatX": 3, "height": 931 }, "child": [{ "type": "CardRenderItem", "props": { "name": "render", "runtime": "ui.views.CardRenderItemUI" } }] }, { "type": "Image", "props": { "y": 36, "x": 22, "var": "backBtn", "skin": "res/card/btn_return.png", "runtime": "runtime.btn_img" } }] };
-            return MusicCardUI;
-        }(View));
-        pages.MusicCardUI = MusicCardUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var RankPageUI = /** @class */ (function (_super) {
-            __extends(RankPageUI, _super);
-            function RankPageUI() {
-                return _super.call(this) || this;
-            }
-            RankPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
-                View.regComponent("ui.rank.RankOpenUI", ui.rank.RankOpenUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.RankPageUI.uiView);
-            };
-            RankPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" } }, { "type": "Image", "props": { "y": 24, "x": 24, "var": "btnBack", "skin": "res/common/ic_back.png" } }, { "type": "Sprite", "props": { "width": 750, "var": "rankBox", "height": 1334 } }, { "type": "RankOpen", "props": { "y": 0, "x": 0, "visible": false, "var": "rankPreview", "runtime": "ui.rank.RankOpenUI" } }, { "type": "Image", "props": { "y": 1102, "x": 220, "var": "btnRankGroup", "skin": "res/rank/rank_group.png" } }] };
-            return RankPageUI;
-        }(View));
-        pages.RankPageUI = RankPageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var ShareEnterUI = /** @class */ (function (_super) {
-            __extends(ShareEnterUI, _super);
-            function ShareEnterUI() {
-                return _super.call(this) || this;
-            }
-            ShareEnterUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.ShareEnterUI.uiView);
-            };
-            ShareEnterUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 60, "x": 305, "width": 140, "var": "avatar", "height": 140 } }, { "type": "Label", "props": { "y": 226, "x": 54, "width": 642, "var": "content", "text": "我在完美音轨获得一张音乐卡片", "height": 35, "fontSize": 35, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 1123, "x": 242, "var": "getBtn", "skin": "res/card/btn_too.png" } }, { "type": "Image", "props": { "y": 343, "x": 133, "width": 520, "skin": "res/main/bj_piece.png", "sizeGrid": "5,5,5,5", "height": 780 } }, { "type": "Image", "props": { "y": 316, "x": 112, "width": 520, "var": "topImg", "skin": "res/main/bj_piece.png", "sizeGrid": "5,5,5,5", "height": 780 } }] };
-            return ShareEnterUI;
-        }(View));
-        pages.ShareEnterUI = ShareEnterUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var plugins;
-    (function (plugins) {
-        var SignInUI = /** @class */ (function (_super) {
-            __extends(SignInUI, _super);
-            function SignInUI() {
-                return _super.call(this) || this;
-            }
-            SignInUI.prototype.createChildren = function () {
-                View.regComponent("ui.plugins.SignInItemUI", ui.plugins.SignInItemUI);
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.plugins.SignInUI.uiView);
-            };
-            SignInUI.uiView = { "type": "View", "props": { "y": 667, "x": 375, "width": 750, "height": 1334, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 608, "x": 381, "skin": "res/signin/bj_sign_tc.png", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 113, "x": 37, "width": 571, "skin": "res/signin/item_bg3.png", "sizeGrid": "55,48,47,42", "height": 801 } }, { "type": "Box", "props": { "y": 145, "x": 58, "width": 500, "height": 600 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "SignInItem", "props": { "y": 0, "x": 0, "var": "sign1", "runtime": "ui.plugins.SignInItemUI" } }, { "type": "SignInItem", "props": { "y": 0, "x": 353, "var": "sign3", "runtime": "ui.plugins.SignInItemUI" } }, { "type": "SignInItem", "props": { "y": 0, "x": 176, "var": "sign2", "runtime": "ui.plugins.SignInItemUI" } }] }, { "type": "Box", "props": { "y": 262, "x": 0 }, "child": [{ "type": "SignInItem", "props": { "y": 0, "x": 0, "var": "sign4", "runtime": "ui.plugins.SignInItemUI" } }, { "type": "SignInItem", "props": { "y": 0, "x": 353, "var": "sign6", "runtime": "ui.plugins.SignInItemUI" } }, { "type": "SignInItem", "props": { "y": 0, "x": 176, "var": "sign5", "runtime": "ui.plugins.SignInItemUI" } }] }, { "type": "Box", "props": { "y": 511, "x": 0 }, "child": [{ "type": "SignInItem", "props": { "y": 11, "x": 177, "var": "sign7", "runtime": "ui.plugins.SignInItemUI" } }] }] }, { "type": "Image", "props": { "y": 1022, "x": 309, "visible": false, "var": "btnReceice", "skin": "res/signin/btn_get.png", "runtime": "runtime.btn_img", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 127, "x": -99, "width": 491, "text": "连续签到可以获得更多奖励！", "height": 26, "fontSize": 24, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }] }, { "type": "Image", "props": { "y": 76, "x": 599, "width": 65, "var": "btnClose", "skin": "res/signin/ic_close.png", "runtime": "runtime.btn_img", "height": 65, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 18, "x": 214, "width": 211, "text": "每日签到", "height": 39, "fontSize": 38, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }] }] };
-            return SignInUI;
-        }(View));
-        plugins.SignInUI = SignInUI;
-    })(plugins = ui.plugins || (ui.plugins = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var plugins;
-    (function (plugins) {
-        var SignInItemUI = /** @class */ (function (_super) {
-            __extends(SignInItemUI, _super);
-            function SignInItemUI() {
-                return _super.call(this) || this;
-            }
-            SignInItemUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.plugins.SignInItemUI.uiView);
-            };
-            SignInItemUI.uiView = { "type": "View", "props": { "width": 146, "height": 230 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 13, "skin": "res/signin/item_bg1.png" }, "child": [{ "type": "Label", "props": { "y": 21, "x": 60, "width": 78, "var": "tfType", "text": "体力", "height": 29, "fontSize": 25, "color": "#ffffff", "bold": false, "anchorY": 0.5, "anchorX": 0.5, "align": "center" } }] }, { "type": "Label", "props": { "y": 212, "x": 73, "width": 146, "var": "dayLabel", "text": "第1天", "height": 25, "fontSize": 25, "color": "#FF6788", "bold": false, "anchorY": 0.5, "anchorX": 0.5, "align": "center" } }, { "type": "Image", "props": { "y": 48, "x": 13, "var": "rewardImg", "skin": "res/signin/ic_coin.png" } }, { "type": "Image", "props": { "y": 108, "x": 104, "visible": false, "var": "stateImg", "skin": "res/signin/btn_choose.png" } }, { "type": "Image", "props": { "y": 154, "x": 16, "width": 114, "skin": "res/signin/item_bg2.png", "sizeGrid": "0,0,0,0", "height": 37 }, "child": [{ "type": "Label", "props": { "y": 18, "x": 57, "width": 146, "var": "rewardCountLabel", "text": "x50", "height": 25, "fontSize": 25, "color": "#4A74C3", "bold": false, "anchorY": 0.5, "anchorX": 0.5, "align": "center" } }] }, { "type": "Image", "props": { "y": 175, "x": 74, "visible": false, "var": "buqianBtn", "skin": "res/signin/supplement.png", "runtime": "runtime.btn_img", "anchorY": 0.5, "anchorX": 0.5 } }] };
-            return SignInItemUI;
-        }(View));
-        plugins.SignInItemUI = SignInItemUI;
-    })(plugins = ui.plugins || (ui.plugins = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var plugins;
-    (function (plugins) {
-        var SignResultUI = /** @class */ (function (_super) {
-            __extends(SignResultUI, _super);
-            function SignResultUI() {
-                return _super.call(this) || this;
-            }
-            SignResultUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.plugins.SignResultUI.uiView);
-            };
-            SignResultUI.uiView = { "type": "View", "props": { "y": 667, "x": 375, "width": 750, "height": 1334, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 325, "x": 220, "skin": "res/signin/bj_get.png" }, "child": [{ "type": "Label", "props": { "y": 18, "x": 55, "text": "恭喜你获得", "fontSize": 40, "color": "#ffffff" } }] }, { "type": "Label", "props": { "y": 962, "x": 195, "text": "连续签到可以获得更多奖励", "fontSize": 30, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 436, "x": 135, "var": "rewardImg", "skin": "res/signin/ic_power_get.png" } }, { "type": "Image", "props": { "y": 1077, "x": 242, "var": "getBtn", "skin": "res/signin/btn_sure.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 806, "x": 339, "var": "rewardLabel", "text": "X10", "fontSize": 40, "color": "#ffffff", "align": "center" } }] };
-            return SignResultUI;
-        }(View));
-        plugins.SignResultUI = SignResultUI;
-    })(plugins = ui.plugins || (ui.plugins = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var rank;
-    (function (rank) {
-        var RankOpenUI = /** @class */ (function (_super) {
-            __extends(RankOpenUI, _super);
-            function RankOpenUI() {
-                return _super.call(this) || this;
-            }
-            RankOpenUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.rank.RankOpenUI.uiView);
-            };
-            RankOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 264, "x": 75, "skin": "res/rank/rank_bg.png" } }, { "type": "List", "props": { "y": 342, "x": 81, "width": 588, "name": "rankList", "height": 720 }, "child": [{ "type": "Box", "props": { "width": 588, "name": "render", "height": 90 }, "child": [{ "type": "Label", "props": { "y": 28, "x": 110, "text": "昵称", "name": "nickname", "fontSize": 33, "font": "SimHei", "color": "#333333" } }, { "type": "Image", "props": { "y": 10, "x": 20, "width": 70, "name": "avatarUrl", "height": 70 } }, { "type": "Label", "props": { "y": 25, "x": 363, "width": 200, "text": "0", "name": "data.score.wxgame.score|default|0", "height": 40, "fontSize": 40, "color": "#ffffff", "align": "right" } }] }] }] };
-            return RankOpenUI;
-        }(View));
-        rank.RankOpenUI = RankOpenUI;
-    })(rank = ui.rank || (ui.rank = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var CardRenderItemUI = /** @class */ (function (_super) {
-            __extends(CardRenderItemUI, _super);
-            function CardRenderItemUI() {
-                return _super.call(this) || this;
-            }
-            CardRenderItemUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.CardRenderItemUI.uiView);
-            };
-            CardRenderItemUI.uiView = { "type": "View", "props": { "width": 224, "height": 336 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 224, "var": "cover", "skin": "res/main/bj_homepage@2x.png", "height": 336 } }, { "type": "Label", "props": { "y": 258, "x": 21, "var": "tfName", "text": "天空之城", "fontSize": 21, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 293, "x": 21, "var": "auth", "text": "久石让", "fontSize": 17, "color": "#ffffff" } }] };
-            return CardRenderItemUI;
-        }(View));
-        views.CardRenderItemUI = CardRenderItemUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var GamePauseUI = /** @class */ (function (_super) {
-            __extends(GamePauseUI, _super);
-            function GamePauseUI() {
-                return _super.call(this) || this;
-            }
-            GamePauseUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.GamePauseUI.uiView);
-            };
-            GamePauseUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 67, "x": 54, "var": "btnHome", "skin": "res/game/btn_home.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 945, "x": 420, "var": "btnRestart", "skin": "res/game/btn_again.png", "runtime": "runtime.btn_img" } }, { "type": "Button", "props": { "y": 945, "x": 87, "var": "btnResume", "stateNum": 1, "skin": "res/game/btn_continue.png" } }, { "type": "Label", "props": { "y": 546, "x": 224, "width": 301, "text": "暂停", "height": 66, "fontSize": 60, "color": "#ffffff", "align": "center" } }] };
-            return GamePauseUI;
-        }(View));
-        views.GamePauseUI = GamePauseUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var GameResultViewUI = /** @class */ (function (_super) {
-            __extends(GameResultViewUI, _super);
-            function GameResultViewUI() {
-                return _super.call(this) || this;
-            }
-            GameResultViewUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.GameResultViewUI.uiView);
-            };
-            GameResultViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 67, "x": 54, "var": "homebtn", "skin": "res/game/btn_home.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 344, "x": 177, "var": "star1", "skin": "res/main/ic_star.png" } }, { "type": "Image", "props": { "y": 340, "x": 508, "var": "star3", "skin": "res/game/ic_star.png" } }, { "type": "Image", "props": { "y": 217, "x": 340, "var": "star2", "skin": "res/game/ic_star.png" } }, { "type": "Label", "props": { "y": 435, "x": 224, "width": 301, "var": "scorelabel", "text": "14分", "height": 66, "fontSize": 60, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 598, "x": 219, "var": "tip", "text": "加油哦", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 567, "x": 369, "skin": "res/game/ic_coin.png" } }, { "type": "Label", "props": { "y": 598, "x": 476, "var": "coinLabel", "text": "X10", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 684, "x": 55, "skin": "res/game/bj_single.png" }, "child": [{ "type": "Label", "props": { "y": 35, "x": 172, "var": "musicname", "text": "天空之城", "fontSize": 30, "color": "#666666", "align": "left" } }, { "type": "Label", "props": { "y": 88, "x": 172, "var": "authname", "text": "久石让", "fontSize": 25, "color": "#999999" } }] }, { "type": "Image", "props": { "y": 856, "x": 57, "skin": "res/game/bj_ranking_single.png" }, "child": [{ "type": "Label", "props": { "y": 23, "x": 24, "width": 140, "var": "rankingLabel", "text": "第11名", "height": 30, "fontSize": 30, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 23, "x": 378, "var": "rankbtn", "text": "查看单曲排行榜", "fontSize": 30, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 24, "x": 602, "skin": "res/game/btn_enter.png" } }] }, { "type": "Image", "props": { "y": 1011, "x": 242, "var": "restartbtn", "skin": "res/game/btn_again.png", "runtime": "runtime.btn_img" } }] };
-            return GameResultViewUI;
-        }(View));
-        views.GameResultViewUI = GameResultViewUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var GameReviveUI = /** @class */ (function (_super) {
-            __extends(GameReviveUI, _super);
-            function GameReviveUI() {
-                return _super.call(this) || this;
-            }
-            GameReviveUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.GameReviveUI.uiView);
-            };
-            GameReviveUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 67, "x": 54, "var": "btnHome", "skin": "res/game/btn_home.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 435, "x": 224, "width": 301, "var": "scorelabel", "text": "复活", "height": 66, "fontSize": 60, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 1011, "x": 242, "var": "btnRevive", "skin": "res/game/btn_sure.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 613, "x": 354, "skin": "res/game/ic_power1.png" } }, { "type": "Label", "props": { "y": 612, "x": 39, "width": 301, "text": "使用", "height": 66, "fontSize": 40, "color": "#ffffff", "align": "right" } }, { "type": "Label", "props": { "y": 612, "x": 412, "width": 301, "text": "-1", "height": 66, "fontSize": 40, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 612, "x": 469, "width": 301, "text": "复活", "height": 48, "fontSize": 40, "color": "#ffffff", "align": "left" } }] };
-            return GameReviveUI;
-        }(View));
-        views.GameReviveUI = GameReviveUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var home;
-        (function (home) {
-            var AddPowerUI = /** @class */ (function (_super) {
-                __extends(AddPowerUI, _super);
-                function AddPowerUI() {
-                    return _super.call(this) || this;
-                }
-                AddPowerUI.prototype.createChildren = function () {
-                    _super.prototype.createChildren.call(this);
-                    this.createView(ui.views.home.AddPowerUI.uiView);
-                };
-                AddPowerUI.uiView = { "type": "View", "props": { "width": 750, "height": 1134 }, "child": [{ "type": "Image", "props": { "y": 287, "x": 55, "skin": "res/main/bj_power_tc.png" } }, { "type": "Label", "props": { "y": 336, "x": 269, "width": 211, "text": "获取体力", "height": 39, "fontSize": 38, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 302, "x": 641, "var": "btnClose", "stateNum": 1, "skin": "res/main/btn_close.png" } }, { "type": "Button", "props": { "y": 723, "x": 260, "var": "btnWatch", "stateNum": 1, "skin": "res/main/btn_watch.png" } }, { "type": "Image", "props": { "y": 428, "x": 271, "skin": "res/main/ic_add_power.png" } }, { "type": "Label", "props": { "y": 668, "x": 220, "width": 211, "text": "看视频增加体力", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#666666", "align": "right" } }, { "type": "Image", "props": { "y": 654, "x": 438, "skin": "res/main/ic_power1.png" } }, { "type": "Label", "props": { "y": 668, "x": 500, "width": 211, "text": "x1", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#666666", "align": "left" } }] };
-                return AddPowerUI;
-            }(View));
-            home.AddPowerUI = AddPowerUI;
-        })(home = views.home || (views.home = {}));
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var home;
-        (function (home) {
-            var ChapterItemUI = /** @class */ (function (_super) {
-                __extends(ChapterItemUI, _super);
-                function ChapterItemUI() {
-                    return _super.call(this) || this;
-                }
-                ChapterItemUI.prototype.createChildren = function () {
-                    _super.prototype.createChildren.call(this);
-                    this.createView(ui.views.home.ChapterItemUI.uiView);
-                };
-                ChapterItemUI.uiView = { "type": "View", "props": { "width": 480, "height": 480 }, "child": [{ "type": "Image", "props": { "y": 54, "x": 51, "var": "bg", "skin": "res/main/bj_piece.png" } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 440, "var": "pic", "height": 440 } }] };
-                return ChapterItemUI;
-            }(View));
-            home.ChapterItemUI = ChapterItemUI;
-        })(home = views.home || (views.home = {}));
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var home;
-        (function (home) {
-            var UserInfoUI = /** @class */ (function (_super) {
-                __extends(UserInfoUI, _super);
-                function UserInfoUI() {
-                    return _super.call(this) || this;
-                }
-                UserInfoUI.prototype.createChildren = function () {
-                    _super.prototype.createChildren.call(this);
-                    this.createView(ui.views.home.UserInfoUI.uiView);
-                };
-                UserInfoUI.uiView = { "type": "View", "props": { "width": 750, "height": 1134 }, "child": [{ "type": "Image", "props": { "y": 287, "x": 55, "skin": "res/main/bj_user_tc.png" } }, { "type": "Button", "props": { "y": 302, "x": 641, "var": "btnClose", "stateNum": 1, "skin": "res/main/btn_close.png" } }, { "type": "Label", "props": { "y": 479, "x": 269, "width": 211, "var": "nickLabel", "text": "我本有心向明月", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 624, "x": 569, "skin": "res/main/ic_user_coin.png" } }, { "type": "Image", "props": { "y": 624, "x": 337, "skin": "res/main/ic_user_power.png" } }, { "type": "Image", "props": { "y": 624, "x": 104, "skin": "res/main/ic_user_star.png" } }, { "type": "Label", "props": { "y": 718, "x": 78, "width": 121, "var": "starLabel", "text": "44", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#484848", "align": "center" } }, { "type": "Label", "props": { "y": 718, "x": 315, "width": 121, "var": "heartLabel", "text": "55", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#484848", "align": "center" } }, { "type": "Label", "props": { "y": 718, "x": 551, "width": 121, "var": "musicLabel", "text": "77", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#484848", "align": "center" } }, { "type": "Label", "props": { "y": 528, "x": 269, "width": 211, "var": "userId", "text": "ID 9527", "height": 39, "fontSize": 28, "font": "PingFangSC-Regular", "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 317, "x": 305, "width": 140, "var": "avatar", "height": 140 }, "child": [{ "type": "Sprite", "props": { "width": 140, "renderType": "mask", "height": 140 }, "child": [{ "type": "Circle", "props": { "y": 70, "x": 70, "radius": 70, "lineWidth": 1, "fillColor": "#ff0000" } }] }] }] };
-                return UserInfoUI;
-            }(View));
-            home.UserInfoUI = UserInfoUI;
-        })(home = views.home || (views.home = {}));
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var LevelRenderViewUI = /** @class */ (function (_super) {
-            __extends(LevelRenderViewUI, _super);
-            function LevelRenderViewUI() {
-                return _super.call(this) || this;
-            }
-            LevelRenderViewUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.LevelRenderViewUI.uiView);
-            };
-            LevelRenderViewUI.uiView = { "type": "View", "props": { "width": 640, "height": 160 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/game/bj_choose music.png" } }, { "type": "Label", "props": { "y": 21, "x": 155, "width": 418, "var": "title", "text": "新手", "height": 43, "fontSize": 40, "color": "#333333" } }, { "type": "Label", "props": { "y": 71, "x": 156, "width": 418, "var": "tfAuthor", "text": "新手", "height": 21, "fontSize": 22, "color": "#999999" } }, { "type": "Image", "props": { "y": 107, "x": 147, "var": "star_0", "skin": "res/game/ic_star_s.png" } }, { "type": "Image", "props": { "y": 107, "x": 200, "var": "star_1", "skin": "res/game/ic_star_s.png" } }, { "type": "Image", "props": { "y": 107, "x": 252, "var": "star_2", "skin": "res/game/ic_star_s.png" } }, { "type": "Button", "props": { "y": 47, "x": 506, "var": "btnStart", "stateNum": 1, "skin": "res/game/btn_play.png" } }] };
-            return LevelRenderViewUI;
-        }(View));
-        views.LevelRenderViewUI = LevelRenderViewUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var LoadingViewUI = /** @class */ (function (_super) {
-            __extends(LoadingViewUI, _super);
-            function LoadingViewUI() {
-                return _super.call(this) || this;
-            }
-            LoadingViewUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.LoadingViewUI.uiView);
-            };
-            LoadingViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1134 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Label", "props": { "y": 664, "x": 305, "width": 285, "text": "Loading...", "strokeColor": "#FF6600", "stroke": 4, "height": 38, "fontSize": 38, "color": "#FFFFFF" } }] };
-            return LoadingViewUI;
-        }(View));
-        views.LoadingViewUI = LoadingViewUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var LoseViewUI = /** @class */ (function (_super) {
-            __extends(LoseViewUI, _super);
-            function LoseViewUI() {
-                return _super.call(this) || this;
-            }
-            LoseViewUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.LoseViewUI.uiView);
-            };
-            LoseViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1134 }, "child": [{ "type": "Image", "props": { "y": 367, "x": 75, "width": 600, "skin": "res/signin/item_bg3.png", "sizeGrid": "16,18,20,18", "height": 400 }, "child": [{ "type": "Button", "props": { "y": 306, "x": 229, "width": 141, "var": "btnBack", "stateNum": 1, "skin": "res/signin/item_bg1.png", "sizeGrid": "18,20,10,18", "labelSize": 32, "labelColors": "#ffffff,#ffffff,#ffffff", "label": "确定", "height": 50 } }, { "type": "Label", "props": { "y": 132, "x": 184, "var": "tfResult", "text": "GAME OVER", "strokeColor": "#FF6600", "stroke": 4, "fontSize": 38, "color": "#FFFFFF" } }] }] };
-            return LoseViewUI;
-        }(View));
-        views.LoseViewUI = LoseViewUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var PopBigCardUI = /** @class */ (function (_super) {
-            __extends(PopBigCardUI, _super);
-            function PopBigCardUI() {
-                return _super.call(this) || this;
-            }
-            PopBigCardUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.PopBigCardUI.uiView);
-            };
-            PopBigCardUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 176, "x": 95, "width": 560, "var": "bigImg", "skin": "res/main/bj_homepage@2x.png", "height": 840 } }, { "type": "Image", "props": { "y": 1079, "x": 242, "var": "shareBtn", "skin": "res/card/btn_share.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 1193, "x": 270, "text": "分享到朋友圈", "fontSize": 35, "color": "#ffffff" } }] };
-            return PopBigCardUI;
-        }(View));
-        views.PopBigCardUI = PopBigCardUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var RoleItemRenderUI = /** @class */ (function (_super) {
-            __extends(RoleItemRenderUI, _super);
-            function RoleItemRenderUI() {
-                return _super.call(this) || this;
-            }
-            RoleItemRenderUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.RoleItemRenderUI.uiView);
-            };
-            RoleItemRenderUI.uiView = { "type": "View", "props": { "width": 600, "height": 120 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 600, "height": 120 }, "child": [{ "type": "Rect", "props": { "width": 600, "lineWidth": 1, "height": 120, "fillColor": "#ffffff" } }] }, { "type": "Image", "props": { "y": 10, "x": 14, "width": 100, "var": "roleimg", "height": 100 } }, { "type": "Label", "props": { "y": 23, "x": 134, "var": "rolename", "text": "角色", "fontSize": 30, "color": "#404040" } }, { "type": "Label", "props": { "y": 69, "x": 134, "var": "tip", "text": "连续签到七天可以解锁", "fontSize": 20, "color": "#999999" } }, { "type": "Image", "props": { "y": 27, "x": 487, "var": "useBtn", "skin": "res/role/btn_use.png", "runtime": "runtime.btn_img" } }] };
-            return RoleItemRenderUI;
-        }(View));
-        views.RoleItemRenderUI = RoleItemRenderUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var RoleViewUI = /** @class */ (function (_super) {
-            __extends(RoleViewUI, _super);
-            function RoleViewUI() {
-                return _super.call(this) || this;
-            }
-            RoleViewUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                View.regComponent("ui.views.RoleItemRenderUI", ui.views.RoleItemRenderUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.RoleViewUI.uiView);
-            };
-            RoleViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 199, "x": 55, "skin": "res/role/bj_role_tc.png" }, "child": [{ "type": "Label", "props": { "y": 14, "x": 280, "width": 80, "text": "角色", "height": 40, "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 57, "x": 587, "var": "closebtn", "skin": "res/main/btn_close.png", "runtime": "runtime.btn_img" } }, { "type": "List", "props": { "y": 135, "x": 20, "width": 600, "var": "rolelist", "spaceY": 12, "repeatX": 1, "height": 785 }, "child": [{ "type": "RoleItemRender", "props": { "name": "render", "runtime": "ui.views.RoleItemRenderUI" } }] }] }] };
-            return RoleViewUI;
-        }(View));
-        views.RoleViewUI = RoleViewUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var SettingComUI = /** @class */ (function (_super) {
-            __extends(SettingComUI, _super);
-            function SettingComUI() {
-                return _super.call(this) || this;
-            }
-            SettingComUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.SettingComUI.uiView);
-            };
-            SettingComUI.uiView = { "type": "View", "props": { "width": 600, "height": 600 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 600, "skin": "res/signin/item_bg3.png", "sizeGrid": "20,12,14,14", "height": 600 } }, { "type": "Label", "props": { "y": 21, "x": 16, "fontSize": 24, "color": "#000000" } }, { "type": "Label", "props": { "y": 129, "x": 16, "width": 75, "text": "动画表现", "height": 18, "fontSize": 24, "color": "#000000" } }, { "type": "Label", "props": { "y": 195, "x": 16, "text": "旋转角度", "fontSize": 24, "color": "#000000" } }, { "type": "Label", "props": { "y": 308, "x": 16, "text": "滚屏速度", "fontSize": 24, "color": "#000000" } }, { "type": "Tab", "props": { "y": 28, "x": 117, "width": 211, "visible": false, "var": "tabSong", "skin": "res/common/tab.png", "selectedIndex": 1, "scaleY": 2, "scaleX": 2.2, "labels": "狐狸小姐,钢琴块,G小调", "height": 26 } }, { "type": "Tab", "props": { "y": 107, "x": 117, "width": 145, "var": "tabAni", "skin": "res/common/tab.png", "selectedIndex": 0, "scaleY": 2, "scaleX": 2.2, "labels": "线条,小球", "height": 26 } }, { "type": "Tab", "props": { "y": 177, "x": 117, "width": 145, "var": "tabRotate", "skin": "res/common/tab.png", "selectedIndex": 0, "scaleY": 2, "scaleX": 2.2, "labels": "固定角度,变化角度", "height": 26 } }, { "type": "Tab", "props": { "y": 241, "x": 117, "width": 80, "var": "tabSpeed", "skin": "res/common/tab.png", "selectedIndex": 0, "scaleY": 2, "scaleX": 2.2, "labels": "4,5,6", "height": 80, "direction": "vertical" } }, { "type": "Button", "props": { "y": 530, "x": 185, "width": 169, "var": "btnStart", "stateNum": 1, "skin": "res/signin/item_bg1.png", "sizeGrid": "18,14,12,20", "labelSize": 32, "labelColors": "#ffffff,#ffffff,#ffffff", "label": "start", "height": 50 } }, { "type": "Label", "props": { "y": 435, "x": 16, "text": "其他", "fontSize": 24, "color": "#000000" } }, { "type": "Tab", "props": { "y": 417, "x": 117, "width": 145, "var": "tabSpeedType", "skin": "res/common/tab.png", "selectedIndex": 0, "scaleY": 2, "scaleX": 2.2, "labels": "垂直速不变,速度不变", "height": 26 } }] };
-            return SettingComUI;
-        }(View));
-        views.SettingComUI = SettingComUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
+}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -52569,39 +54354,512 @@ var __extends = (this && this.__extends) || (function () {
 */
 var xframe;
 (function (xframe) {
-    var XEvent = /** @class */ (function (_super) {
-        __extends(XEvent, _super);
-        function XEvent() {
-            return _super.call(this) || this;
+    var XAlert = /** @class */ (function (_super) {
+        __extends(XAlert, _super);
+        function XAlert() {
+            var _this = _super.call(this) || this;
+            _this._autoDispose = false;
+            return _this;
         }
-        Object.defineProperty(XEvent, "instance", {
-            /**单例 */
+        /**
+         * 显示警告
+         * @param message 消息
+         * @param yesHandler yes回调
+         * @param noHandler 取消按钮回调
+         * @param showYesBtn 是否显示确定按钮
+         * @param showNoBtn 是否显示取消按钮
+         * @param yesBtnLabel “确定”按钮标签
+         * @param noBtnLabel “取消”按钮标签
+         */
+        XAlert.showAlert = function (message, yesHandler, noHandler, showYesBtn, showNoBtn, yesBtnLabel, noBtnLabel) {
+            if (yesHandler === void 0) { yesHandler = null; }
+            if (noHandler === void 0) { noHandler = null; }
+            if (showYesBtn === void 0) { showYesBtn = true; }
+            if (showNoBtn === void 0) { showNoBtn = true; }
+            if (yesBtnLabel === void 0) { yesBtnLabel = null; }
+            if (noBtnLabel === void 0) { noBtnLabel = null; }
+            xframe.ModuleManager.showModule(XAlert, message, yesHandler, noHandler, showYesBtn, showNoBtn, yesBtnLabel, noBtnLabel);
+        };
+        XAlert.prototype.createUI = function () {
+            //==============================================================
+            //根据需要换UI====================================================
+            //==============================================================
+            this.ui = new XXAlertUI();
+            this.addChild(this.ui);
+            //==============================================================
+            //END===========================================================
+            //==============================================================
+            this._btnYes = this.ui["btnYes"];
+            this._btnNo = this.ui["btnNo"];
+            this._btnClose = this.ui["btnClose"];
+            this._tfMsg = this.ui["tfMsg"];
+            //
+            this._oriYesPos = this._btnYes.x;
+            this._oriNoPos = this._btnNo.x;
+        };
+        /**加事件*/
+        XAlert.prototype.initEvent = function () {
+            this.ui.on(Laya.Event.CLICK, this, this.onClick);
+        };
+        /**删除事件*/
+        XAlert.prototype.removeEvent = function () {
+            this.ui.off(Laya.Event.CLICK, this, this.onClick);
+        };
+        XAlert.prototype.onClick = function (event) {
+            switch (event.target) {
+                case this._btnYes:
+                    this._yesHandler && this._yesHandler.run();
+                    this.close();
+                    break;
+                case this._btnNo:
+                    this._noHandler && this._noHandler.run();
+                    this.close();
+                    break;
+                case this._btnClose:
+                    this.close();
+                    break;
+            }
+        };
+        /**
+         * 显示警告
+         * @param message 消息
+         * @param yesHandler yes回调
+         * @param noHandler 取消按钮回调
+         * @param showYesBtn 是否显示确定按钮
+         * @param showNoBtn 是否显示取消按钮
+         * @param yesBtnLabel “确定”按钮标签
+         * @param noBtnLabel “取消”按钮标签
+         */
+        XAlert.prototype.showAlert = function (message, yesHandler, noHandler, showYesBtn, showNoBtn, yesBtnLabel, noBtnLabel) {
+            if (yesHandler === void 0) { yesHandler = null; }
+            if (noHandler === void 0) { noHandler = null; }
+            if (showYesBtn === void 0) { showYesBtn = true; }
+            if (showNoBtn === void 0) { showNoBtn = true; }
+            if (yesBtnLabel === void 0) { yesBtnLabel = null; }
+            if (noBtnLabel === void 0) { noBtnLabel = null; }
+            this._yesHandler = yesHandler;
+            this._noHandler = noHandler;
+            if (yesBtnLabel == null || yesBtnLabel == "") {
+                yesBtnLabel = XAlert.LABEL_YES_DEFAULT;
+            }
+            if (noBtnLabel == null || noBtnLabel == "") {
+                noBtnLabel = XAlert.LABEL_NO_DEFAULT;
+            }
+            this._tfMsg.innerHTML = message + "";
+            this._tfMsg.y = (this._btnYes.y - this._tfMsg.contextHeight) * 0.5;
+            var btnNum = 0;
+            if (showYesBtn) {
+                btnNum++;
+                this._btnYes.visible = true;
+                this._btnYes.label = yesBtnLabel;
+            }
+            else {
+                this._btnYes.visible = false;
+            }
+            if (showNoBtn) {
+                this._btnNo.label = noBtnLabel;
+                this._btnNo.visible = true;
+                btnNum++;
+            }
+            else {
+                this._btnNo.visible = false;
+            }
+            var btn;
+            if (btnNum == 1) {
+                this._btnYes.visible ? btn = this._btnYes : btn = this._btnNo;
+                btn.x = (this.ui.width - btn.width) / 2;
+            }
+            else if (btnNum == 2) {
+                this._btnYes.x = this._oriYesPos;
+                this._btnNo.x = this._oriNoPos;
+            }
+        };
+        /**覆盖show*/
+        XAlert.prototype.show = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            _super.prototype.show.call(this);
+            this.showAlert.apply(this, args);
+            xframe.AniUtil.popIn(this);
+        };
+        /**覆盖关闭*/
+        XAlert.prototype.close = function () {
+            xframe.AniUtil.popOut(this, Handler.create(this, this.onClose), 150, 200);
+        };
+        //
+        XAlert.prototype.onClose = function () {
+            this._yesHandler && this._yesHandler.recover();
+            this._noHandler && this._noHandler.recover();
+            this._yesHandler = this._noHandler = null;
+            _super.prototype.close.call(this);
+        };
+        /**确定按钮默认label-静态常量*/
+        XAlert.LABEL_YES_DEFAULT = "YES";
+        /**取消按钮默认label-静态常量*/
+        XAlert.LABEL_NO_DEFAULT = "NO";
+        return XAlert;
+    }(xframe.XMWindow));
+    xframe.XAlert = XAlert;
+    //默认UI
+    var XXAlertUI = /** @class */ (function (_super) {
+        __extends(XXAlertUI, _super);
+        function XXAlertUI() {
+            var _this = _super.call(this) || this;
+            var bg = new Laya.Image();
+            bg.size(500, 320);
+            bg.graphics.drawRect(0, 0, 500, 320, "#66ccff");
+            _this.addChild(bg);
+            _this.tfMsg = new Laya.HTMLDivElement();
+            _this.tfMsg.width = 460;
+            _this.addChild(_this.tfMsg);
+            _this.tfMsg.pos(20, 72);
+            _this.tfMsg.style.fontFamily = "微软雅黑";
+            _this.tfMsg.style.fontSize = 20;
+            _this.tfMsg.style.color = "#ffffff";
+            _this.tfMsg.style.align = "center";
+            _this.btnYes = new Laya.Button("", "Yes");
+            bg = new Laya.Image();
+            bg.graphics.drawRect(0, 0, 100, 50, "#ff6600");
+            _this.btnYes.size(100, 50);
+            _this.btnYes.addChildAt(bg, 0);
+            _this.addChild(_this.btnYes);
+            _this.btnYes.pos(130, 220);
+            _this.btnNo = new Laya.Button("", "No");
+            bg = new Laya.Image();
+            bg.graphics.drawRect(0, 0, 100, 50, "#ff6600");
+            _this.btnNo.addChildAt(bg, 0);
+            _this.btnNo.size(100, 50);
+            _this.addChild(_this.btnNo);
+            _this.btnNo.pos(260, 220);
+            _this.btnYes.mouseEnabled = _this.btnNo.mouseEnabled = true;
+            return _this;
+        }
+        return XXAlertUI;
+    }(Laya.Component));
+})(xframe || (xframe = {}));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+* name
+*/
+var XEvent = /** @class */ (function (_super) {
+    __extends(XEvent, _super);
+    function XEvent() {
+        return _super.call(this) || this;
+    }
+    Object.defineProperty(XEvent, "instance", {
+        /**单例 */
+        get: function () {
+            if (!XEvent._instance) {
+                XEvent._instance = new XEvent();
+            }
+            return XEvent._instance;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**事件-关闭 */
+    XEvent.CLOSE = "close";
+    return XEvent;
+}(Laya.EventDispatcher));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+* name
+* 可选择"组"
+* btns 对象可以是任意带selected的对象；
+* var btns:any[] = [];
+* var group:XGroup = new XGroup(btns);
+*/
+var xframe;
+(function (xframe) {
+    var XGroup = /** @class */ (function (_super) {
+        __extends(XGroup, _super);
+        function XGroup(btns) {
+            if (btns === void 0) { btns = null; }
+            var _this = _super.call(this) || this;
+            _this.buttons = btns;
+            return _this;
+        }
+        /**销毁*/
+        XGroup.prototype.destroy = function () {
+            var btn;
+            for (var i = 0; i < this._btns.length; i++) {
+                btn = this._btns[i];
+                btn.off(Laya.Event.CLICK, this, this.onSelect);
+            }
+            this._btns = null;
+        };
+        XGroup.prototype.onSelect = function (e) {
+            this.selectedBtn = e.currentTarget;
+        };
+        Object.defineProperty(XGroup.prototype, "selectedBtn", {
+            /**选中按钮*/
             get: function () {
-                if (!XEvent._instance) {
-                    XEvent._instance = new XEvent();
+                return this._selectedBtn;
+            },
+            /**选中按钮*/
+            set: function (btn) {
+                if (this._selectedBtn != btn) {
+                    if (this._selectedBtn) {
+                        this._selectedBtn.selected = false;
+                        this._selectedBtn.mouseEnabled = true;
+                    }
+                    this._selectedBtn = btn;
+                    if (this._selectedBtn) {
+                        this._selectedBtn.selected = true;
+                        this._selectedBtn.mouseEnabled = false;
+                    }
+                    this.event(Laya.Event.CHANGE);
                 }
-                return XEvent._instance;
+                this.event(Laya.Event.SELECT);
             },
             enumerable: true,
             configurable: true
         });
-        /**事件-关闭 */
-        XEvent.CLOSE = "close";
-        return XEvent;
+        Object.defineProperty(XGroup.prototype, "selectedIndex", {
+            /**获取选择序列*/
+            get: function () {
+                return this.buttons.indexOf(this._selectedBtn);
+            },
+            /***/
+            set: function (v) {
+                this.selectedBtn = this.buttons[v];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(XGroup.prototype, "buttons", {
+            /**获取按钮组*/
+            get: function () {
+                return this._btns;
+            },
+            /**设置按钮组*/
+            set: function (btns) {
+                this._btns = btns;
+                var btn;
+                for (var i = 0; i < this._btns.length; i++) {
+                    btn = this._btns[i];
+                    if (btn instanceof Laya.Button) {
+                        btn.toggle = true;
+                    }
+                    btn.on(Laya.Event.CLICK, this, this.onSelect);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return XGroup;
     }(Laya.EventDispatcher));
-    xframe.XEvent = XEvent;
+    xframe.XGroup = XGroup;
 })(xframe || (xframe = {}));
 
-var XEvent = xframe.XEvent;
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+* name
+*/
+var xframe;
+(function (xframe) {
+    var XTip = /** @class */ (function (_super) {
+        __extends(XTip, _super);
+        function XTip() {
+            var _this = _super.call(this) || this;
+            _this._layer = xframe.LayerManager.LAYER_POP;
+            _this._align = xframe.LayerManager.ALIGN_CENTER;
+            return _this;
+        }
+        /**
+         * 显示一个tip
+         * @param tipStr 提示信息
+         * */
+        XTip.showTip = function (tipStr) {
+            var tip = Laya.Pool.getItem("XTip");
+            if (!tip) {
+                tip = new XTip();
+            }
+            tip.show(tipStr);
+            Laya.Tween.to(tip, { y: tip.y - 180, alpha: 0 }, 500, null, Handler.create(tip, tip.close), 1200);
+        };
+        /**显示一个tip*/
+        // public showTip(str:string):void{
+        // 	this.show();
+        // 	this._msgTF.text = str;
+        // 	this._msgTF.x = (this._bg.width - this._msgTF.width)/2;
+        // 	this._msgTF.y = (this._bg.height - this._msgTF.height)/2;
+        // }
+        XTip.prototype.show = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            _super.prototype.show.call(this);
+            this.alpha = 1;
+            this._msgTF.text = args[0] + "";
+            this._msgTF.x = (this._bg.width - this._msgTF.width) / 2;
+            this._msgTF.y = (this._bg.height - this._msgTF.height) / 2;
+        };
+        XTip.prototype.close = function () {
+            Laya.Pool.recover("XTip", this);
+            _super.prototype.close.call(this);
+        };
+        //
+        XTip.prototype.createUI = function () {
+            this._bg = new Laya.Image();
+            this._bg.sizeGrid = "26,25,20,22,0";
+            this.addChild(this._bg);
+            //this._bg.skin = "common\/item_bg0.png";
+            if (!this._bg.texture) {
+                this._bg.graphics.drawRect(0, 0, 300, 140, "#66ccff");
+            }
+            this._bg.size(300, 140);
+            this._msgTF = new Laya.Label();
+            this._msgTF.fontSize = 18;
+            this.addChild(this._msgTF);
+            this._msgTF.width = 260;
+            this._msgTF.wordWrap = true;
+            this._msgTF.color = "#ffffff";
+            this._msgTF.align = "center";
+        };
+        return XTip;
+    }(xframe.XWindow));
+    xframe.XTip = XTip;
+})(xframe || (xframe = {}));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+* name
+*/
+var xframe;
+(function (xframe) {
+    var XToolTip = /** @class */ (function (_super) {
+        __extends(XToolTip, _super);
+        function XToolTip() {
+            var _this = _super.call(this) || this;
+            _this._layer = xframe.LayerManager.LAYER_TIP;
+            _this._autoDispose = false;
+            return _this;
+        }
+        XToolTip.prototype.show = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            _super.prototype.show.call(this);
+            var str = args[0];
+            this._msgTF.text = str + "";
+            //
+            this._target = args[1];
+        };
+        /**
+         * 覆盖getBounds方法
+         * 获取本对象在父容器坐标系的矩形显示区域。
+         * <p><b>注意：</b>计算量较大，尽量少用。</p>
+         * @return 矩形区域。
+         */
+        XToolTip.prototype.getBounds = function () {
+            return new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        };
+        XToolTip.prototype.onClose = function () {
+            if (this._target && !xframe.XUtils.checkHit(this._target)) {
+                this.close();
+            }
+        };
+        XToolTip.prototype.createUI = function () {
+            /**
+             * ------------------------------------------
+             * 需要配置定义一套UI----------------------------
+             * ------------------------------------------
+             * */
+            this.ui = new View();
+            this.ui.size(200, 100);
+            this.ui.graphics.drawRect(0, 0, 200, 100, "#999999");
+            this.addChild(this.ui);
+            this._msgTF = new Laya.Text();
+            this.ui.addChild(this._msgTF);
+        };
+        XToolTip.prototype.initEvent = function () {
+            Laya.stage.on(Laya.Event.MOUSE_DOWN, this, this.onClose);
+        };
+        XToolTip.prototype.removeEvent = function () {
+            Laya.stage.off(Laya.Event.MOUSE_DOWN, this, this.onClose);
+        };
+        return XToolTip;
+    }(xframe.XWindow));
+    xframe.XToolTip = XToolTip;
+})(xframe || (xframe = {}));
+
+
+var XFacade = xframe.XFacade;
+var XTip = xframe.XTip;
+var XAlert = xframe.XAlert;
 // 游戏入口
 var Main = /** @class */ (function () {
     function Main() {
-        Tape.init(750, 1334, Laya.WebGL);
-        Laya.stage.bgColor = "#ffffff";
-        this.initSubpackage();
+        //初始化微信小游戏
+        Laya.MiniAdpter.init();
+        //程序入口
+        Laya.init(750, 1334, Laya.WebGL);
+        Laya.stage.scaleMode = "noscale";
+        //this.initSubpackage();
         this.init();
     }
     Main.prototype.init = function () {
+        //加载本地资源
+        var urlList = [
+            { url: 'res/bg.png', type: Laya.Loader.IMAGE },
+            { url: 'res/atlas/res/common.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/atlas/res/rank.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/atlas/res/main.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/atlas/res/signin.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/atlas/res/card.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/atlas/res/role.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/atlas/res/game.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/atlas/res/ic_role.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/cfg/stage.json', type: Laya.Loader.JSON },
+            { url: 'res/cfg/game.json', type: Laya.Loader.JSON },
+        ];
+        Laya.loader.load(urlList, Handler.create(null, function () {
+            xframe.XFacade.instance.init(new App());
+        }));
+        /*
         Tape.Navigator.init({
             mainPage: LoadingActivity,
             commonRes: [
@@ -52610,27 +54868,28 @@ var Main = /** @class */ (function () {
                 { url: 'res/atlas/res/rank.atlas', type: Laya.Loader.ATLAS },
                 { url: 'res/atlas/res/main.atlas', type: Laya.Loader.ATLAS },
                 { url: 'res/atlas/res/signin.atlas', type: Laya.Loader.ATLAS },
-                { url: 'res/atlas/comp.atlas', type: Laya.Loader.ATLAS },
                 //图片压缩过
                 { url: 'res/atlas/res/card.atlas', type: Laya.Loader.ATLAS },
                 { url: 'res/atlas/res/role.atlas', type: Laya.Loader.ATLAS },
                 { url: 'res/atlas/res/game.atlas', type: Laya.Loader.ATLAS },
-                { url: 'res/cfg/stage.json', type: Laya.Loader.JSON }
-                // { url: 'res/cfg/Piano.json', type:Laya.Loader.TEXT},
-                // { url: 'res/snd/Piano.mp3', type:Laya.Loader.SOUND},
-                // { url: 'res/cfg/PianoCfg.json', type:Laya.Loader.JSON}
+                { url: 'res/atlas/res/ic_role.atlas', type: Laya.Loader.ATLAS },
+                { url: 'res/cfg/stage.json', type: Laya.Loader.JSON},
+                // { url: 'res/common/ic_qrcode.jpg', type: Laya.Loader.IMAGE}
             ]
         });
+        */
     };
     //初始化分包配置;
     Main.prototype.initSubpackage = function () {
-        Laya.URL.version =
-            {
-                "res/cfg/stage.json": Math.random()
-            };
+        Laya.URL.version = {
+            "res/cfg/stage.json": Math.random()
+        };
         Laya.URL.basePath = "https://s.xiuwu.me/perfectline/";
         Laya.MiniAdpter["nativefiles"] = [
             'res/bg.png',
+            'res/map/bj11.jpg',
+            'res/map/bj31.jpg',
+            'res/main/bj_homepage@2x.png',
             "res/atlas/res/common.atlas",
             "res/atlas/res/common.png",
             "res/atlas/res/rank.atlas",
@@ -52646,19 +54905,64 @@ var Main = /** @class */ (function () {
             'res/atlas/res/role.atlas',
             'res/atlas/res/role.png',
             'res/atlas/res/game.atlas',
-            'res/atlas/res/game.png'
+            'res/atlas/res/game.png',
+            'res/atlas/res/ic_role.atlas',
+            'res/atlas/res/ic_role.png',
+            'res/snd/lx.json',
+            'res/snd/gxddbh.json',
+            'res/snd/jd.json',
+            'res/snd/hlxj.json',
+            'res/snd/kldnf.json'
         ];
+        //歌曲配置。。备份用
+        ['res/snd/about that oldie.json',
+            'res/snd/adlms.json',
+            'res/snd/adlz.json',
+            'res/snd/azh.json',
+            'res/snd/beat your competition.json',
+            'res/snd/cy.json',
+            'res/snd/fdc.json',
+            'res/snd/gddxbwq.json',
+            'res/snd/greenery.json',
+            'res/snd/gxddbh.json',
+            'res/snd/hbnlwq.json',
+            'res/snd/hlxj.json',
+            'res/snd/jd.json',
+            'res/snd/jswd.json',
+            'res/snd/jwtwq.json',
+            'res/snd/kldnf.json',
+            'res/snd/kn.json',
+            'res/snd/llwq.json',
+            'res/snd/lx.json',
+            'res/snd/qmyzb.json',
+            'res/snd/qn.json',
+            'res/snd/sdjdx.json',
+            'res/snd/sgxb.json',
+            'res/snd/slkxq.json',
+            'res/snd/sophomore makeout.json',
+            'res/snd/spring in my step.json',
+            'res/snd/sslg.json',
+            'res/snd/teqjxq.json',
+            'res/snd/wxdhd.json',
+            'res/snd/xbwq.json',
+            'res/snd/xfdh.json',
+            'res/snd/xwh.json',
+            'res/snd/xxzg.json',
+            'res/snd/xylwqdwh.json',
+            'res/snd/ybzy.json',
+            'res/snd/yhczw.json',
+            'res/snd/yntz.json',
+            'res/snd/yyxj.json',
+            'res/snd/zm.json',
+            'res/snd/zytg.json'];
     };
     return Main;
 }());
-window.onerror = function (error) {
-    console.log(error);
+Laya.MiniAdpter["getUrlEncode"] = function (url, type) {
+    if (url.indexOf(".fnt") != -1)
+        return "utf8";
+    else if (type == "arraybuffer")
+        return "";
+    return "utf8";
 };
 new Main();
-function trace() {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    console.log.apply(null, args);
-}

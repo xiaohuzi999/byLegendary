@@ -129,7 +129,11 @@ var Main = /** @class */ (function () {
     };
     return Main;
 }());
-window.onerror = function (error) {
-    console.log(error);
+Laya.MiniAdpter["getUrlEncode"] = function (url, type) {
+    if (url.indexOf(".fnt") != -1)
+        return "utf8";
+    else if (type == "arraybuffer")
+        return "";
+    return "utf8";
 };
 new Main();
