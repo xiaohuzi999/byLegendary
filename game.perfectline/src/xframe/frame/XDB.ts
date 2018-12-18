@@ -28,7 +28,7 @@ class XDB{
     public static init(data:any):void{
         if(typeof data === "string"){
             trace("data:::::::",data)
-            this._data = JSON.parse(data);
+            data && (this._data = JSON.parse(data));
         }else{
             this._data = data;
         }

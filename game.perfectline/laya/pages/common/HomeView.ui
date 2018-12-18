@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":3,
+    "selecteID":38,
     "props":{"width":750,"sceneColor":"#000000","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -12,6 +12,19 @@
     "hasChild":true,
     "compId":1,
     "child":[
+        {
+            "x":15,
+            "type":"Image",
+            "props":{"y":0,"x":0,"var":"bg","skin":"res/main/bj_homepage@2x.png"},
+            "nodeParent":1,
+            "label":"Image(bg)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":41,
+            "child":[
+                ]
+        },
         {
             "x":15,
             "type":"Image",
@@ -55,19 +68,6 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":1020,"x":242,"var":"btnStart","skin":"res/main/btn_play.png"},
-            "nodeParent":1,
-            "label":"Image(btnStart)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":9,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Image",
             "props":{"y":244,"x":24,"var":"btnSignin","skin":"res/main/btn_sign.png"},
             "nodeParent":1,
             "label":"Image(btnSignin)",
@@ -81,7 +81,7 @@
         {
             "x":15,
             "type":"List",
-            "props":{"y":372,"x":-324,"width":1433,"var":"chapList","repeatY":1,"height":484},
+            "props":{"y":519,"x":-78,"width":901,"var":"chapList","height":295},
             "nodeParent":1,
             "label":"List(chapList)",
             "isOpen":true,
@@ -373,7 +373,7 @@
         {
             "x":15,
             "type":"Label",
-            "props":{"y":324,"x":36,"text":"\b签到","fontSize":25,"color":"#ffffff"},
+            "props":{"y":324,"x":36,"text":"签到","fontSize":25,"color":"#ffffff"},
             "nodeParent":1,
             "label":"Label",
             "isDirectory":false,
@@ -386,52 +386,13 @@
         {
             "x":15,
             "type":"Label",
-            "props":{"y":872,"x":126,"width":498,"var":"modeLabel","text":"夜 空 漫 游 指 南","height":40,"fontSize":40,"color":"#ffffff","align":"center"},
+            "props":{"y":15,"x":507,"var":"btnDev","text":"打开调试面板","fontSize":40,"color":"#ffffff"},
             "nodeParent":1,
-            "label":"Label(modeLabel)",
+            "label":"Label(btnDev)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
-            "compId":36,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Label",
-            "props":{"y":943,"x":96,"width":558,"var":"conditionLabel","valign":"middle","text":"    解锁条件","height":53,"fontSize":30,"color":"#ededed","align":"center"},
-            "nodeParent":1,
-            "label":"Label(conditionLabel)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":37,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "props":{"y":946,"x":284,"var":"conditionStar","skin":"res/main/ic_star1.png"},
-            "nodeParent":1,
-            "label":"Image(conditionStar)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":39,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "props":{"y":1022,"x":242,"visible":false,"var":"btnInvite","skin":"res/main/btn_invite.png"},
-            "nodeParent":1,
-            "label":"Image(btnInvite)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":40,
+            "compId":42,
             "child":[
                 ]
         }],

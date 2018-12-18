@@ -1,51 +1,35 @@
 class User {
+    public avatar:string =  "";
+    public id:string =  "";
+    public nickname:string =  ""; 
+    public gold:number = 0;
+    public star:number = 0;
+    public power:number = 10;
+    public diamond:number = 0;
+
+    public curId:number = 1;
+    public star:number[] = []
 
     private static _instace: User;
-    private _userInfo: any;
-    public roles: Array<any> = [];
-    public cards: Array<any> = [];
-    
+    /** */
+    public static readonly UPDATE:string = "update"
     public initdData () {
-
-    }
-
-    /**
-     * 保存用户信息
-     */
-    public set userInfo(user : any) {
-       if(this._userInfo != user) {
-            //    this._userInfo = user;
-           this._userInfo =  Object.assign(this._userInfo, user);
-       }
-    }
-
-    /**
-     * 获取用户信息
-     */
-    public get userInfo() {
-        if(!this._userInfo) {
-            this._userInfo = {
-                avatar: "",
-                id: "",
-                nickname: "", 
-                gold:0,
-                star:0,
-                power:10,
+        let val:any = XDB.getData(XDB.USER);
+        if(val){
+            for(let i in val){
+                this[i] = val[i];
             }
         }
-       return this._userInfo; 
     }
 
-    /**
-     * 是否拥有此角色
-     * @param roleid 角色id
-     */
-    checkIsOwnRoleById(roleid) {
-        var role = this.roles.find(item => {
-            return item.id == roleid;
-        });
-        return role ? true : false;
+    public dispatchEvent():void{
+        XEvent.instance.event(User.UPDATE)
     }
+
+    public save():void{
+        XDB.save(XDB.USER, this)
+    }
+
 
     public static get instace() : User {
         if(!this._instace) {

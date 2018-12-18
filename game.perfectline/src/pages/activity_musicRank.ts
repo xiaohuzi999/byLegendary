@@ -24,8 +24,8 @@ class MusicRank extends xframe.XWindow {
             this.ui.myrank.text = "---";
             this.ui.myscore.text = "---";
         }
-        this.ui.myavatar.skin = User.instace.userInfo.avatarUrl;
-        this.ui.mynick.text = User.instace.userInfo.nickName;
+        this.ui.myavatar.skin = User.instace.avatar;
+        this.ui.mynick.text = User.instace.nickname;
        
     }
 

@@ -17,14 +17,18 @@ var ChaperItem = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this._selected = false;
         _this.box.scaleX = _this.box.scaleY = 0.8;
-        _this.bg.visible = false;
         return _this;
     }
     Object.defineProperty(ChaperItem.prototype, "dataSource", {
+        get: function () {
+            return this._data;
+        },
         set: function (data) {
+            this._data = data;
             if (data) {
                 this.visible = true;
-                this.pic.skin = data.cover + "";
+                //this.pic.skin = data.cover+"";
+                this.tfName.text = data.name + "";
             }
             else {
                 this.visible = false;
@@ -41,11 +45,9 @@ var ChaperItem = /** @class */ (function (_super) {
             if (this._selected != v) {
                 this._selected = v;
                 if (this._selected) {
-                    this.bg.visible = true;
                     Laya.Tween.to(this.box, { scaleX: 1, scaleY: 1 }, 200);
                 }
                 else {
-                    this.bg.visible = false;
                     Laya.Tween.to(this.box, { scaleX: 0.8, scaleY: 0.8 }, 200);
                 }
             }

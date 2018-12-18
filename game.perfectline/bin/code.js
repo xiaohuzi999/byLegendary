@@ -48835,7 +48835,7 @@ var XDB = /** @class */ (function () {
     XDB.init = function (data) {
         if (typeof data === "string") {
             trace("data:::::::", data);
-            this._data = JSON.parse(data);
+            data && (this._data = JSON.parse(data));
         }
         else {
             this._data = data;
@@ -49774,49 +49774,32 @@ var DBGame = /** @class */ (function () {
 
 var User = /** @class */ (function () {
     function User() {
-        this.roles = [];
-        this.cards = [];
     }
     User.prototype.initdData = function () {
-    };
-    Object.defineProperty(User.prototype, "userInfo", {
-        /**
-         * 获取用户信息
-         */
-        get: function () {
-            if (!this._userInfo) {
-                this._userInfo = {
+        var val = XDB.getData(XDB.USER);
+        if (val) {
+            for (var i in val) {
+                this[i] = val[i];
+            }
+        }
+        else {
+            this.userInfo =
+                {
                     avatar: "",
                     id: "",
                     nickname: "",
                     gold: 0,
                     star: 0,
                     power: 10,
+                    diamond: 0,
                 };
-            }
-            return this._userInfo;
-        },
-        /**
-         * 保存用户信息
-         */
-        set: function (user) {
-            if (this._userInfo != user) {
-                //    this._userInfo = user;
-                this._userInfo = Object.assign(this._userInfo, user);
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * 是否拥有此角色
-     * @param roleid 角色id
-     */
-    User.prototype.checkIsOwnRoleById = function (roleid) {
-        var role = this.roles.find(function (item) {
-            return item.id == roleid;
-        });
-        return role ? true : false;
+        }
+    };
+    User.prototype.dispatchEvent = function () {
+        XEvent.instance.event(User.UPDATE);
+    };
+    User.prototype.save = function () {
+        XDB.save(XDB.USER, this);
     };
     Object.defineProperty(User, "instace", {
         get: function () {
@@ -49828,6 +49811,8 @@ var User = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    /** */
+    User.UPDATE = "update";
     return User;
 }());
 
@@ -50425,25 +50410,6 @@ var GameDataManager = /** @class */ (function () {
         }
         return "";
     };
-    /** 判断是否自动展示签到层 */
-    GameDataManager.prototype.checkIsFristOpen = function () {
-        var time = Laya.LocalStorage.getItem(hadShowSignView);
-        if (time) {
-            var sameDay = SigninManager.isToday(parseInt(time), this.serverTime);
-            if (!sameDay && !SigninManager.hadSign()) {
-                this.fristOpen = true;
-                Laya.LocalStorage.setItem(hadShowSignView, this.serverTime);
-                Laya.stage.event(noticficationShowSign);
-            }
-        }
-        else {
-            if (!this.isNewUser && !SigninManager.hadSign()) {
-                this.fristOpen = true;
-                Laya.LocalStorage.setItem(hadShowSignView, this.serverTime);
-                Laya.stage.event(noticficationShowSign);
-            }
-        }
-    };
     Object.defineProperty(GameDataManager.prototype, "modeList", {
         get: function () {
             if (!this._modeList) {
@@ -50767,130 +50733,6 @@ var xframe;
     }(xframe.XWindow));
     xframe.XMWindow = XMWindow;
 })(xframe || (xframe = {}));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var MusicCard = /** @class */ (function (_super) {
-    __extends(MusicCard, _super);
-    function MusicCard() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.MusicCardUI();
-        _this.months = ["JANUARY", "FEBURARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-        return _this;
-    }
-    MusicCard.prototype.onCreate = function () {
-        var _this = this;
-        this.ui.backBtn.on(Laya.Event.CLICK, null, function () {
-            _this.back();
-        });
-        this.ui.topImg.on(Laya.Event.CLICK, null, function () {
-        });
-        if (User.instace.cards.length > 0) {
-            this.ui.tipsLabel.visible = false;
-        }
-        else {
-            this.ui.tipsLabel.visible = true;
-        }
-        this.ui.cardList.array = User.instace.cards;
-        this.ui.cardList.itemRender = ui.views.CardRenderItemUI;
-        this.ui.cardList.vScrollBarSkin = null;
-        this.ui.cardList.scrollBar.elasticBackTime = 200;
-        this.ui.cardList.scrollBar.elasticDistance = 200;
-        this.ui.cardList.renderHandler = Laya.Handler.create(this, function (item, index) {
-            _this.renderItem(item, index);
-        }, null, false);
-        this.ui.cardList.mouseHandler = Laya.Handler.create(this, function (event, index) {
-            _this.mouseItem(event, index);
-        }, null, false);
-    };
-    MusicCard.prototype.renderItem = function (item, index) {
-        var data = this.ui.cardList.array[index];
-        var cell = item;
-        cell.cover.skin = "https://s.xiuwu.me/perfectline/res/map/" + data.card + ".png";
-        var time = data.timeTemp;
-        var date = new Date(time);
-        cell.dayLabel.text = date.getDate().toString();
-        cell.yearLabel.text = date.getFullYear().toString();
-        cell.mounthLabel.text = this.months[date.getMonth()];
-        var positions = GameDataManager.instance.cardConfig[data.cid];
-        if (positions.length > 0) {
-            cell.roleImg.skin = GameDataManager.instance.currentUserRoleImg();
-            cell.roleImg.x = positions[0] * 346 / 750 - 4;
-            cell.roleImg.y = positions[1] * 346 / 750 - 4;
-        }
-    };
-    MusicCard.prototype.mouseItem = function (event, index) {
-        if (event && event.type == Laya.Event.CLICK) {
-            var data = this.ui.cardList.array[index];
-            Tape.PopManager.showPop(BigCardView, data);
-        }
-    };
-    MusicCard.prototype.onResume = function () {
-    };
-    return MusicCard;
-}(xframe.XWindow));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var DevActivity = /** @class */ (function (_super) {
-    __extends(DevActivity, _super);
-    function DevActivity() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.DevPageUI();
-        return _this;
-    }
-    DevActivity.prototype.onCreate = function () {
-        this.onInitView();
-    };
-    DevActivity.prototype.onInitView = function () {
-        var _this = this;
-        this.ui.btnBack.on(Laya.Event.CLICK, null, function () {
-            _this.back();
-        });
-        this.ui.panelOutput.vScrollBarSkin = null;
-        this.ui.btnAddCoin.on(Laya.Event.CLICK, null, function () {
-            // TODO:添加1000金币
-            User.instace.userInfo.coin += 1000;
-            User.instace.userInfo.power += 10;
-            GameDataManager.instance.recordUserGameData();
-        });
-        this.ui.btnClearLocalData.on(Laya.Event.CLICK, null, function () {
-            _this.ui.labelOutput.text = '本地数据清除成功\n';
-        });
-        this.ui.btnClearRemoteData.on(Laya.Event.CLICK, null, function () {
-            wx.showLoading({
-                title: '正在清空远程数据',
-                mask: true
-            });
-            yxmp.api.removeCloudData(['*']).then(function (res) {
-                wx.hideLoading();
-                _this.ui.labelOutput.text = '远程数据清除成功\n' + JSON.stringify(res);
-            }).catch(function (res) {
-                _this.ui.labelOutput.text = '远程数据清除失败\n' + JSON.stringify(res);
-            });
-        });
-        this.ui.btnExit.on(Laya.Event.CLICK, null, function () {
-            Tape.exit();
-        });
-    };
-    return DevActivity;
-}(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -52120,6 +51962,51 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var DevView = /** @class */ (function (_super) {
+    __extends(DevView, _super);
+    function DevView() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.ui = new ui.pages.DevPageUI();
+        return _this;
+    }
+    DevView.prototype.createUI = function () {
+        var _this = this;
+        _super.prototype.createUI.call(this);
+        this.ui.btnBack.on(Laya.Event.CLICK, null, function () {
+            _this.close();
+        });
+        this.ui.panelOutput.vScrollBarSkin = null;
+        this.ui.btnAddCoin.on(Laya.Event.CLICK, null, function () {
+            // TODO:添加1000金币
+            User.instace.userInfo.gold += 1000;
+            User.instace.userInfo.power += 10;
+            User.instace.dispatchEvent();
+            User.instace.save();
+        });
+        this.ui.btnClearLocalData.on(Laya.Event.CLICK, null, function () {
+            XDB.delLocalData();
+            _this.ui.labelOutput.text = '本地数据清除成功\n';
+        });
+        this.ui.btnClearRemoteData.on(Laya.Event.CLICK, null, function () {
+            XTip.showTip("开发中~~");
+        });
+        this.ui.btnExit.on(Laya.Event.CLICK, null, function () {
+            XTip.showTip("开发中~~");
+        });
+    };
+    return DevView;
+}(xframe.XMWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 //小球
 var Ball = /** @class */ (function (_super) {
     __extends(Ball, _super);
@@ -52591,110 +52478,220 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var GameResultView = /** @class */ (function (_super) {
+    __extends(GameResultView, _super);
+    function GameResultView() {
+        var _this = _super.call(this) || this;
+        _this.ui = new ui.views.GameResultViewUI();
+        _this.topToast = new ui.views.TopToastViewUI();
+        _this.bgAlpha = 0.5;
+        _this.init();
+        return _this;
+    }
+    GameResultView.prototype.init = function () {
+        var _this = this;
+        this.ui.homebtn.on(Laya.Event.CLICK, null, function () {
+            // 返回
+            XEvent.instance.event(GameEvent.BACK);
+            _this.close();
+        });
+        this.ui.restartbtn.on(Laya.Event.CLICK, null, function (e) {
+            // 重新开始
+            e.stopPropagation();
+            XEvent.instance.event(GameEvent.RESTART);
+            _this.close();
+        });
+        this.ui.nextBtn.on(Laya.Event.CLICK, null, function () {
+            // 下一首
+            _this.chooseNextMusic();
+            _this.close();
+        });
+    };
+    GameResultView.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this.params = args[0];
+    };
+    GameResultView.prototype.onShow = function () {
+        // 金币的数量
+        this._rewardCoin = GameDataManager.instance.rewardCoinByStar(this.params.star);
+        this.updateUi();
+        User.instace.userInfo.gold += this._rewardCoin;
+    };
+    GameResultView.prototype.updateUi = function () {
+        for (var i = 1; i < 4; i++) {
+            if (i > this.params.star) {
+                this.ui["star" + i].skin = "res/game/ic_star_result_gray_b.png";
+            }
+            else {
+                this.ui["star" + i].skin = "res/game/ic_star_result_b.png";
+            }
+        }
+        if (this.params.star > 2) {
+            this.ui.restartbtn.visible = false;
+            this.ui.nextBtn.visible = true;
+        }
+        //需要数据支撑~~
+        this.ui.musicname.text = this.params.music.name;
+        this.ui.authname.text = this.params.music.author;
+        this.ui.scorelabel.text = this.params.score + "分";
+        this.ui.tip.text = GameResultView.tipArrays[this.params.star];
+        this.ui.coinLabel.text = "X" + this._rewardCoin;
+    };
+    GameResultView.prototype.updateData = function () {
+        // 好友排行榜
+        GameDataManager.instance.uploadCloudData();
+        // 保存单曲结果
+        GameDataManager.instance.recordMusicById(this.params.music.id, {
+            score: this.params.score,
+            star: this.params.star,
+            name: this.params.music.name
+        });
+    };
+    //上传分数
+    GameResultView.prototype.updateScore = function () {
+        // 单曲排行榜 开放域排行
+        GameDataManager.instance.uploadMusicCloudData(this.params.music.id, this.params.score);
+        // 单曲排行榜 世界排行
+        // GameDataManager.instance.updateMusicGrade(this.params.score, this.params.music.id);
+    };
+    // 选择下一首音乐
+    GameResultView.prototype.chooseNextMusic = function () {
+        var music = this.params.music;
+        var modeId = music.cid;
+        var list = GameDataManager.instance.getMuicList({ id: modeId });
+        var index = list.indexOf(music);
+        if (index < list.length - 1) {
+            var nextMusic = list[index + 1];
+            XFacade.instance.showModule(GameLoading, nextMusic);
+        }
+        else {
+            // 最后一首 ，下章节没有解锁
+            var nextChapter = GameDataManager.instance.nextChapter(modeId);
+            if (nextChapter) {
+                var lock = GameDataManager.instance.checkModeIslock(nextChapter.id);
+                if (lock.length > 0) {
+                    // 下一章节没有解锁
+                    xframe.XTip.showTip("coming soon---------------");
+                }
+                else {
+                }
+            }
+            else {
+                // 敬请期待
+                xframe.XTip.showTip("coming soon---------------");
+                XEvent.instance.event(GameEvent.HOMECHAPTER);
+            }
+        }
+    };
+    // 提示解锁下一篇章
+    GameResultView.prototype.toastReleaseNextChapter = function () {
+        var _self = this;
+        this.topToast.y = -60;
+        this.ui.addChild(this.topToast);
+        Laya.Tween.to(this.topToast, { y: 0 }, 500, Laya.Ease.linearIn, Laya.Handler.create(this, function () {
+            setTimeout(function () {
+                Laya.Tween.to(_self.topToast, { y: -60 }, 500, Laya.Ease.linearIn, Laya.Handler.create(_self, function () {
+                    Laya.Tween.clearTween(_self.topToast);
+                    _self.ui.removeChild(_self.topToast);
+                    _self.topToast = null;
+                }));
+            }, 2000);
+        }));
+    };
+    GameResultView.tipArrays = ["加油哦", "不错！", "腻害了", "棒极了"];
+    return GameResultView;
+}(xframe.XMWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var HomeView = /** @class */ (function (_super) {
     __extends(HomeView, _super);
     function HomeView() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.HomePageUI();
+        _this.ui = new ui.common.HomeViewUI();
         _this.recommendApp = null;
         return _this;
     }
     HomeView.prototype.show = function () {
         _super.prototype.show.call(this);
+        this.updateUserInfo();
+        this.showMoveStar();
+        this.ui.chapList.refresh();
+    };
+    HomeView.prototype.close = function () {
+        Star.destroy();
+        _super.prototype.close.call(this);
+    };
+    HomeView.prototype.onBtnClick = function (e) {
+        trace("onBtnClick______");
+        switch (e.target) {
+            case this.ui.btnDev:
+                XFacade.instance.showModule(DevView);
+                break;
+            case this.ui.btnStart:
+                XFacade.instance.showModule(GameActivity, this.ui.chapList.selectedItem);
+                break;
+            case this.ui.btnSignin:
+                XFacade.instance.showModule(SignInView);
+                break;
+            case this.ui.roleBtn:
+                Tape.PopManager.showPop(RoleList);
+                break;
+            case this.ui.btnAddPower:
+                XFacade.instance.showModule(PopAddPower);
+                break;
+            case this.ui.btnUserInfo:
+                XFacade.instance.showModule(UserInfoView);
+                break;
+        }
+    };
+    HomeView.prototype.onItemClick = function (e, index) {
+        if (e.type == Laya.Event.CLICK) {
+            if (index == this.ui.chapList.selectedIndex) {
+                if (this.ui.btnStart.visible) {
+                    this.ui.btnStart.event(Laya.Event.CLICK);
+                }
+                else if (this.ui.btnInvite.visible) {
+                    this.ui.btnInvite.event(Laya.Event.CLICK);
+                }
+            }
+            else {
+                this.scrollToIndex(index - 1);
+            }
+        }
+    };
+    HomeView.prototype.onScroll = function () {
+        var index = Math.round(this.ui.chapList.scrollBar.value / 480);
+        this.scrollToIndex(index);
     };
     HomeView.prototype.createUI = function () {
-        var _this = this;
         _super.prototype.createUI.call(this);
         //暂时注释
         wx.showShareMenu({ withShareTicket: true });
-        this.ui.btnDev.on(Laya.Event.CLICK, null, function () {
-            _this.navigate(DevActivity);
-        });
-        this.ui.actionView.btnStart.on(Laya.Event.CLICK, null, function () {
-            var mode = _this.ui.actionView.chapList.selectedItem;
-            XFacade.instance.showModule(GameActivity, mode);
-        });
-        this.ui.actionView.btnSignin.on(Laya.Event.CLICK, null, function () {
-            SigninPop.show(true);
-        });
-        this.ui.actionView.roleBtn.on(Laya.Event.CLICK, null, function () {
-            Tape.PopManager.showPop(RoleList);
-        });
-        this.ui.actionView.btnAddPower.on(Laya.Event.CLICK, null, function () {
-            PopAddPower.show(null, function () {
-                _this.updateTopUi();
-            });
-        });
-        this.ui.actionView.btnUserInfo.on(Laya.Event.CLICK, null, function () {
-            PopUserInfo.show();
-        });
-        this.ui.actionView.cardBtn.on(Laya.Event.CLICK, null, function () {
-            _this.navigate(MusicCard);
-        });
-        Laya.stage.on(noticficationRefreshMainData, this, function () {
-            _this.updateTopUi();
-        });
-        if (GameDataManager.instance.fristOpen) {
-            SigninPop.autoFlag = true;
-            Tape.PopManager.showPop(SigninPop);
-        }
-        else {
-            Laya.stage.on(noticficationShowSign, this, function () {
-                SigninPop.autoFlag = true;
-                Tape.PopManager.showPop(SigninPop);
-            });
-        }
-        XEvent.instance.on(GameEvent.HOMECHAPTER, null, function (type, data) {
-            if (data === void 0) { data = null; }
-            var index = GameDataManager.instance.nearestPlayChapterIndex();
-            _this.scrollToIndex(index + 1);
-        }, [GameEvent.HOMECHAPTER]);
-        this.ui.actionView.chapList.array = [null].concat(GameDataManager.instance.modeList, [{ cover: "https://s.xiuwu.me/perfectline/res/map/futureChapter.png" }, null]);
-        this.ui.actionView.chapList.hScrollBarSkin = "";
-        this.ui.actionView.chapList.scrollBar.elasticBackTime = 100;
-        this.ui.actionView.chapList.scrollBar.rollRatio = 0.7;
-        this.ui.actionView.chapList.selectedIndex = 1;
-        this.checkCurrentModeStatus();
-        //滑动逻辑
-        this.selectedItem = this.ui.actionView.chapList.getCell(1);
-        this.ui.actionView.chapList.scrollBar.on(Laya.Event.END, null, function () {
-            var index = Math.round(_this.ui.actionView.chapList.scrollBar.value / 480);
-            _this.scrollToIndex(index);
-        });
-        this.ui.actionView.chapList.mouseHandler = Laya.Handler.create(null, function (e, index) {
-            if (e.type == Laya.Event.CLICK) {
-                if (index == _this.ui.actionView.chapList.selectedIndex) {
-                    if (_this.ui.actionView.btnStart.visible) {
-                        _this.ui.actionView.btnStart.event(Laya.Event.CLICK);
-                    }
-                    else if (_this.ui.actionView.btnInvite.visible) {
-                        _this.ui.actionView.btnInvite.event(Laya.Event.CLICK);
-                    }
-                }
-                else {
-                    _this.scrollToIndex(index - 1);
-                }
-            }
-        }, null, false);
-        Laya.stage.on(refreshModelList, this, function () {
-            _this.ui.actionView.chapList.array = [null].concat(GameDataManager.instance.modeList, [{ cover: "https://s.xiuwu.me/perfectline/res/map/futureChapter.png" }, null]);
-            _this.checkCurrentModeStatus();
-            _this.ui.actionView.chapList.selectedIndex = GameDataManager.instance.nearestPlayChapterIndex();
-            _this.scrollToIndex(GameDataManager.instance.nearestPlayChapterIndex());
-        });
-        //
-        XEvent.instance.on(RoleList.UPDATE, null, function () {
-            _this.updateTopUi();
-        });
-        this.updateTopUi();
-        this.showMoveStar();
+        this.ui.chapList.array = [null].concat(GameDataManager.instance.modeList, [{ cover: "https://s.xiuwu.me/perfectline/res/map/futureChapter.png" }, null]);
+        this.ui.chapList.hScrollBarSkin = "";
+        this.ui.chapList.scrollBar.elasticBackTime = 100;
+        this.ui.chapList.scrollBar.rollRatio = 0.7;
+        this.ui.chapList.selectedIndex = 1;
+        this.selectedItem = this.ui.chapList.getCell(1);
     };
     //滑动到指定位置
     HomeView.prototype.scrollToIndex = function (index) {
-        this.ui.actionView.chapList.tweenTo(index);
-        this.ui.actionView.chapList.selectedIndex = index + 1;
-        this.selectedItem = this.ui.actionView.chapList.getCell(index + 1);
-        this.checkCurrentModeStatus();
+        this.ui.chapList.tweenTo(index);
+        this.ui.chapList.selectedIndex = index + 1;
+        this.selectedItem = this.ui.chapList.getCell(index + 1);
     };
     Object.defineProperty(HomeView.prototype, "selectedItem", {
         //
@@ -52712,40 +52709,40 @@ var HomeView = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
-    // 判断当前章节状态
-    HomeView.prototype.checkCurrentModeStatus = function () {
-        var mode = this.ui.actionView.chapList.selectedItem;
-        mode && this.updateGameStatus(mode);
-    };
     // 更新用户数据展示
-    HomeView.prototype.updateTopUi = function () {
-        this.ui.actionView.coinNum.text = User.instace.userInfo.gold + '';
-        this.ui.actionView.starNum.text = User.instace.userInfo.star + '';
-        this.ui.actionView.heartNum.text = User.instace.userInfo.power + '';
-        this.ui.actionView.btnAddPower.visible = User.instace.userInfo.power < 30;
-        this.ui.actionView.btnUserInfo.skin = User.instace.userInfo.avatarUrl;
-    };
-    // 更新关卡对应的信息
-    HomeView.prototype.updateGameStatus = function (mode) {
-        if (!mode.id) {
-            this.ui.actionView.conditionLabel.text = "";
-            this.ui.actionView.conditionStar.visible = false;
-            this.ui.actionView.btnStart.visible = false;
-            this.ui.actionView.btnInvite.visible = false;
-            this.ui.actionView.modeLabel.text = "敬请期待";
-            return;
-        }
-    };
-    // lifecycle
-    HomeView.prototype.onResume = function () {
-        this.updateTopUi();
-        this.showMoveStar();
-        this.ui.actionView.chapList.refresh();
-        this.checkCurrentModeStatus();
+    HomeView.prototype.updateUserInfo = function () {
+        this.ui.coinNum.text = User.instace.userInfo.gold + '';
+        this.ui.starNum.text = User.instace.userInfo.star + '';
+        this.ui.heartNum.text = User.instace.userInfo.power + '';
+        this.ui.btnAddPower.visible = User.instace.userInfo.power < 30;
+        this.ui.btnUserInfo.skin = User.instace.userInfo.avatar;
     };
     // 背景星星
     HomeView.prototype.showMoveStar = function () {
-        Star.shine(30, this.ui.bgView);
+        Star.shine(30, this.ui.bg);
+    };
+    HomeView.prototype.initEvent = function () {
+        this.ui.btnDev.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnStart.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnSignin.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.roleBtn.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnAddPower.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnUserInfo.on(Laya.Event.CLICK, this, this.onBtnClick);
+        XEvent.instance.on(User.UPDATE, this, this.updateUserInfo);
+        this.ui.chapList.mouseHandler = Laya.Handler.create(this, this.onItemClick, null, false);
+        this.ui.chapList.scrollBar.on(Laya.Event.END, this, this.onScroll);
+    };
+    HomeView.prototype.removeEvent = function () {
+        this.ui.btnDev.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnSignin.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.roleBtn.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnAddPower.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnUserInfo.off(Laya.Event.CLICK, this, this.onBtnClick);
+        XEvent.instance.off(User.UPDATE, this, this.updateUserInfo);
+        this.ui.chapList.mouseHandler.recover();
+        this.ui.chapList.mouseHandler = null;
+        this.ui.chapList.scrollBar.off(Laya.Event.END, this, this.onScroll);
     };
     return HomeView;
 }(xframe.XWindow));
@@ -52760,10 +52757,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var refreshModelList = "reloadModeList";
-var refreshRoleList = "loadingRoleList";
-var noticficationShowSign = "fristShowSign";
-var noticficationRefreshMainData = "refreshUserData";
 var LoadingView = /** @class */ (function (_super) {
     __extends(LoadingView, _super);
     function LoadingView() {
@@ -52777,11 +52770,13 @@ var LoadingView = /** @class */ (function (_super) {
         Laya.timer.frameLoop(1, this, this.showLoading);
         //加载资源
         //初始化主场景
-        //显示主场景
-        XFacade.instance.showModule(HomeView);
         //获取数据
+        XDB.fetchSrvData(Handler.create(this, this.onGetData));
+    };
+    LoadingView.prototype.onGetData = function () {
         User.instace.initdData();
         ;
+        XFacade.instance.showModule(HomeView);
         //关闭界面
         this.close();
     };
@@ -52841,7 +52836,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.common.HomeViewUI.uiView);
             };
-            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 1159, "x": 330, "var": "roleBtn", "skin": "res/main/btn_role.png" } }, { "type": "Image", "props": { "y": 1159, "x": 64, "var": "btnRank", "skin": "res/main/btn_ranking.png" } }, { "type": "Image", "props": { "y": 1041, "x": 520, "visible": false, "var": "btnMore", "skin": "res/common/ic_more.png" } }, { "type": "Image", "props": { "y": 1020, "x": 242, "var": "btnStart", "skin": "res/main/btn_play.png" } }, { "type": "Image", "props": { "y": 244, "x": 24, "var": "btnSignin", "skin": "res/main/btn_sign.png" } }, { "type": "List", "props": { "y": 372, "x": -324, "width": 1433, "var": "chapList", "repeatY": 1, "height": 484 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "runtime": "ChaperItem", "name": "render" } }] }, { "type": "Image", "props": { "y": 116, "x": 20, "width": 88, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "renderType": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "y": 28, "x": 20 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_star.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 362 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 31, "x": 190 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 52, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 45, "x": 304, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }, { "type": "Image", "props": { "y": 1159, "x": 605, "var": "cardBtn", "skin": "res/main/btn_card.png" } }, { "type": "Label", "props": { "y": 1279, "x": 71, "text": "排行榜", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 350, "text": "角色", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 600, "text": "音乐卡片", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 324, "x": 36, "text": "\b签到", "fontSize": 25, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 872, "x": 126, "width": 498, "var": "modeLabel", "text": "夜 空 漫 游 指 南", "height": 40, "fontSize": 40, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 943, "x": 96, "width": 558, "var": "conditionLabel", "valign": "middle", "text": "    解锁条件", "height": 53, "fontSize": 30, "color": "#ededed", "align": "center" } }, { "type": "Image", "props": { "y": 946, "x": 284, "var": "conditionStar", "skin": "res/main/ic_star1.png" } }, { "type": "Image", "props": { "y": 1022, "x": 242, "visible": false, "var": "btnInvite", "skin": "res/main/btn_invite.png" } }] };
+            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 1159, "x": 330, "var": "roleBtn", "skin": "res/main/btn_role.png" } }, { "type": "Image", "props": { "y": 1159, "x": 64, "var": "btnRank", "skin": "res/main/btn_ranking.png" } }, { "type": "Image", "props": { "y": 1041, "x": 520, "visible": false, "var": "btnMore", "skin": "res/common/ic_more.png" } }, { "type": "Image", "props": { "y": 1020, "x": 242, "var": "btnStart", "skin": "res/main/btn_play.png" } }, { "type": "Image", "props": { "y": 244, "x": 24, "var": "btnSignin", "skin": "res/main/btn_sign.png" } }, { "type": "List", "props": { "y": 372, "x": -324, "width": 1433, "var": "chapList", "repeatY": 1, "height": 484 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "runtime": "ChaperItem", "name": "render" } }] }, { "type": "Image", "props": { "y": 116, "x": 20, "width": 88, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "renderType": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "y": 28, "x": 20 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_star.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 362 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 31, "x": 190 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 52, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 45, "x": 304, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }, { "type": "Image", "props": { "y": 1159, "x": 605, "var": "cardBtn", "skin": "res/main/btn_card.png" } }, { "type": "Label", "props": { "y": 1279, "x": 71, "text": "排行榜", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 350, "text": "角色", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 600, "text": "音乐卡片", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 324, "x": 36, "text": "\b签到", "fontSize": 25, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 872, "x": 126, "width": 498, "var": "modeLabel", "text": "夜 空 漫 游 指 南", "height": 40, "fontSize": 40, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 943, "x": 96, "width": 558, "var": "conditionLabel", "valign": "middle", "text": "    解锁条件", "height": 53, "fontSize": 30, "color": "#ededed", "align": "center" } }, { "type": "Image", "props": { "y": 946, "x": 284, "var": "conditionStar", "skin": "res/main/ic_star1.png" } }, { "type": "Image", "props": { "y": 1022, "x": 242, "visible": false, "var": "btnInvite", "skin": "res/main/btn_invite.png" } }, { "type": "Label", "props": { "y": 152, "x": 501, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }] };
             return HomeViewUI;
         }(View));
         common.HomeViewUI = HomeViewUI;
@@ -52874,12 +52869,10 @@ var ui;
                 return _super.call(this) || this;
             }
             DevPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
-                View.regComponent("runtime.btn_label", runtime.btn_label);
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.pages.DevPageUI.uiView);
             };
-            DevPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" } }, { "type": "Panel", "props": { "y": 355, "x": 65, "width": 620, "var": "panelOutput", "height": 900 }, "child": [{ "type": "Rect", "props": { "width": 620, "lineWidth": 1, "lineColor": "#333333", "height": 900, "fillColor": "#eeeeee" } }, { "type": "Label", "props": { "y": 0, "x": 0, "wordWrap": true, "width": 620, "var": "labelOutput", "fontSize": 40 } }] }, { "type": "Box", "props": { "y": 235, "x": 65 }, "child": [{ "type": "Label", "props": { "y": 0, "x": 0, "width": 300, "var": "btnClearLocalData", "valign": "middle", "text": "清空本地数据", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }, { "type": "Label", "props": { "y": 0, "x": 320, "width": 300, "var": "btnClearRemoteData", "valign": "middle", "text": "清空远程数据", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }] }, { "type": "Box", "props": { "y": 115, "x": 65 }, "child": [{ "type": "Label", "props": { "y": 0, "x": 0, "width": 300, "var": "btnAddCoin", "valign": "middle", "text": "1000金币10体力", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }, { "type": "Label", "props": { "y": 0, "x": 320, "width": 300, "var": "btnExit", "valign": "middle", "text": "退出小游戏", "runtime": "runtime.btn_label", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }] }, { "type": "Image", "props": { "y": 24, "x": 24, "var": "btnBack", "skin": "res/common/ic_back.png" } }] };
+            DevPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Panel", "props": { "y": 355, "x": 65, "width": 620, "var": "panelOutput", "height": 900 }, "child": [{ "type": "Rect", "props": { "width": 620, "lineWidth": 1, "lineColor": "#333333", "height": 900, "fillColor": "#eeeeee" } }, { "type": "Label", "props": { "y": 0, "x": 0, "wordWrap": true, "width": 620, "var": "labelOutput", "fontSize": 40 } }] }, { "type": "Box", "props": { "y": 235, "x": 65 }, "child": [{ "type": "Label", "props": { "y": 0, "x": 0, "width": 300, "var": "btnClearLocalData", "valign": "middle", "text": "清空本地数据", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }, { "type": "Label", "props": { "y": 0, "x": 320, "width": 300, "var": "btnClearRemoteData", "valign": "middle", "text": "清空远程数据", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }] }, { "type": "Box", "props": { "y": 115, "x": 65 }, "child": [{ "type": "Label", "props": { "y": 0, "x": 0, "width": 300, "var": "btnAddCoin", "valign": "middle", "text": "1000金币10体力", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }, { "type": "Label", "props": { "y": 0, "x": 320, "width": 300, "var": "btnExit", "valign": "middle", "text": "退出小游戏", "height": 100, "fontSize": 40, "color": "#ffffff", "bgColor": "#3399ff", "align": "center" } }] }, { "type": "Image", "props": { "y": 24, "x": 24, "var": "btnBack", "skin": "res/common/ic_back.png" } }] };
             return DevPageUI;
         }(View));
         pages.DevPageUI = DevPageUI;
@@ -53041,25 +53034,6 @@ var ui;
     })(pages = ui.pages || (ui.pages = {}));
 })(ui || (ui = {}));
 (function (ui) {
-    var pages;
-    (function (pages) {
-        var ShareEnterUI = /** @class */ (function (_super) {
-            __extends(ShareEnterUI, _super);
-            function ShareEnterUI() {
-                return _super.call(this) || this;
-            }
-            ShareEnterUI.prototype.createChildren = function () {
-                View.regComponent("ui.views.CardViewUI", ui.views.CardViewUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.ShareEnterUI.uiView);
-            };
-            ShareEnterUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 41, "x": 305, "width": 140, "var": "avatar", "height": 140 }, "child": [{ "type": "Sprite", "props": { "width": 140, "renderType": "mask", "height": 140 }, "child": [{ "type": "Circle", "props": { "y": 70, "x": 70, "radius": 70, "lineWidth": 1, "fillColor": "#ff0000" } }] }] }, { "type": "Label", "props": { "y": 210, "x": 54, "width": 642, "var": "content", "text": "我在完美音轨获得一张音乐卡片", "height": 35, "fontSize": 35, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 1200, "x": 242, "var": "getBtn", "skin": "res/card/btn_too.png" } }, { "type": "Image", "props": { "y": 271, "x": 158, "width": 500, "skin": "res/main/bj_piece.png", "sizeGrid": "30,50,100,50", "height": 890 } }, { "type": "CardView", "props": { "y": 296, "x": 120, "var": "cardView", "runtime": "ui.views.CardViewUI" } }] };
-            return ShareEnterUI;
-        }(View));
-        pages.ShareEnterUI = ShareEnterUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
     var plugins;
     (function (plugins) {
         var SignInUI = /** @class */ (function (_super) {
@@ -53170,42 +53144,6 @@ var ui;
         }(View));
         rank.ResultOpenUI = ResultOpenUI;
     })(rank = ui.rank || (ui.rank = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var CardRenderItemUI = /** @class */ (function (_super) {
-            __extends(CardRenderItemUI, _super);
-            function CardRenderItemUI() {
-                return _super.call(this) || this;
-            }
-            CardRenderItemUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.CardRenderItemUI.uiView);
-            };
-            CardRenderItemUI.uiView = { "type": "View", "props": { "width": 346, "height": 615 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 346, "var": "cover", "height": 615 } }, { "type": "Label", "props": { "y": 515, "x": 14, "var": "dayLabel", "text": "15", "fontSize": 70, "color": "#000000" } }, { "type": "Label", "props": { "y": 557, "x": 125, "var": "yearLabel", "text": "2018", "fontSize": 12, "color": "#666666" } }, { "type": "Label", "props": { "y": 572, "x": 84, "width": 89, "var": "mounthLabel", "text": "AUGUST", "height": 17, "fontSize": 12, "color": "#666666", "align": "center" } }, { "type": "Label", "props": { "y": 556, "x": 99, "width": 20, "text": "/", "height": 15, "fontSize": 12, "color": "#666666", "align": "center" } }, { "type": "Image", "props": { "width": 30, "var": "roleImg", "height": 30 } }] };
-            return CardRenderItemUI;
-        }(View));
-        views.CardRenderItemUI = CardRenderItemUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var CardViewUI = /** @class */ (function (_super) {
-            __extends(CardViewUI, _super);
-            function CardViewUI() {
-                return _super.call(this) || this;
-            }
-            CardViewUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.CardViewUI.uiView);
-            };
-            CardViewUI.uiView = { "type": "View", "props": { "width": 500, "height": 890 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 500, "var": "bgImg", "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 890 } }, { "type": "Label", "props": { "y": 748, "x": 26, "var": "dateDay", "text": "15", "fontSize": 100, "align": "center" } }, { "type": "Label", "props": { "y": 803, "x": 176, "width": 33.369140625, "var": "dateYear", "text": "2018", "height": 15, "fontSize": 15, "color": "#666666" } }, { "type": "Label", "props": { "y": 824, "x": 153, "var": "dateMonth", "text": "AUGUST", "fontSize": 15, "color": "#666666" } }, { "type": "Label", "props": { "y": 805, "x": 153, "width": 3.333984375, "text": "/", "height": 12, "fontSize": 15, "color": "#666666" } }, { "type": "Label", "props": { "y": 849, "x": 360, "text": "来自完美音轨", "fontSize": 15, "color": "#666666" } }, { "type": "Image", "props": { "y": 690, "x": 330, "width": 150, "visible": true, "var": "codeImg", "skin": "res/common/ic_qrcode.png", "height": 150 } }, { "type": "Image", "props": { "y": 143, "x": 237, "width": 40, "var": "roleImg", "skin": "res/ic_role/mmj.png", "height": 40 } }] };
-            return CardViewUI;
-        }(View));
-        views.CardViewUI = CardViewUI;
-    })(views = ui.views || (ui.views = {}));
 })(ui || (ui = {}));
 (function (ui) {
     var views;
@@ -53667,31 +53605,45 @@ var __extends = (this && this.__extends) || (function () {
 /*
 * name;
 */
-var PopUserInfo = /** @class */ (function (_super) {
-    __extends(PopUserInfo, _super);
-    function PopUserInfo() {
+var UserInfoView = /** @class */ (function (_super) {
+    __extends(UserInfoView, _super);
+    function UserInfoView() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.views.home.UserInfoUI();
-        _this.createUI();
+        _this.closeOnBlank = true;
         return _this;
     }
-    PopUserInfo.prototype.createUI = function () {
-        var _this = this;
-        this.ui.avatar.skin = User.instace.userInfo.avatarUrl;
-        this.ui.nickLabel.text = User.instace.userInfo.nickName;
+    UserInfoView.prototype.show = function () {
+        this.ui.avatar.skin = User.instace.userInfo.avatar;
+        this.ui.nickLabel.text = User.instace.userInfo.nickname;
         this.ui.userId.text = "ID：" + User.instace.userInfo.id;
         this.ui.heartLabel.text = User.instace.userInfo.power + '';
         this.ui.starLabel.text = User.instace.userInfo.star + '';
         ;
-        this.ui.musicLabel.text = User.instace.userInfo.coin + '';
-        this.ui.btnClose.on(Laya.Event.CLICK, null, function () {
-            _this.finish();
-        });
+        this.ui.musicLabel.text = User.instace.userInfo.gold + '';
+        _super.prototype.show.call(this);
+        xframe.AniUtil.flowIn(this);
     };
-    PopUserInfo.show = function () {
-        Tape.PopManager.showPop(PopUserInfo);
+    UserInfoView.prototype.close = function () {
+        var _this = this;
+        xframe.AniUtil.flowOut(this, Handler.create(null, function () { _super.prototype.close.call(_this); }));
     };
-    return PopUserInfo;
+    UserInfoView.prototype.onClick = function (e) {
+        switch (e.target) {
+            case this.ui.btnClose:
+                this.close();
+                break;
+        }
+    };
+    UserInfoView.prototype.initEvent = function () {
+        _super.prototype.initEvent.call(this);
+        this.on(Laya.Event.CLICK, this, this.onClick);
+    };
+    UserInfoView.prototype.removeEvent = function () {
+        _super.prototype.removeEvent.call(this);
+        this.off(Laya.Event.CLICK, this, this.onClick);
+    };
+    return UserInfoView;
 }(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
@@ -53772,252 +53724,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var BigCardView = /** @class */ (function (_super) {
-    __extends(BigCardView, _super);
-    function BigCardView() {
-        var _this = _super.call(this) || this;
-        _this.ui = new ui.views.PopBigCardUI();
-        _this.cardView = new ui.views.CardViewUI();
-        _this.shareMenu = new ui.views.ShareMenuUI();
-        _this.months = ["JANUARY", "FEBURARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-        _this.bgAlpha = 0.8;
-        // 分享卡片
-        _this.ui.shareBtn.on(Laya.Event.CLICK, null, function (event) {
-            // 阻止事件往下传递
-            event.stopPropagation();
-            // 弹出底部分享选择框
-            _this.shareMenu.bottomView.y = 1334;
-            Laya.Tween.to(_this.shareMenu.bottomView, { y: 1038 }, 300, Laya.Ease.linearInOut);
-            _this.ui.addChild(_this.shareMenu);
-            _this.shareMenu.on(Laya.Event.CLICK, null, function () {
-                // 阻止事件往下传递
-                event.stopPropagation();
-                _this.clearShareMenu();
-            });
-            _this.shareMenu.wxBtn.on(Laya.Event.CLICK, null, function () {
-                // 分享
-                var avatarImg = User.instace.userInfo.avatarUrl;
-                var shareImgPath = HelpUtil.shareByView(_this.cardView, -30, -50, 440, 440); // HelpUtil.shareByView(this.cardView);
-                var title1 = "《" + _this.params.name + "》" + "--" + _this.params.author;
-                var title2 = "今日份的音乐心情";
-                var titles = [title1, title2];
-                var materialIds = ['15350799111612', '15350799122613'];
-                var randomNum = Math.round(Math.random());
-                yxmp.report.event('2000_2004_click');
-                var shareObj = {
-                    title: titles[randomNum],
-                    imageUrl: shareImgPath,
-                    entry: '2000_2004_click',
-                    material: materialIds[randomNum],
-                    query: "cover=" + _this.params.card + "&avatar=" + avatarImg + "&id=" + _this.params.id + "&cid=" + _this.params.cid + "&time=" + _this.time
-                };
-                var options = yxmp.plugin.help.getShareOptions(shareMuiscCard, shareObj);
-                wx.shareAppMessage(options);
-            });
-            _this.shareMenu.pyq.on(Laya.Event.CLICK, null, function () {
-                yxmp.report.event('2000_2003_click');
-                var shareImgPath = HelpUtil.shareByView(_this.cardView);
-                wx.saveImageToPhotosAlbum({
-                    filePath: shareImgPath,
-                    success: function (res) {
-                        wx.showToast({
-                            icon: "none",
-                            title: "已保存至相册，记得去分享哦～"
-                        });
-                    },
-                    fail: function (err) {
-                        wx.showToast({
-                            icon: "none",
-                            title: "保存失败, 点击右上角=>关于完美音轨=>设置=>保存到相册"
-                        });
-                    }
-                });
-            });
-            _this.shareMenu.closeBtn.on(Laya.Event.CLICK, null, function () {
-                console.log("关闭");
-                _this.clearShareMenu();
-            });
-        });
-        _this.ui.on(Laya.Event.CLICK, null, function () {
-            _this.finish();
-        });
-        return _this;
-    }
-    BigCardView.prototype.onShow = function () {
-        if (this.params && this.params.card) {
-            this.cardView.bgImg.skin = "https://s.xiuwu.me/perfectline/res/map/" + this.params.card + ".png";
-        }
-        var date = new Date();
-        if (this.params.timeTemp) {
-            date = new Date(this.params.timeTemp);
-        }
-        this.time = date.getTime();
-        this.cardView.dateDay.text = date.getDate().toString();
-        this.cardView.dateMonth.text = this.months[date.getMonth()];
-        this.cardView.dateYear.text = date.getFullYear().toString();
-        this.ui.bigImg.addChild(this.cardView);
-        var positions = GameDataManager.instance.cardConfig[this.params.cid];
-        this.cardView.roleImg.skin = GameDataManager.instance.currentUserRoleImg();
-        this.cardView.roleImg.x = positions[0] * 50 / 75 - 4;
-        this.cardView.roleImg.y = positions[1] * 50 / 75 - 4;
-    };
-    BigCardView.prototype.clearShareMenu = function () {
-        var _this = this;
-        Laya.Tween.to(this.shareMenu.bottomView, { y: 1334 }, 300, Laya.Ease.linearInOut, Laya.Handler.create(this, function () {
-            _this.shareMenu.removeSelf();
-        }));
-    };
-    return BigCardView;
-}(xframe.XMWindow));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var GameResultView = /** @class */ (function (_super) {
-    __extends(GameResultView, _super);
-    function GameResultView() {
-        var _this = _super.call(this) || this;
-        _this.ui = new ui.views.GameResultViewUI();
-        _this.topToast = new ui.views.TopToastViewUI();
-        _this.init();
-        return _this;
-    }
-    GameResultView.prototype.init = function () {
-        var _this = this;
-        this.ui.homebtn.on(Laya.Event.CLICK, null, function () {
-            // 返回
-            XEvent.instance.event(GameEvent.BACK);
-            _this.close();
-        });
-        this.ui.restartbtn.on(Laya.Event.CLICK, null, function (e) {
-            // 重新开始
-            e.stopPropagation();
-            XEvent.instance.event(GameEvent.RESTART);
-            _this.close();
-        });
-        this.ui.nextBtn.on(Laya.Event.CLICK, null, function () {
-            // 下一首
-            _this.chooseNextMusic();
-            _this.close();
-        });
-    };
-    GameResultView.prototype.show = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        _super.prototype.show.call(this);
-        this.params = args[0];
-    };
-    GameResultView.prototype.onShow = function () {
-        // 金币的数量
-        this._rewardCoin = GameDataManager.instance.rewardCoinByStar(this.params.star);
-        this.updateUi();
-        User.instace.userInfo.coin += this._rewardCoin;
-    };
-    GameResultView.prototype.updateUi = function () {
-        for (var i = 1; i < 4; i++) {
-            if (i > this.params.star) {
-                this.ui["star" + i].skin = "res/game/ic_star_result_gray_b.png";
-            }
-            else {
-                this.ui["star" + i].skin = "res/game/ic_star_result_b.png";
-            }
-        }
-        if (this.params.star > 2) {
-            this.ui.restartbtn.visible = false;
-            this.ui.nextBtn.visible = true;
-        }
-        //需要数据支撑~~
-        this.ui.musicname.text = this.params.music.name;
-        this.ui.authname.text = this.params.music.author;
-        this.ui.scorelabel.text = this.params.score + "分";
-        this.ui.rankingLabel.text = "读取中...";
-        this.ui.tip.text = GameResultView.tipArrays[this.params.star];
-        this.ui.coinLabel.text = "X" + this._rewardCoin;
-    };
-    GameResultView.prototype.updateData = function () {
-        // 好友排行榜
-        GameDataManager.instance.uploadCloudData();
-        // 保存单曲结果
-        GameDataManager.instance.recordMusicById(this.params.music.id, {
-            score: this.params.score,
-            star: this.params.star,
-            name: this.params.music.name
-        });
-    };
-    //上传分数
-    GameResultView.prototype.updateScore = function () {
-        // 单曲排行榜 开放域排行
-        GameDataManager.instance.uploadMusicCloudData(this.params.music.id, this.params.score);
-        // 单曲排行榜 世界排行
-        // GameDataManager.instance.updateMusicGrade(this.params.score, this.params.music.id);
-    };
-    // 选择下一首音乐
-    GameResultView.prototype.chooseNextMusic = function () {
-        var music = this.params.music;
-        var modeId = music.cid;
-        var list = GameDataManager.instance.getMuicList({ id: modeId });
-        var index = list.indexOf(music);
-        if (index < list.length - 1) {
-            var nextMusic = list[index + 1];
-            XFacade.instance.showModule(GameLoading, nextMusic);
-        }
-        else {
-            // 最后一首 ，下章节没有解锁
-            var nextChapter = GameDataManager.instance.nextChapter(modeId);
-            if (nextChapter) {
-                var lock = GameDataManager.instance.checkModeIslock(nextChapter.id);
-                if (lock.length > 0) {
-                    // 下一章节没有解锁
-                    xframe.XTip.showTip("coming soon---------------");
-                }
-                else {
-                }
-            }
-            else {
-                // 敬请期待
-                xframe.XTip.showTip("coming soon---------------");
-                XEvent.instance.event(GameEvent.HOMECHAPTER);
-            }
-        }
-    };
-    // 提示解锁下一篇章
-    GameResultView.prototype.toastReleaseNextChapter = function () {
-        var _self = this;
-        this.topToast.y = -60;
-        this.ui.addChild(this.topToast);
-        Laya.Tween.to(this.topToast, { y: 0 }, 500, Laya.Ease.linearIn, Laya.Handler.create(this, function () {
-            setTimeout(function () {
-                Laya.Tween.to(_self.topToast, { y: -60 }, 500, Laya.Ease.linearIn, Laya.Handler.create(_self, function () {
-                    Laya.Tween.clearTween(_self.topToast);
-                    _self.ui.removeChild(_self.topToast);
-                    _self.topToast = null;
-                }));
-            }, 2000);
-        }));
-    };
-    GameResultView.tipArrays = ["加油哦", "不错！", "腻害了", "棒极了"];
-    return GameResultView;
-}(xframe.XMWindow));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var usedRoleKey = "nowUseRole";
 var RoleList = /** @class */ (function (_super) {
     __extends(RoleList, _super);
@@ -54031,7 +53737,7 @@ var RoleList = /** @class */ (function (_super) {
     RoleList.prototype.init = function () {
         var _this = this;
         this.ui.closebtn.on(Laya.Event.CLICK, null, function () {
-            _this.finish();
+            _this.close();
         });
         this.ui.rolelist.renderHandler = Laya.Handler.create(this, function (item, index) {
             _this.renderItem(item, index);
@@ -54112,7 +53818,7 @@ var RoleList = /** @class */ (function (_super) {
             }
         }
         else if (data.type == 3) { // 签到
-            Tape.PopManager.showPop(SigninPop);
+            Tape.PopManager.showPop(SignInView);
         }
     };
     RoleList.prototype.getRole = function (data) {
@@ -54136,8 +53842,6 @@ var RoleList = /** @class */ (function (_super) {
     };
     RoleList.prototype.onShow = function () {
     };
-    /**事件-更新用户金币 */
-    RoleList.UPDATE = "update";
     return RoleList;
 }(xframe.XMWindow));
 
@@ -54151,190 +53855,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var hadShowSignView = "hadShowSignView";
-var SigninPop = /** @class */ (function (_super) {
-    __extends(SigninPop, _super);
-    function SigninPop() {
+var SignInView = /** @class */ (function (_super) {
+    __extends(SignInView, _super);
+    function SignInView() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.plugins.SignInUI();
-        _this.bgAlpha = 0.8;
-        _this.isTranslucent = false;
-        _this.canceledOnTouchOutside = false;
-        _this.visible = !SigninPop.autoFlag;
-        _this.ui.btnClose.on(Laya.Event.CLICK, _this, function () {
-            _this.finish();
-        });
-        _this.ui.btnReceice.on(Laya.Event.CLICK, _this, function () {
-            var index = SigninManager.signIndex();
-            var signData = _this.configList[index];
-            SigninManager.sign(signData);
-            _this.showAddCoinToast(signData);
-            // 关闭签到卡片
-            _this.ui.btnReceice.visible = false;
-        });
-        var _self = _this;
-        fetchSignList().then(function (res) {
-            if (res && res.list) {
-                var source = res.list;
-                var lastItem = source[source.length - 1];
-                var rewards = lastItem.rewards;
-                var type;
-                if (DataManager.getData(HadRole)) {
-                    type = 2;
-                }
-                else {
-                    type = 3;
-                }
-                var reward = rewards.find(function (item) {
-                    return item.type = type;
-                });
-                lastItem.type = type;
-                lastItem.target = reward.target;
-                _self.configList = res.list;
-                _self.updateUI();
-            }
-        });
         return _this;
     }
-    SigninPop.show = function (force) {
-        if (force === void 0) { force = false; }
-        // SigninManager.signinState(0, (state) => {
-        //     if (force || state == -1 || state == 0) {
-        //         Tape.PopManager.showPop(SigninPop);
-        //     }
-        // });
-        Tape.PopManager.showPop(SigninPop);
-    };
-    /**显示加金币提示 */
-    SigninPop.prototype.showAddCoinToast = function (data) {
-        SignResultView.show(data);
-    };
-    SigninPop.prototype.updateUI = function (frist) {
-        var _this = this;
-        if (frist === void 0) { frist = false; }
-        if (!this.ui) {
-            return;
-        }
-        this.configList.forEach(function (element, index) {
-            var sign = _this.ui["sign" + (index + 1)];
-            var type = element.type;
-            sign.rewardCountLabel.text = "X" + element.target;
-            sign.dayLabel.text = "\u7B2C" + (index + 1) + "\u5929";
-            // 1 体力 2 金币 3 角色
-            if (type == 1) {
-                sign.rewardImg.skin = "res/signin/ic_power.png";
-                sign.tfType.text = "体力";
-            }
-            else if (type == 2) {
-                sign.rewardImg.skin = "res/signin/ic_coin.png";
-                sign.tfType.text = "金币";
-            }
-            else if (type == 3) {
-                sign.visible = false;
-                sign = _this.ui["sign" + (7 + 1)];
-                sign.visible = true;
-            }
-        });
-        // 没有断签
-        if (!SigninManager.checkSignBreak()) {
-            var list = DataManager.getData(SignKey);
-            list.forEach(function (element, index) {
-                if (element.type == 3) {
-                    _this.ui.sevenRoleLabel.text = "已领取";
-                }
-                else {
-                    var sign = _this.ui["sign" + (index + 1)];
-                    sign.dayLabel.text = "已领取";
-                    sign.stateImg.visible = true;
-                    sign.stateImg.skin = 'res/signin/btn_choose.png';
-                }
-            });
-        }
-        // 是否显示领取按钮
-        if (SigninManager.hadSign()) { //已签到
-            this.ui.btnReceice.visible = false;
-            if (SigninPop.autoFlag) {
-                this.finish();
-            }
-        }
-        else {
-            this.ui.btnReceice.visible = true;
-            if (SigninPop.autoFlag) {
-                this.visible = true;
-            }
-        }
-        SigninPop.autoFlag = false;
-    };
-    SigninPop.prototype.onShow = function () {
-        Laya.stage.on(refreshSign, this, this.updateUI);
-    };
-    SigninPop.prototype.onHide = function () {
-        Laya.stage.off(refreshSign, this, this.updateUI);
-    };
-    //自动弹出标注
-    SigninPop.autoFlag = false;
-    return SigninPop;
-}(xframe.XMWindow));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var refreshSign = "updateSignUI";
-var SignResultView = /** @class */ (function (_super) {
-    __extends(SignResultView, _super);
-    function SignResultView() {
-        var _this = _super.call(this) || this;
-        _this.ui = new ui.plugins.SignResultUI();
-        _this.init();
-        return _this;
-    }
-    SignResultView.prototype.init = function () {
-        this.isTranslucent = false;
-        this.canceledOnTouchOutside = false;
-        this.ui.scale(0, 0);
-        this.bgAlpha = 0.8;
-        Laya.Tween.to(this.ui, { scaleX: 1, scaleY: 1 }, 500, Laya.Ease.linearOut);
-    };
-    SignResultView.prototype.onShow = function () {
-        var _this = this;
-        if (this.params) {
-            if (this.params.type == 1) {
-                this.ui.rewardImg.skin = "res/signin/ic_power_get.png";
-            }
-            else if (this.params.type == 2) {
-                this.ui.rewardImg.skin = "res/signin/ic_coin_get.png";
-            }
-            else if (this.params.type == 2) {
-                //待定
-            }
-        }
-        this.ui.rewardLabel.text = "X" + this.params.target;
-        this.ui.getBtn.on(Laya.Event.CLICK, this, function () {
-            if (_this.params.type == 1) {
-                User.instace.userInfo.power += _this.params.target;
-            }
-            else if (_this.params.type == 2) {
-                User.instace.userInfo.coin += _this.params.target;
-            }
-            else if (_this.params.type == 3) {
-            }
-            GameDataManager.instance.recordUserGameData();
-            Laya.stage.event(refreshSign);
-            Laya.stage.event(noticficationRefreshMainData);
-            _this.finish();
-        });
-    };
-    SignResultView.prototype.show = function (data) {
-        Tape.PopManager.showPop(SignResultView, data);
-    };
-    return SignResultView;
+    return SignInView;
 }(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
@@ -54513,10 +54041,10 @@ var xframe;
             _this.tfMsg.width = 460;
             _this.addChild(_this.tfMsg);
             _this.tfMsg.pos(20, 72);
-            _this.tfMsg.style.fontFamily = "微软雅黑";
-            _this.tfMsg.style.fontSize = 20;
-            _this.tfMsg.style.color = "#ffffff";
-            _this.tfMsg.style.align = "center";
+            _this.tfMsg.font = "微软雅黑";
+            _this.tfMsg.fontSize = 20;
+            _this.tfMsg.color = "#ffffff";
+            _this.tfMsg.align = "center";
             _this.btnYes = new Laya.Button("", "Yes");
             bg = new Laya.Image();
             bg.graphics.drawRect(0, 0, 100, 50, "#ff6600");

@@ -8,10 +8,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var refreshModelList = "reloadModeList";
-var refreshRoleList = "loadingRoleList";
-var noticficationShowSign = "fristShowSign";
-var noticficationRefreshMainData = "refreshUserData";
 var LoadingView = /** @class */ (function (_super) {
     __extends(LoadingView, _super);
     function LoadingView() {
@@ -25,11 +21,14 @@ var LoadingView = /** @class */ (function (_super) {
         Laya.timer.frameLoop(1, this, this.showLoading);
         //加载资源
         //初始化主场景
-        //显示主场景
-        XFacade.instance.showModule(HomeView);
         //获取数据
+        XDB.delLocalData();
+        XDB.fetchSrvData(Handler.create(this, this.onGetData));
+    };
+    LoadingView.prototype.onGetData = function () {
         User.instace.initdData();
         ;
+        XFacade.instance.showModule(HomeView);
         //关闭界面
         this.close();
     };

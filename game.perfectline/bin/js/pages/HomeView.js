@@ -12,106 +12,70 @@ var HomeView = /** @class */ (function (_super) {
     __extends(HomeView, _super);
     function HomeView() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.HomePageUI();
+        _this.ui = new ui.common.HomeViewUI();
         _this.recommendApp = null;
         return _this;
     }
     HomeView.prototype.show = function () {
         _super.prototype.show.call(this);
+        this.updateUserInfo();
+        this.showMoveStar();
+        this.ui.chapList.refresh();
+    };
+    HomeView.prototype.close = function () {
+        Star.destroy();
+        _super.prototype.close.call(this);
+    };
+    HomeView.prototype.onBtnClick = function (e) {
+        trace("onBtnClick______");
+        switch (e.target) {
+            case this.ui.btnDev:
+                XFacade.instance.showModule(DevView);
+                break;
+            case this.ui.btnSignin:
+                XFacade.instance.showModule(SignInView);
+                break;
+            case this.ui.roleBtn:
+                Tape.PopManager.showPop(RoleList);
+                break;
+            case this.ui.btnAddPower:
+                XFacade.instance.showModule(PopAddPower);
+                break;
+            case this.ui.btnUserInfo:
+                XFacade.instance.showModule(UserInfoView);
+                break;
+        }
+    };
+    HomeView.prototype.onItemClick = function (e, index) {
+        if (e.type == Laya.Event.CLICK) {
+            if (index == this.ui.chapList.selectedIndex) {
+                XFacade.instance.showModule(GameView, this.ui.chapList.selectedItem);
+            }
+            else {
+                this.scrollToIndex(index - 1);
+            }
+        }
+    };
+    HomeView.prototype.onScroll = function () {
+        var index = Math.round(this.ui.chapList.scrollBar.value / 480);
+        this.scrollToIndex(index);
     };
     HomeView.prototype.createUI = function () {
-        var _this = this;
         _super.prototype.createUI.call(this);
         //暂时注释
         wx.showShareMenu({ withShareTicket: true });
-        this.ui.btnDev.on(Laya.Event.CLICK, null, function () {
-            _this.navigate(DevActivity);
-        });
-        this.ui.actionView.btnStart.on(Laya.Event.CLICK, null, function () {
-            var mode = _this.ui.actionView.chapList.selectedItem;
-            XFacade.instance.showModule(GameActivity, mode);
-        });
-        this.ui.actionView.btnSignin.on(Laya.Event.CLICK, null, function () {
-            SigninPop.show(true);
-        });
-        this.ui.actionView.roleBtn.on(Laya.Event.CLICK, null, function () {
-            Tape.PopManager.showPop(RoleList);
-        });
-        this.ui.actionView.btnAddPower.on(Laya.Event.CLICK, null, function () {
-            PopAddPower.show(null, function () {
-                _this.updateTopUi();
-            });
-        });
-        this.ui.actionView.btnUserInfo.on(Laya.Event.CLICK, null, function () {
-            PopUserInfo.show();
-        });
-        this.ui.actionView.cardBtn.on(Laya.Event.CLICK, null, function () {
-            _this.navigate(MusicCard);
-        });
-        Laya.stage.on(noticficationRefreshMainData, this, function () {
-            _this.updateTopUi();
-        });
-        if (GameDataManager.instance.fristOpen) {
-            SigninPop.autoFlag = true;
-            Tape.PopManager.showPop(SigninPop);
-        }
-        else {
-            Laya.stage.on(noticficationShowSign, this, function () {
-                SigninPop.autoFlag = true;
-                Tape.PopManager.showPop(SigninPop);
-            });
-        }
-        XEvent.instance.on(GameEvent.HOMECHAPTER, null, function (type, data) {
-            if (data === void 0) { data = null; }
-            var index = GameDataManager.instance.nearestPlayChapterIndex();
-            _this.scrollToIndex(index + 1);
-        }, [GameEvent.HOMECHAPTER]);
-        this.ui.actionView.chapList.array = [null].concat(GameDataManager.instance.modeList, [{ cover: "https://s.xiuwu.me/perfectline/res/map/futureChapter.png" }, null]);
-        this.ui.actionView.chapList.hScrollBarSkin = "";
-        this.ui.actionView.chapList.scrollBar.elasticBackTime = 100;
-        this.ui.actionView.chapList.scrollBar.rollRatio = 0.7;
-        this.ui.actionView.chapList.selectedIndex = 1;
-        this.checkCurrentModeStatus();
-        //滑动逻辑
-        this.selectedItem = this.ui.actionView.chapList.getCell(1);
-        this.ui.actionView.chapList.scrollBar.on(Laya.Event.END, null, function () {
-            var index = Math.round(_this.ui.actionView.chapList.scrollBar.value / 480);
-            _this.scrollToIndex(index);
-        });
-        this.ui.actionView.chapList.mouseHandler = Laya.Handler.create(null, function (e, index) {
-            if (e.type == Laya.Event.CLICK) {
-                if (index == _this.ui.actionView.chapList.selectedIndex) {
-                    if (_this.ui.actionView.btnStart.visible) {
-                        _this.ui.actionView.btnStart.event(Laya.Event.CLICK);
-                    }
-                    else if (_this.ui.actionView.btnInvite.visible) {
-                        _this.ui.actionView.btnInvite.event(Laya.Event.CLICK);
-                    }
-                }
-                else {
-                    _this.scrollToIndex(index - 1);
-                }
-            }
-        }, null, false);
-        Laya.stage.on(refreshModelList, this, function () {
-            _this.ui.actionView.chapList.array = [null].concat(GameDataManager.instance.modeList, [{ cover: "https://s.xiuwu.me/perfectline/res/map/futureChapter.png" }, null]);
-            _this.checkCurrentModeStatus();
-            _this.ui.actionView.chapList.selectedIndex = GameDataManager.instance.nearestPlayChapterIndex();
-            _this.scrollToIndex(GameDataManager.instance.nearestPlayChapterIndex());
-        });
-        //
-        XEvent.instance.on(RoleList.UPDATE, null, function () {
-            _this.updateTopUi();
-        });
-        this.updateTopUi();
-        this.showMoveStar();
+        this.ui.chapList.array = [null].concat(DBChapter.chapList, [null]);
+        this.ui.chapList.hScrollBarSkin = "";
+        this.ui.chapList.scrollBar.elasticBackTime = 100;
+        this.ui.chapList.scrollBar.rollRatio = 0.7;
+        this.ui.chapList.selectedIndex = 1;
+        this.selectedItem = this.ui.chapList.getCell(1);
     };
     //滑动到指定位置
     HomeView.prototype.scrollToIndex = function (index) {
-        this.ui.actionView.chapList.tweenTo(index);
-        this.ui.actionView.chapList.selectedIndex = index + 1;
-        this.selectedItem = this.ui.actionView.chapList.getCell(index + 1);
-        this.checkCurrentModeStatus();
+        this.ui.chapList.tweenTo(index);
+        this.ui.chapList.selectedIndex = index + 1;
+        this.selectedItem = this.ui.chapList.getCell(index + 1);
     };
     Object.defineProperty(HomeView.prototype, "selectedItem", {
         //
@@ -129,40 +93,38 @@ var HomeView = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
-    // 判断当前章节状态
-    HomeView.prototype.checkCurrentModeStatus = function () {
-        var mode = this.ui.actionView.chapList.selectedItem;
-        mode && this.updateGameStatus(mode);
-    };
     // 更新用户数据展示
-    HomeView.prototype.updateTopUi = function () {
-        this.ui.actionView.coinNum.text = User.instace.userInfo.gold + '';
-        this.ui.actionView.starNum.text = User.instace.userInfo.star + '';
-        this.ui.actionView.heartNum.text = User.instace.userInfo.power + '';
-        this.ui.actionView.btnAddPower.visible = User.instace.userInfo.power < 30;
-        this.ui.actionView.btnUserInfo.skin = User.instace.userInfo.avatarUrl;
-    };
-    // 更新关卡对应的信息
-    HomeView.prototype.updateGameStatus = function (mode) {
-        if (!mode.id) {
-            this.ui.actionView.conditionLabel.text = "";
-            this.ui.actionView.conditionStar.visible = false;
-            this.ui.actionView.btnStart.visible = false;
-            this.ui.actionView.btnInvite.visible = false;
-            this.ui.actionView.modeLabel.text = "敬请期待";
-            return;
-        }
-    };
-    // lifecycle
-    HomeView.prototype.onResume = function () {
-        this.updateTopUi();
-        this.showMoveStar();
-        this.ui.actionView.chapList.refresh();
-        this.checkCurrentModeStatus();
+    HomeView.prototype.updateUserInfo = function () {
+        this.ui.coinNum.text = User.instace.gold + '';
+        this.ui.starNum.text = User.instace.star + '';
+        this.ui.heartNum.text = User.instace.power + '';
+        this.ui.btnAddPower.visible = User.instace.power < 30;
+        this.ui.btnUserInfo.skin = User.instace.avatar;
     };
     // 背景星星
     HomeView.prototype.showMoveStar = function () {
-        Star.shine(30, this.ui.bgView);
+        Star.shine(30, this.ui.bg);
+    };
+    HomeView.prototype.initEvent = function () {
+        this.ui.btnDev.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnSignin.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.roleBtn.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnAddPower.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnUserInfo.on(Laya.Event.CLICK, this, this.onBtnClick);
+        XEvent.instance.on(User.UPDATE, this, this.updateUserInfo);
+        this.ui.chapList.mouseHandler = Laya.Handler.create(this, this.onItemClick, null, false);
+        this.ui.chapList.scrollBar.on(Laya.Event.END, this, this.onScroll);
+    };
+    HomeView.prototype.removeEvent = function () {
+        this.ui.btnDev.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnSignin.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.roleBtn.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnAddPower.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnUserInfo.off(Laya.Event.CLICK, this, this.onBtnClick);
+        XEvent.instance.off(User.UPDATE, this, this.updateUserInfo);
+        this.ui.chapList.mouseHandler.recover();
+        this.ui.chapList.mouseHandler = null;
+        this.ui.chapList.scrollBar.off(Laya.Event.END, this, this.onScroll);
     };
     return HomeView;
 }(xframe.XWindow));

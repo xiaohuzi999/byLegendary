@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":18,
-    "selecteID":19,
+    "selectedBox":1,
+    "selecteID":2,
     "props":{"width":750,"sceneColor":"#000000","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -12,20 +12,6 @@
     "hasChild":true,
     "compId":1,
     "child":[
-        {
-            "x":15,
-            "type":"UIView",
-            "source":"common/BgView.ui",
-            "props":{"y":0,"x":0,"var":"bgView"},
-            "nodeParent":1,
-            "label":"UIView(bgView)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":2,
-            "child":[
-                ]
-        },
         {
             "x":15,
             "type":"Panel",
@@ -80,7 +66,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":0,"x":0,"width":300,"var":"btnClearLocalData","valign":"middle","text":"清空本地数据","runtime":"runtime.btn_label","height":100,"fontSize":40,"color":"#ffffff","bgColor":"#3399ff","align":"center"},
+                    "props":{"y":0,"x":0,"width":300,"var":"btnClearLocalData","valign":"middle","text":"清空本地数据","height":100,"fontSize":40,"color":"#ffffff","bgColor":"#3399ff","align":"center"},
                     "nodeParent":17,
                     "label":"Label(btnClearLocalData)",
                     "isDirectory":false,
@@ -93,7 +79,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":0,"x":320,"width":300,"var":"btnClearRemoteData","valign":"middle","text":"清空远程数据","runtime":"runtime.btn_label","height":100,"fontSize":40,"color":"#ffffff","bgColor":"#3399ff","align":"center"},
+                    "props":{"y":0,"x":320,"width":300,"var":"btnClearRemoteData","valign":"middle","text":"清空远程数据","height":100,"fontSize":40,"color":"#ffffff","bgColor":"#3399ff","align":"center"},
                     "nodeParent":17,
                     "label":"Label(btnClearRemoteData)",
                     "isDirectory":false,
@@ -119,7 +105,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":0,"x":0,"width":300,"var":"btnAddCoin","valign":"middle","text":"1000金币10体力","runtime":"runtime.btn_label","height":100,"fontSize":40,"color":"#ffffff","bgColor":"#3399ff","align":"center"},
+                    "props":{"y":0,"x":0,"width":300,"var":"btnAddCoin","valign":"middle","text":"1000金币10体力","height":100,"fontSize":40,"color":"#ffffff","bgColor":"#3399ff","align":"center"},
                     "nodeParent":18,
                     "label":"Label(btnAddCoin)",
                     "isDirectory":false,
@@ -132,7 +118,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":0,"x":320,"width":300,"var":"btnExit","valign":"middle","text":"退出小游戏","runtime":"runtime.btn_label","height":100,"fontSize":40,"color":"#ffffff","bgColor":"#3399ff","align":"center"},
+                    "props":{"y":0,"x":320,"width":300,"var":"btnExit","valign":"middle","text":"退出小游戏","height":100,"fontSize":40,"color":"#ffffff","bgColor":"#3399ff","align":"center"},
                     "nodeParent":18,
                     "label":"Label(btnExit)",
                     "isDirectory":false,

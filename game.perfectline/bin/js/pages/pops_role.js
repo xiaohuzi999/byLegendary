@@ -21,7 +21,7 @@ var RoleList = /** @class */ (function (_super) {
     RoleList.prototype.init = function () {
         var _this = this;
         this.ui.closebtn.on(Laya.Event.CLICK, null, function () {
-            _this.finish();
+            _this.close();
         });
         this.ui.rolelist.renderHandler = Laya.Handler.create(this, function (item, index) {
             _this.renderItem(item, index);
@@ -78,7 +78,7 @@ var RoleList = /** @class */ (function (_super) {
     RoleList.prototype.releaseRole = function (data, index) {
         var _this = this;
         if (data.type == 2) { //购买
-            if (User.instace.userInfo.coin >= data.cost) {
+            if (User.instace.gold >= data.cost) {
                 wx.showModal({
                     title: '提示',
                     content: '获取当前角色需要消耗' + data.cost + "金币",
@@ -102,7 +102,7 @@ var RoleList = /** @class */ (function (_super) {
             }
         }
         else if (data.type == 3) { // 签到
-            Tape.PopManager.showPop(SigninPop);
+            Tape.PopManager.showPop(SignInView);
         }
     };
     RoleList.prototype.getRole = function (data) {
@@ -111,14 +111,12 @@ var RoleList = /** @class */ (function (_super) {
             title: '解锁成功'
         });
         // 记录金币
-        User.instace.userInfo.coin -= data.cost;
+        User.instace.gold -= data.cost;
         GameDataManager.instance.recordUserGameData();
         // 记录角色
         GameDataManager.instance.recordUserRolesData(data);
         // 更改按钮状态
         this.ui.rolelist.refresh();
-        // 刷新主界面
-        XEvent.instance.event(RoleList.UPDATE);
     };
     RoleList.prototype.userRole = function (data) {
         Laya.LocalStorage.setItem(usedRoleKey, data.id);
@@ -126,7 +124,5 @@ var RoleList = /** @class */ (function (_super) {
     };
     RoleList.prototype.onShow = function () {
     };
-    /**事件-更新用户金币 */
-    RoleList.UPDATE = "update";
     return RoleList;
 }(xframe.XMWindow));

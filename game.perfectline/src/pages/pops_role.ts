@@ -2,8 +2,6 @@ const usedRoleKey = "nowUseRole";
     
 class RoleList extends xframe.XMWindow {
     ui = new ui.views.RoleViewUI();
-    /**事件-更新用户金币 */
-    public static UPDATE:string = "update"; 
     constructor () {
         super();
         this.bgAlpha = 0.8;
@@ -12,7 +10,7 @@ class RoleList extends xframe.XMWindow {
 
     init() {
         this.ui.closebtn.on(Laya.Event.CLICK, null, () => {
-            this.finish();
+            this.close();
         });
         this.ui.rolelist.renderHandler = Laya.Handler.create(this, (item, index) => {
             this.renderItem(item, index);
@@ -67,7 +65,7 @@ class RoleList extends xframe.XMWindow {
     // 解锁角色
     releaseRole(data, index) {
         if(data.type == 2) { //购买
-            if(User.instace.userInfo.coin >= data.cost) {
+            if(User.instace.gold >= data.cost) {
                 wx.showModal({
                     title: '提示',
                     content: '获取当前角色需要消耗' + data.cost + "金币",
@@ -90,7 +88,7 @@ class RoleList extends xframe.XMWindow {
                 });
             }
          } else if(data.type == 3) { // 签到
-            Tape.PopManager.showPop(SigninPop);
+            Tape.PopManager.showPop(SignInView);
         } 
     }
 
@@ -100,16 +98,13 @@ class RoleList extends xframe.XMWindow {
             title: '解锁成功'
         });
         // 记录金币
-        User.instace.userInfo.coin -= data.cost;
+        User.instace.gold -= data.cost;
         GameDataManager.instance.recordUserGameData();
         // 记录角色
         GameDataManager.instance.recordUserRolesData(data)
 
         // 更改按钮状态
         this.ui.rolelist.refresh();
-
-        // 刷新主界面
-        XEvent.instance.event(RoleList.UPDATE);
     }
 
     userRole(data) {

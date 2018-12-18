@@ -44,7 +44,7 @@ var GameDataManager = /** @class */ (function () {
                 if (type == 1) {
                     // 收集多少星
                     var star = data.lock[1];
-                    if (User.instace.userInfo.star >= star) {
+                    if (User.instace.star >= star) {
                         data.lock = [];
                         this.recordModeById(modeId, data);
                     }
@@ -75,7 +75,7 @@ var GameDataManager = /** @class */ (function () {
                     if (type == 1) {
                         // 收集多少星
                         var star = mode.lock[1];
-                        if (User.instace.userInfo.star >= star) {
+                        if (User.instace.star >= star) {
                             mode.lock = [];
                         }
                     }
@@ -113,7 +113,7 @@ var GameDataManager = /** @class */ (function () {
      * @param value
      */
     GameDataManager.prototype.recordUserGameData = function () {
-        DataManager.setData(usercloudInfoKey, User.instace.userInfo);
+        DataManager.setData(usercloudInfoKey, User.instace);
     };
     /**
      * 获取用户游戏相关数据
@@ -196,7 +196,7 @@ var GameDataManager = /** @class */ (function () {
      * 设置开放域数据
      */
     GameDataManager.prototype.uploadCloudData = function () {
-        var score = User.instace.userInfo.star;
+        var score = User.instace.star;
         var obj = { wxgame: { score: score, update: 0 } };
         Tape.MiniRank.setRankData([{
                 key: "star_score",
@@ -284,7 +284,7 @@ var GameDataManager = /** @class */ (function () {
                 // 判断是否已经解锁过了
                 var chapter = this.getModeRecordDataById(item.id);
                 if (!chapter || chapter.lock.length > 0) {
-                    var ownStar = User.instace.userInfo.star;
+                    var ownStar = User.instace.star;
                     if (ownStar >= target) {
                         // 提示解锁
                         callBack && callBack();
@@ -332,25 +332,6 @@ var GameDataManager = /** @class */ (function () {
             return "res/ic_role/" + item.img + ".png";
         }
         return "";
-    };
-    /** 判断是否自动展示签到层 */
-    GameDataManager.prototype.checkIsFristOpen = function () {
-        var time = Laya.LocalStorage.getItem(hadShowSignView);
-        if (time) {
-            var sameDay = SigninManager.isToday(parseInt(time), this.serverTime);
-            if (!sameDay && !SigninManager.hadSign()) {
-                this.fristOpen = true;
-                Laya.LocalStorage.setItem(hadShowSignView, this.serverTime);
-                Laya.stage.event(noticficationShowSign);
-            }
-        }
-        else {
-            if (!this.isNewUser && !SigninManager.hadSign()) {
-                this.fristOpen = true;
-                Laya.LocalStorage.setItem(hadShowSignView, this.serverTime);
-                Laya.stage.event(noticficationShowSign);
-            }
-        }
     };
     Object.defineProperty(GameDataManager.prototype, "modeList", {
         get: function () {

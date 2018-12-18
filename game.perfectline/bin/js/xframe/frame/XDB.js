@@ -17,7 +17,7 @@ var XDB = /** @class */ (function () {
     XDB.init = function (data) {
         if (typeof data === "string") {
             trace("data:::::::", data);
-            this._data = JSON.parse(data);
+            data && (this._data = JSON.parse(data));
         }
         else {
             this._data = data;

@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":4,
+    "selecteID":7,
     "props":{"width":750,"sceneColor":"#FFFFFF","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -14,15 +14,14 @@
     "child":[
         {
             "x":15,
-            "type":"UIView",
-            "source":"common/BgView.ui",
-            "props":{"y":0,"x":0,"var":"bgView"},
+            "type":"Image",
+            "props":{"y":0,"x":0,"skin":"res/main/bj_homepage@2x.png"},
             "nodeParent":1,
-            "label":"UIView(bgView)",
+            "label":"Image",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
-            "compId":3,
+            "compId":7,
             "child":[
                 ]
         },

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":45,
+    "selectedBox":17,
+    "selecteID":16,
     "props":{"width":750,"sceneColor":"#8d8d8d","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -94,19 +94,6 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":28,"x":0,"width":711,"var":"tfChap","text":"仲夏夜之梦","height":49,"fontSize":44,"font":"Arial","color":"#ffffff","bold":true,"align":"center"},
-                    "nodeParent":17,
-                    "label":"Label(tfChap)",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":18,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
-                    "type":"Label",
                     "props":{"y":121,"x":151,"width":407,"var":"tfName","text":"第1首","height":40,"fontSize":36,"font":"Arial","color":"#ffffff","align":"center"},
                     "nodeParent":17,
                     "label":"Label(tfName)",
@@ -116,33 +103,6 @@
                     "compId":19,
                     "child":[
                         ]
-                },
-                {
-                    "x":30,
-                    "type":"Label",
-                    "props":{"y":122,"x":520,"width":154,"var":"btnSelSong","text":"选择音乐","height":39,"fontSize":28,"font":"PingFangSC-Semibold","color":"#ffffff","align":"right"},
-                    "nodeParent":17,
-                    "label":"Label(btnSelSong)",
-                    "isOpen":true,
-                    "isDirectory":true,
-                    "isAniNode":true,
-                    "hasChild":true,
-                    "compId":20,
-                    "child":[
-                        {
-                            "x":45,
-                            "type":"Button",
-                            "props":{"y":8,"x":159,"stateNum":"1","skin":"res/game/btn_enter.png","scaleY":0.8,"scaleX":0.8},
-                            "nodeParent":20,
-                            "label":"Button",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":22,
-                            "child":[
-                                ]
-                        }],
-                    "$HIDDEN":false
                 },
                 {
                     "x":30,

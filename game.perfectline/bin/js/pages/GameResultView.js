@@ -14,6 +14,7 @@ var GameResultView = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this.ui = new ui.views.GameResultViewUI();
         _this.topToast = new ui.views.TopToastViewUI();
+        _this.bgAlpha = 0.5;
         _this.init();
         return _this;
     }
@@ -48,7 +49,7 @@ var GameResultView = /** @class */ (function (_super) {
         // 金币的数量
         this._rewardCoin = GameDataManager.instance.rewardCoinByStar(this.params.star);
         this.updateUi();
-        User.instace.userInfo.coin += this._rewardCoin;
+        User.instace.gold += this._rewardCoin;
     };
     GameResultView.prototype.updateUi = function () {
         for (var i = 1; i < 4; i++) {

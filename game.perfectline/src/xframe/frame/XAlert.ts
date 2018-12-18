@@ -181,10 +181,10 @@ module xframe{
 			this.addChild(this.tfMsg);
 			this.tfMsg.pos(20, 72);
 
-			this.tfMsg.style.fontFamily = "微软雅黑";
-			this.tfMsg.style.fontSize = 20;
-			this.tfMsg.style.color = "#ffffff";
-			this.tfMsg.style.align = "center";
+			this.tfMsg.font = "微软雅黑";
+			this.tfMsg.fontSize = 20;
+			this.tfMsg.color = "#ffffff";
+			this.tfMsg.align = "center";
 			
 			this.btnYes = new Laya.Button("", "Yes");
 			bg = new Laya.Image();

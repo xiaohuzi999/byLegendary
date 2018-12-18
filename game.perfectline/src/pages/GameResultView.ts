@@ -3,10 +3,10 @@ class GameResultView extends xframe.XMWindow {
     private topToast = new ui.views.TopToastViewUI();
     private _rewardCoin: number;
     private static tipArrays: Array<string> = ["加油哦", "不错！", "腻害了", "棒极了"];
-    private rankData: any;
     private params:any;
     constructor() {
         super();
+        this.bgAlpha = 0.5;
         this.init();
     }
 
@@ -40,7 +40,7 @@ class GameResultView extends xframe.XMWindow {
         // 金币的数量
         this._rewardCoin = GameDataManager.instance.rewardCoinByStar(this.params.star);
         this.updateUi();
-        User.instace.userInfo.coin += this._rewardCoin;
+        User.instace.gold += this._rewardCoin;
     }
 
     updateUi() {
@@ -61,7 +61,6 @@ class GameResultView extends xframe.XMWindow {
         this.ui.musicname.text = this.params.music.name;
         this.ui.authname.text = this.params.music.author;
         this.ui.scorelabel.text = this.params.score + "分";
-        this.ui.rankingLabel.text = "读取中...";
         this.ui.tip.text = GameResultView.tipArrays[this.params.star];
         this.ui.coinLabel.text = "X" + this._rewardCoin;
     }

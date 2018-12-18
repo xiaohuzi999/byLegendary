@@ -1,48 +1,28 @@
 var User = /** @class */ (function () {
     function User() {
-        this.roles = [];
-        this.cards = [];
+        this.avatar = "";
+        this.id = "";
+        this.nickname = "";
+        this.gold = 0;
+        this.star = 0;
+        this.power = 10;
+        this.diamond = 0;
+        this.curId = 1;
+        this.star = [];
     }
     User.prototype.initdData = function () {
+        var val = XDB.getData(XDB.USER);
+        if (val) {
+            for (var i in val) {
+                this[i] = val[i];
+            }
+        }
     };
-    Object.defineProperty(User.prototype, "userInfo", {
-        /**
-         * 获取用户信息
-         */
-        get: function () {
-            if (!this._userInfo) {
-                this._userInfo = {
-                    avatar: "",
-                    id: "",
-                    nickname: "",
-                    gold: 0,
-                    star: 0,
-                    power: 10,
-                };
-            }
-            return this._userInfo;
-        },
-        /**
-         * 保存用户信息
-         */
-        set: function (user) {
-            if (this._userInfo != user) {
-                //    this._userInfo = user;
-                this._userInfo = Object.assign(this._userInfo, user);
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * 是否拥有此角色
-     * @param roleid 角色id
-     */
-    User.prototype.checkIsOwnRoleById = function (roleid) {
-        var role = this.roles.find(function (item) {
-            return item.id == roleid;
-        });
-        return role ? true : false;
+    User.prototype.dispatchEvent = function () {
+        XEvent.instance.event(User.UPDATE);
+    };
+    User.prototype.save = function () {
+        XDB.save(XDB.USER, this);
     };
     Object.defineProperty(User, "instace", {
         get: function () {
@@ -54,5 +34,7 @@ var User = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    /** */
+    User.UPDATE = "update";
     return User;
 }());

@@ -25,7 +25,6 @@ var Main = /** @class */ (function () {
             { url: 'res/atlas/res/game.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/atlas/res/ic_role.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/cfg/stage.json', type: Laya.Loader.JSON },
-            { url: 'res/cfg/game.json', type: Laya.Loader.JSON },
         ];
         Laya.loader.load(urlList, Handler.create(null, function () {
             xframe.XFacade.instance.init(new App());
