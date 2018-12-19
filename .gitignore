@@ -1,6 +1,6 @@
 # laya
-.laya/chrome/
-release/
+byLegendary/.laya/chrome/
+byLegendary/release/
 
 # EclToXml
-EclToXml/bin-debug/
+byLegendary/EclToXml/bin-debug/
