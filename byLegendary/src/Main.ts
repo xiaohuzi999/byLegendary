@@ -13,7 +13,6 @@ Laya.init(750, 1334, WebGL);
 
 Laya.stage.scaleMode = "showall";
 
-console.log("1__________________")
 Laya.MiniAdpter["getUrlEncode"] = function (url, type) {
     if (url.indexOf(".fnt") != -1)
         return "utf8";
@@ -36,42 +35,5 @@ function beginLoad(){
 }
 
 function onLoaded(): void {
-	//xframe.XFacade.instance.init(new App())
-
-	/*
-	xframe.HttpCmd.callServer(Handler.create(null, (data)=>{
-		//角色初始化；
-        //User.getInstance().init();
-        //道具初始化；
-        Bag.getInstance().init();
-		//User.getInstance().save();
-		Bag.getInstance().save();
-		XDB.push2Srv();
-	}), "srv", "login")
-	return;
-	*/
-	
-	console.log("wx",Laya.Browser.window["wx"]);
-	wx.login({
-		success(res) {
-			if (res.code) {
-				console.log(res)
-
-				xframe.HttpCmd.callServer(Handler.create(null, (data)=>{
-					console.log("back==>",data)
-				}), "srv", "login", {code:res.code})
-				
-				//http://localhost/web/index.php?r=srv/login
-				//发起网络请求
-				// wx.request({
-				// 	url: 'http://localhost/web/index.php?r=srv/login',
-				// 	data: {
-				// 	code: res.code
-				// 	}
-				// })
-			} else {
-				console.log('登录失败！' + res.errMsg)
-			}
-		}
-	})
+	xframe.XFacade.instance.init(new App())
 }

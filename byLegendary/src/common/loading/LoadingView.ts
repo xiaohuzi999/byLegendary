@@ -38,15 +38,31 @@ class LoadingView extends xframe.XWindow{
 
     //step 2.获取远程存储数据
     private fetchSrvData():void{
-        XDB.fetchSrvData(Laya.Handler.create(this, this.onFetchSrvData))
+        let fun:any = this.onFetchSrvData;
+        let $this = this;
+        wx.login({
+            success(res) {
+                if (res.code) {
+                    xframe.HttpCmd.callServer(Handler.create($this, fun), "srv", "login", {code:res.code})
+                } else {
+                    console.log('登录失败！' + res.errMsg)
+                }
+            }
+        })
+        //XDB.fetchSrvData(Laya.Handler.create(this, this.onFetchSrvData))
     }
 
     //step 3.已获取服务端数据
-    private onFetchSrvData():void{
+    private onFetchSrvData(data:any):void{
         //角色初始化；
         User.getInstance().init();
         //道具初始化；
         Bag.getInstance().init();
+        User.getInstance().save();
+        Bag.getInstance().save();
+        User.getInstance().openid = data.data.openid;
+        XDB.push2Srv();
+        return;
         XEvent.instance.event(LoadingView.RDY);
         this.close();
     }

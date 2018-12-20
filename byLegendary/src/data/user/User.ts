@@ -3,6 +3,7 @@
 */
 class User{
     public id:string;
+    public openid:string;
 
     public name:string;
 

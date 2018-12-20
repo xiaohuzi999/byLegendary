@@ -27,6 +27,9 @@ var xframe;
             this._app = app;
             xframe.LayerManager.init();
             xframe.ModuleManager.init();
+            if (!Laya.Browser.window["wx"]) {
+                Laya.Browser.window["wx"] = new FakeWX();
+            }
             xframe.RES.init(resCfg, uiCfg, unpackCfg, Handler.create(this, this.start));
         };
         XFacade.prototype.start = function () {

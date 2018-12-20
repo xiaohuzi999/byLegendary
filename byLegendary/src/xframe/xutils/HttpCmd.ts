@@ -39,7 +39,10 @@ module xframe{
 				return str;
 			}
 			
-			function completeHandler(data:Object):void{
+			function completeHandler(data:any):void{
+				if(typeof data === "string"){
+					data = JSON.parse(data);
+				}
 				handler && handler.runWith(data)
 				recover();
 			}

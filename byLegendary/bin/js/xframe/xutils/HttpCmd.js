@@ -36,6 +36,9 @@ var xframe;
                 return str;
             }
             function completeHandler(data) {
+                if (typeof data === "string") {
+                    data = JSON.parse(data + "");
+                }
                 handler && handler.runWith(data);
                 recover();
             }

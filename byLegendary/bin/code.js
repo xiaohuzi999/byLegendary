@@ -49891,6 +49891,9 @@ var xframe;
                 return str;
             }
             function completeHandler(data) {
+                if (typeof data === "string") {
+                    data = JSON.parse(data + "");
+                }
                 handler && handler.runWith(data);
                 recover();
             }
@@ -49913,6 +49916,22 @@ var xframe;
     xframe.HttpCmd = HttpCmd;
 })(xframe || (xframe = {}));
 //# sourceMappingURL=HttpCmd.js.map
+/*
+* name;
+*/
+var FakeWX = /** @class */ (function () {
+    function FakeWX() {
+    }
+    FakeWX.prototype.login = function (cb) {
+        cb.success({ errMsg: "not in wx" });
+    };
+    FakeWX.prototype.showShareMenu = function () { };
+    ;
+    FakeWX.prototype.onHide = function () { };
+    ;
+    return FakeWX;
+}());
+//# sourceMappingURL=FakeWX.js.map
 /**
 * name
 */
@@ -50043,6 +50062,9 @@ var xframe;
             this._app = app;
             xframe.LayerManager.init();
             xframe.ModuleManager.init();
+            if (!Laya.Browser.window["wx"]) {
+                Laya.Browser.window["wx"] = new FakeWX();
+            }
             xframe.RES.init(resCfg, uiCfg, unpackCfg, Handler.create(this, this.start));
         };
         XFacade.prototype.start = function () {
@@ -50270,7 +50292,7 @@ var XDB = /** @class */ (function () {
         //todo：save to srv
     };
     XDB.push2Srv = function () {
-        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { kv: "xxoo" });
+        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { openid: User.getInstance().openid, kv: JSON.stringify(this.data) });
     };
     Object.defineProperty(XDB, "data", {
         get: function () {
@@ -52527,14 +52549,31 @@ var LoadingView = /** @class */ (function (_super) {
     };
     //step 2.获取远程存储数据
     LoadingView.prototype.fetchSrvData = function () {
-        XDB.fetchSrvData(Laya.Handler.create(this, this.onFetchSrvData));
+        var fun = this.onFetchSrvData;
+        var $this = this;
+        wx.login({
+            success: function (res) {
+                if (res.code) {
+                    xframe.HttpCmd.callServer(Handler.create($this, fun), "srv", "login", { code: res.code });
+                }
+                else {
+                    console.log('登录失败！' + res.errMsg);
+                }
+            }
+        });
+        //XDB.fetchSrvData(Laya.Handler.create(this, this.onFetchSrvData))
     };
     //step 3.已获取服务端数据
-    LoadingView.prototype.onFetchSrvData = function () {
+    LoadingView.prototype.onFetchSrvData = function (data) {
         //角色初始化；
         User.getInstance().init();
         //道具初始化；
         Bag.getInstance().init();
+        User.getInstance().save();
+        Bag.getInstance().save();
+        User.getInstance().openid = data.data.openid;
+        XDB.push2Srv();
+        return;
         XEvent.instance.event(LoadingView.RDY);
         this.close();
     };
@@ -54054,7 +54093,6 @@ Laya.MiniAdpter.init();
 //程序入口
 Laya.init(750, 1334, WebGL);
 Laya.stage.scaleMode = "showall";
-console.log("1__________________");
 Laya.MiniAdpter["getUrlEncode"] = function (url, type) {
     if (url.indexOf(".fnt") != -1)
         return "utf8";
@@ -54073,40 +54111,6 @@ function beginLoad() {
     Laya.loader.load("res/atlas/comp.atlas", Handler.create(null, onLoaded));
 }
 function onLoaded() {
-    //xframe.XFacade.instance.init(new App())
-    /*
-    xframe.HttpCmd.callServer(Handler.create(null, (data)=>{
-        //角色初始化；
-        //User.getInstance().init();
-        //道具初始化；
-        Bag.getInstance().init();
-        //User.getInstance().save();
-        Bag.getInstance().save();
-        XDB.push2Srv();
-    }), "srv", "login")
-    return;
-    */
-    console.log("wx", Laya.Browser.window["wx"]);
-    wx.login({
-        success: function (res) {
-            if (res.code) {
-                console.log(res);
-                xframe.HttpCmd.callServer(Handler.create(null, function (data) {
-                    console.log("back==>", data);
-                }), "srv", "login", { code: res.code });
-                //http://localhost/web/index.php?r=srv/login
-                //发起网络请求
-                // wx.request({
-                // 	url: 'http://localhost/web/index.php?r=srv/login',
-                // 	data: {
-                // 	code: res.code
-                // 	}
-                // })
-            }
-            else {
-                console.log('登录失败！' + res.errMsg);
-            }
-        }
-    });
+    xframe.XFacade.instance.init(new App());
 }
 //# sourceMappingURL=Main.js.map

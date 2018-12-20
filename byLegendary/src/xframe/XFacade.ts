@@ -31,6 +31,10 @@ module xframe{
 			LayerManager.init();
 			ModuleManager.init();
 
+			if(!Laya.Browser.window["wx"]){
+				Laya.Browser.window["wx"] = new FakeWX();
+			}
+			
 			RES.init(resCfg, uiCfg, unpackCfg, Handler.create(this, this.start));
 		}
 
