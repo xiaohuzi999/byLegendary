@@ -8,6 +8,8 @@ class XDB{
     public static readonly BAG:string = "bag";
     /** */
     private static _data:any;
+    /** */
+    private static _cb:Handler;
     /**local save key */
     private static readonly NAME:string = "xdb";
     constructor(){
@@ -15,22 +17,36 @@ class XDB{
     }
 
     /**获取服务端数据 */
-    public static fetchSrvData(cb:Laya.Handler):void{
-        //todo 获取远程数据
-        //xframe.HttpCmd.callServer()
-        //测试用，读取本地数据
-        let data:any = Laya.LocalStorage.getItem(this.NAME);
-        this.init(data);
-        cb.run();
+    public static fetchSrvData(cb:Handler):void{
+        this._cb = cb;
+        let onFetchHandler:Handler = Handler.create(this, this.init);
+        wx.login({
+            success(res) {
+                if (res.code) {
+                    xframe.HttpCmd.callServer(onFetchHandler, "srv", "login", {code:res.code})
+                } else {
+                    XAlert.showAlert('登录失败！' + res.errMsg)
+                }
+            },
+            initLocal(){
+                XTip.showTip("未与远程数据同步~~")
+                let data:any = Laya.LocalStorage.getItem(this.NAME);
+                onFetchHandler.runWith(data);
+            }
+        })
     }
 
     /**init with data*/
     public static init(data:any):void{
         if(typeof data === "string"){
             trace("data:::::::",data)
-            data && (this._data = JSON.parse(data));
+            this._data = JSON.parse(data);
         }else{
             this._data = data;
+        }
+        if(this._cb){
+            this._cb.run();
+            this._cb = null;
         }
     }
 
@@ -53,7 +69,7 @@ class XDB{
     }
 
     public static push2Srv():void{
-        xframe.HttpCmd.callServer(Handler.create(null, (data)=>{trace("save::",data)}), "srv", "save", {kv:"xxoo"})
+        xframe.HttpCmd.callServer(Handler.create(null, (data)=>{trace("save::",data)}), "srv", "save", {openid:User.getInstance().openid, kv:JSON.stringify(this.data)})
     }
 
     private static get data():any{

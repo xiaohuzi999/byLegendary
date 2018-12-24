@@ -111,7 +111,7 @@ module xframe{
 			if(noBtnLabel == null || noBtnLabel == ""){
 				noBtnLabel = XAlert.LABEL_NO_DEFAULT;
 			}
-			this._tfMsg.text = message+"";
+			this._tfMsg.innerHTML = message+"";
 			this._tfMsg.y = (this._btnYes.y - this._tfMsg.contextHeight ) * 0.5;
 			var btnNum:number = 0;
 			if(showYesBtn){
@@ -148,7 +148,7 @@ module xframe{
 		
 		/**覆盖关闭*/
 		public close():void{
-			AniUtil.popOut(this, Handler.create(this, this.onClose), 150);
+			AniUtil.popOut(this, Handler.create(this, this.onClose), 150,200);
 		}
 		
 		//
@@ -167,7 +167,7 @@ module xframe{
 		/***/
 		public btnYes:Laya.Button;
 		public btnNo:Laya.Button;
-		public tfMsg:Laya.Label;
+		public tfMsg:Laya.HTMLDivElement;
 		
 		constructor(){
 			super();
@@ -176,15 +176,15 @@ module xframe{
 			bg.graphics.drawRect(0,0, 500, 320, "#66ccff");
 			this.addChild(bg);
 			
-			this.tfMsg = new Laya.Label();
+			this.tfMsg = new Laya.HTMLDivElement();
 			this.tfMsg.width = 460;
 			this.addChild(this.tfMsg);
 			this.tfMsg.pos(20, 72);
 
-			this.tfMsg.font = "微软雅黑";
-			this.tfMsg.fontSize = 20;
-			this.tfMsg.color = "#ffffff";
-			this.tfMsg.align = "center";
+			this.tfMsg.style.fontFamily = "微软雅黑";
+			this.tfMsg.style.fontSize = 20;
+			this.tfMsg.style.color = "#ffffff";
+			this.tfMsg.style.align = "center";
 			
 			this.btnYes = new Laya.Button("", "Yes");
 			bg = new Laya.Image();

@@ -48457,10 +48457,13 @@ var xframe;
                 for (var i in args) {
                     str += "&" + i + "=" + args[i];
                 }
-                xframe.trace("str______________", str, args);
+                str += "&t=" + Laya.Browser.now();
                 return str;
             }
             function completeHandler(data) {
+                if (typeof data === "string") {
+                    data = JSON.parse(data);
+                }
                 handler && handler.runWith(data);
                 recover();
             }
@@ -48477,7 +48480,8 @@ var xframe;
         };
         /**host*/
         //http://127.0.0.1/web/index.php?r=srv/login
-        HttpCmd.httpRoot = "http://127.0.0.1/byphp/web/index.php?r=";
+        //public static httpRoot:string = "http://127.0.0.1/byphp/web/index.php?r=";
+        HttpCmd.httpRoot = "http://111.230.26.144/byphp/web/index.php?r=";
         return HttpCmd;
     }());
     xframe.HttpCmd = HttpCmd;
@@ -48489,6 +48493,9 @@ var xframe;
 var FakeWX = /** @class */ (function () {
     function FakeWX() {
     }
+    FakeWX.prototype.login = function (cb) {
+        cb.initLocal();
+    };
     FakeWX.prototype.showShareMenu = function () { };
     ;
     FakeWX.prototype.onHide = function () { };
@@ -48591,6 +48598,36 @@ var xframe;
                 target.y -= target.height * 0.5;
                 callback.run();
             }));
+        };
+        //=========================================================================================================
+        AniUtil.jump = function (target) {
+            var bY = target.y;
+            var $this = target;
+            up();
+            function up() {
+                Laya.Tween.to($this, { scaleX: 1.1, scaleY: 0.9 }, 100, null, Laya.Handler.create(null, function () {
+                    Laya.Tween.to($this, { scaleX: .9, scaleY: 1.1 }, 100, null, Laya.Handler.create(null, function () {
+                        Laya.Tween.to($this, { scaleX: 1, scaleY: 1, y: bY - 30 }, 100, null, Laya.Handler.create(null, function () {
+                            Laya.Tween.to($this, { scaleX: 1.1, scaleY: 0.9, y: bY - 40 }, 100, null, Laya.Handler.create(null, back));
+                        }));
+                    }));
+                }));
+            }
+            function back() {
+                Laya.Tween.to($this, { scaleX: 0.9, scaleY: 1.1, y: bY }, 100, null, Laya.Handler.create(null, function () {
+                    Laya.Tween.to($this, { scaleX: 1.1, scaleY: 0.9, y: bY }, 100, null, Laya.Handler.create(null, function () {
+                        Laya.Tween.to($this, { scaleX: 0.9, scaleY: 1.1, y: bY }, 100, null, Laya.Handler.create(null, function () {
+                            Laya.Tween.to($this, { scaleX: 1, scaleY: 1, y: bY }, 100, null, Laya.Handler.create(null, wait));
+                        }));
+                    }));
+                }));
+            }
+            function wait() {
+                Laya.Tween.to($this, { y: $this.y }, 800, null, Laya.Handler.create(null, up));
+            }
+        };
+        AniUtil.stop = function (target) {
+            Laya.Tween.clearTween(target);
         };
         return AniUtil;
     }());
@@ -48824,21 +48861,36 @@ var XDB = /** @class */ (function () {
     }
     /**获取服务端数据 */
     XDB.fetchSrvData = function (cb) {
-        //todo 获取远程数据
-        //xframe.HttpCmd.callServer()
-        //测试用，读取本地数据
-        var data = Laya.LocalStorage.getItem(this.NAME);
-        this.init(data);
-        cb.run();
+        this._cb = cb;
+        var onFetchHandler = Handler.create(this, this.init);
+        wx.login({
+            success: function (res) {
+                if (res.code) {
+                    xframe.HttpCmd.callServer(onFetchHandler, "srv", "login", { code: res.code });
+                }
+                else {
+                    XAlert.showAlert('登录失败！' + res.errMsg);
+                }
+            },
+            initLocal: function () {
+                XTip.showTip("未与远程数据同步~~");
+                var data = Laya.LocalStorage.getItem(this.NAME);
+                onFetchHandler.runWith(data);
+            }
+        });
     };
     /**init with data*/
     XDB.init = function (data) {
         if (typeof data === "string") {
             trace("data:::::::", data);
-            data && (this._data = JSON.parse(data));
+            this._data = JSON.parse(data);
         }
         else {
             this._data = data;
+        }
+        if (this._cb) {
+            this._cb.run();
+            this._cb = null;
         }
     };
     /**del local data */
@@ -48857,7 +48909,7 @@ var XDB = /** @class */ (function () {
         //todo：save to srv
     };
     XDB.push2Srv = function () {
-        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { kv: "xxoo" });
+        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { openid: User.getInstance().openid, kv: JSON.stringify(this.data) });
     };
     Object.defineProperty(XDB, "data", {
         get: function () {
@@ -49332,36 +49384,6 @@ var xframe;
     xframe.LayerManager = LayerManager;
 })(xframe || (xframe = {}));
 
-var ossGameVersion = "/1.0.0";
-/**
- * 获取游戏模式列表
- */
-var fetchGameModeList = function () {
-    var path = ossGameVersion + "/game.json";
-    return yxmp.asset.fetch(path, 5 * 60);
-};
-/**
- * 拉取当前模式游戏详情
- */
-var fetchModeDetail = function (modeId) {
-    var path = "";
-    return yxmp.asset.fetch(path, 5 * 60);
-};
-/**
- * 获取角色列表
- */
-var fetchRoleList = function () {
-    var path = ossGameVersion + "/role.json";
-    return yxmp.asset.fetch(path, 5 * 60);
-};
-/**
- *  获取签到配置表
- */
-var fetchSignList = function () {
-    var path = ossGameVersion + "/sign.json";
-    return yxmp.asset.fetch(path, 5 * 60);
-};
-
 /*
 * name;
 */
@@ -49455,251 +49477,6 @@ var PathUtil = /** @class */ (function () {
     return PathUtil;
 }());
 
-var DataLoader = /** @class */ (function () {
-    function DataLoader() {
-        this._data_ = {};
-        this._checked_ = false;
-        this._checking_ = false;
-        this._callbacks_ = [];
-    }
-    DataLoader.prototype.assignLocalData = function (data) {
-        if (data === void 0) { data = {}; }
-        Object.assign(this._data_, data);
-    };
-    DataLoader.prototype.getRemoteData = function (handle, success, fail) {
-        var _this = this;
-        var callback = function (isLoaded, data) {
-            if (isLoaded) {
-                success && success(data);
-            }
-            else {
-                fail && fail(data);
-            }
-        };
-        if (this._checking_) {
-            this._callbacks_.push(callback);
-            return;
-        }
-        if (this._checked_) {
-            callback && callback(true, this._data_);
-            return;
-        }
-        this._checking_ = true;
-        handle && handle(function (res) {
-            callback && callback(true, res);
-            _this.callbackState(true, res);
-        }, function (res) {
-            callback && callback(false, res);
-            _this.callbackState(false, res);
-        });
-    };
-    DataLoader.prototype.callbackState = function (isLoaded, data) {
-        if (isLoaded) {
-            this._data_ = data;
-            this._checked_ = true;
-        }
-        else {
-            this._checked_ = false;
-        }
-        this._checking_ = false;
-        var callbacks = this._callbacks_.splice(0, this._callbacks_.length);
-        callbacks.forEach(function (value) {
-            value && value(isLoaded, data);
-        });
-    };
-    return DataLoader;
-}());
-var loaders = {};
-var getDataLoader = function (name) {
-    var _a;
-    if (!loaders[name]) {
-        Object.assign(loaders, (_a = {},
-            _a[name] = new DataLoader(),
-            _a));
-    }
-    return loaders[name];
-};
-var LoaderManager;
-(function (LoaderManager) {
-    LoaderManager.getRemoteData = function (name, loader) {
-        return new Promise(function (resolve, reject) {
-            getDataLoader(name).getRemoteData(loader, resolve, reject);
-        });
-    };
-    LoaderManager.assignLocalData = function (name, data) {
-        return getDataLoader(name).assignLocalData(data);
-    };
-})(LoaderManager || (LoaderManager = {}));
-
-// 关卡解锁
-var helpUnlock = "helpUnlock";
-// 分享音乐卡片
-var shareMuiscCard = "musicCard";
-var HelpUtil;
-(function (HelpUtil) {
-    function gethelplist(key) {
-        return new Promise(function (resolve) {
-            yxmp.plugin.help.getHelpList(key).then(function (res) {
-                if (res) {
-                    var contributions = res.data.concat([]);
-                    var result_1 = [];
-                    // console.error("gethelplist", res);
-                    contributions.forEach(function (element) {
-                        if (element.app_name == "perfectline") {
-                            element.kv_data_list.forEach(function (kv) {
-                                if (kv.key == key) {
-                                    // let value = JSON.parse(kv.value);
-                                    // let obj = { contributor_id: element.contributor_id, value: value };
-                                    result_1.push(kv);
-                                }
-                            });
-                        }
-                    });
-                    resolve(result_1);
-                }
-                else {
-                    resolve([]);
-                }
-            });
-        });
-    }
-    HelpUtil.gethelplist = gethelplist;
-    // 合成分享图片
-    function shareByView(view, x, y, w, h) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (w === void 0) { w = view.width; }
-        if (h === void 0) { h = view.height; }
-        try {
-            var htmlCanvas = view.drawToCanvas(w, h, x, y);
-            var canvas = htmlCanvas.getCanvas();
-            var url = canvas.toTempFilePathSync();
-            // let opts = (<any>Object).assign({}, options || {}, { imageUrl: url });
-            // wx.shareAppMessage(getShareOptions(opts, type));
-            return url;
-        }
-        catch (error) {
-            // console.log(error);
-            // wx.shareAppMessage(getShareOptions(options, type));
-        }
-    }
-    HelpUtil.shareByView = shareByView;
-})(HelpUtil || (HelpUtil = {}));
-
-/**
-* name
-*/
-var Handler = Laya.Handler;
-var xframe;
-(function (xframe) {
-    var AniUtil = /** @class */ (function () {
-        function AniUtil() {
-        }
-        /**动画效果-入场，淡入 */
-        AniUtil.fadeIn = function (target, time, delay) {
-            if (time === void 0) { time = 200; }
-            if (delay === void 0) { delay = 0; }
-            target.alpha = 0;
-            Laya.Tween.to(target, { alpha: 1 }, time, null, null, delay);
-        };
-        /**
-         * 动画效果-入场，从下到当前位置，alpha从0到1
-         * @param target 动画对象
-         * @param time 动画时间
-         * @param distance 移动距离
-         */
-        AniUtil.flowIn = function (target, time, distance) {
-            if (time === void 0) { time = 200; }
-            if (distance === void 0) { distance = 200; }
-            Laya.Tween.from(target, { alpha: 0.5, y: target.y + distance }, time);
-        };
-        /**
-         * 动画效果-出场，从当前位置往上，alpha从0到1
-         * @param target 动画对象
-         * @param callback 动画结束回调
-         * @param time 动画时间
-         * @param distance 移动距离
-         */
-        AniUtil.flowOut = function (target, callback, time, distance) {
-            if (time === void 0) { time = 150; }
-            if (distance === void 0) { distance = 200; }
-            Laya.Tween.to(target, { alpha: 0, y: target.y - distance }, time, null, Handler.create(null, onflowOut, [target, callback]));
-            function onflowOut(target, callback) {
-                target.alpha = 1;
-                callback.run();
-            }
-        };
-        /**
-         * 动画效果-出场2，从当前位置往下，alpha从0到1
-         * @param target 动画对象
-         * @param callback 动画结束回调
-         * @param time 动画时间
-         * @param distance 移动距离
-         */
-        AniUtil.flowBack = function (target, callback, time, distance) {
-            if (time === void 0) { time = 150; }
-            if (distance === void 0) { distance = 200; }
-            Laya.Tween.to(target, { alpha: 0, y: target.y + distance }, time, null, Handler.create(null, onflowBack, [target, callback]));
-            function onflowBack(target, callback) {
-                target.alpha = 1;
-                callback.run();
-            }
-        };
-        /**
-         * 动画效果-入场，弹出一个窗口,注意，只有没设置中心点或者中心点坐标为(0,0)可用
-         * @param target 动画对象
-         * @param time 动画时间
-         */
-        AniUtil.popIn = function (target, time) {
-            if (time === void 0) { time = 200; }
-            Laya.Tween.clearTween(target);
-            target.anchorX = target.anchorY = 0.5;
-            target.x += target.width * 0.5;
-            target.y += target.height * 0.5;
-            target.scale(0.5, 0.5);
-            Laya.Tween.to(target, { scaleX: 1, scaleY: 1, ease: Laya.Ease.backOut }, 300, null, Handler.create(null, onPopIn));
-            function onPopIn() {
-                target.anchorX = target.anchorY = 0;
-                target.scaleX = target.scaleY = 1;
-                target.x -= target.width * 0.5;
-                target.y -= target.height * 0.5;
-            }
-        };
-        /**
-         * 动画效果-出场，从当前位置往上，alpha从1到0
-         * @param target 动画对象
-         * @param callback 动画结束回调
-         * @param time 动画时间
-         */
-        AniUtil.popOut = function (target, callback, time) {
-            if (time === void 0) { time = 150; }
-            Laya.Tween.clearTween(target);
-            target.anchorX = 0.5;
-            target.anchorY = 0.5;
-            target.x += target.width * 0.5;
-            target.y += target.height * 0.5;
-            Laya.Tween.to(target, { scaleX: 0.5, scaleY: 0.5 }, time, null, Handler.create(null, onPopOut));
-            function onPopOut() {
-                target.anchorX = 0;
-                target.anchorY = 0;
-                target.scaleX = target.scaleY = 1;
-                target.x -= target.width * 0.5;
-                target.y -= target.height * 0.5;
-                callback.run();
-            }
-        };
-        return AniUtil;
-    }());
-    xframe.AniUtil = AniUtil;
-})(xframe || (xframe = {}));
-
-var AdUtil;
-(function (AdUtil) {
-    function aa() {
-    }
-    AdUtil.aa = aa;
-})(AdUtil || (AdUtil = {}));
-
 /*
 * name 角色数据配置
 */
@@ -49774,6 +49551,17 @@ var DBGame = /** @class */ (function () {
 
 var User = /** @class */ (function () {
     function User() {
+        this.avatar = "";
+        this.id = "";
+        this.nickname = "";
+        this.gold = 0;
+        this.star = 0;
+        this.power = 10;
+        this.diamond = 0;
+        /**当前歌曲ID */
+        this.curId = 1;
+        /**记录 */
+        this.starInfo = [];
     }
     User.prototype.initdData = function () {
         var val = XDB.getData(XDB.USER);
@@ -49781,18 +49569,6 @@ var User = /** @class */ (function () {
             for (var i in val) {
                 this[i] = val[i];
             }
-        }
-        else {
-            this.userInfo =
-                {
-                    avatar: "",
-                    id: "",
-                    nickname: "",
-                    gold: 0,
-                    star: 0,
-                    power: 10,
-                    diamond: 0,
-                };
         }
     };
     User.prototype.dispatchEvent = function () {
@@ -49815,227 +49591,6 @@ var User = /** @class */ (function () {
     User.UPDATE = "update";
     return User;
 }());
-
-var SignKey = "signrecord";
-var HadRole = "haveGetRole";
-var SigninManager;
-(function (SigninManager) {
-    var __dateTimeLong__ = 0;
-    var __signinState__ = {};
-    /**
-     * 签到状态
-     * (-2:将来未签到；-1：过去可补签；0：当天未签到；1：过去已签到；2：当天已签到)
-     */
-    function signinState(day, cb) {
-        checkLoginTime(false, function () {
-            if (day <= 0) {
-                day = getWeekDay(__dateTimeLong__);
-            }
-            checkSigninState(function () {
-                var nowDay = getWeekDay(__dateTimeLong__);
-                if (__signinState__[day]) {
-                    cb && cb(nowDay == day ? 2 : 1);
-                }
-                else {
-                    cb && cb(nowDay == day ? 0 : (nowDay < day ? -2 : -1));
-                }
-            });
-        });
-    }
-    SigninManager.signinState = signinState;
-    /**
-     * 签到
-     */
-    function signin(day, cb) {
-        checkLoginTime(false, function () {
-            var sundayDate = getSundayDate(__dateTimeLong__);
-            if (day <= 0) {
-                day = getWeekDay(__dateTimeLong__);
-            }
-            signinState(day, function (state) {
-                if (state == -1 || state == 0) {
-                    __signinState__[day] = 1;
-                    DataManager.setData("signin-" + sundayDate, JSON.stringify(__signinState__));
-                    cb && cb(true, day);
-                }
-                else {
-                    cb && cb(false);
-                }
-            });
-        });
-    }
-    SigninManager.signin = signin;
-    function checkSigninState(onFinish) {
-        checkLoginTime(false, function () {
-            var sundayDate = getSundayDate(__dateTimeLong__);
-            // DataManager.getData(`signin-${sundayDate}`).then(value => {
-            //     try {
-            //         __signinState__ = JSON.parse(value);
-            //     } catch (error) {
-            //         __signinState__ = {};
-            //     }
-            //     onFinish && onFinish();
-            // });
-            DataManager.getData("signin-" + sundayDate);
-        });
-    }
-    /** 检测登录时间 */
-    function checkLoginTime(useLocalTime, onFinish) {
-        if (__dateTimeLong__ > 0) {
-            onFinish && onFinish();
-            return;
-        }
-        if (useLocalTime) {
-            var dateTime = new Date();
-            __dateTimeLong__ = dateTime.getTime();
-            onFinish && onFinish();
-        }
-        else {
-            yxmp.api.getServerTime().then(function (res) {
-                if (res.data && res.data && res.data.time) {
-                    __dateTimeLong__ = res.data.time * 1000;
-                    onFinish && onFinish();
-                }
-                else {
-                    checkLoginTime(true, onFinish);
-                }
-            }).catch(function (err) {
-                checkLoginTime(true, onFinish);
-            });
-        }
-    }
-    /** 返回星期几 */
-    function getWeekDay(dateTimeLong) {
-        var dateTime = new Date(dateTimeLong);
-        var day = dateTime.getDay();
-        if (day == 0) {
-            day = 7;
-        }
-        return day;
-    }
-    /** 返回本周日日期 */
-    function getSundayDate(dateTimeLong) {
-        var nowTime = dateTimeLong;
-        var oneDayLong = 24 * 60 * 60 * 1000;
-        var day = getWeekDay(dateTimeLong);
-        var sunday = new Date(nowTime + (7 - day) * oneDayLong);
-        var sundayDate = sunday.getFullYear() + "-" + (sunday.getMonth() + 1) + "-" + sunday.getDate();
-        return sundayDate;
-    }
-    //------------------------------------------------------//////////////////////////////////////////////-------------------------------------------
-    /**
-     *
-     * @param data 签到
-     */
-    function sign(data) {
-        var signObj = new Object();
-        var list = DataManager.getData(SignKey);
-        if (!list) {
-            list = [];
-        }
-        var timeString = GameDataManager.instance.serverTime;
-        var signId = data.id;
-        signObj.time = timeString;
-        signObj.signId = signId;
-        list.push(signObj);
-        DataManager.setData(SignKey, list);
-        if (list.length >= 7 && !DataManager.getData(HadRole)) {
-            if (data.type == 3) {
-                DataManager.setData(HadRole, data);
-                // 角色列表更新 保存角色id
-                GameDataManager.instance.recordUserRolesData({ id: data.target });
-            }
-        }
-    }
-    SigninManager.sign = sign;
-    /**
-     *  判断今天距离最后一次签到是否断签
-     */
-    function checkSignBreak() {
-        var list = DataManager.getData(SignKey);
-        if (!list || list.length == 0) {
-            return true;
-        }
-        if (hadSign()) {
-            return false;
-        }
-        var lastSign = list[list.length - 1];
-        var lastTime = parseInt(lastSign.time);
-        var serverTime = GameDataManager.instance.serverTime;
-        var isBreak = compareDifferentDaysByMillisecond(serverTime, lastTime);
-        if (isBreak) {
-            DataManager.setData(SignKey, []);
-        }
-        else {
-            if (list.length == 7) {
-                DataManager.setData(SignKey, []);
-            }
-        }
-        return isBreak;
-    }
-    SigninManager.checkSignBreak = checkSignBreak;
-    /**
-     * 通过时间秒毫秒数判断两个时间的间隔
-     * @param currentTime 当前时间
-     * @param lastTime 最后一次签到时间
-     * @return
-     */
-    function compareDifferentDaysByMillisecond(currentTime, lastTime) {
-        var days = (currentTime - lastTime) / (1000 * 3600 * 24);
-        // 大于两天可能断签了
-        if (days >= 2) {
-            return true;
-        }
-        var newTimeTemp = lastTime + (1000 * 3600 * 24);
-        if (isToday(currentTime, newTimeTemp)) {
-            //昨天签到
-            return false;
-        }
-        //前天签到
-        return true;
-    }
-    /**
-     * 判断是否是同一天
-     * @param currentTime
-     * @param lastTime
-     */
-    function isToday(currentTime, lastTime) {
-        var time1 = new Date(currentTime).toDateString();
-        var time2 = new Date(lastTime).toDateString();
-        if (time1 === time2) {
-            return true;
-        }
-        return false;
-    }
-    SigninManager.isToday = isToday;
-    /**
-     * 判断今天是否已经签到
-     */
-    function hadSign() {
-        var list = DataManager.getData(SignKey);
-        if (list && list.length > 0) {
-            var lastSign = list[list.length - 1];
-            var lastTime = parseInt(lastSign.time);
-            var serverTime = GameDataManager.instance.serverTime;
-            if (isToday(serverTime, lastTime)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    SigninManager.hadSign = hadSign;
-    /**
-     * 签到第几天
-     */
-    function signIndex() {
-        var list = DataManager.getData(SignKey);
-        if (!list || list.length == 0) {
-            return 0;
-        }
-        return list.length;
-    }
-    SigninManager.signIndex = signIndex;
-})(SigninManager || (SigninManager = {}));
 
 var ShareManager;
 (function (ShareManager) {
@@ -50061,457 +49616,33 @@ var ShareManager;
 /*
 * name;
 */
-var ReportCmd = /** @class */ (function () {
-    function ReportCmd() {
+var DBChapter = /** @class */ (function () {
+    function DBChapter() {
     }
-    //加载开始
-    ReportCmd.loadStart = "4000_4001_start";
-    //加载成功
-    ReportCmd.loadSuccess = "4000_4002_success";
-    //加载失败
-    ReportCmd.loadFail = "4000_4003_fail";
-    //复活
-    ReportCmd.relive = "3000_3001_click";
-    return ReportCmd;
-}());
-
-var usercloudInfoKey = "userdata";
-var usercloudCardKey = "usercard";
-var usercloudRoleKey = "userrole";
-var GameDataManager = /** @class */ (function () {
-    function GameDataManager() {
-        this.roleLIst = []; // 角色配置表
-    }
-    Object.defineProperty(GameDataManager, "instance", {
+    //
+    DBChapter.getChapInfo = function (id) {
+        return this.chapList[id];
+    };
+    Object.defineProperty(DBChapter, "chapList", {
         get: function () {
-            if (!GameDataManager._instance) {
-                GameDataManager._instance = new GameDataManager();
+            if (!this._data) {
+                this._data = Laya.loader.getRes("res/cfg/stage.json");
             }
-            return GameDataManager._instance;
+            return this._data;
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(GameDataManager.prototype, "cardConfig", {
-        /** 卡片分享贴图位置 */
-        get: function () {
-            return {
-                "1": [531, 254],
-                "2": [375, 379],
-                "3": [375, 379],
-                "4": [531, 254],
-                "5": [519, 446],
-                "6": [519, 446],
-                "7": [443, 171],
-                "8": [443, 171],
-            };
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * {解锁条件 邀请人数 获得星星数量}
-     * @param modeId 判断当前章节是否解锁
-     */
-    GameDataManager.prototype.checkModeIslock = function (modeId) {
-        if (DataManager.hasData(modeId + '')) {
-            var data = DataManager.getData(modeId);
-            if (data.lock.length > 0) {
-                var type = data.lock[0];
-                if (type == 1) {
-                    // 收集多少星
-                    var star = data.lock[1];
-                    if (User.instace.userInfo.star >= star) {
-                        data.lock = [];
-                        this.recordModeById(modeId, data);
-                    }
-                }
-                else if (type == 2) {
-                    var num = data.lock[1];
-                    if (data.invite >= num) {
-                        data.lock = [];
-                        this.recordModeById(modeId, data);
-                    }
-                }
-            }
-            return data.lock;
-        }
-        else {
-            var mode = {
-                invite: 0,
-                lock: [],
-                star: 0
-            };
-            var obj = this.modeList.find(function (item) {
-                return item.id == modeId;
-            });
-            if (obj) {
-                if (obj.lock.length > 0) {
-                    mode.lock = obj.lock;
-                    var type = mode.lock[0];
-                    if (type == 1) {
-                        // 收集多少星
-                        var star = mode.lock[1];
-                        if (User.instace.userInfo.star >= star) {
-                            mode.lock = [];
-                        }
-                    }
-                }
-            }
-            this.recordModeById(modeId, mode);
-            return mode.lock;
-        }
-    };
-    /**
-     * 记录章节
-     * @param modeId 章节id
-     * @param value 
-     */
-    GameDataManager.prototype.recordModeById = function (modeId, value) {
-        DataManager.setData(modeId + '', value);
-    };
-    /**
-     * 获取章节信息
-     * @param modeId
-     */
-    GameDataManager.prototype.getModeRecordDataById = function (modeId) {
-        return DataManager.getData(modeId + '');
-    };
-    /**
-     * 记录当前游戏结果
-     * @param musicId
-     * @param value
-     */
-    GameDataManager.prototype.recordMusicById = function (musicId, value) {
-        DataManager.setData("musicData" + musicId, value);
-    };
-    /**
-     * 记录用户游戏相关数据
-     * @param value
-     */
-    GameDataManager.prototype.recordUserGameData = function () {
-        DataManager.setData(usercloudInfoKey, User.instace.userInfo);
-    };
-    /**
-     * 获取用户游戏相关数据
-     */
-    GameDataManager.prototype.getUserGameData = function () {
-        return DataManager.getData(usercloudInfoKey);
-    };
-    /**
-     * 记录用户卡片相关数据
-     * @param value
-     */
-    GameDataManager.prototype.recordUserCardsData = function (value) {
-        if (value) {
-            var time = new Date().getTime();
-            var newObj = Object.assign({ timeTemp: time }, value);
-            User.instace.cards.unshift(newObj);
-            DataManager.setData(usercloudCardKey, User.instace.cards);
-        }
-    };
-    /**
-     * 获取用户卡片数据
-     */
-    GameDataManager.prototype.getUserCardsData = function () {
-        return DataManager.getData(usercloudCardKey);
-    };
-    /**
-     * 记录用户角色相关数据
-     * @param value
-     */
-    GameDataManager.prototype.recordUserRolesData = function (value) {
-        if (value) {
-            User.instace.roles.push(value);
-            DataManager.setData(usercloudRoleKey, User.instace.roles);
-        }
-    };
-    /**
-     * 获取用户角色数据
-     */
-    GameDataManager.prototype.getUserRolesData = function () {
-        return DataManager.getData(usercloudRoleKey);
-    };
-    /**
-     * 最后一次玩的篇章的索引
-     */
-    GameDataManager.prototype.nearestPlayChapterIndex = function () {
-        var chapterId = '';
-        if (!chapterId) {
-            return 0;
-        }
-        var chapter = this.getChapterById(chapterId);
-        if (chapter) {
-            return this.modeList.indexOf(chapter);
-        }
-        return 0;
-    };
-    /**
-     *
-     * @param chapterId 篇章id
-     * @param musicId 音乐id
-     */
-    GameDataManager.prototype.recordNearestMusic = function (chapterId, musicId) {
-        DataManager.setData("chapter" + chapterId, musicId);
-    };
-    /**
-     * 获取当前篇章最近玩的关卡
-     * @param chapter 篇章id
-     */
-    GameDataManager.prototype.nearestPlayMusic = function (chapter) {
-        var musicId = '';
-        var chapterMusics = this.getMuicList(chapter);
-        var music = chapterMusics.find(function (item) {
-            return item.id == musicId;
-        });
-        if (music) {
-            return music;
-        }
-        return chapterMusics[0];
-    };
-    /**
-     * 设置开放域数据
-     */
-    GameDataManager.prototype.uploadCloudData = function () {
-        var score = User.instace.userInfo.star;
-        var obj = { wxgame: { score: score, update: 0 } };
-        Tape.MiniRank.setRankData([{
-                key: "star_score",
-                value: JSON.stringify(obj)
-            }]);
-    };
-    /**上报单个音乐排行榜 音乐id 音乐分数 到开放域*/
-    GameDataManager.prototype.uploadMusicCloudData = function (musicId, score) {
-        var obj = { wxgame: { score: score, update: 0 } };
-        Tape.MiniRank.setRankData([{
-                key: "music_" + musicId,
-                value: JSON.stringify(obj)
-            }]);
-    };
-    /**
-     * 设置单个音乐的分数
-     */
-    GameDataManager.prototype.updateMusicGrade = function (score, musicId) {
-        yxmp.api.setRankScore(score, {}, "music" + musicId);
-    };
-    /**
-     *
-     * @param musicId 获取单个音乐排行榜
-     */
-    GameDataManager.prototype.getMusicRankList = function (musicId) {
-        return yxmp.api.getRankList(100, "music" + musicId);
-    };
-    /**
-     * 获取当前模式的音乐列表
-     * @param mode
-     */
-    GameDataManager.prototype.getMuicList = function (mode) {
-        var source = Laya.loader.getRes("res/cfg/stage.json");
-        var list = source.filter(function (item) {
-            return item.cid == mode.id;
-        });
-        return list;
-    };
-    /**
-     * 根据当前的星星数量，判断获取的金币
-     */
-    GameDataManager.prototype.rewardCoinByStar = function (starNum) {
-        var list = [[2, 3], [6, 7], [8, 9], [12, 13]];
-        if (starNum < list.length) {
-            var coins = list[starNum];
-            var randomNum = Math.round(Math.random());
-            return coins[randomNum];
-        }
-        return 0;
-    };
-    /**
-     * 章节的当前获得的星星，总共的星星
-     * @param chapterId 当前章节的id
-     */
-    GameDataManager.prototype.chapterStarProgress = function (chapterId) {
-        var _this = this;
-        var stars = 0;
-        var total = 0;
-        var chapter = this.modeList.find(function (item) {
-            return item.id == chapterId;
-        });
-        if (chapter) {
-            var musics = this.getMuicList(chapter);
-            musics.forEach(function (item, index) {
-                total += 3;
-                var musicRecord = _this.getRecordMusic(item.id);
-                if (musicRecord) {
-                    stars += musicRecord.star;
-                }
-            });
-        }
-        return [stars, total];
-    };
-    /**
-     * 判断游戏结束后是否解锁下一关卡
-     */
-    GameDataManager.prototype.chapterAutoRelease = function (chapterId, callBack) {
-        var item = this.nextChapter(chapterId);
-        if (item) {
-            var condition = item.lock;
-            var type = condition[0];
-            var target = condition[1];
-            // 需要星星解锁
-            if (type == 1 && target > 0) {
-                // 判断是否已经解锁过了
-                var chapter = this.getModeRecordDataById(item.id);
-                if (!chapter || chapter.lock.length > 0) {
-                    var ownStar = User.instace.userInfo.star;
-                    if (ownStar >= target) {
-                        // 提示解锁
-                        callBack && callBack();
-                    }
-                }
-            }
-        }
-    };
-    /**
-     * 获取篇章
-     * @param targetId 篇章id
-     */
-    GameDataManager.prototype.getChapterById = function (targetId) {
-        var item = this.modeList.find(function (item) {
-            return item.id == targetId;
-        });
-        return item;
-    };
-    /**
-     * 下一章节
-     */
-    GameDataManager.prototype.nextChapter = function (targetId) {
-        var item = this.getChapterById(targetId);
-        var index = this.modeList.indexOf(item);
-        if (index >= this.modeList.length - 1) {
-            // 最后一篇章 
-            return null;
-        }
-        var nextChapter = this.modeList[index + 1];
-        return nextChapter;
-    };
-    /**
-    *  当前正在使用的角色
-    */
-    GameDataManager.prototype.currentUsedRoleId = function () {
-        return Laya.LocalStorage.getItem(usedRoleKey);
-    };
-    /** 当前角色图片 */
-    GameDataManager.prototype.currentUserRoleImg = function () {
-        var roleId = this.currentUsedRoleId();
-        var item = this.roleLIst.find(function (item) {
-            return item.id == roleId;
-        });
-        if (item) {
-            return "res/ic_role/" + item.img + ".png";
-        }
-        return "";
-    };
-    Object.defineProperty(GameDataManager.prototype, "modeList", {
-        get: function () {
-            if (!this._modeList) {
-                this._modeList = Laya.loader.getRes("res/cfg/game.json");
-                this._modeList = this._modeList.list;
-            }
-            return this._modeList;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return GameDataManager;
+    return DBChapter;
 }());
 
-var loaderName = "_kv_data_loader_";
-var checkoutData = function () {
-    var handler = function (success, fail) {
-        yxmp.api.getCloudData(['*']).then(function (res) {
-            if (res && res.data) {
-                var data = {};
-                var dataArray = res.data;
-                if (dataArray instanceof Array) {
-                    dataArray.forEach(function (element) {
-                        var _a;
-                        var key = element.key;
-                        var value = element.value;
-                        if (key) {
-                            Object.assign(data, (_a = {},
-                                _a[key] = value,
-                                _a));
-                        }
-                    });
-                }
-                success && success(data);
-            }
-            else {
-                throw res;
-            }
-        }).catch(function (err) {
-            fail && fail(err);
-        });
-    };
-    return LoaderManager.getRemoteData(loaderName, handler);
-};
-var saveDataList = [];
-var updateData = function () {
-    var list = saveDataList.splice(0, saveDataList.length);
-    return yxmp.api.setCloudData(list).catch(function (err) {
-        list.forEach(function (element) {
-            var start = saveDataList.indexOf(element);
-            if (start >= 0) {
-                saveDataList.splice(start, 1);
-            }
-        });
-    });
-};
-var DataManager;
-(function (DataManager) {
-    // 用户跟新的
-    DataManager.setData = function (key, value) {
-        if (typeof value == "string") {
-            yxmp.getCloudData().set(key, value);
-            return;
-        }
-        var obj = JSON.parse(JSON.stringify(value));
-        yxmp.getCloudData().set(key, obj);
-    };
-    DataManager.getData = function (key, def) {
-        if (def === void 0) { def = ''; }
-        return yxmp.getCloudData().get(key, def);
-    };
-    DataManager.hasData = function (key) {
-        return DataManager.getData(key) !== '';
-    };
-})(DataManager || (DataManager = {}));
-
-var Package = /** @class */ (function () {
-    function Package() {
+/*
+* name;
+*/
+var ChapterVo = /** @class */ (function () {
+    function ChapterVo() {
     }
-    Package.version = '1.2';
-    Package.description = "";
-    return Package;
-}());
-
-var Conf = /** @class */ (function () {
-    function Conf() {
-    }
-    Conf.sdkOptions = {
-        serverUrl: 'https://betaapi.xiuwu.me',
-        appName: 'perfectline',
-        asset: {
-            server: 'https://s.xiuwu.me',
-            beta: false,
-        },
-        webSocket: {
-            url: 'wss://betaapi.xiuwu.me/ws',
-            format: 2,
-            autoRetryTimes: 3,
-        },
-        debug: true,
-    };
-    return Conf;
+    return ChapterVo;
 }());
 
 
@@ -50522,7 +49653,15 @@ var App = /** @class */ (function () {
     function App() {
     }
     App.prototype.start = function () {
+        this.initEvet();
         XFacade.instance.showModule(LoadingView);
+    };
+    App.prototype.onRdy = function () {
+        XFacade.instance.showModule(HomeView);
+        XFacade.instance.closeModule(LoadingView);
+    };
+    App.prototype.initEvet = function () {
+        XEvent.instance.once(LoadingView.RDY, this, this.onRdy);
     };
     return App;
 }());
@@ -50744,1179 +49883,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var GameActivity = /** @class */ (function (_super) {
-    __extends(GameActivity, _super);
-    function GameActivity() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.GamePageUI();
-        //
-        _this._items = [];
-        //是否已经加入最后节点
-        _this._autoLast = false;
-        _this._reviveTimes = 0;
-        //
-        _this._awsomeTime = 0;
-        //是否可项目
-        _this._turnable = true;
-        _this.curX = Laya.stage.width / 2;
-        _this.curY = Laya.stage.height / 2;
-        _this.delX = 0;
-        _this.delY = 0;
-        _this.speedX = 0;
-        _this.speedY = 0;
-        _this.dir = 1;
-        //误差；
-        _this.deviation = 80;
-        _this.targetX = _this.curX;
-        _this.targetY = _this.curY;
-        return _this;
-    }
-    GameActivity.prototype.createUI = function () {
-        var _this = this;
-        _super.prototype.createUI.call(this);
-        //this.ui.bg.skin = "res/map/bj"+this.params.id+"1.jpg";
-        this.starContainer = new Laya.Sprite();
-        this.ui.addChildAt(this.starContainer, this.ui.getChildIndex(this.ui.btnPause));
-        this.map = new Laya.Sprite();
-        this.ui.addChildAt(this.map, this.ui.getChildIndex(this.ui.btnPause));
-        this.pathSp = new Laya.Sprite();
-        this.ui.addChildAt(this.pathSp, this.ui.getChildIndex(this.ui.btnPause));
-        this.effContainer = new Laya.Sprite();
-        this.ui.addChild(this.effContainer);
-        this._eff = new Laya.Image("res/game/spot_s.png");
-        this._eff.anchorX = this._eff.anchorY = 0.5;
-        this._eff2 = new Laya.Image("res/game/light.png");
-        this._eff2.anchorX = this._eff2.anchorY = 0.5;
-        this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
-        this.ui.selectBox.cacheAsBitmap = true;
-        this.init();
-        //this.initEvent();
-        //自动暂停
-        wx.onHide(function () {
-            if (_this.soundChannel && !_this.soundChannel.paused) {
-                _this.pause();
-            }
-        });
-    };
-    GameActivity.prototype.init = function () {
-        var _this = this;
-        this.ui.btnPause.on(Laya.Event.CLICK, null, function () {
-            _this.pause();
-        });
-        this.ui.btnSelSong.on(Laya.Event.CLICK, null, function () {
-            XFacade.instance.showModule(LevelsActivity, _this.params);
-        });
-        this.ui.backBtn.on(Laya.Event.CLICK, null, function () {
-            _this.close();
-        });
-        this.ui.btnStart.on(Laya.Event.CLICK, this, this.onStart);
-    };
-    GameActivity.prototype.show = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        _super.prototype.show.call(this);
-        this.params = args[0];
-        trace("args..........", args);
-        this.ui.tfChap.text = this.params.name;
-        this.ui.btnPause.visible = false;
-        // loading frist music
-        var fristMusic = GameDataManager.instance.nearestPlayMusic(this.params);
-        XFacade.instance.showModule(GameLoading, fristMusic);
-    };
-    GameActivity.prototype.initEvent = function () {
-        XEvent.instance.on(GameEvent.ERR, this, this.onGameEvent, [GameEvent.ERR]);
-        XEvent.instance.on(GameEvent.BACK, this, this.onGameEvent, [GameEvent.BACK]);
-        XEvent.instance.on(GameEvent.OVER, this, this.onGameEvent, [GameEvent.OVER]);
-        XEvent.instance.on(GameEvent.RESTART, this, this.onGameEvent, [GameEvent.RESTART]);
-        XEvent.instance.on(GameEvent.SELECTED, this, this.onGameEvent, [GameEvent.SELECTED]);
-        XEvent.instance.on(GameEvent.NEXTCHAPTER, this, this.onGameEvent, [GameEvent.NEXTCHAPTER]);
-    };
-    GameActivity.prototype.removeEVent = function () {
-        XEvent.instance.off(GameEvent.ERR, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.OVER, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.BACK, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.RESTART, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.SELECTED, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.NEXTCHAPTER, this, this.onGameEvent);
-    };
-    GameActivity.prototype.onGameEvent = function (type, data) {
-        if (data === void 0) { data = null; }
-        switch (type) {
-            case GameEvent.BACK:
-                this.stop();
-                this.close();
-                break;
-            case GameEvent.OVER:
-                this.over();
-                break;
-            case GameEvent.RESTART:
-                this.restart();
-                break;
-            case GameEvent.SELECTED:
-                this._data = data;
-                var record = null;
-                if (record) {
-                    this.ui.tfName.text = data.name;
-                }
-                else {
-                    var list = GameDataManager.instance.getMuicList(this.params);
-                    var index = list.indexOf(data) + 1;
-                    this.ui.tfName.text = "第" + index + "首";
-                }
-                this.ui.selectBox.visible = true;
-                this.ui.btnPause.visible = false;
-                this.ui.backBtn.visible = true;
-                this.initMap();
-                break;
-            case GameEvent.NEXTCHAPTER:
-                this.params = data;
-                this.ui.bg.skin = "res/map/bj" + this.params.id + "1.png";
-                this.ui.tfChap.text = this.params.name;
-                this.ui.selectBox.visible = true;
-                var fristMusic = GameDataManager.instance.nearestPlayMusic(this.params);
-                XFacade.instance.showModule(GameLoading, fristMusic);
-                break;
-            case GameEvent.ERR:
-                XAlert.showAlert("哎呀，网络不太好~返回再试试吧", Laya.Handler.create(this, this.close));
-                break;
-        }
-    };
-    GameActivity.prototype.onStart = function (e) {
-        e.stopPropagation();
-        if (User.instace.userInfo.power > 0) {
-            User.instace.userInfo.power -= 1;
-            this.startWithCfg();
-            this.ui.selectBox.visible = false;
-            this.ui.btnPause.visible = true;
-            this.ui.backBtn.visible = false;
-            //record nearest play music in chapter
-        }
-        else {
-            XFacade.instance.showModule(PopAddPower);
-        }
-    };
-    GameActivity.prototype.pause = function () {
-        if (this.soundChannel) {
-            Star.sleep();
-            try {
-                this.soundChannel.pause();
-            }
-            catch (e) {
-            }
-            Laya.timer.clear(this, this.update);
-            Laya.timer.clear(this, this.update2);
-            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-            PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
-            //暂停无敌状态
-            Laya.timer.clear(this, this.refreshState);
-        }
-    };
-    //继续
-    GameActivity.prototype.toResume = function () {
-        DBGame.countdown(3, Laya.Handler.create(this, this.resume));
-    };
-    //重新开始
-    GameActivity.prototype.restart = function () {
-        if (User.instace.userInfo.power > 0) {
-            User.instace.userInfo.power -= 1;
-            GameDataManager.instance.recordUserGameData();
-        }
-        else {
-            XFacade.instance.showModule(PopAddPower);
-            return;
-        }
-        this.stop();
-        this.initMap(false);
-        //DBGame.countdown(3, Laya.Handler.create(this, this.startWithCfg));
-        this.startWithCfg();
-    };
-    //继续
-    GameActivity.prototype.revive = function () {
-        var _this = this;
-        if (User.instace.userInfo.power > 0) {
-            User.instace.userInfo.power -= 1;
-            GameDataManager.instance.recordUserGameData();
-        }
-        else {
-            XFacade.instance.showModule(PopAddPower);
-            return;
-        }
-        this._reviveTimes--;
-        var p = this.getStdPoint(this._startTime);
-        this.targetX = p.x;
-        this.targetY = p.y;
-        this.ball.pos(p.x, p.y);
-        this.ball.reset();
-        this.dir = 1;
-        var stdNode = this.getStdNode(this._startTime);
-        this.speedX = stdNode.sx;
-        DBGame.countdown(3, Handler.create(null, function () {
-            //this.soundChannel.play();
-            //this._curTime = Laya.Browser.now();
-            //this._startTime = this._curTime-this._startTime;
-            _this.soundChannel.play();
-            //Laya.timer.frameLoop(1, this, this.update)
-            //Laya.stage.on(Laya.Event.CLICK, this, this.onC);
-            _this._awsomeTime = 3;
-            _this.showAwesome();
-        }));
-    };
-    GameActivity.prototype.showAwesome = function () {
-        /**
-            Laya.timer.once(this._awsomeTime * 1000, null, () => {
-                this.ball.removeFlash();
-                this.dir = 1;
-                this._awsomeTime = 0;
-            });
-            Laya.timer.once((this._awsomeTime + 1) * 1000, null, () => {
-                this._turnable = true;
-            });
-             */
-        if (this._awsomeTime > 0) {
-            this._turnable = false;
-            this.ball.flash();
-            Laya.timer.loop(100, this, this.refreshState);
-        }
-    };
-    GameActivity.prototype.refreshState = function () {
-        var _this = this;
-        this._awsomeTime -= 0.1;
-        if (this._awsomeTime <= 0) {
-            this.ball.removeFlash();
-            this.dir = 1;
-            this._awsomeTime = 0;
-            Laya.timer.clear(this, this.refreshState);
-            Laya.timer.once(1000, null, function () {
-                _this._turnable = true;
-            });
-        }
-    };
-    GameActivity.prototype.stop = function () {
-        if (this.soundChannel) {
-            this.soundChannel.stop();
-            Laya.SoundManager.removeChannel(this.soundChannel);
-            this.soundChannel.completeHandler = null;
-        }
-        Star.sleep();
-        Laya.timer.clear(this, this.update);
-        Laya.timer.clear(this, this.update2);
-        Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-        Laya.SoundManager.destroySound(GameActivity.mp3);
-    };
-    GameActivity.prototype.resume = function () {
-        if (!this.soundChannel) {
-            return;
-        }
-        // this._curTime = Laya.Browser.now();
-        // this._startTime = this._curTime-this._startTime;
-        this.soundChannel.play();
-        //继续无敌状态
-        this.showAwesome();
-        /*
-        if(!this.soundChannel){
-            return;
-        }
-
-        this._curTime = this.soundChannel.position;
-        Laya.timer.frameLoop(1, null, syncSnd);
-        var $this = this;
-        function syncSnd():void{
-            if($this.soundChannel.position >= $this._curTime){
-                Laya.timer.clear(null, syncSnd);
-                $this.update();
-                Laya.timer.frameLoop(1, $this, $this.update)
-                Laya.stage.on(Laya.Event.CLICK, $this, $this.onC);
-                Laya.stage.off(Laya.Event.CLICK, $this, $this.resume);
-            }
-        }
-
-        this.soundChannel.resume();
-        */
-    };
-    GameActivity.prototype.over = function () {
-        if (this._score > 0) {
-            this.showResult();
-        }
-        else {
-            this.back();
-        }
-    };
-    GameActivity.prototype.initMap = function (firstTime) {
-        if (firstTime === void 0) { firstTime = true; }
-        this._rendIndex = 1;
-        this._starNum = this._score = this._awsomeTime = this._curTime = this._startTime = 0;
-        this._autoLast = false;
-        this.showPro(null);
-        this.ui.tfScore.text = "0";
-        this._reviveTimes = DBGame.ReviveTimes;
-        this._mapArr = [];
-        for (var i = 0; i < this._items.length; i++) {
-            this._items[i].removeSelf();
-        }
-        this._items.length = 0;
-        while (this.effContainer.numChildren) {
-            this.effContainer.removeChildAt(0);
-        }
-        var cfg = Laya.loader.getRes('res/snd/' + this._data.json + '.json');
-        this._starCfg = (this._data.stars + "").split("|");
-        for (var i = 0; i < this._starCfg.length; i++) {
-            this._starCfg[i] = parseInt(this._starCfg[i]);
-        }
-        //克隆资源列表 
-        this._resList = xframe.XUtils.clone(cfg.items) || [];
-        this._resList.sort(function (a, b) {
-            return a.t - b.t;
-        });
-        trace("this._resList..................................", this._resList);
-        if (firstTime) {
-            //生成星星
-            Star.shine(30, this.starContainer);
-        }
-        this.stop();
-        //设定初始点=============================
-        this.posInfo = xframe.XUtils.clone(cfg.nodes);
-        this.srcPosInfo = xframe.XUtils.clone(cfg.nodes);
-        var node = this.srcPosInfo.shift();
-        this.curX = this.targetX = node.x;
-        this.curY = this.targetY = this.offsetY = node.y;
-        this.speedX = node.sx;
-        this.speedY = cfg.speed;
-        this.rendMap();
-        //生成角色========================================
-        if (!this.ball) {
-            this.ball = new Ball();
-            this.ball.shadow(4);
-            this.pathSp.addChild(this.ball);
-        }
-        this.ball.setSkin(1, this.speedY);
-        this.ball.reset();
-        this.ball.pos(this.curX, this.curY);
-        this.map.y = this.pathSp.y = 0;
-    };
-    GameActivity.prototype.rendMap = function () {
-        //0，判断是否需要重新绘制地图;
-        var maxHeight = 4096; //2048
-        var curY = this.targetY - this.offsetY;
-        if (this._mapArr.length) {
-            if (this._autoLast || curY - this._mapArr[this._mapArr.length - 1] > 120) {
-                return;
-            }
-        }
-        var cfg = Laya.loader.getRes('res/snd/' + this._data.json + '.json');
-        //1根据当前位置计算出初始节点及结束点；
-        //a,取当前节点
-        var midIndex;
-        var startIndex;
-        for (var i = cfg.nodes.length - 1; i >= 0; i--) {
-            if (cfg.nodes[i].y > curY) {
-                midIndex = i;
-                break;
-            }
-        }
-        //trace("midIndex============================",midIndex)
-        //取开始节点
-        for (i = midIndex; i >= 0; i--) {
-            if (cfg.nodes[i].y - curY >= Laya.stage.height) {
-                break;
-            }
-        }
-        startIndex = Math.max(0, i);
-        //trace("startIndex============================",i)
-        //2,生成地图==========================
-        curY = cfg.nodes[startIndex].y;
-        this._mapArr.length = 0;
-        for (i = startIndex; i < cfg.nodes.length; i++) {
-            //trace("delY============================",curY - cfg.nodes[i].y)
-            if (curY - cfg.nodes[i].y < maxHeight) {
-                this._mapArr.push(cfg.nodes[i].x, cfg.nodes[i].y);
-            }
-            else {
-                break;
-            }
-        }
-        //3，绘制地图
-        this.map.graphics.clear();
-        if (startIndex == 0) { //画起点
-            this.map.graphics.drawCircle(this._mapArr[0], this._mapArr[1], 160, "#ffffff");
-            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), this._mapArr[0] - 200, this._mapArr[1] - 200);
-        }
-        this.map.graphics.drawLines(0, 0, this._mapArr, "#ffffff", 160); //160
-        if (i >= cfg.nodes.length && this.soundChannel.duration) {
-            this._autoLast = true;
-            var last = this.posInfo[this.posInfo.length - 1];
-            var total = this.soundChannel.duration * 1000;
-            trace("end=========================", this.soundChannel, last, this.soundChannel.duration);
-            var info = { x: last.x, y: last.y - (total - last.t) * this.speedY, sx: 0, sy: last.sy, t: total };
-            this.posInfo.push(info);
-            this.srcPosInfo.push(info);
-            this.map.graphics.drawLine(last.x, last.y, info.x, info.y, "#ffffff", 160);
-            this.map.graphics.drawCircle(info.x, info.y, 160, "#ffffff");
-            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), info.x - 200, info.y - 200);
-        }
-        var offset = this._autoLast ? 3 : 1;
-        i = startIndex == 0 ? 2 : 0;
-        for (i; i < this._mapArr.length - offset; i++) {
-            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
-            //画引导res/game/click.png
-            if (this._data.id == "1" && startIndex < 27) {
-                if (this._mapArr[i] > this.ui.width / 2) {
-                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] + 135, this._mapArr[i + 1] - 32);
-                }
-                else {
-                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] - 195, this._mapArr[i + 1] - 32);
-                }
-            }
-            i++;
-        }
-        //4，缓存；
-        //this.map.cacheAsBitmap = true;
-    };
-    GameActivity.prototype.startWithCfg = function () {
-        this.start();
-        //this._awsomeTime = 1;
-        return;
-        this.stop();
-        this.soundChannel = Laya.SoundManager.playSound(GameActivity.mp3, 1, Laya.Handler.create(this, this.gemeEnd));
-        this._curTime = this.soundChannel.position;
-        Laya.timer.frameLoop(1, this, this.update);
-        Laya.stage.on(Laya.Event.CLICK, this, this.onC);
-        /**预加载*/
-        var res = [
-            { url: 'res/map/bj' + this.params.id + '2.jpg', type: Laya.Loader.IMAGE },
-            { url: 'res/map/bj' + this.params.id + '3.jpg', type: Laya.Loader.IMAGE }
-        ];
-        Laya.loader.load(res);
-    };
-    //使用微信接口方法;
-    GameActivity.prototype.start = function () {
-        var _this = this;
-        var url = encodeURI(Laya.URL.basePath + GameActivity.mp3);
-        if (this.soundChannel && this.soundChannel.src != url) {
-            this.soundChannel.destroy();
-            //清理掉
-        }
-        this.soundChannel = wx.createInnerAudioContext();
-        this.soundChannel.src = url;
-        this.soundChannel.play();
-        this.soundChannel.onPlay(function () {
-            if (_this._startTime == 0) {
-                _this._curTime = _this._startTime = Laya.Browser.now();
-            }
-            else {
-                _this._curTime = Laya.Browser.now();
-                _this._startTime = _this._curTime - _this._startTime;
-            }
-            Laya.timer.frameLoop(1, _this, _this.update2);
-            Laya.stage.on(Laya.Event.CLICK, _this, _this.onC);
-            trace("start======================", _this.soundChannel);
-        });
-        this.soundChannel.onEnded(function () {
-            _this.gemeEnd();
-            trace("onEnded======================");
-        });
-        this.soundChannel.onPause(function () {
-            //记录播放的时间---
-            _this._startTime = Laya.Browser.now() - _this._startTime;
-            trace("onPause======================");
-        });
-        this.soundChannel.onError(function () {
-            XEvent.instance.event(GameEvent.ERR);
-            //播放失败，返回体力
-            User.instace.userInfo.power += 1;
-            GameDataManager.instance.recordUserGameData();
-            trace("onError======================");
-        });
-        /**预加载*/
-        var res = [
-            { url: 'res/map/bj' + this.params.id + '2.jpg', type: Laya.Loader.IMAGE },
-            { url: 'res/map/bj' + this.params.id + '3.jpg', type: Laya.Loader.IMAGE }
-        ];
-        Laya.loader.load(res);
-    };
-    /**核心驱动方法 */
-    GameActivity.prototype.update2 = function () {
-        var _this = this;
-        this._rendIndex++;
-        var exeIndex = this._rendIndex % 5;
-        var end = false;
-        var tmpTime = Laya.Browser.now() - this._curTime;
-        this._curTime = Laya.Browser.now();
-        var position = this._curTime - this._startTime;
-        Star.active();
-        if (this._awsomeTime) {
-            var p = this.getStdPoint(position);
-            this.targetY = p.y;
-            this.targetX = p.x;
-            if (exeIndex == 4) {
-                var targetPoint = this.getTargetPoint(true, 6);
-                var now = this._score;
-                if (targetPoint) {
-                    this.speedX = targetPoint.sx;
-                    this._score += 10;
-                    xframe.XUtils.showTxtEffect(now, this._score, Laya.Handler.create(null, function (n) {
-                        _this.ui.tfScore.text = n + "";
-                    }));
-                }
-            }
-        }
-        else {
-            this.targetY = this.offsetY - this.speedY * position;
-            this.targetX += this.speedX * tmpTime * this.dir;
-        }
-        this.ball.update();
-        this.ball.x = this.targetX;
-        this.ball.y = this.targetY;
-        this.pathSp.y = this.offsetY - this.targetY;
-        this.map.y = this.pathSp.y;
-        if (exeIndex == 1) {
-            var targetPoint_1 = this.getTargetPoint(false);
-            if (this.srcPosInfo.length <= 2) {
-                this.ui.btnPause.visible = false;
-            }
-            else if (targetPoint_1) {
-                if (targetPoint_1.y - this.targetY > 150) {
-                    end = true;
-                }
-            }
-        }
-        else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position, this._starCfg));
-        }
-        else if (exeIndex == 4) {
-            this.rendMap();
-        }
-        else if (exeIndex == 0) {
-            this.rendMapItems(position);
-        }
-        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
-            end = true;
-            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
-        }
-        if (end) {
-            Star.sleep();
-            this.soundChannel.pause();
-            Laya.timer.clear(this, this.update);
-            Laya.timer.clear(this, this.update2);
-            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-            if (this._starNum > 0 && this._reviveTimes) {
-                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
-            }
-            else {
-                this.showResult();
-            }
-        }
-    };
-    /**核心驱动方法 */
-    GameActivity.prototype.update = function () {
-        this._rendIndex++;
-        var exeIndex = this._rendIndex % 5;
-        var end = false;
-        var tmpTime = (this.soundChannel.position - this._curTime) * 1000;
-        var position = this.soundChannel.position * 1000;
-        //timeOver
-        if (tmpTime < 0 || position == 0) {
-            return;
-        }
-        else if (tmpTime > 500) { //无效的音频，扔掉
-            trace("Update Error：：Time offset is over..", tmpTime, this.soundChannel.position, this._curTime);
-            this.stop();
-            Laya.timer.once(1000, this, this.startWithCfg);
-            return;
-        }
-        this._curTime = this.soundChannel.position;
-        Star.active();
-        if (this._awsomeTime) {
-            var p = this.getStdPoint(position);
-            this.targetY = p.y;
-            this.targetX = p.x;
-            if (exeIndex == 4) {
-                var targetPoint = this.getTargetPoint();
-                if (targetPoint) {
-                    this._score += 10;
-                    this.speedX = targetPoint.sx;
-                    this.ui.tfScore.text = this._score + "";
-                }
-            }
-        }
-        else {
-            this.targetY = this.offsetY - this.speedY * position;
-            this.targetX += this.speedX * tmpTime * this.dir;
-        }
-        this.ball.update();
-        this.ball.x = this.targetX;
-        this.ball.y = this.targetY;
-        this.pathSp.y = this.offsetY - this.targetY;
-        this.map.y = this.pathSp.y;
-        if (exeIndex == 1) {
-            var targetPoint_2 = this.getTargetPoint(false);
-            if (this.srcPosInfo.length <= 2) {
-                this.ui.btnPause.visible = false;
-            }
-            else if (targetPoint_2) {
-                if (targetPoint_2.y - this.targetY > 150) {
-                    end = true;
-                }
-            }
-        }
-        else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position, this._starCfg));
-        }
-        else if (exeIndex == 4) {
-            this.rendMap();
-        }
-        else if (exeIndex == 0) {
-            this.rendMapItems(this._curTime * 1000);
-        }
-        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
-            end = true;
-            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
-        }
-        if (end) {
-            Star.sleep();
-            this.soundChannel.pause();
-            Laya.timer.clear(this, this.update);
-            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-            if (this._starNum > 0 && this._reviveTimes) {
-                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
-            }
-            else {
-                this.showResult();
-            }
-        }
-    };
-    GameActivity.prototype.onC = function () {
-        var _this = this;
-        this.curX = this.targetX;
-        this.curY = this.targetY;
-        var targetPoint = this.getTargetPoint();
-        if (targetPoint) {
-            this.dir = 1;
-            this.speedX = targetPoint.sx;
-            //效果判定---
-            var delX = Math.abs(targetPoint.x - this.ball.x);
-            var delY = Math.abs(targetPoint.y - this.ball.y);
-            var nowScore = this._score;
-            if (delX < 12 && delY < 15) { //5
-                this.shine(targetPoint.x, targetPoint.y);
-                this._score += 10;
-            }
-            else if (delX < 36 && delY < 25) { //3
-                this.showEff(targetPoint.x, targetPoint.y);
-                this._score += 5;
-            }
-            else { //2
-                this._score += 3;
-            }
-            xframe.XUtils.showTxtEffect(nowScore, this._score, Laya.Handler.create(null, function (n) {
-                _this.ui.tfScore.text = n + "";
-            }));
-            //动效====================================
-            //this.fly();
-        }
-        else { //翻转
-            if (this.srcPosInfo.length && this._turnable) {
-                this.dir *= -1;
-            }
-        }
-    };
-    GameActivity.prototype.showResult = function () {
-        this.stop();
-        var params = {
-            music: this._data,
-            star: this._starNum,
-            score: this._score
-        };
-        XFacade.instance.showModule(GameResultView, params);
-    };
-    /**
-     * 渲染地图元素
-     * 1,渲染不根据时间变化的元素，生成变化元素列表；
-     * 2，渲染变化元素；
-     * */
-    GameActivity.prototype.rendMapItems = function (time) {
-        for (var i = 0; i < this._items.length; i++) {
-            if (this._items[i].y - this.targetY > Laya.stage.height) {
-                this._items[i].removeSelf();
-                trace(this._items[i].name);
-                this._items.splice(i--, 1);
-            }
-            else {
-                break;
-            }
-        }
-        var delTime = Laya.stage.height * .35 / this.speedY;
-        for (var i = 0; i < this._resList.length; i++) {
-            if (this._resList[i].t < time + delTime) {
-                var item = new Laya.Image();
-                item.pos(this._resList[i].x, this._resList[i].y);
-                var url = "res/map/" + this._resList[i].id + ".png";
-                Laya.loader.load(url, Laya.Handler.create(null, function () {
-                    item.skin = url;
-                    xframe.AniUtil.popIn(item, 200);
-                }));
-                item.scaleX = this._resList[i].s;
-                trace("rendMapItems", item.x, item.y, this._resList[i]);
-                item.name = item.x + "_" + item.y;
-                this.pathSp.addChild(item);
-                //行为控制
-                //xframe.AniUtil.popIn(item, 200)
-                /*
-                if(Math.random()>.5){
-                    xframe.AniUtil.fadeIn(item, 200);
-                }else{
-                    xframe.AniUtil.popIn(item, 200)
-                }*/
-                this._resList.splice(i--, 1);
-                this._items.push(item);
-            }
-            else {
-                break;
-            }
-        }
-    };
-    GameActivity.prototype.showPro = function (proInfo) {
-        var _this = this;
-        if (proInfo) {
-            this.ui.bar.value = proInfo.pro || 0;
-            this._starNum = proInfo.stars;
-            if (proInfo.stars == 3) {
-                this.ui.star_2.skin = "res/game/star_w.png";
-                this.ui.star_1.skin = "res/game/star_w.png";
-                this.ui.star_0.skin = "res/game/star_w.png";
-            }
-            else if (proInfo.stars == 2) {
-                this.ui.star_2.skin = "res/game/star_b.png";
-                this.ui.star_1.skin = "res/game/star_w.png";
-                this.ui.star_0.skin = "res/game/star_w.png";
-                Laya.loader.load("res/map/bj" + this.params.id + "3.jpg", Laya.Handler.create(null, function () {
-                    _this.switchSkin("res/map/bj" + _this.params.id + "3.jpg");
-                }));
-            }
-            else if (proInfo.stars == 1) {
-                this.ui.star_2.skin = "res/game/star_b.png";
-                this.ui.star_1.skin = "res/game/star_b.png";
-                this.ui.star_0.skin = "res/game/star_w.png";
-                Laya.loader.load("res/map/bj" + this.params.id + "2.jpg", Laya.Handler.create(null, function () {
-                    _this.switchSkin("res/map/bj" + _this.params.id + "2.jpg");
-                }));
-            }
-        }
-        else {
-            this.ui.bar.value = 0;
-            this.ui.star_2.skin = "res/game/star_b.png";
-            this.ui.star_1.skin = "res/game/star_b.png";
-            this.ui.star_0.skin = "res/game/star_b.png";
-            this.ui.bg.skin = "res/map/bj" + this.params.id + "1.jpg";
-        }
-        this.ui.proBox.cacheAsBitmap = true;
-    };
-    GameActivity.prototype.switchSkin = function (skinStr) {
-        if (this.ui.bg.skin != skinStr) {
-            var img = new Laya.Image(this.ui.bg.skin);
-            img.size(Laya.stage.width, Laya.stage.height);
-            this.ui.bg.parent.addChildAt(img, this.ui.bg.parent.getChildIndex(this.ui.bg));
-            Laya.Tween.to(img, { alpha: 0 }, 500, null, Laya.Handler.create(img, img.removeSelf));
-            this.ui.bg.skin = skinStr;
-            this.ui.bg.alpha = 0;
-            Laya.Tween.to(this.ui.bg, { alpha: 1 }, 500);
-        }
-    };
-    /**显示经过特效 */
-    GameActivity.prototype.showEff = function (x, y) {
-        this._eff.pos(x, y);
-        this.pathSp.addChild(this._eff);
-        Laya.timer.once(248, this._eff, this._eff.removeSelf);
-    };
-    /**精准打击特效 */
-    GameActivity.prototype.shine = function (x, y) {
-        this._eff2.pos(x, y);
-        this._eff2.alpha = 1;
-        this._eff2.scale(0.5, 0.5);
-        this.pathSp.addChildAt(this._eff2, 0);
-        Laya.Tween.to(this._eff2, { scaleX: 1.2, scaleY: 1.2, alpha: 0 }, 200, null, Laya.Handler.create(this._eff2, this._eff2.removeSelf));
-        /*
-        this._eff2.scaleX = this._eff2.scaleY = 0.5;
-        Laya.Tween.to(this._eff2, {scaleX:1,scaleY:1}, 20, null, Laya.Handler.create(null, ()=>{
-            Laya.Tween.to(this._eff2, {scaleX:1.5, scaleY:1.5},60,null, Laya.Handler.create(this._eff2, this._eff2.removeSelf))
-        }))
-        */
-    };
-    /**飞特效 */
-    GameActivity.prototype.fly = function () {
-        //动效===
-        var img = Laya.Pool.getItemByClass("eff", Laya.Image);
-        img.skin = "res/game/origin.png";
-        this.effContainer.addChild(img);
-        img.pos(this.curX + 40, this.curY + this.pathSp.y);
-        var rnd = Math.random() * 400;
-        Laya.Tween.to(img, { x: 200 + rnd, y: 150 + rnd }, 150 + rnd / 4, null, Laya.Handler.create(null, function () {
-            Laya.Tween.to(img, { x: 80, y: 414 }, 150 + rnd / 4, null, Laya.Handler.create(null, function () {
-                img.removeSelf();
-                Laya.Pool.recover("eff", img);
-            }));
-        }));
-    };
-    //获取目标节点
-    GameActivity.prototype.getTargetPoint = function (modify, deviation) {
-        if (modify === void 0) { modify = true; }
-        if (deviation === void 0) { deviation = -1; }
-        var targetPoint;
-        if (this.srcPosInfo.length) {
-            for (var i = 0; i < this.srcPosInfo.length; i++) {
-                var posInfo = this.srcPosInfo[i];
-                if (deviation == -1) {
-                    deviation = this.deviation;
-                }
-                if (Math.abs(posInfo.y - this.targetY) <= deviation || posInfo.y > this.targetY) {
-                    targetPoint = posInfo;
-                    modify && this.srcPosInfo.shift();
-                    break;
-                    //修改成点击一下取一个节点
-                }
-                else {
-                    break;
-                }
-            }
-        }
-        return targetPoint;
-    };
-    GameActivity.prototype.getStdPoint = function (now) {
-        if (!this._stdP) {
-            this._stdP = new Laya.Point(this.curX, this.curY);
-        }
-        var tmp;
-        for (var i = this.posInfo.length - 1; i >= 0; i--) {
-            tmp = this.posInfo[i];
-            if (tmp.t <= now) {
-                break;
-            }
-        }
-        var delTime = now - tmp.t;
-        this._stdP.x = tmp.x + tmp.sx * delTime;
-        this._stdP.y = tmp.y - this.speedY * delTime;
-        return this._stdP;
-    };
-    /**获取标准的节点-重置操作点 */
-    GameActivity.prototype.getStdNode = function (now) {
-        var tmp;
-        for (var i = this.posInfo.length - 1; i >= 0; i--) {
-            if (this.posInfo[i].t <= now) {
-                tmp = this.posInfo[i];
-                break;
-            }
-        }
-        this.srcPosInfo = [];
-        for (i = i + 1; i < this.posInfo.length - 1; i++) {
-            this.srcPosInfo.push(this.posInfo[i]);
-        }
-        return tmp;
-    };
-    GameActivity.prototype.gemeEnd = function () {
-        trace("gameEnd---------------------------------------------->>");
-        var params = {
-            music: this._data,
-            star: this._starNum,
-            score: this._score
-        };
-        XFacade.instance.showModule(GameResultView, params);
-        this.stop();
-    };
-    GameActivity.prototype.onDestroy = function () {
-        Laya.loader.clearRes("res/map/bj" + this.params.id + "1.jpg");
-        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
-        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
-        //this._data && Laya.loader.clearRes('res/snd/' + this._data.json + '.json');
-        Laya.loader.clearRes(GameActivity.mp3);
-        Star.destroy();
-        this.soundChannel && this.soundChannel.destroy();
-        this.ball && this.ball.stop();
-        Laya.timer.clear(this, this.update);
-        Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onStart);
-        Laya.stage.off(Laya.Event.CLICK, this, this.resume);
-        this.removeEVent();
-        this.stop();
-    };
-    return GameActivity;
-}(xframe.XWindow));
-/**游戏事件 */
-var GameEvent = /** @class */ (function () {
-    function GameEvent() {
-    }
-    /**返回 */
-    GameEvent.BACK = "back";
-    /**重新开始 */
-    GameEvent.RESTART = "restart";
-    /**事件-选中歌曲 */
-    GameEvent.SELECTED = 'selected';
-    /**下一章节 */
-    GameEvent.NEXTCHAPTER = "nextchapter";
-    /**跳转到解锁篇章 */
-    GameEvent.HOMECHAPTER = "homechapter";
-    /**加载错误 */
-    GameEvent.ERR = "err";
-    /**结束歌曲 */
-    GameEvent.OVER = "over";
-    return GameEvent;
-}());
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var LevelsActivity = /** @class */ (function (_super) {
-    __extends(LevelsActivity, _super);
-    function LevelsActivity() {
-        var _this = _super.call(this) || this;
-        _this.ui = new ui.pages.LevelPageUI();
-        _this.source = [];
-        _this.initView();
-        return _this;
-    }
-    LevelsActivity.prototype.initView = function () {
-        var _this = this;
-        this.ui.btnBack.on(Laya.Event.CLICK, null, function () {
-            _this.close();
-        });
-        this.ui.list.array = [];
-        this.ui.list.itemRender = ui.views.LevelRenderViewUI;
-        this.ui.list.vScrollBarSkin = null;
-        this.ui.list.scrollBar.elasticBackTime = 200;
-        this.ui.list.scrollBar.elasticDistance = 200;
-        this.ui.list.renderHandler = Laya.Handler.create(this, function (item, index) {
-            _this.renderItem(item, index);
-        }, null, false);
-        this.ui.list.mouseHandler = Laya.Handler.create(this, function (event, index) {
-            _this.mouseItem(event, index);
-        }, null, false);
-    };
-    LevelsActivity.prototype.show = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        _super.prototype.show.call(this);
-        this.params = args[0];
-    };
-    LevelsActivity.prototype.onShow = function () {
-        trace("params::", this.params);
-        this.ui.list.array = GameDataManager.instance.getMuicList(this.params);
-    };
-    LevelsActivity.prototype.renderItem = function (item, index) {
-        var data = this.ui.list.array[index];
-        var itemRender = item;
-        var musicRecord = null;
-        if (musicRecord) {
-            itemRender.title.text = data.name;
-            itemRender.tfAuthor.text = data.author;
-            for (var i = 1; i < 4; i++) {
-                if (i > musicRecord.star) {
-                    itemRender["star_" + (i - 1)].skin = "res/game/ic_star_result_gray_s.png";
-                }
-                else {
-                    itemRender["star_" + (i - 1)].skin = "res/game/ic_star_result_s.png";
-                }
-            }
-        }
-        else {
-            itemRender.title.text = "挑战后可获得音乐信息";
-            itemRender.tfAuthor.text = "";
-            itemRender.star_1.skin = "res/game/ic_star_result_gray_s.png";
-            itemRender.star_2.skin = "res/game/ic_star_result_gray_s.png";
-            itemRender.star_0.skin = "res/game/ic_star_result_gray_s.png";
-        }
-    };
-    LevelsActivity.prototype.mouseItem = function (event, index) {
-        if (event && event.type === Laya.Event.CLICK) {
-            var data = this.ui.list.array[index];
-            XFacade.instance.showModule(GameLoading, data);
-            this.close();
-        }
-    };
-    return LevelsActivity;
-}(xframe.XMWindow));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var MusicFriendRank = /** @class */ (function (_super) {
-    __extends(MusicFriendRank, _super);
-    function MusicFriendRank() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.MusicRankPageUI();
-        return _this;
-    }
-    MusicFriendRank.prototype.onCreate = function () {
-        var _this = this;
-        this.ui.backBtn.on(Laya.Event.CLICK, null, function () {
-            _this.back();
-        });
-        var _self = this;
-        this.ui.groupBtn.on(Laya.Event.CLICK, null, function () {
-            yxmp.report.event('2000_2005_click');
-            wx.shareAppMessage(Object.assign(yxmp.asset.getShareMessage("2000_2005_click", "1002"), {
-                query: "action=musicRank&id=" + _this.musicId + "&author=" + _this.author + "&musicName=" + _this.musicName,
-                success: function (res) {
-                    if (res && res.shareTickets) {
-                        if (res.shareTickets.length > 0) {
-                            _self.showRankView(res.shareTickets[0]);
-                        }
-                    }
-                }
-            }));
-        });
-        if (this.params.query) {
-            this.musicName = this.params.query.musicName;
-            this.author = this.params.query.author;
-            this.musicId = this.params.query.id;
-        }
-        else {
-            this.musicName = this.params.name;
-            this.author = this.params.author;
-            this.musicId = this.params.id;
-        }
-        this.ui.musicAuthor.text = this.author;
-        this.ui.musicName.text = this.musicName;
-        this.ui.rankBox.addChild(RankPop.createSharedCanvasView());
-        this.ui.groupBtn.visible = (this.params || {}).shareTicket ? false : true;
-        var key = "music_" + this.musicId;
-        var sortKey = "data." + key + ".wxgame.score";
-        Tape.MiniRank.showRank(ui.rank.MusicRankOpenUI.uiView, {
-            shareTicket: (this.params || {}).shareTicket,
-            keyList: [key],
-            sortList: [sortKey],
-            whereList: ['score'],
-            mapList: [{ from: sortKey, key: "score" }]
-        }, false);
-    };
-    MusicFriendRank.prototype.onDestroy = function () {
-        this.showSelfRank();
-    };
-    /** 分享到群后，展示群排行榜 */
-    MusicFriendRank.prototype.showRankView = function (shareTicket) {
-        this.ui.groupBtn.visible = false;
-        var key = "music_" + this.musicId;
-        var sortKey = "data." + key + ".wxgame.score";
-        Tape.MiniRank.showRank(ui.rank.MusicRankOpenUI.uiView, {
-            shareTicket: shareTicket,
-            keyList: [key],
-            sortList: [sortKey],
-            whereList: ['score'],
-            mapList: [{ from: sortKey, key: "score" }]
-        }, false);
-    };
-    /** 再次展示结果页面的 */
-    MusicFriendRank.prototype.showSelfRank = function () {
-        if (!this.params.query) {
-            var key = "music_" + this.musicId;
-            var sortKey = "data." + key + ".wxgame.score";
-            Tape.MiniRank.showRank(ui.rank.ResultOpenUI.uiView, {
-                shareTicket: "",
-                keyList: [key],
-                sortList: [sortKey],
-                whereList: ['score'],
-                mapList: [{ from: sortKey, key: "score" }]
-            }, false);
-        }
-    };
-    return MusicFriendRank;
-}(xframe.XMWindow));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var MusicRank = /** @class */ (function (_super) {
-    __extends(MusicRank, _super);
-    function MusicRank() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.MusicRankUI();
-        return _this;
-    }
-    MusicRank.prototype.onCreate = function () {
-        var _this = this;
-        this.ui.groupbtn.on(Laya.Event.CLICK, null, function () {
-        });
-        this.ui.backbtn.on(Laya.Event.CLICK, null, function () {
-            _this.back();
-        });
-        this.ui.musicname.text = this.params.music.name;
-        this.ui.musicauth.text = this.params.music.author;
-        this.ui.musiclist.array = this.params.list;
-        this.ui.musiclist.vScrollBarSkin = null;
-        this.ui.musiclist.itemRender = ui.views.MusicRankRenderUI;
-        this.ui.musiclist.renderHandler = Laya.Handler.create(this, function (item, index) {
-            _this.renderItem(item, index);
-        }, null, false);
-        if (this.params && this.params.myData) {
-            this.ui.myrank.text = this.params.myData.rank + "";
-            this.ui.myscore.text = this.params.myData.score + "分";
-        }
-        else {
-            this.ui.myrank.text = "---";
-            this.ui.myscore.text = "---";
-        }
-        this.ui.myavatar.skin = User.instace.userInfo.avatarUrl;
-        this.ui.mynick.text = User.instace.userInfo.nickName;
-    };
-    MusicRank.prototype.renderItem = function (item, index) {
-        var data = this.ui.musiclist.array[index];
-        item.avatarImg.skin = data.avatar;
-        item.nickLabel.text = data.nickname;
-        item.scoreLabel.text = data.score + "分";
-        if (data.rank == 1) {
-            item.rankImg.skin = "res/role/ic_1.png";
-            item.rankLabel.text = "";
-        }
-        else if (data.rank == 2) {
-            item.rankLabel.text = "";
-            item.rankImg.skin = "res/role/ic_2.png";
-        }
-        else if (data.rank == 3) {
-            item.rankImg.skin = "res/role/ic_3.png";
-            item.rankLabel.text = "";
-        }
-        else {
-            item.rankImg.skin = "";
-            item.rankLabel.text = data.rank + "";
-        }
-    };
-    MusicRank.prototype.onResume = function () {
-    };
-    return MusicRank;
-}(xframe.XWindow));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var ShareEnter = /** @class */ (function (_super) {
     __extends(ShareEnter, _super);
     function ShareEnter() {
@@ -51978,8 +49944,8 @@ var DevView = /** @class */ (function (_super) {
         this.ui.panelOutput.vScrollBarSkin = null;
         this.ui.btnAddCoin.on(Laya.Event.CLICK, null, function () {
             // TODO:添加1000金币
-            User.instace.userInfo.gold += 1000;
-            User.instace.userInfo.power += 10;
+            User.instace.gold += 1000;
+            User.instace.power += 10;
             User.instace.dispatchEvent();
             User.instace.save();
         });
@@ -52306,14 +50272,6 @@ var GameLoading = /** @class */ (function (_super) {
     GameLoading.prototype.onShow = function () {
         //加载配置
         var cid = 0;
-        /**
-         * var res:any[] =  [
-            { url: 'res/snd/' + this.params.json + '.json', type:Laya.Loader.JSON},
-            { url: 'res/map/bj' + cid + '1.jpg', type:Laya.Loader.IMAGE},
-            { url: 'res/map/bj' + cid + '2.jpg', type:Laya.Loader.IMAGE},
-            { url: 'res/map/bj' + cid + '3.jpg', type:Laya.Loader.IMAGE}
-        ]
-         */
         var res = [
             { url: 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
         ];
@@ -52324,7 +50282,7 @@ var GameLoading = /** @class */ (function (_super) {
         ];
         //Laya.loader.load(res);
         console.log(Laya.URL.basePath + 'res/snd/' + this.params.mp3 + '.mp3');
-        GameActivity.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
+        GameView.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
         Laya.timer.once(22000, this, this.onErr);
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
     };
@@ -52342,15 +50300,15 @@ var GameLoading = /** @class */ (function (_super) {
             this.onErr();
             return;
         }
-        trace("xxxxxxxxxx__", GameActivity.mp3);
-        Laya.loader.load(GameActivity.mp3, Laya.Handler.create(null, function () {
+        trace("xxxxxxxxxx__", GameView.mp3);
+        Laya.loader.load(GameView.mp3, Laya.Handler.create(null, function () {
             //trace(Laya.MiniAdpter["getFileList"]());
             Laya.timer.clear(_this, _this.onErr);
             _this.close();
         }), null, Laya.Loader.SOUND);
     };
     GameLoading.prototype.onErr = function () {
-        Laya.URL.version[GameActivity.mp3] = Math.random();
+        Laya.URL.version[GameView.mp3] = Math.random();
         XEvent.instance.event(GameEvent.ERR);
     };
     return GameLoading;
@@ -52519,7 +50477,7 @@ var GameResultView = /** @class */ (function (_super) {
         // 金币的数量
         this._rewardCoin = GameDataManager.instance.rewardCoinByStar(this.params.star);
         this.updateUi();
-        User.instace.userInfo.gold += this._rewardCoin;
+        User.instace.gold += this._rewardCoin;
     };
     GameResultView.prototype.updateUi = function () {
         for (var i = 1; i < 4; i++) {
@@ -52616,6 +50574,913 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var GameView = /** @class */ (function (_super) {
+    __extends(GameView, _super);
+    function GameView() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.ui = new ui.pages.GamePageUI();
+        //
+        _this._items = [];
+        //是否已经加入最后节点
+        _this._autoLast = false;
+        _this._reviveTimes = 0;
+        //
+        _this._awsomeTime = 0;
+        //是否可项目
+        _this._turnable = true;
+        _this.curX = Laya.stage.width / 2;
+        _this.curY = Laya.stage.height / 2;
+        _this.delX = 0;
+        _this.delY = 0;
+        _this.speedX = 0;
+        _this.speedY = 0;
+        _this.dir = 1;
+        //误差；
+        _this.deviation = 80;
+        _this.targetX = _this.curX;
+        _this.targetY = _this.curY;
+        return _this;
+    }
+    GameView.prototype.createUI = function () {
+        var _this = this;
+        _super.prototype.createUI.call(this);
+        //this.ui.bg.skin = "res/map/bj"+this.params.id+"1.jpg";
+        this.starContainer = new Laya.Sprite();
+        this.ui.addChildAt(this.starContainer, this.ui.getChildIndex(this.ui.btnPause));
+        this.map = new Laya.Sprite();
+        this.ui.addChildAt(this.map, this.ui.getChildIndex(this.ui.btnPause));
+        this.pathSp = new Laya.Sprite();
+        this.ui.addChildAt(this.pathSp, this.ui.getChildIndex(this.ui.btnPause));
+        this.effContainer = new Laya.Sprite();
+        this.ui.addChild(this.effContainer);
+        this._eff = new Laya.Image("res/game/spot_s.png");
+        this._eff.anchorX = this._eff.anchorY = 0.5;
+        this._eff2 = new Laya.Image("res/game/light.png");
+        this._eff2.anchorX = this._eff2.anchorY = 0.5;
+        this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        this.ui.selectBox.cacheAsBitmap = true;
+        this.init();
+        //this.initEvent();
+        //自动暂停
+        wx.onHide(function () {
+            if (_this.soundChannel && !_this.soundChannel.paused) {
+                _this.pause();
+            }
+        });
+    };
+    GameView.prototype.init = function () {
+        var _this = this;
+        this.ui.btnPause.on(Laya.Event.CLICK, null, function () {
+            _this.pause();
+        });
+        this.ui.backBtn.on(Laya.Event.CLICK, null, function () {
+            _this.close();
+        });
+        this.ui.btnStart.on(Laya.Event.CLICK, this, this.onStart);
+    };
+    GameView.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this.params = args[0];
+        this.ui.tfName.text = this.params.name;
+        this.ui.btnPause.visible = false;
+        XFacade.instance.showModule(GameLoading, this.params);
+    };
+    GameView.prototype.initEvent = function () {
+        XEvent.instance.on(GameEvent.ERR, this, this.onGameEvent, [GameEvent.ERR]);
+        XEvent.instance.on(GameEvent.BACK, this, this.onGameEvent, [GameEvent.BACK]);
+        XEvent.instance.on(GameEvent.OVER, this, this.onGameEvent, [GameEvent.OVER]);
+        XEvent.instance.on(GameEvent.RESTART, this, this.onGameEvent, [GameEvent.RESTART]);
+        XEvent.instance.on(GameEvent.SELECTED, this, this.onGameEvent, [GameEvent.SELECTED]);
+        XEvent.instance.on(GameEvent.NEXTCHAPTER, this, this.onGameEvent, [GameEvent.NEXTCHAPTER]);
+    };
+    GameView.prototype.removeEVent = function () {
+        XEvent.instance.off(GameEvent.ERR, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.OVER, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.BACK, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.RESTART, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.SELECTED, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.NEXTCHAPTER, this, this.onGameEvent);
+    };
+    GameView.prototype.onGameEvent = function (type, data) {
+        if (data === void 0) { data = null; }
+        switch (type) {
+            case GameEvent.BACK:
+                this.stop();
+                this.close();
+                break;
+            case GameEvent.OVER:
+                this.over();
+                break;
+            case GameEvent.RESTART:
+                this.restart();
+                break;
+            case GameEvent.SELECTED:
+                this.ui.selectBox.visible = true;
+                this.ui.btnPause.visible = false;
+                this.ui.backBtn.visible = true;
+                this.initMap();
+                break;
+            case GameEvent.NEXTCHAPTER:
+                XFacade.instance.showModule(GameLoading, DBChapter.getChapInfo(parseInt(this.params.id) + 1));
+                break;
+            case GameEvent.ERR:
+                XAlert.showAlert("哎呀，网络不太好~返回再试试吧", Laya.Handler.create(this, this.close));
+                break;
+        }
+    };
+    GameView.prototype.onStart = function (e) {
+        e.stopPropagation();
+        if (User.instace.power > 0) {
+            User.instace.power -= 1;
+            this.startWithCfg();
+            this.ui.selectBox.visible = false;
+            this.ui.btnPause.visible = true;
+            this.ui.backBtn.visible = false;
+            //record nearest play music in chapter
+        }
+        else {
+            XFacade.instance.showModule(PopAddPower);
+        }
+    };
+    GameView.prototype.pause = function () {
+        if (this.soundChannel) {
+            Star.sleep();
+            try {
+                this.soundChannel.pause();
+            }
+            catch (e) {
+            }
+            Laya.timer.clear(this, this.update);
+            Laya.timer.clear(this, this.update2);
+            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+            PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
+            //暂停无敌状态
+            Laya.timer.clear(this, this.refreshState);
+        }
+    };
+    //继续
+    GameView.prototype.toResume = function () {
+        DBGame.countdown(3, Laya.Handler.create(this, this.resume));
+    };
+    //重新开始
+    GameView.prototype.restart = function () {
+        if (User.instace.power > 0) {
+            User.instace.power -= 1;
+            GameDataManager.instance.recordUserGameData();
+        }
+        else {
+            XFacade.instance.showModule(PopAddPower);
+            return;
+        }
+        this.stop();
+        this.initMap(false);
+        //DBGame.countdown(3, Laya.Handler.create(this, this.startWithCfg));
+        this.startWithCfg();
+    };
+    //继续
+    GameView.prototype.revive = function () {
+        var _this = this;
+        if (User.instace.power > 0) {
+            User.instace.power -= 1;
+            GameDataManager.instance.recordUserGameData();
+        }
+        else {
+            XFacade.instance.showModule(PopAddPower);
+            return;
+        }
+        this._reviveTimes--;
+        var p = this.getStdPoint(this._startTime);
+        this.targetX = p.x;
+        this.targetY = p.y;
+        this.ball.pos(p.x, p.y);
+        this.ball.reset();
+        this.dir = 1;
+        var stdNode = this.getStdNode(this._startTime);
+        this.speedX = stdNode.sx;
+        DBGame.countdown(3, Handler.create(null, function () {
+            //this.soundChannel.play();
+            //this._curTime = Laya.Browser.now();
+            //this._startTime = this._curTime-this._startTime;
+            _this.soundChannel.play();
+            //Laya.timer.frameLoop(1, this, this.update)
+            //Laya.stage.on(Laya.Event.CLICK, this, this.onC);
+            _this._awsomeTime = 3;
+            _this.showAwesome();
+        }));
+    };
+    GameView.prototype.showAwesome = function () {
+        /**
+            Laya.timer.once(this._awsomeTime * 1000, null, () => {
+                this.ball.removeFlash();
+                this.dir = 1;
+                this._awsomeTime = 0;
+            });
+            Laya.timer.once((this._awsomeTime + 1) * 1000, null, () => {
+                this._turnable = true;
+            });
+             */
+        if (this._awsomeTime > 0) {
+            this._turnable = false;
+            this.ball.flash();
+            Laya.timer.loop(100, this, this.refreshState);
+        }
+    };
+    GameView.prototype.refreshState = function () {
+        var _this = this;
+        this._awsomeTime -= 0.1;
+        if (this._awsomeTime <= 0) {
+            this.ball.removeFlash();
+            this.dir = 1;
+            this._awsomeTime = 0;
+            Laya.timer.clear(this, this.refreshState);
+            Laya.timer.once(1000, null, function () {
+                _this._turnable = true;
+            });
+        }
+    };
+    GameView.prototype.stop = function () {
+        if (this.soundChannel) {
+            this.soundChannel.stop();
+            Laya.SoundManager.removeChannel(this.soundChannel);
+            this.soundChannel.completeHandler = null;
+        }
+        Star.sleep();
+        Laya.timer.clear(this, this.update);
+        Laya.timer.clear(this, this.update2);
+        Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+        Laya.SoundManager.destroySound(GameView.mp3);
+    };
+    GameView.prototype.resume = function () {
+        if (!this.soundChannel) {
+            return;
+        }
+        // this._curTime = Laya.Browser.now();
+        // this._startTime = this._curTime-this._startTime;
+        this.soundChannel.play();
+        //继续无敌状态
+        this.showAwesome();
+        /*
+        if(!this.soundChannel){
+            return;
+        }
+
+        this._curTime = this.soundChannel.position;
+        Laya.timer.frameLoop(1, null, syncSnd);
+        var $this = this;
+        function syncSnd():void{
+            if($this.soundChannel.position >= $this._curTime){
+                Laya.timer.clear(null, syncSnd);
+                $this.update();
+                Laya.timer.frameLoop(1, $this, $this.update)
+                Laya.stage.on(Laya.Event.CLICK, $this, $this.onC);
+                Laya.stage.off(Laya.Event.CLICK, $this, $this.resume);
+            }
+        }
+
+        this.soundChannel.resume();
+        */
+    };
+    GameView.prototype.over = function () {
+        if (this._score > 0) {
+            this.showResult();
+        }
+        else {
+            this.back();
+        }
+    };
+    GameView.prototype.initMap = function (firstTime) {
+        if (firstTime === void 0) { firstTime = true; }
+        this._rendIndex = 1;
+        this._starNum = this._score = this._awsomeTime = this._curTime = this._startTime = 0;
+        this._autoLast = false;
+        this.showPro(null);
+        this.ui.tfScore.text = "0";
+        this._reviveTimes = DBGame.ReviveTimes;
+        this._mapArr = [];
+        for (var i = 0; i < this._items.length; i++) {
+            this._items[i].removeSelf();
+        }
+        this._items.length = 0;
+        while (this.effContainer.numChildren) {
+            this.effContainer.removeChildAt(0);
+        }
+        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        this._starCfg = (this.params.stars + "").split("|");
+        for (var i = 0; i < this._starCfg.length; i++) {
+            this._starCfg[i] = parseInt(this._starCfg[i]);
+        }
+        //克隆资源列表 
+        this._resList = xframe.XUtils.clone(cfg.items) || [];
+        this._resList.sort(function (a, b) {
+            return a.t - b.t;
+        });
+        trace("this._resList..................................", this._resList);
+        if (firstTime) {
+            //生成星星
+            Star.shine(30, this.starContainer);
+        }
+        this.stop();
+        //设定初始点=============================
+        this.posInfo = xframe.XUtils.clone(cfg.nodes);
+        this.srcPosInfo = xframe.XUtils.clone(cfg.nodes);
+        var node = this.srcPosInfo.shift();
+        this.curX = this.targetX = node.x;
+        this.curY = this.targetY = this.offsetY = node.y;
+        this.speedX = node.sx;
+        this.speedY = cfg.speed;
+        this.rendMap();
+        //生成角色========================================
+        if (!this.ball) {
+            this.ball = new Ball();
+            this.ball.shadow(4);
+            this.pathSp.addChild(this.ball);
+        }
+        this.ball.setSkin(1, this.speedY);
+        this.ball.reset();
+        this.ball.pos(this.curX, this.curY);
+        this.map.y = this.pathSp.y = 0;
+    };
+    GameView.prototype.rendMap = function () {
+        //0，判断是否需要重新绘制地图;
+        var maxHeight = 4096; //2048
+        var curY = this.targetY - this.offsetY;
+        if (this._mapArr.length) {
+            if (this._autoLast || curY - this._mapArr[this._mapArr.length - 1] > 120) {
+                return;
+            }
+        }
+        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        //1根据当前位置计算出初始节点及结束点；
+        //a,取当前节点
+        var midIndex;
+        var startIndex;
+        for (var i = cfg.nodes.length - 1; i >= 0; i--) {
+            if (cfg.nodes[i].y > curY) {
+                midIndex = i;
+                break;
+            }
+        }
+        //trace("midIndex============================",midIndex)
+        //取开始节点
+        for (i = midIndex; i >= 0; i--) {
+            if (cfg.nodes[i].y - curY >= Laya.stage.height) {
+                break;
+            }
+        }
+        startIndex = Math.max(0, i);
+        //trace("startIndex============================",i)
+        //2,生成地图==========================
+        curY = cfg.nodes[startIndex].y;
+        this._mapArr.length = 0;
+        for (i = startIndex; i < cfg.nodes.length; i++) {
+            //trace("delY============================",curY - cfg.nodes[i].y)
+            if (curY - cfg.nodes[i].y < maxHeight) {
+                this._mapArr.push(cfg.nodes[i].x, cfg.nodes[i].y);
+            }
+            else {
+                break;
+            }
+        }
+        //3，绘制地图
+        this.map.graphics.clear();
+        if (startIndex == 0) { //画起点
+            this.map.graphics.drawCircle(this._mapArr[0], this._mapArr[1], 160, "#ffffff");
+            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), this._mapArr[0] - 200, this._mapArr[1] - 200);
+        }
+        this.map.graphics.drawLines(0, 0, this._mapArr, "#ffffff", 160); //160
+        if (i >= cfg.nodes.length && this.soundChannel.duration) {
+            this._autoLast = true;
+            var last = this.posInfo[this.posInfo.length - 1];
+            var total = this.soundChannel.duration * 1000;
+            trace("end=========================", this.soundChannel, last, this.soundChannel.duration);
+            var info = { x: last.x, y: last.y - (total - last.t) * this.speedY, sx: 0, sy: last.sy, t: total };
+            this.posInfo.push(info);
+            this.srcPosInfo.push(info);
+            this.map.graphics.drawLine(last.x, last.y, info.x, info.y, "#ffffff", 160);
+            this.map.graphics.drawCircle(info.x, info.y, 160, "#ffffff");
+            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), info.x - 200, info.y - 200);
+        }
+        var offset = this._autoLast ? 3 : 1;
+        i = startIndex == 0 ? 2 : 0;
+        for (i; i < this._mapArr.length - offset; i++) {
+            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
+            //画引导res/game/click.png
+            if (this.params.id == "1" && startIndex < 27) {
+                if (this._mapArr[i] > this.ui.width / 2) {
+                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] + 135, this._mapArr[i + 1] - 32);
+                }
+                else {
+                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] - 195, this._mapArr[i + 1] - 32);
+                }
+            }
+            i++;
+        }
+        //4，缓存；
+        //this.map.cacheAsBitmap = true;
+    };
+    GameView.prototype.startWithCfg = function () {
+        this.start();
+        //this._awsomeTime = 1;
+        return;
+        this.stop();
+        this.soundChannel = Laya.SoundManager.playSound(GameView.mp3, 1, Laya.Handler.create(this, this.gemeEnd));
+        this._curTime = this.soundChannel.position;
+        Laya.timer.frameLoop(1, this, this.update);
+        Laya.stage.on(Laya.Event.CLICK, this, this.onC);
+        /**预加载*/
+        var res = [
+            { url: 'res/map/bj' + this.params.id + '2.jpg', type: Laya.Loader.IMAGE },
+            { url: 'res/map/bj' + this.params.id + '3.jpg', type: Laya.Loader.IMAGE }
+        ];
+        Laya.loader.load(res);
+    };
+    //使用微信接口方法;
+    GameView.prototype.start = function () {
+        var _this = this;
+        var url = encodeURI(Laya.URL.basePath + GameView.mp3);
+        if (this.soundChannel && this.soundChannel.src != url) {
+            this.soundChannel.destroy();
+            //清理掉
+        }
+        this.soundChannel = wx.createInnerAudioContext();
+        this.soundChannel.src = url;
+        this.soundChannel.play();
+        this.soundChannel.onPlay(function () {
+            if (_this._startTime == 0) {
+                _this._curTime = _this._startTime = Laya.Browser.now();
+            }
+            else {
+                _this._curTime = Laya.Browser.now();
+                _this._startTime = _this._curTime - _this._startTime;
+            }
+            Laya.timer.frameLoop(1, _this, _this.update2);
+            Laya.stage.on(Laya.Event.CLICK, _this, _this.onC);
+            trace("start======================", _this.soundChannel);
+        });
+        this.soundChannel.onEnded(function () {
+            _this.gemeEnd();
+            trace("onEnded======================");
+        });
+        this.soundChannel.onPause(function () {
+            //记录播放的时间---
+            _this._startTime = Laya.Browser.now() - _this._startTime;
+            trace("onPause======================");
+        });
+        this.soundChannel.onError(function () {
+            XEvent.instance.event(GameEvent.ERR);
+            //播放失败，返回体力
+            User.instace.power += 1;
+            GameDataManager.instance.recordUserGameData();
+            trace("onError======================");
+        });
+        /**预加载*/
+        var res = [
+            { url: 'res/map/bj' + this.params.id + '2.jpg', type: Laya.Loader.IMAGE },
+            { url: 'res/map/bj' + this.params.id + '3.jpg', type: Laya.Loader.IMAGE }
+        ];
+        Laya.loader.load(res);
+    };
+    /**核心驱动方法 */
+    GameView.prototype.update2 = function () {
+        var _this = this;
+        this._rendIndex++;
+        var exeIndex = this._rendIndex % 5;
+        var end = false;
+        var tmpTime = Laya.Browser.now() - this._curTime;
+        this._curTime = Laya.Browser.now();
+        var position = this._curTime - this._startTime;
+        Star.active();
+        if (this._awsomeTime) {
+            var p = this.getStdPoint(position);
+            this.targetY = p.y;
+            this.targetX = p.x;
+            if (exeIndex == 4) {
+                var targetPoint = this.getTargetPoint(true, 6);
+                var now = this._score;
+                if (targetPoint) {
+                    this.speedX = targetPoint.sx;
+                    this._score += 10;
+                    xframe.XUtils.showTxtEffect(now, this._score, Laya.Handler.create(null, function (n) {
+                        _this.ui.tfScore.text = n + "";
+                    }));
+                }
+            }
+        }
+        else {
+            this.targetY = this.offsetY - this.speedY * position;
+            this.targetX += this.speedX * tmpTime * this.dir;
+        }
+        this.ball.update();
+        this.ball.x = this.targetX;
+        this.ball.y = this.targetY;
+        this.pathSp.y = this.offsetY - this.targetY;
+        this.map.y = this.pathSp.y;
+        if (exeIndex == 1) {
+            var targetPoint_1 = this.getTargetPoint(false);
+            if (this.srcPosInfo.length <= 2) {
+                this.ui.btnPause.visible = false;
+            }
+            else if (targetPoint_1) {
+                if (targetPoint_1.y - this.targetY > 150) {
+                    end = true;
+                }
+            }
+        }
+        else if (exeIndex == 2) {
+            this.showPro(DBGame.calcPro(position, this._starCfg));
+        }
+        else if (exeIndex == 4) {
+            this.rendMap();
+        }
+        else if (exeIndex == 0) {
+            this.rendMapItems(position);
+        }
+        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
+            end = true;
+            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
+        }
+        if (end) {
+            Star.sleep();
+            this.soundChannel.pause();
+            Laya.timer.clear(this, this.update);
+            Laya.timer.clear(this, this.update2);
+            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+            if (this._starNum > 0 && this._reviveTimes) {
+                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
+            }
+            else {
+                this.showResult();
+            }
+        }
+    };
+    /**核心驱动方法 */
+    GameView.prototype.update = function () {
+        this._rendIndex++;
+        var exeIndex = this._rendIndex % 5;
+        var end = false;
+        var tmpTime = (this.soundChannel.position - this._curTime) * 1000;
+        var position = this.soundChannel.position * 1000;
+        //timeOver
+        if (tmpTime < 0 || position == 0) {
+            return;
+        }
+        else if (tmpTime > 500) { //无效的音频，扔掉
+            trace("Update Error：：Time offset is over..", tmpTime, this.soundChannel.position, this._curTime);
+            this.stop();
+            Laya.timer.once(1000, this, this.startWithCfg);
+            return;
+        }
+        this._curTime = this.soundChannel.position;
+        Star.active();
+        if (this._awsomeTime) {
+            var p = this.getStdPoint(position);
+            this.targetY = p.y;
+            this.targetX = p.x;
+            if (exeIndex == 4) {
+                var targetPoint = this.getTargetPoint();
+                if (targetPoint) {
+                    this._score += 10;
+                    this.speedX = targetPoint.sx;
+                    this.ui.tfScore.text = this._score + "";
+                }
+            }
+        }
+        else {
+            this.targetY = this.offsetY - this.speedY * position;
+            this.targetX += this.speedX * tmpTime * this.dir;
+        }
+        this.ball.update();
+        this.ball.x = this.targetX;
+        this.ball.y = this.targetY;
+        this.pathSp.y = this.offsetY - this.targetY;
+        this.map.y = this.pathSp.y;
+        if (exeIndex == 1) {
+            var targetPoint_2 = this.getTargetPoint(false);
+            if (this.srcPosInfo.length <= 2) {
+                this.ui.btnPause.visible = false;
+            }
+            else if (targetPoint_2) {
+                if (targetPoint_2.y - this.targetY > 150) {
+                    end = true;
+                }
+            }
+        }
+        else if (exeIndex == 2) {
+            this.showPro(DBGame.calcPro(position, this._starCfg));
+        }
+        else if (exeIndex == 4) {
+            this.rendMap();
+        }
+        else if (exeIndex == 0) {
+            this.rendMapItems(this._curTime * 1000);
+        }
+        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
+            end = true;
+            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
+        }
+        if (end) {
+            Star.sleep();
+            this.soundChannel.pause();
+            Laya.timer.clear(this, this.update);
+            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+            if (this._starNum > 0 && this._reviveTimes) {
+                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
+            }
+            else {
+                this.showResult();
+            }
+        }
+    };
+    GameView.prototype.onC = function () {
+        var _this = this;
+        this.curX = this.targetX;
+        this.curY = this.targetY;
+        var targetPoint = this.getTargetPoint();
+        if (targetPoint) {
+            this.dir = 1;
+            this.speedX = targetPoint.sx;
+            //效果判定---
+            var delX = Math.abs(targetPoint.x - this.ball.x);
+            var delY = Math.abs(targetPoint.y - this.ball.y);
+            var nowScore = this._score;
+            if (delX < 12 && delY < 15) { //5
+                this.shine(targetPoint.x, targetPoint.y);
+                this._score += 10;
+            }
+            else if (delX < 36 && delY < 25) { //3
+                this.showEff(targetPoint.x, targetPoint.y);
+                this._score += 5;
+            }
+            else { //2
+                this._score += 3;
+            }
+            xframe.XUtils.showTxtEffect(nowScore, this._score, Laya.Handler.create(null, function (n) {
+                _this.ui.tfScore.text = n + "";
+            }));
+            //动效====================================
+            //this.fly();
+        }
+        else { //翻转
+            if (this.srcPosInfo.length && this._turnable) {
+                this.dir *= -1;
+            }
+        }
+    };
+    GameView.prototype.showResult = function () {
+        this.stop();
+        var params = {
+            music: this.params,
+            star: this._starNum,
+            score: this._score
+        };
+        XFacade.instance.showModule(GameResultView, params);
+    };
+    /**
+     * 渲染地图元素
+     * 1,渲染不根据时间变化的元素，生成变化元素列表；
+     * 2，渲染变化元素；
+     * */
+    GameView.prototype.rendMapItems = function (time) {
+        for (var i = 0; i < this._items.length; i++) {
+            if (this._items[i].y - this.targetY > Laya.stage.height) {
+                this._items[i].removeSelf();
+                trace(this._items[i].name);
+                this._items.splice(i--, 1);
+            }
+            else {
+                break;
+            }
+        }
+        var delTime = Laya.stage.height * .35 / this.speedY;
+        for (var i = 0; i < this._resList.length; i++) {
+            if (this._resList[i].t < time + delTime) {
+                var item = new Laya.Image();
+                item.pos(this._resList[i].x, this._resList[i].y);
+                var url = "res/map/" + this._resList[i].id + ".png";
+                Laya.loader.load(url, Laya.Handler.create(null, function () {
+                    item.skin = url;
+                    xframe.AniUtil.popIn(item, 200);
+                }));
+                item.scaleX = this._resList[i].s;
+                trace("rendMapItems", item.x, item.y, this._resList[i]);
+                item.name = item.x + "_" + item.y;
+                this.pathSp.addChild(item);
+                //行为控制
+                //xframe.AniUtil.popIn(item, 200)
+                /*
+                if(Math.random()>.5){
+                    xframe.AniUtil.fadeIn(item, 200);
+                }else{
+                    xframe.AniUtil.popIn(item, 200)
+                }*/
+                this._resList.splice(i--, 1);
+                this._items.push(item);
+            }
+            else {
+                break;
+            }
+        }
+    };
+    GameView.prototype.showPro = function (proInfo) {
+        var _this = this;
+        if (proInfo) {
+            this.ui.bar.value = proInfo.pro || 0;
+            this._starNum = proInfo.stars;
+            if (proInfo.stars == 3) {
+                this.ui.star_2.skin = "res/game/star_w.png";
+                this.ui.star_1.skin = "res/game/star_w.png";
+                this.ui.star_0.skin = "res/game/star_w.png";
+            }
+            else if (proInfo.stars == 2) {
+                this.ui.star_2.skin = "res/game/star_b.png";
+                this.ui.star_1.skin = "res/game/star_w.png";
+                this.ui.star_0.skin = "res/game/star_w.png";
+                Laya.loader.load("res/map/bj" + this.params.id + "3.jpg", Laya.Handler.create(null, function () {
+                    _this.switchSkin("res/map/bj" + _this.params.id + "3.jpg");
+                }));
+            }
+            else if (proInfo.stars == 1) {
+                this.ui.star_2.skin = "res/game/star_b.png";
+                this.ui.star_1.skin = "res/game/star_b.png";
+                this.ui.star_0.skin = "res/game/star_w.png";
+                Laya.loader.load("res/map/bj" + this.params.id + "2.jpg", Laya.Handler.create(null, function () {
+                    _this.switchSkin("res/map/bj" + _this.params.id + "2.jpg");
+                }));
+            }
+        }
+        else {
+            this.ui.bar.value = 0;
+            this.ui.star_2.skin = "res/game/star_b.png";
+            this.ui.star_1.skin = "res/game/star_b.png";
+            this.ui.star_0.skin = "res/game/star_b.png";
+            this.ui.bg.skin = "res/map/bj" + this.params.id + "1.jpg";
+        }
+        this.ui.proBox.cacheAsBitmap = true;
+    };
+    GameView.prototype.switchSkin = function (skinStr) {
+        if (this.ui.bg.skin != skinStr) {
+            var img = new Laya.Image(this.ui.bg.skin);
+            img.size(Laya.stage.width, Laya.stage.height);
+            this.ui.bg.parent.addChildAt(img, this.ui.bg.parent.getChildIndex(this.ui.bg));
+            Laya.Tween.to(img, { alpha: 0 }, 500, null, Laya.Handler.create(img, img.removeSelf));
+            this.ui.bg.skin = skinStr;
+            this.ui.bg.alpha = 0;
+            Laya.Tween.to(this.ui.bg, { alpha: 1 }, 500);
+        }
+    };
+    /**显示经过特效 */
+    GameView.prototype.showEff = function (x, y) {
+        this._eff.pos(x, y);
+        this.pathSp.addChild(this._eff);
+        Laya.timer.once(248, this._eff, this._eff.removeSelf);
+    };
+    /**精准打击特效 */
+    GameView.prototype.shine = function (x, y) {
+        this._eff2.pos(x, y);
+        this._eff2.alpha = 1;
+        this._eff2.scale(0.5, 0.5);
+        this.pathSp.addChildAt(this._eff2, 0);
+        Laya.Tween.to(this._eff2, { scaleX: 1.2, scaleY: 1.2, alpha: 0 }, 200, null, Laya.Handler.create(this._eff2, this._eff2.removeSelf));
+        /*
+        this._eff2.scaleX = this._eff2.scaleY = 0.5;
+        Laya.Tween.to(this._eff2, {scaleX:1,scaleY:1}, 20, null, Laya.Handler.create(null, ()=>{
+            Laya.Tween.to(this._eff2, {scaleX:1.5, scaleY:1.5},60,null, Laya.Handler.create(this._eff2, this._eff2.removeSelf))
+        }))
+        */
+    };
+    /**飞特效 */
+    GameView.prototype.fly = function () {
+        //动效===
+        var img = Laya.Pool.getItemByClass("eff", Laya.Image);
+        img.skin = "res/game/origin.png";
+        this.effContainer.addChild(img);
+        img.pos(this.curX + 40, this.curY + this.pathSp.y);
+        var rnd = Math.random() * 400;
+        Laya.Tween.to(img, { x: 200 + rnd, y: 150 + rnd }, 150 + rnd / 4, null, Laya.Handler.create(null, function () {
+            Laya.Tween.to(img, { x: 80, y: 414 }, 150 + rnd / 4, null, Laya.Handler.create(null, function () {
+                img.removeSelf();
+                Laya.Pool.recover("eff", img);
+            }));
+        }));
+    };
+    //获取目标节点
+    GameView.prototype.getTargetPoint = function (modify, deviation) {
+        if (modify === void 0) { modify = true; }
+        if (deviation === void 0) { deviation = -1; }
+        var targetPoint;
+        if (this.srcPosInfo.length) {
+            for (var i = 0; i < this.srcPosInfo.length; i++) {
+                var posInfo = this.srcPosInfo[i];
+                if (deviation == -1) {
+                    deviation = this.deviation;
+                }
+                if (Math.abs(posInfo.y - this.targetY) <= deviation || posInfo.y > this.targetY) {
+                    targetPoint = posInfo;
+                    modify && this.srcPosInfo.shift();
+                    break;
+                    //修改成点击一下取一个节点
+                }
+                else {
+                    break;
+                }
+            }
+        }
+        return targetPoint;
+    };
+    GameView.prototype.getStdPoint = function (now) {
+        if (!this._stdP) {
+            this._stdP = new Laya.Point(this.curX, this.curY);
+        }
+        var tmp;
+        for (var i = this.posInfo.length - 1; i >= 0; i--) {
+            tmp = this.posInfo[i];
+            if (tmp.t <= now) {
+                break;
+            }
+        }
+        var delTime = now - tmp.t;
+        this._stdP.x = tmp.x + tmp.sx * delTime;
+        this._stdP.y = tmp.y - this.speedY * delTime;
+        return this._stdP;
+    };
+    /**获取标准的节点-重置操作点 */
+    GameView.prototype.getStdNode = function (now) {
+        var tmp;
+        for (var i = this.posInfo.length - 1; i >= 0; i--) {
+            if (this.posInfo[i].t <= now) {
+                tmp = this.posInfo[i];
+                break;
+            }
+        }
+        this.srcPosInfo = [];
+        for (i = i + 1; i < this.posInfo.length - 1; i++) {
+            this.srcPosInfo.push(this.posInfo[i]);
+        }
+        return tmp;
+    };
+    GameView.prototype.gemeEnd = function () {
+        trace("gameEnd---------------------------------------------->>");
+        var params = {
+            music: this.params,
+            star: this._starNum,
+            score: this._score
+        };
+        XFacade.instance.showModule(GameResultView, params);
+        this.stop();
+    };
+    GameView.prototype.onDestroy = function () {
+        Laya.loader.clearRes("res/map/bj" + this.params.id + "1.jpg");
+        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
+        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
+        //this.params && Laya.loader.clearRes('res/snd/' + this.params.json + '.json');
+        Laya.loader.clearRes(GameView.mp3);
+        Star.destroy();
+        this.soundChannel && this.soundChannel.destroy();
+        this.ball && this.ball.stop();
+        Laya.timer.clear(this, this.update);
+        Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onStart);
+        Laya.stage.off(Laya.Event.CLICK, this, this.resume);
+        this.removeEVent();
+        this.stop();
+    };
+    return GameView;
+}(xframe.XWindow));
+/**游戏事件 */
+var GameEvent = /** @class */ (function () {
+    function GameEvent() {
+    }
+    /**返回 */
+    GameEvent.BACK = "back";
+    /**重新开始 */
+    GameEvent.RESTART = "restart";
+    /**事件-选中歌曲 */
+    GameEvent.SELECTED = 'selected';
+    /**下一章节 */
+    GameEvent.NEXTCHAPTER = "nextchapter";
+    /**跳转到解锁篇章 */
+    GameEvent.HOMECHAPTER = "homechapter";
+    /**加载错误 */
+    GameEvent.ERR = "err";
+    /**结束歌曲 */
+    GameEvent.OVER = "over";
+    return GameEvent;
+}());
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var HomeView = /** @class */ (function (_super) {
     __extends(HomeView, _super);
     function HomeView() {
@@ -52640,9 +51505,6 @@ var HomeView = /** @class */ (function (_super) {
             case this.ui.btnDev:
                 XFacade.instance.showModule(DevView);
                 break;
-            case this.ui.btnStart:
-                XFacade.instance.showModule(GameActivity, this.ui.chapList.selectedItem);
-                break;
             case this.ui.btnSignin:
                 XFacade.instance.showModule(SignInView);
                 break;
@@ -52660,12 +51522,7 @@ var HomeView = /** @class */ (function (_super) {
     HomeView.prototype.onItemClick = function (e, index) {
         if (e.type == Laya.Event.CLICK) {
             if (index == this.ui.chapList.selectedIndex) {
-                if (this.ui.btnStart.visible) {
-                    this.ui.btnStart.event(Laya.Event.CLICK);
-                }
-                else if (this.ui.btnInvite.visible) {
-                    this.ui.btnInvite.event(Laya.Event.CLICK);
-                }
+                XFacade.instance.showModule(GameView, this.ui.chapList.selectedItem);
             }
             else {
                 this.scrollToIndex(index - 1);
@@ -52680,7 +51537,7 @@ var HomeView = /** @class */ (function (_super) {
         _super.prototype.createUI.call(this);
         //暂时注释
         wx.showShareMenu({ withShareTicket: true });
-        this.ui.chapList.array = [null].concat(GameDataManager.instance.modeList, [{ cover: "https://s.xiuwu.me/perfectline/res/map/futureChapter.png" }, null]);
+        this.ui.chapList.array = [null].concat(DBChapter.chapList, [null]);
         this.ui.chapList.hScrollBarSkin = "";
         this.ui.chapList.scrollBar.elasticBackTime = 100;
         this.ui.chapList.scrollBar.rollRatio = 0.7;
@@ -52711,11 +51568,11 @@ var HomeView = /** @class */ (function (_super) {
     });
     // 更新用户数据展示
     HomeView.prototype.updateUserInfo = function () {
-        this.ui.coinNum.text = User.instace.userInfo.gold + '';
-        this.ui.starNum.text = User.instace.userInfo.star + '';
-        this.ui.heartNum.text = User.instace.userInfo.power + '';
-        this.ui.btnAddPower.visible = User.instace.userInfo.power < 30;
-        this.ui.btnUserInfo.skin = User.instace.userInfo.avatar;
+        this.ui.coinNum.text = User.instace.gold + '';
+        this.ui.starNum.text = User.instace.star + '';
+        this.ui.heartNum.text = User.instace.power + '';
+        this.ui.btnAddPower.visible = User.instace.power < 30;
+        this.ui.btnUserInfo.skin = User.instace.avatar;
     };
     // 背景星星
     HomeView.prototype.showMoveStar = function () {
@@ -52723,7 +51580,6 @@ var HomeView = /** @class */ (function (_super) {
     };
     HomeView.prototype.initEvent = function () {
         this.ui.btnDev.on(Laya.Event.CLICK, this, this.onBtnClick);
-        this.ui.btnStart.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnSignin.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.roleBtn.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnAddPower.on(Laya.Event.CLICK, this, this.onBtnClick);
@@ -52734,7 +51590,6 @@ var HomeView = /** @class */ (function (_super) {
     };
     HomeView.prototype.removeEvent = function () {
         this.ui.btnDev.off(Laya.Event.CLICK, this, this.onBtnClick);
-        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnSignin.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.roleBtn.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnAddPower.off(Laya.Event.CLICK, this, this.onBtnClick);
@@ -52762,7 +51617,6 @@ var LoadingView = /** @class */ (function (_super) {
     function LoadingView() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.pages.LoadingPageUI();
-        _this.initSDK();
         return _this;
     }
     LoadingView.prototype.show = function () {
@@ -52771,24 +51625,24 @@ var LoadingView = /** @class */ (function (_super) {
         //加载资源
         //初始化主场景
         //获取数据
+        //XDB.delLocalData();
         XDB.fetchSrvData(Handler.create(this, this.onGetData));
     };
     LoadingView.prototype.onGetData = function () {
         User.instace.initdData();
         ;
-        XFacade.instance.showModule(HomeView);
-        //关闭界面
-        this.close();
+        XEvent.instance.event(LoadingView.RDY);
+        //this.close();
     };
     LoadingView.prototype.close = function () {
+        _super.prototype.close.call(this);
         Laya.timer.clear(this, this.showLoading);
     };
     LoadingView.prototype.showLoading = function () {
         this.ui.loading.rotation -= 5;
     };
-    LoadingView.prototype.initSDK = function () {
-        //do sth.
-    };
+    /**事件 */
+    LoadingView.RDY = "rdy";
     return LoadingView;
 }(xframe.XWindow));
 
@@ -52808,24 +51662,6 @@ var ui;
 (function (ui) {
     var common;
     (function (common) {
-        var BgViewUI = /** @class */ (function (_super) {
-            __extends(BgViewUI, _super);
-            function BgViewUI() {
-                return _super.call(this) || this;
-            }
-            BgViewUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.common.BgViewUI.uiView);
-            };
-            BgViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Rect", "props": { "width": 750, "lineWidth": 1, "height": 1334, "fillColor": "#333333" } }] };
-            return BgViewUI;
-        }(View));
-        common.BgViewUI = BgViewUI;
-    })(common = ui.common || (ui.common = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var common;
-    (function (common) {
         var HomeViewUI = /** @class */ (function (_super) {
             __extends(HomeViewUI, _super);
             function HomeViewUI() {
@@ -52836,7 +51672,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.common.HomeViewUI.uiView);
             };
-            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 1159, "x": 330, "var": "roleBtn", "skin": "res/main/btn_role.png" } }, { "type": "Image", "props": { "y": 1159, "x": 64, "var": "btnRank", "skin": "res/main/btn_ranking.png" } }, { "type": "Image", "props": { "y": 1041, "x": 520, "visible": false, "var": "btnMore", "skin": "res/common/ic_more.png" } }, { "type": "Image", "props": { "y": 1020, "x": 242, "var": "btnStart", "skin": "res/main/btn_play.png" } }, { "type": "Image", "props": { "y": 244, "x": 24, "var": "btnSignin", "skin": "res/main/btn_sign.png" } }, { "type": "List", "props": { "y": 372, "x": -324, "width": 1433, "var": "chapList", "repeatY": 1, "height": 484 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "runtime": "ChaperItem", "name": "render" } }] }, { "type": "Image", "props": { "y": 116, "x": 20, "width": 88, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "renderType": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "y": 28, "x": 20 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_star.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 362 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 31, "x": 190 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 52, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 45, "x": 304, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }, { "type": "Image", "props": { "y": 1159, "x": 605, "var": "cardBtn", "skin": "res/main/btn_card.png" } }, { "type": "Label", "props": { "y": 1279, "x": 71, "text": "排行榜", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 350, "text": "角色", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 600, "text": "音乐卡片", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 324, "x": 36, "text": "\b签到", "fontSize": 25, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 872, "x": 126, "width": 498, "var": "modeLabel", "text": "夜 空 漫 游 指 南", "height": 40, "fontSize": 40, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 943, "x": 96, "width": 558, "var": "conditionLabel", "valign": "middle", "text": "    解锁条件", "height": 53, "fontSize": 30, "color": "#ededed", "align": "center" } }, { "type": "Image", "props": { "y": 946, "x": 284, "var": "conditionStar", "skin": "res/main/ic_star1.png" } }, { "type": "Image", "props": { "y": 1022, "x": 242, "visible": false, "var": "btnInvite", "skin": "res/main/btn_invite.png" } }, { "type": "Label", "props": { "y": 152, "x": 501, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }] };
+            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 1159, "x": 330, "var": "roleBtn", "skin": "res/main/btn_role.png" } }, { "type": "Image", "props": { "y": 1159, "x": 64, "var": "btnRank", "skin": "res/main/btn_ranking.png" } }, { "type": "Image", "props": { "y": 1041, "x": 520, "visible": false, "var": "btnMore", "skin": "res/common/ic_more.png" } }, { "type": "Image", "props": { "y": 244, "x": 24, "var": "btnSignin", "skin": "res/main/btn_sign.png" } }, { "type": "List", "props": { "y": 519, "x": -78, "width": 901, "var": "chapList", "height": 295 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "runtime": "ChaperItem", "name": "render" } }] }, { "type": "Image", "props": { "y": 116, "x": 20, "width": 88, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "renderType": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "y": 28, "x": 20 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_star.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 362 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 31, "x": 190 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 52, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 45, "x": 304, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }, { "type": "Image", "props": { "y": 1159, "x": 605, "var": "cardBtn", "skin": "res/main/btn_card.png" } }, { "type": "Label", "props": { "y": 1279, "x": 71, "text": "排行榜", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 350, "text": "角色", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 600, "text": "音乐卡片", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 324, "x": 36, "text": "签到", "fontSize": 25, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 15, "x": 507, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }] };
             return HomeViewUI;
         }(View));
         common.HomeViewUI = HomeViewUI;
@@ -52890,49 +51726,10 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.pages.GamePageUI.uiView);
             };
-            GamePageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 750, "var": "bg", "height": 1334 } }, { "type": "Image", "props": { "y": 56, "x": 40, "var": "btnPause", "skin": "res/game/btn_pause.png" } }, { "type": "Box", "props": { "y": 932, "x": 18, "var": "selectBox" }, "child": [{ "type": "Rect", "props": { "y": 110, "x": 165, "width": 380, "lineWidth": 1, "height": 60, "fillColor": "#3A4B63" } }, { "type": "Image", "props": { "skin": "res/game/bj_play_tc.png" } }, { "type": "Button", "props": { "y": 210, "x": 222, "var": "btnStart", "stateNum": 1, "skin": "res/game/btn_go.png" } }, { "type": "Label", "props": { "y": 28, "x": 0, "width": 711, "var": "tfChap", "text": "仲夏夜之梦", "height": 49, "fontSize": 44, "font": "Arial", "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 121, "x": 151, "width": 407, "var": "tfName", "text": "第1首", "height": 40, "fontSize": 36, "font": "Arial", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 122, "x": 520, "width": 154, "var": "btnSelSong", "text": "选择音乐", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "right" }, "child": [{ "type": "Button", "props": { "y": 8, "x": 159, "stateNum": 1, "skin": "res/game/btn_enter.png", "scaleY": 0.8, "scaleX": 0.8 } }] }, { "type": "Image", "props": { "y": 329, "x": 304, "skin": "res/game/ic_power1.png" } }, { "type": "Label", "props": { "y": 342, "x": 371, "width": 154, "text": "-1", "height": 32, "fontSize": 24, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "left" } }] }, { "type": "Box", "props": { "y": 166, "x": 64, "width": 35, "var": "proBox", "height": 259 }, "child": [{ "type": "ProgressBar", "props": { "y": 252, "x": 14, "width": 240, "var": "bar", "value": 0, "skin": "res/game/progress.png", "rotation": -90 } }, { "type": "Image", "props": { "y": -7, "x": 0, "var": "star_2", "skin": "res/game/star_b.png" } }, { "type": "Image", "props": { "y": 78, "x": 0, "var": "star_1", "skin": "res/game/star_b.png" } }, { "type": "Image", "props": { "y": 157, "x": 0, "var": "star_0", "skin": "res/game/star_b.png" } }, { "type": "Image", "props": { "y": 237, "x": 6, "skin": "res/game/origin.png" } }] }, { "type": "Label", "props": { "y": 100, "x": 536, "width": 189, "var": "tfScore", "valign": "middle", "text": "0", "height": 96, "fontSize": 76, "font": "Arial", "color": "#ffffff", "align": "right" } }, { "type": "Image", "props": { "y": 51, "x": 39, "var": "backBtn", "skin": "res/game/btn_home.png" } }] };
+            GamePageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 750, "var": "bg", "height": 1334 } }, { "type": "Image", "props": { "y": 56, "x": 40, "var": "btnPause", "skin": "res/game/btn_pause.png" } }, { "type": "Box", "props": { "y": 932, "x": 18, "var": "selectBox" }, "child": [{ "type": "Rect", "props": { "y": 110, "x": 165, "width": 380, "lineWidth": 1, "height": 60, "fillColor": "#3A4B63" } }, { "type": "Image", "props": { "skin": "res/game/bj_play_tc.png" } }, { "type": "Button", "props": { "y": 210, "x": 222, "var": "btnStart", "stateNum": 1, "skin": "res/game/btn_go.png" } }, { "type": "Label", "props": { "y": 121, "x": 151, "width": 407, "var": "tfName", "text": "第1首", "height": 40, "fontSize": 36, "font": "Arial", "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 329, "x": 304, "skin": "res/game/ic_power1.png" } }, { "type": "Label", "props": { "y": 342, "x": 371, "width": 154, "text": "-1", "height": 32, "fontSize": 24, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "left" } }] }, { "type": "Box", "props": { "y": 166, "x": 64, "width": 35, "var": "proBox", "height": 259 }, "child": [{ "type": "ProgressBar", "props": { "y": 252, "x": 14, "width": 240, "var": "bar", "value": 0, "skin": "res/game/progress.png", "rotation": -90 } }, { "type": "Image", "props": { "y": -7, "x": 0, "var": "star_2", "skin": "res/game/star_b.png" } }, { "type": "Image", "props": { "y": 78, "x": 0, "var": "star_1", "skin": "res/game/star_b.png" } }, { "type": "Image", "props": { "y": 157, "x": 0, "var": "star_0", "skin": "res/game/star_b.png" } }, { "type": "Image", "props": { "y": 237, "x": 6, "skin": "res/game/origin.png" } }] }, { "type": "Label", "props": { "y": 100, "x": 536, "width": 189, "var": "tfScore", "valign": "middle", "text": "0", "height": 96, "fontSize": 76, "font": "Arial", "color": "#ffffff", "align": "right" } }, { "type": "Image", "props": { "y": 51, "x": 39, "var": "backBtn", "skin": "res/game/btn_home.png" } }] };
             return GamePageUI;
         }(View));
         pages.GamePageUI = GamePageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var HomePageUI = /** @class */ (function (_super) {
-            __extends(HomePageUI, _super);
-            function HomePageUI() {
-                return _super.call(this) || this;
-            }
-            HomePageUI.prototype.createChildren = function () {
-                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
-                View.regComponent("ui.common.HomeViewUI", ui.common.HomeViewUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.HomePageUI.uiView);
-            };
-            HomePageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }] }, { "type": "HomeView", "props": { "y": 0, "x": 0, "var": "actionView", "runtime": "ui.common.HomeViewUI" } }, { "type": "Label", "props": { "y": 152, "x": 501, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 955, "x": 683, "width": 100, "var": "recommendImg", "height": 146, "anchorY": 0.5, "anchorX": 0.5 } }], "animations": [{ "nodes": [{ "target": 16, "keyframes": { "x": [{ "value": 633, "tweenMethod": "linearNone", "tween": true, "target": 16, "key": "x", "index": 0 }, { "value": 633, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "x", "index": 15 }, { "value": 633, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "x", "index": 25 }], "rotation": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 16, "key": "rotation", "index": 0 }, { "value": 10, "tweenMethod": "linearNone", "tween": true, "target": 16, "key": "rotation", "index": 5 }, { "value": -10, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "rotation", "index": 10 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "rotation", "index": 15 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 16, "label": null, "key": "rotation", "index": 25 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
-            return HomePageUI;
-        }(View));
-        pages.HomePageUI = HomePageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var LevelPageUI = /** @class */ (function (_super) {
-            __extends(LevelPageUI, _super);
-            function LevelPageUI() {
-                return _super.call(this) || this;
-            }
-            LevelPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.views.LevelRenderViewUI", ui.views.LevelRenderViewUI);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.LevelPageUI.uiView);
-            };
-            LevelPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 194, "x": 650, "var": "btnBack", "skin": "res/game/btn_close.png" } }, { "type": "List", "props": { "y": 371, "x": 55, "width": 640, "var": "list", "spaceY": 15, "height": 868 }, "child": [{ "type": "LevelRenderView", "props": { "name": "render", "runtime": "ui.views.LevelRenderViewUI" } }] }, { "type": "Image", "props": { "y": 231, "x": 59, "skin": "res/game/bj_music.png" }, "child": [{ "type": "Label", "props": { "y": 11, "x": 173, "width": 301, "valign": "middle", "text": "选择音乐", "height": 51, "fontSize": 40, "color": "#ffffff", "bold": true, "align": "center" } }] }] };
-            return LevelPageUI;
-        }(View));
-        pages.LevelPageUI = LevelPageUI;
     })(pages = ui.pages || (ui.pages = {}));
 })(ui || (ui = {}));
 (function (ui) {
@@ -52944,93 +51741,13 @@ var ui;
                 return _super.call(this) || this;
             }
             LoadingPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.pages.LoadingPageUI.uiView);
             };
-            LoadingPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" } }, { "type": "Image", "props": { "y": 298, "x": 119, "skin": "res/main/ic_ear.png" } }, { "type": "Image", "props": { "y": 1031, "x": 375, "var": "loading", "skin": "res/main/loading.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 787, "x": 153, "width": 444, "text": "佩戴耳机体验更好哦~", "height": 54, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#FFAB20", "align": "center" } }] };
+            LoadingPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 298, "x": 119, "skin": "res/main/ic_ear.png" } }, { "type": "Image", "props": { "y": 1031, "x": 375, "var": "loading", "skin": "res/main/loading.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 787, "x": 153, "width": 444, "text": "佩戴耳机体验更好哦~", "height": 54, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#FFAB20", "align": "center" } }] };
             return LoadingPageUI;
         }(View));
         pages.LoadingPageUI = LoadingPageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var MusicCardUI = /** @class */ (function (_super) {
-            __extends(MusicCardUI, _super);
-            function MusicCardUI() {
-                return _super.call(this) || this;
-            }
-            MusicCardUI.prototype.createChildren = function () {
-                View.regComponent("ui.views.CardRenderItemUI", ui.views.CardRenderItemUI);
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.MusicCardUI.uiView);
-            };
-            MusicCardUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Sprite", "props": {}, "child": [{ "type": "Rect", "props": { "y": 0, "x": 0, "width": 750, "lineWidth": 1, "height": 1334, "fillColor": "#323445" } }] }, { "type": "Image", "props": { "y": 139, "x": 20, "var": "topImg", "skin": "res/card/banner.png" } }, { "type": "List", "props": { "y": 366, "x": 16, "width": 710, "var": "cardList", "spaceY": 20, "spaceX": 19, "repeatX": 2, "height": 931 }, "child": [{ "type": "CardRenderItem", "props": { "name": "render", "runtime": "ui.views.CardRenderItemUI" } }] }, { "type": "Image", "props": { "y": 36, "x": 22, "var": "backBtn", "skin": "res/card/btn_return.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 653, "x": 123, "visible": false, "var": "tipsLabel", "text": "你还没有获得音乐卡片哦，快去挑战吧～", "fontSize": 28, "color": "#d6d6d6" } }] };
-            return MusicCardUI;
-        }(View));
-        pages.MusicCardUI = MusicCardUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var MusicRankUI = /** @class */ (function (_super) {
-            __extends(MusicRankUI, _super);
-            function MusicRankUI() {
-                return _super.call(this) || this;
-            }
-            MusicRankUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.MusicRankUI.uiView);
-            };
-            MusicRankUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 150, "x": 55, "skin": "res/role/bi_single.png" }, "child": [{ "type": "Label", "props": { "y": 30, "x": 173, "var": "musicname", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 173, "var": "musicauth", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }, { "type": "Image", "props": { "y": 362, "x": 55, "width": 640, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 752 }, "child": [{ "type": "Sprite", "props": { "y": 58, "width": 640, "height": 120 }, "child": [{ "type": "Rect", "props": { "width": 640, "lineWidth": 1, "height": 120, "fillColor": "#646AFF " } }, { "type": "Label", "props": { "y": 45, "x": 4, "width": 62, "var": "myrank", "text": "100", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 20, "x": 70, "width": 80, "var": "myavatar", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 42, "x": 162, "width": 222, "var": "mynick", "text": "讲真的", "height": 35, "fontSize": 35, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 42, "x": 456, "width": 164, "var": "myscore", "text": "54分", "right": 20, "height": 35, "fontSize": 32, "color": "#ffffff", "bold": true, "align": "right" } }] }, { "type": "List", "props": { "y": 178, "x": 0, "width": 640, "var": "musiclist", "repeatX": 1, "height": 572 } }] }, { "type": "Image", "props": { "y": 314, "x": 129, "skin": "res/role/bj_ranking_single.png" }, "child": [{ "type": "Label", "props": { "y": 10, "x": 146, "width": 200, "valign": "middle", "text": "单曲排行榜", "height": 52, "fontSize": 40, "color": "#ffffff", "bold": true } }] }, { "type": "Image", "props": { "y": 24, "x": 22, "var": "backbtn", "skin": "res/role/btn_return.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 1146, "x": 201, "var": "groupbtn", "skin": "res/role/btn_see.png", "runtime": "runtime.btn_img" } }] };
-            return MusicRankUI;
-        }(View));
-        pages.MusicRankUI = MusicRankUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var MusicRankPageUI = /** @class */ (function (_super) {
-            __extends(MusicRankPageUI, _super);
-            function MusicRankPageUI() {
-                return _super.call(this) || this;
-            }
-            MusicRankPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.rank.MusicRankOpenUI", ui.rank.MusicRankOpenUI);
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.MusicRankPageUI.uiView);
-            };
-            MusicRankPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Sprite", "props": { "width": 750, "var": "rankBox", "height": 1334 } }, { "type": "MusicRankOpen", "props": { "y": 0, "x": 0, "visible": false, "var": "rankPreview", "runtime": "ui.rank.MusicRankOpenUI" } }, { "type": "Image", "props": { "y": 1146, "x": 204, "var": "groupBtn", "skin": "res/role/btn_see.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 23, "x": 23, "var": "backBtn", "skin": "res/role/btn_return.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 149, "x": 55, "skin": "res/role/bi_single.png" }, "child": [{ "type": "Label", "props": { "y": 30, "x": 173, "var": "musicName", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 173, "var": "musicAuthor", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }] };
-            return MusicRankPageUI;
-        }(View));
-        pages.MusicRankPageUI = MusicRankPageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var RankPageUI = /** @class */ (function (_super) {
-            __extends(RankPageUI, _super);
-            function RankPageUI() {
-                return _super.call(this) || this;
-            }
-            RankPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.rank.RankOpenUI", ui.rank.RankOpenUI);
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.RankPageUI.uiView);
-            };
-            RankPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Sprite", "props": { "width": 750, "var": "rankBox", "height": 1334 } }, { "type": "RankOpen", "props": { "y": 0, "x": 0, "visible": false, "var": "rankPreview", "runtime": "ui.rank.RankOpenUI" } }, { "type": "Image", "props": { "y": 1123, "x": 211, "var": "btnRankGroup", "skin": "res/role/btn_see.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 204, "x": 645, "var": "btnBack", "skin": "res/game/btn_close.png" } }] };
-            return RankPageUI;
-        }(View));
-        pages.RankPageUI = RankPageUI;
     })(pages = ui.pages || (ui.pages = {}));
 })(ui || (ui = {}));
 (function (ui) {
@@ -53090,60 +51807,6 @@ var ui;
         }(View));
         plugins.SignResultUI = SignResultUI;
     })(plugins = ui.plugins || (ui.plugins = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var rank;
-    (function (rank) {
-        var MusicRankOpenUI = /** @class */ (function (_super) {
-            __extends(MusicRankOpenUI, _super);
-            function MusicRankOpenUI() {
-                return _super.call(this) || this;
-            }
-            MusicRankOpenUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.rank.MusicRankOpenUI.uiView);
-            };
-            MusicRankOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 361, "x": 55, "width": 640, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 752 } }, { "type": "Image", "props": { "y": 313, "x": 129, "skin": "res/role/bj_ranking_single.png" }, "child": [{ "type": "Label", "props": { "y": 10, "x": 146, "width": 200, "valign": "middle", "text": "单曲排行榜", "height": 52, "fontSize": 40, "color": "#ffffff", "bold": true } }] }, { "type": "List", "props": { "y": 539, "x": 55, "width": 640, "repeatX": 1, "name": "rankList", "height": 572 }, "child": [{ "type": "Box", "props": { "width": 640, "name": "render", "height": 120 }, "child": [{ "type": "Box", "props": { "y": 34, "x": 12, "name": "_index|eq|1" }, "child": [{ "type": "Image", "props": { "skin": "res/role/ic_1.png" } }] }, { "type": "Box", "props": { "y": 34, "x": 12, "name": "_index|eq|2" }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/ic_2.png" } }] }, { "type": "Box", "props": { "y": 34, "x": 12, "name": "_index|eq|3" }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/ic_3.png" } }] }, { "type": "Image", "props": { "y": 20, "x": 70, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 46, "x": 162, "width": 329, "text": "隔壁泰山", "overflow": "hidden", "name": "nickname", "height": 28, "fontSize": 28, "color": "#404040" } }, { "type": "Label", "props": { "y": 44, "width": 123, "text": "888分", "right": 20, "name": "score|default|0分|append|分", "height": 32, "fontSize": 32, "color": "#4860EB", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 119, "x": 20, "width": 600, "height": 1, "bgColor": "#F1F1F1" } }, { "type": "Label", "props": { "y": 44, "x": 6, "width": 55, "text": "4", "name": "_index|gt|3", "height": 30, "fontSize": 30, "color": "#979797", "bold": true, "align": "center" } }] }] }, { "type": "Box", "props": { "y": 361, "x": 55, "name": "rankSelf" }, "child": [{ "type": "Label", "props": { "y": 58, "x": 0, "width": 640, "height": 120, "bgColor": "#646AFF" } }, { "type": "Label", "props": { "y": 103, "x": 4, "width": 62, "text": "100", "name": "_index", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 78, "x": 70, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 100, "x": 162, "width": 356, "text": "讲真的", "overflow": "hidden", "name": "nickname", "height": 35, "fontSize": 35, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 100, "x": 456, "width": 164, "text": "54分", "right": 20, "name": "score|default|0|append|分", "height": 35, "fontSize": 32, "color": "#ffffff", "bold": true, "align": "right" } }] }] };
-            return MusicRankOpenUI;
-        }(View));
-        rank.MusicRankOpenUI = MusicRankOpenUI;
-    })(rank = ui.rank || (ui.rank = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var rank;
-    (function (rank) {
-        var RankOpenUI = /** @class */ (function (_super) {
-            __extends(RankOpenUI, _super);
-            function RankOpenUI() {
-                return _super.call(this) || this;
-            }
-            RankOpenUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.rank.RankOpenUI.uiView);
-            };
-            RankOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 149, "x": 55, "skin": "res/role/bj_ranking_tc.png" } }, { "type": "Label", "props": { "y": 157, "x": 245, "width": 260, "valign": "middle", "text": "好友排行榜", "height": 53, "fontSize": 40, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 262, "x": 75, "width": 600, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 680 } }, { "type": "List", "props": { "y": 262, "x": 75, "width": 600, "name": "rankList", "height": 680 }, "child": [{ "type": "Box", "props": { "width": 588, "name": "render", "height": 116 }, "child": [{ "type": "Box", "props": { "y": 30, "x": 20, "name": "_index|eq|1" }, "child": [{ "type": "Image", "props": { "y": 2, "x": 11, "skin": "res/role/ic_1.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 20, "name": "_index|eq|2" }, "child": [{ "type": "Image", "props": { "y": 4, "x": 11, "skin": "res/role/ic_2.png" } }] }, { "type": "Box", "props": { "y": 30, "x": 20, "name": "_index|eq|3" }, "child": [{ "type": "Image", "props": { "y": 2, "x": 11, "skin": "res/role/ic_3.png" } }] }, { "type": "Label", "props": { "y": 41, "x": 186, "width": 271, "text": "昵称", "overflow": "hidden", "name": "nickname", "height": 33, "fontSize": 33, "font": "SimHei", "color": "#404040" } }, { "type": "Image", "props": { "y": 18, "x": 92, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 38, "x": 506, "width": 77, "text": "0", "name": "data.star_score.wxgame.score|default|0", "height": 40, "fontSize": 40, "color": "#EF7700", "align": "right" } }, { "type": "Image", "props": { "y": 37, "x": 471, "skin": "res/main/ic_star1.png" } }, { "type": "Label", "props": { "x": 10, "width": 580, "height": 1, "bottom": 0, "bgColor": "#F1F1F1" } }, { "type": "Label", "props": { "y": 36, "x": 25, "width": 47, "valign": "middle", "text": "10", "name": "_index|gt|3", "height": 43, "fontSize": 30, "color": "#979797", "align": "center" } }] }] }, { "type": "Box", "props": { "name": "rankSelf" }, "child": [{ "type": "Image", "props": { "y": 950, "x": 74, "skin": "res/role/bj_own.png" } }, { "type": "Label", "props": { "y": 984, "x": 187, "width": 262, "valign": "middle", "text": "火焰山奶奶", "overflow": "hidden", "name": "nickname", "height": 63, "fontSize": 32, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 974, "x": 90, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Image", "props": { "y": 945, "x": 432, "skin": "res/role/ic_placing.png" } }, { "type": "Label", "props": { "y": 955, "x": 443, "width": 66, "text": "88", "name": "_index", "height": 30, "fontSize": 30, "color": "#5e6eaa", "align": "center" } }, { "type": "Image", "props": { "y": 992, "x": 554, "skin": "res/main/ic_star1.png" } }, { "type": "Label", "props": { "y": 974, "x": 569, "width": 90, "var": "star", "valign": "middle", "text": "55", "name": "data.star_score.wxgame.score", "height": 83, "fontSize": 32, "color": "#ffffff", "align": "right" } }] }] };
-            return RankOpenUI;
-        }(View));
-        rank.RankOpenUI = RankOpenUI;
-    })(rank = ui.rank || (ui.rank = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var rank;
-    (function (rank) {
-        var ResultOpenUI = /** @class */ (function (_super) {
-            __extends(ResultOpenUI, _super);
-            function ResultOpenUI() {
-                return _super.call(this) || this;
-            }
-            ResultOpenUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.rank.ResultOpenUI.uiView);
-            };
-            ResultOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Box", "props": { "width": 750, "name": "rankSelf", "height": 1334 }, "child": [{ "type": "Label", "props": { "y": 873, "x": 123, "name": "_index|default|0|append|名", "fontSize": 40, "color": "#ffffff", "bold": true } }, { "type": "Label", "props": { "y": 873, "x": 78, "text": "第", "fontSize": 40, "color": "#ffffff", "bold": true } }] }] };
-            return ResultOpenUI;
-        }(View));
-        rank.ResultOpenUI = ResultOpenUI;
-    })(rank = ui.rank || (ui.rank = {}));
 })(ui || (ui = {}));
 (function (ui) {
     var views;
@@ -53255,7 +51918,7 @@ var ui;
                     _super.prototype.createChildren.call(this);
                     this.createView(ui.views.home.ChapterItemUI.uiView);
                 };
-                ChapterItemUI.uiView = { "type": "View", "props": { "width": 480, "height": 480 }, "child": [{ "type": "Box", "props": { "y": 241, "x": 239, "var": "box", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 51, "var": "bg", "skin": "res/main/bj_piece.png" } }, { "type": "Image", "props": { "y": 26, "x": 3, "width": 440, "var": "pic", "height": 440 } }] }] };
+                ChapterItemUI.uiView = { "type": "View", "props": { "width": 300, "height": 300 }, "child": [{ "type": "Box", "props": { "y": 150, "x": 150, "var": "box", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 300, "var": "pic", "skin": "res/main/bj_piece.png", "height": 300 } }, { "type": "Label", "props": { "y": 8, "x": 75, "width": 149, "var": "tfName", "height": 25, "fontSize": 25, "color": "#ffffff", "align": "center" } }] }] };
                 return ChapterItemUI;
             }(View));
             home.ChapterItemUI = ChapterItemUI;
@@ -53286,24 +51949,6 @@ var ui;
 (function (ui) {
     var views;
     (function (views) {
-        var LevelRenderViewUI = /** @class */ (function (_super) {
-            __extends(LevelRenderViewUI, _super);
-            function LevelRenderViewUI() {
-                return _super.call(this) || this;
-            }
-            LevelRenderViewUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.LevelRenderViewUI.uiView);
-            };
-            LevelRenderViewUI.uiView = { "type": "View", "props": { "width": 640, "height": 160 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/game/bj_choose music.png" } }, { "type": "Label", "props": { "y": 21, "x": 155, "width": 364, "var": "title", "text": "新手", "height": 43, "fontSize": 32, "color": "#666666", "bold": true } }, { "type": "Label", "props": { "y": 71, "x": 156, "width": 364, "var": "tfAuthor", "text": "新手", "height": 26, "fontSize": 26, "color": "#999999" } }, { "type": "Image", "props": { "y": 107, "x": 147, "var": "star_0", "skin": "res/game/ic_star_result_s.png" } }, { "type": "Image", "props": { "y": 107, "x": 200, "var": "star_1", "skin": "res/game/ic_star_result_gray_s.png" } }, { "type": "Image", "props": { "y": 107, "x": 252, "var": "star_2", "skin": "res/game/ic_star_result_gray_s.png" } }, { "type": "Button", "props": { "y": 47, "x": 518, "var": "btnStart", "stateNum": 1, "skin": "res/game/btn_play.png" } }] };
-            return LevelRenderViewUI;
-        }(View));
-        views.LevelRenderViewUI = LevelRenderViewUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
         var LoadingViewUI = /** @class */ (function (_super) {
             __extends(LoadingViewUI, _super);
             function LoadingViewUI() {
@@ -53322,24 +51967,6 @@ var ui;
 (function (ui) {
     var views;
     (function (views) {
-        var MusicRankRenderUI = /** @class */ (function (_super) {
-            __extends(MusicRankRenderUI, _super);
-            function MusicRankRenderUI() {
-                return _super.call(this) || this;
-            }
-            MusicRankRenderUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.MusicRankRenderUI.uiView);
-            };
-            MusicRankRenderUI.uiView = { "type": "View", "props": { "width": 640, "height": 116 }, "child": [{ "type": "Image", "props": { "y": 33, "x": 12, "var": "rankImg", "skin": "res/role/ic_1.png" } }, { "type": "Image", "props": { "y": 18, "x": 70, "width": 80, "var": "avatarImg", "height": 80 }, "child": [{ "type": "Sprite", "props": { "width": 80, "renderType": "mask", "height": 80 }, "child": [{ "type": "Circle", "props": { "y": 40, "x": 40, "radius": 40, "lineWidth": 1, "fillColor": "#ff0000" } }] }] }, { "type": "Label", "props": { "y": 38, "x": 162, "width": 255, "var": "nickLabel", "text": "隔壁泰山", "height": 40, "fontSize": 35, "color": "#404040" } }, { "type": "Label", "props": { "y": 43, "width": 150, "var": "scoreLabel", "text": "888分", "right": 20, "height": 30, "fontSize": 32, "color": "#4860EB", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 43, "x": 4, "width": 62, "var": "rankLabel", "text": "5", "height": 30, "fontSize": 30, "color": "#979797", "bold": true, "align": "center" } }, { "type": "Sprite", "props": { "y": 115, "x": 10, "width": 620, "height": 1 }, "child": [{ "type": "Rect", "props": { "width": 620, "lineWidth": 1, "height": 1, "fillColor": "#f1f1f1" } }] }] };
-            return MusicRankRenderUI;
-        }(View));
-        views.MusicRankRenderUI = MusicRankRenderUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
         var NoPowerTipUI = /** @class */ (function (_super) {
             __extends(NoPowerTipUI, _super);
             function NoPowerTipUI() {
@@ -53353,25 +51980,6 @@ var ui;
             return NoPowerTipUI;
         }(View));
         views.NoPowerTipUI = NoPowerTipUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var PopBigCardUI = /** @class */ (function (_super) {
-            __extends(PopBigCardUI, _super);
-            function PopBigCardUI() {
-                return _super.call(this) || this;
-            }
-            PopBigCardUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.PopBigCardUI.uiView);
-            };
-            PopBigCardUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 136, "x": 125, "width": 500, "var": "bigImg", "height": 890 } }, { "type": "Image", "props": { "y": 1079, "x": 242, "var": "shareBtn", "skin": "res/card/btn_share.png", "runtime": "runtime.btn_img" } }] };
-            return PopBigCardUI;
-        }(View));
-        views.PopBigCardUI = PopBigCardUI;
     })(views = ui.views || (ui.views = {}));
 })(ui || (ui = {}));
 (function (ui) {
@@ -53524,14 +52132,18 @@ var ChaperItem = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this._selected = false;
         _this.box.scaleX = _this.box.scaleY = 0.8;
-        _this.bg.visible = false;
         return _this;
     }
     Object.defineProperty(ChaperItem.prototype, "dataSource", {
+        get: function () {
+            return this._data;
+        },
         set: function (data) {
+            this._data = data;
             if (data) {
                 this.visible = true;
-                this.pic.skin = data.cover + "";
+                //this.pic.skin = data.cover+"";
+                this.tfName.text = data.name + "";
             }
             else {
                 this.visible = false;
@@ -53548,11 +52160,9 @@ var ChaperItem = /** @class */ (function (_super) {
             if (this._selected != v) {
                 this._selected = v;
                 if (this._selected) {
-                    this.bg.visible = true;
                     Laya.Tween.to(this.box, { scaleX: 1, scaleY: 1 }, 200);
                 }
                 else {
-                    this.bg.visible = false;
                     Laya.Tween.to(this.box, { scaleX: 0.8, scaleY: 0.8 }, 200);
                 }
             }
@@ -53614,13 +52224,13 @@ var UserInfoView = /** @class */ (function (_super) {
         return _this;
     }
     UserInfoView.prototype.show = function () {
-        this.ui.avatar.skin = User.instace.userInfo.avatar;
-        this.ui.nickLabel.text = User.instace.userInfo.nickname;
-        this.ui.userId.text = "ID：" + User.instace.userInfo.id;
-        this.ui.heartLabel.text = User.instace.userInfo.power + '';
-        this.ui.starLabel.text = User.instace.userInfo.star + '';
+        this.ui.avatar.skin = User.instace.avatar;
+        this.ui.nickLabel.text = User.instace.nickname;
+        this.ui.userId.text = "ID：" + User.instace.id;
+        this.ui.heartLabel.text = User.instace.power + '';
+        this.ui.starLabel.text = User.instace.star + '';
         ;
-        this.ui.musicLabel.text = User.instace.userInfo.gold + '';
+        this.ui.musicLabel.text = User.instace.gold + '';
         _super.prototype.show.call(this);
         xframe.AniUtil.flowIn(this);
     };
@@ -53794,7 +52404,7 @@ var RoleList = /** @class */ (function (_super) {
     RoleList.prototype.releaseRole = function (data, index) {
         var _this = this;
         if (data.type == 2) { //购买
-            if (User.instace.userInfo.coin >= data.cost) {
+            if (User.instace.gold >= data.cost) {
                 wx.showModal({
                     title: '提示',
                     content: '获取当前角色需要消耗' + data.cost + "金币",
@@ -53827,14 +52437,12 @@ var RoleList = /** @class */ (function (_super) {
             title: '解锁成功'
         });
         // 记录金币
-        User.instace.userInfo.coin -= data.cost;
+        User.instace.gold -= data.cost;
         GameDataManager.instance.recordUserGameData();
         // 记录角色
         GameDataManager.instance.recordUserRolesData(data);
         // 更改按钮状态
         this.ui.rolelist.refresh();
-        // 刷新主界面
-        XEvent.instance.event(RoleList.UPDATE);
     };
     RoleList.prototype.userRole = function (data) {
         Laya.LocalStorage.setItem(usedRoleKey, data.id);
@@ -53971,7 +52579,7 @@ var xframe;
             if (noBtnLabel == null || noBtnLabel == "") {
                 noBtnLabel = XAlert.LABEL_NO_DEFAULT;
             }
-            this._tfMsg.text = message + "";
+            this._tfMsg.innerHTML = message + "";
             this._tfMsg.y = (this._btnYes.y - this._tfMsg.contextHeight) * 0.5;
             var btnNum = 0;
             if (showYesBtn) {
@@ -54012,7 +52620,7 @@ var xframe;
         };
         /**覆盖关闭*/
         XAlert.prototype.close = function () {
-            xframe.AniUtil.popOut(this, Handler.create(this, this.onClose), 150);
+            xframe.AniUtil.popOut(this, Handler.create(this, this.onClose), 150, 200);
         };
         //
         XAlert.prototype.onClose = function () {
@@ -54037,14 +52645,14 @@ var xframe;
             bg.size(500, 320);
             bg.graphics.drawRect(0, 0, 500, 320, "#66ccff");
             _this.addChild(bg);
-            _this.tfMsg = new Laya.Label();
+            _this.tfMsg = new Laya.HTMLDivElement();
             _this.tfMsg.width = 460;
             _this.addChild(_this.tfMsg);
             _this.tfMsg.pos(20, 72);
-            _this.tfMsg.font = "微软雅黑";
-            _this.tfMsg.fontSize = 20;
-            _this.tfMsg.color = "#ffffff";
-            _this.tfMsg.align = "center";
+            _this.tfMsg.style.fontFamily = "微软雅黑";
+            _this.tfMsg.style.fontSize = 20;
+            _this.tfMsg.style.color = "#ffffff";
+            _this.tfMsg.style.align = "center";
             _this.btnYes = new Laya.Button("", "Yes");
             bg = new Laya.Image();
             bg.graphics.drawRect(0, 0, 100, 50, "#ff6600");
@@ -54356,6 +52964,7 @@ var xframe;
 var XFacade = xframe.XFacade;
 var XTip = xframe.XTip;
 var XAlert = xframe.XAlert;
+var Handler = Laya.Handler;
 // 游戏入口
 var Main = /** @class */ (function () {
     function Main() {
@@ -54380,7 +52989,6 @@ var Main = /** @class */ (function () {
             { url: 'res/atlas/res/game.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/atlas/res/ic_role.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/cfg/stage.json', type: Laya.Loader.JSON },
-            { url: 'res/cfg/game.json', type: Laya.Loader.JSON },
         ];
         Laya.loader.load(urlList, Handler.create(null, function () {
             xframe.XFacade.instance.init(new App());

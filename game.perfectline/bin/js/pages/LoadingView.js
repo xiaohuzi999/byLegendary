@@ -13,7 +13,6 @@ var LoadingView = /** @class */ (function (_super) {
     function LoadingView() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.pages.LoadingPageUI();
-        _this.initSDK();
         return _this;
     }
     LoadingView.prototype.show = function () {
@@ -22,24 +21,23 @@ var LoadingView = /** @class */ (function (_super) {
         //加载资源
         //初始化主场景
         //获取数据
-        XDB.delLocalData();
+        //XDB.delLocalData();
         XDB.fetchSrvData(Handler.create(this, this.onGetData));
     };
     LoadingView.prototype.onGetData = function () {
         User.instace.initdData();
         ;
-        XFacade.instance.showModule(HomeView);
-        //关闭界面
-        this.close();
+        XEvent.instance.event(LoadingView.RDY);
+        //this.close();
     };
     LoadingView.prototype.close = function () {
+        _super.prototype.close.call(this);
         Laya.timer.clear(this, this.showLoading);
     };
     LoadingView.prototype.showLoading = function () {
         this.ui.loading.rotation -= 5;
     };
-    LoadingView.prototype.initSDK = function () {
-        //do sth.
-    };
+    /**事件 */
+    LoadingView.RDY = "rdy";
     return LoadingView;
 }(xframe.XWindow));

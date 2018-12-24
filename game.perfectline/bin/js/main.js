@@ -1,6 +1,7 @@
 var XFacade = xframe.XFacade;
 var XTip = xframe.XTip;
 var XAlert = xframe.XAlert;
+var Handler = Laya.Handler;
 // 游戏入口
 var Main = /** @class */ (function () {
     function Main() {

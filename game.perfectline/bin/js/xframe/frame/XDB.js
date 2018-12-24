@@ -6,21 +6,36 @@ var XDB = /** @class */ (function () {
     }
     /**获取服务端数据 */
     XDB.fetchSrvData = function (cb) {
-        //todo 获取远程数据
-        //xframe.HttpCmd.callServer()
-        //测试用，读取本地数据
-        var data = Laya.LocalStorage.getItem(this.NAME);
-        this.init(data);
-        cb.run();
+        this._cb = cb;
+        var onFetchHandler = Handler.create(this, this.init);
+        wx.login({
+            success: function (res) {
+                if (res.code) {
+                    xframe.HttpCmd.callServer(onFetchHandler, "srv", "login", { code: res.code });
+                }
+                else {
+                    XAlert.showAlert('登录失败！' + res.errMsg);
+                }
+            },
+            initLocal: function () {
+                XTip.showTip("未与远程数据同步~~");
+                var data = Laya.LocalStorage.getItem(this.NAME);
+                onFetchHandler.runWith(data);
+            }
+        });
     };
     /**init with data*/
     XDB.init = function (data) {
         if (typeof data === "string") {
             trace("data:::::::", data);
-            data && (this._data = JSON.parse(data));
+            this._data = JSON.parse(data);
         }
         else {
             this._data = data;
+        }
+        if (this._cb) {
+            this._cb.run();
+            this._cb = null;
         }
     };
     /**del local data */
@@ -39,7 +54,7 @@ var XDB = /** @class */ (function () {
         //todo：save to srv
     };
     XDB.push2Srv = function () {
-        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { kv: "xxoo" });
+        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { openid: User.getInstance().openid, kv: JSON.stringify(this.data) });
     };
     Object.defineProperty(XDB, "data", {
         get: function () {

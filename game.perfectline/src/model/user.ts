@@ -7,8 +7,10 @@ class User {
     public power:number = 10;
     public diamond:number = 0;
 
+    /**当前歌曲ID */
     public curId:number = 1;
-    public star:number[] = []
+    /**记录 */
+    public starInfo:number[] = []
 
     private static _instace: User;
     /** */

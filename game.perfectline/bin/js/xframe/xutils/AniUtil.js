@@ -94,6 +94,36 @@ var xframe;
                 callback.run();
             }));
         };
+        //=========================================================================================================
+        AniUtil.jump = function (target) {
+            var bY = target.y;
+            var $this = target;
+            up();
+            function up() {
+                Laya.Tween.to($this, { scaleX: 1.1, scaleY: 0.9 }, 100, null, Laya.Handler.create(null, function () {
+                    Laya.Tween.to($this, { scaleX: .9, scaleY: 1.1 }, 100, null, Laya.Handler.create(null, function () {
+                        Laya.Tween.to($this, { scaleX: 1, scaleY: 1, y: bY - 30 }, 100, null, Laya.Handler.create(null, function () {
+                            Laya.Tween.to($this, { scaleX: 1.1, scaleY: 0.9, y: bY - 40 }, 100, null, Laya.Handler.create(null, back));
+                        }));
+                    }));
+                }));
+            }
+            function back() {
+                Laya.Tween.to($this, { scaleX: 0.9, scaleY: 1.1, y: bY }, 100, null, Laya.Handler.create(null, function () {
+                    Laya.Tween.to($this, { scaleX: 1.1, scaleY: 0.9, y: bY }, 100, null, Laya.Handler.create(null, function () {
+                        Laya.Tween.to($this, { scaleX: 0.9, scaleY: 1.1, y: bY }, 100, null, Laya.Handler.create(null, function () {
+                            Laya.Tween.to($this, { scaleX: 1, scaleY: 1, y: bY }, 100, null, Laya.Handler.create(null, wait));
+                        }));
+                    }));
+                }));
+            }
+            function wait() {
+                Laya.Tween.to($this, { y: $this.y }, 800, null, Laya.Handler.create(null, up));
+            }
+        };
+        AniUtil.stop = function (target) {
+            Laya.Tween.clearTween(target);
+        };
         return AniUtil;
     }());
     xframe.AniUtil = AniUtil;

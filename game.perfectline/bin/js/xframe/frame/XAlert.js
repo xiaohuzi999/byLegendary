@@ -104,7 +104,7 @@ var xframe;
             if (noBtnLabel == null || noBtnLabel == "") {
                 noBtnLabel = XAlert.LABEL_NO_DEFAULT;
             }
-            this._tfMsg.text = message + "";
+            this._tfMsg.innerHTML = message + "";
             this._tfMsg.y = (this._btnYes.y - this._tfMsg.contextHeight) * 0.5;
             var btnNum = 0;
             if (showYesBtn) {
@@ -145,7 +145,7 @@ var xframe;
         };
         /**覆盖关闭*/
         XAlert.prototype.close = function () {
-            xframe.AniUtil.popOut(this, Handler.create(this, this.onClose), 150);
+            xframe.AniUtil.popOut(this, Handler.create(this, this.onClose), 150, 200);
         };
         //
         XAlert.prototype.onClose = function () {
@@ -170,14 +170,14 @@ var xframe;
             bg.size(500, 320);
             bg.graphics.drawRect(0, 0, 500, 320, "#66ccff");
             _this.addChild(bg);
-            _this.tfMsg = new Laya.Label();
+            _this.tfMsg = new Laya.HTMLDivElement();
             _this.tfMsg.width = 460;
             _this.addChild(_this.tfMsg);
             _this.tfMsg.pos(20, 72);
-            _this.tfMsg.font = "微软雅黑";
-            _this.tfMsg.fontSize = 20;
-            _this.tfMsg.color = "#ffffff";
-            _this.tfMsg.align = "center";
+            _this.tfMsg.style.fontFamily = "微软雅黑";
+            _this.tfMsg.style.fontSize = 20;
+            _this.tfMsg.style.color = "#ffffff";
+            _this.tfMsg.style.align = "center";
             _this.btnYes = new Laya.Button("", "Yes");
             bg = new Laya.Image();
             bg.graphics.drawRect(0, 0, 100, 50, "#ff6600");

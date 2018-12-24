@@ -14,24 +14,6 @@ var ui;
 (function (ui) {
     var common;
     (function (common) {
-        var BgViewUI = /** @class */ (function (_super) {
-            __extends(BgViewUI, _super);
-            function BgViewUI() {
-                return _super.call(this) || this;
-            }
-            BgViewUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.common.BgViewUI.uiView);
-            };
-            BgViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Rect", "props": { "width": 750, "lineWidth": 1, "height": 1334, "fillColor": "#333333" } }] };
-            return BgViewUI;
-        }(View));
-        common.BgViewUI = BgViewUI;
-    })(common = ui.common || (ui.common = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var common;
-    (function (common) {
         var HomeViewUI = /** @class */ (function (_super) {
             __extends(HomeViewUI, _super);
             function HomeViewUI() {
@@ -111,93 +93,13 @@ var ui;
                 return _super.call(this) || this;
             }
             LoadingPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.common.BgViewUI", ui.common.BgViewUI);
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.pages.LoadingPageUI.uiView);
             };
-            LoadingPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "BgView", "props": { "y": 0, "x": 0, "var": "bgView", "runtime": "ui.common.BgViewUI" } }, { "type": "Image", "props": { "y": 298, "x": 119, "skin": "res/main/ic_ear.png" } }, { "type": "Image", "props": { "y": 1031, "x": 375, "var": "loading", "skin": "res/main/loading.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 787, "x": 153, "width": 444, "text": "佩戴耳机体验更好哦~", "height": 54, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#FFAB20", "align": "center" } }] };
+            LoadingPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 298, "x": 119, "skin": "res/main/ic_ear.png" } }, { "type": "Image", "props": { "y": 1031, "x": 375, "var": "loading", "skin": "res/main/loading.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 787, "x": 153, "width": 444, "text": "佩戴耳机体验更好哦~", "height": 54, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#FFAB20", "align": "center" } }] };
             return LoadingPageUI;
         }(View));
         pages.LoadingPageUI = LoadingPageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var MusicCardUI = /** @class */ (function (_super) {
-            __extends(MusicCardUI, _super);
-            function MusicCardUI() {
-                return _super.call(this) || this;
-            }
-            MusicCardUI.prototype.createChildren = function () {
-                View.regComponent("ui.views.CardRenderItemUI", ui.views.CardRenderItemUI);
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.MusicCardUI.uiView);
-            };
-            MusicCardUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Sprite", "props": {}, "child": [{ "type": "Rect", "props": { "y": 0, "x": 0, "width": 750, "lineWidth": 1, "height": 1334, "fillColor": "#323445" } }] }, { "type": "Image", "props": { "y": 139, "x": 20, "var": "topImg", "skin": "res/card/banner.png" } }, { "type": "List", "props": { "y": 366, "x": 16, "width": 710, "var": "cardList", "spaceY": 20, "spaceX": 19, "repeatX": 2, "height": 931 }, "child": [{ "type": "CardRenderItem", "props": { "name": "render", "runtime": "ui.views.CardRenderItemUI" } }] }, { "type": "Image", "props": { "y": 36, "x": 22, "var": "backBtn", "skin": "res/card/btn_return.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 653, "x": 123, "visible": false, "var": "tipsLabel", "text": "你还没有获得音乐卡片哦，快去挑战吧～", "fontSize": 28, "color": "#d6d6d6" } }] };
-            return MusicCardUI;
-        }(View));
-        pages.MusicCardUI = MusicCardUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var MusicRankUI = /** @class */ (function (_super) {
-            __extends(MusicRankUI, _super);
-            function MusicRankUI() {
-                return _super.call(this) || this;
-            }
-            MusicRankUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.MusicRankUI.uiView);
-            };
-            MusicRankUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 150, "x": 55, "skin": "res/role/bi_single.png" }, "child": [{ "type": "Label", "props": { "y": 30, "x": 173, "var": "musicname", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 173, "var": "musicauth", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }, { "type": "Image", "props": { "y": 362, "x": 55, "width": 640, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 752 }, "child": [{ "type": "Sprite", "props": { "y": 58, "width": 640, "height": 120 }, "child": [{ "type": "Rect", "props": { "width": 640, "lineWidth": 1, "height": 120, "fillColor": "#646AFF " } }, { "type": "Label", "props": { "y": 45, "x": 4, "width": 62, "var": "myrank", "text": "100", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 20, "x": 70, "width": 80, "var": "myavatar", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 42, "x": 162, "width": 222, "var": "mynick", "text": "讲真的", "height": 35, "fontSize": 35, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 42, "x": 456, "width": 164, "var": "myscore", "text": "54分", "right": 20, "height": 35, "fontSize": 32, "color": "#ffffff", "bold": true, "align": "right" } }] }, { "type": "List", "props": { "y": 178, "x": 0, "width": 640, "var": "musiclist", "repeatX": 1, "height": 572 } }] }, { "type": "Image", "props": { "y": 314, "x": 129, "skin": "res/role/bj_ranking_single.png" }, "child": [{ "type": "Label", "props": { "y": 10, "x": 146, "width": 200, "valign": "middle", "text": "单曲排行榜", "height": 52, "fontSize": 40, "color": "#ffffff", "bold": true } }] }, { "type": "Image", "props": { "y": 24, "x": 22, "var": "backbtn", "skin": "res/role/btn_return.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 1146, "x": 201, "var": "groupbtn", "skin": "res/role/btn_see.png", "runtime": "runtime.btn_img" } }] };
-            return MusicRankUI;
-        }(View));
-        pages.MusicRankUI = MusicRankUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var MusicRankPageUI = /** @class */ (function (_super) {
-            __extends(MusicRankPageUI, _super);
-            function MusicRankPageUI() {
-                return _super.call(this) || this;
-            }
-            MusicRankPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.rank.MusicRankOpenUI", ui.rank.MusicRankOpenUI);
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.MusicRankPageUI.uiView);
-            };
-            MusicRankPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Sprite", "props": { "width": 750, "var": "rankBox", "height": 1334 } }, { "type": "MusicRankOpen", "props": { "y": 0, "x": 0, "visible": false, "var": "rankPreview", "runtime": "ui.rank.MusicRankOpenUI" } }, { "type": "Image", "props": { "y": 1146, "x": 204, "var": "groupBtn", "skin": "res/role/btn_see.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 23, "x": 23, "var": "backBtn", "skin": "res/role/btn_return.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 149, "x": 55, "skin": "res/role/bi_single.png" }, "child": [{ "type": "Label", "props": { "y": 30, "x": 173, "var": "musicName", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 173, "var": "musicAuthor", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }] };
-            return MusicRankPageUI;
-        }(View));
-        pages.MusicRankPageUI = MusicRankPageUI;
-    })(pages = ui.pages || (ui.pages = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var pages;
-    (function (pages) {
-        var RankPageUI = /** @class */ (function (_super) {
-            __extends(RankPageUI, _super);
-            function RankPageUI() {
-                return _super.call(this) || this;
-            }
-            RankPageUI.prototype.createChildren = function () {
-                View.regComponent("ui.rank.RankOpenUI", ui.rank.RankOpenUI);
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.pages.RankPageUI.uiView);
-            };
-            RankPageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Sprite", "props": { "width": 750, "var": "rankBox", "height": 1334 } }, { "type": "RankOpen", "props": { "y": 0, "x": 0, "visible": false, "var": "rankPreview", "runtime": "ui.rank.RankOpenUI" } }, { "type": "Image", "props": { "y": 1123, "x": 211, "var": "btnRankGroup", "skin": "res/role/btn_see.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 204, "x": 645, "var": "btnBack", "skin": "res/game/btn_close.png" } }] };
-            return RankPageUI;
-        }(View));
-        pages.RankPageUI = RankPageUI;
     })(pages = ui.pages || (ui.pages = {}));
 })(ui || (ui = {}));
 (function (ui) {
@@ -257,60 +159,6 @@ var ui;
         }(View));
         plugins.SignResultUI = SignResultUI;
     })(plugins = ui.plugins || (ui.plugins = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var rank;
-    (function (rank) {
-        var MusicRankOpenUI = /** @class */ (function (_super) {
-            __extends(MusicRankOpenUI, _super);
-            function MusicRankOpenUI() {
-                return _super.call(this) || this;
-            }
-            MusicRankOpenUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.rank.MusicRankOpenUI.uiView);
-            };
-            MusicRankOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 361, "x": 55, "width": 640, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 752 } }, { "type": "Image", "props": { "y": 313, "x": 129, "skin": "res/role/bj_ranking_single.png" }, "child": [{ "type": "Label", "props": { "y": 10, "x": 146, "width": 200, "valign": "middle", "text": "单曲排行榜", "height": 52, "fontSize": 40, "color": "#ffffff", "bold": true } }] }, { "type": "List", "props": { "y": 539, "x": 55, "width": 640, "repeatX": 1, "name": "rankList", "height": 572 }, "child": [{ "type": "Box", "props": { "width": 640, "name": "render", "height": 120 }, "child": [{ "type": "Box", "props": { "y": 34, "x": 12, "name": "_index|eq|1" }, "child": [{ "type": "Image", "props": { "skin": "res/role/ic_1.png" } }] }, { "type": "Box", "props": { "y": 34, "x": 12, "name": "_index|eq|2" }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/ic_2.png" } }] }, { "type": "Box", "props": { "y": 34, "x": 12, "name": "_index|eq|3" }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/ic_3.png" } }] }, { "type": "Image", "props": { "y": 20, "x": 70, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 46, "x": 162, "width": 329, "text": "隔壁泰山", "overflow": "hidden", "name": "nickname", "height": 28, "fontSize": 28, "color": "#404040" } }, { "type": "Label", "props": { "y": 44, "width": 123, "text": "888分", "right": 20, "name": "score|default|0分|append|分", "height": 32, "fontSize": 32, "color": "#4860EB", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 119, "x": 20, "width": 600, "height": 1, "bgColor": "#F1F1F1" } }, { "type": "Label", "props": { "y": 44, "x": 6, "width": 55, "text": "4", "name": "_index|gt|3", "height": 30, "fontSize": 30, "color": "#979797", "bold": true, "align": "center" } }] }] }, { "type": "Box", "props": { "y": 361, "x": 55, "name": "rankSelf" }, "child": [{ "type": "Label", "props": { "y": 58, "x": 0, "width": 640, "height": 120, "bgColor": "#646AFF" } }, { "type": "Label", "props": { "y": 103, "x": 4, "width": 62, "text": "100", "name": "_index", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 78, "x": 70, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 100, "x": 162, "width": 356, "text": "讲真的", "overflow": "hidden", "name": "nickname", "height": 35, "fontSize": 35, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 100, "x": 456, "width": 164, "text": "54分", "right": 20, "name": "score|default|0|append|分", "height": 35, "fontSize": 32, "color": "#ffffff", "bold": true, "align": "right" } }] }] };
-            return MusicRankOpenUI;
-        }(View));
-        rank.MusicRankOpenUI = MusicRankOpenUI;
-    })(rank = ui.rank || (ui.rank = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var rank;
-    (function (rank) {
-        var RankOpenUI = /** @class */ (function (_super) {
-            __extends(RankOpenUI, _super);
-            function RankOpenUI() {
-                return _super.call(this) || this;
-            }
-            RankOpenUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.rank.RankOpenUI.uiView);
-            };
-            RankOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 149, "x": 55, "skin": "res/role/bj_ranking_tc.png" } }, { "type": "Label", "props": { "y": 157, "x": 245, "width": 260, "valign": "middle", "text": "好友排行榜", "height": 53, "fontSize": 40, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 262, "x": 75, "width": 600, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 680 } }, { "type": "List", "props": { "y": 262, "x": 75, "width": 600, "name": "rankList", "height": 680 }, "child": [{ "type": "Box", "props": { "width": 588, "name": "render", "height": 116 }, "child": [{ "type": "Box", "props": { "y": 30, "x": 20, "name": "_index|eq|1" }, "child": [{ "type": "Image", "props": { "y": 2, "x": 11, "skin": "res/role/ic_1.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 20, "name": "_index|eq|2" }, "child": [{ "type": "Image", "props": { "y": 4, "x": 11, "skin": "res/role/ic_2.png" } }] }, { "type": "Box", "props": { "y": 30, "x": 20, "name": "_index|eq|3" }, "child": [{ "type": "Image", "props": { "y": 2, "x": 11, "skin": "res/role/ic_3.png" } }] }, { "type": "Label", "props": { "y": 41, "x": 186, "width": 271, "text": "昵称", "overflow": "hidden", "name": "nickname", "height": 33, "fontSize": 33, "font": "SimHei", "color": "#404040" } }, { "type": "Image", "props": { "y": 18, "x": 92, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Label", "props": { "y": 38, "x": 506, "width": 77, "text": "0", "name": "data.star_score.wxgame.score|default|0", "height": 40, "fontSize": 40, "color": "#EF7700", "align": "right" } }, { "type": "Image", "props": { "y": 37, "x": 471, "skin": "res/main/ic_star1.png" } }, { "type": "Label", "props": { "x": 10, "width": 580, "height": 1, "bottom": 0, "bgColor": "#F1F1F1" } }, { "type": "Label", "props": { "y": 36, "x": 25, "width": 47, "valign": "middle", "text": "10", "name": "_index|gt|3", "height": 43, "fontSize": 30, "color": "#979797", "align": "center" } }] }] }, { "type": "Box", "props": { "name": "rankSelf" }, "child": [{ "type": "Image", "props": { "y": 950, "x": 74, "skin": "res/role/bj_own.png" } }, { "type": "Label", "props": { "y": 984, "x": 187, "width": 262, "valign": "middle", "text": "火焰山奶奶", "overflow": "hidden", "name": "nickname", "height": 63, "fontSize": 32, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 974, "x": 90, "width": 80, "name": "avatarUrl", "height": 80 }, "child": [{ "type": "Image", "props": { "width": 80, "skin": "res/common/ic_cricle.png", "renderType": "mask", "height": 80 } }] }, { "type": "Image", "props": { "y": 945, "x": 432, "skin": "res/role/ic_placing.png" } }, { "type": "Label", "props": { "y": 955, "x": 443, "width": 66, "text": "88", "name": "_index", "height": 30, "fontSize": 30, "color": "#5e6eaa", "align": "center" } }, { "type": "Image", "props": { "y": 992, "x": 554, "skin": "res/main/ic_star1.png" } }, { "type": "Label", "props": { "y": 974, "x": 569, "width": 90, "var": "star", "valign": "middle", "text": "55", "name": "data.star_score.wxgame.score", "height": 83, "fontSize": 32, "color": "#ffffff", "align": "right" } }] }] };
-            return RankOpenUI;
-        }(View));
-        rank.RankOpenUI = RankOpenUI;
-    })(rank = ui.rank || (ui.rank = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var rank;
-    (function (rank) {
-        var ResultOpenUI = /** @class */ (function (_super) {
-            __extends(ResultOpenUI, _super);
-            function ResultOpenUI() {
-                return _super.call(this) || this;
-            }
-            ResultOpenUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.rank.ResultOpenUI.uiView);
-            };
-            ResultOpenUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Box", "props": { "width": 750, "name": "rankSelf", "height": 1334 }, "child": [{ "type": "Label", "props": { "y": 873, "x": 123, "name": "_index|default|0|append|名", "fontSize": 40, "color": "#ffffff", "bold": true } }, { "type": "Label", "props": { "y": 873, "x": 78, "text": "第", "fontSize": 40, "color": "#ffffff", "bold": true } }] }] };
-            return ResultOpenUI;
-        }(View));
-        rank.ResultOpenUI = ResultOpenUI;
-    })(rank = ui.rank || (ui.rank = {}));
 })(ui || (ui = {}));
 (function (ui) {
     var views;
@@ -471,24 +319,6 @@ var ui;
 (function (ui) {
     var views;
     (function (views) {
-        var MusicRankRenderUI = /** @class */ (function (_super) {
-            __extends(MusicRankRenderUI, _super);
-            function MusicRankRenderUI() {
-                return _super.call(this) || this;
-            }
-            MusicRankRenderUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.MusicRankRenderUI.uiView);
-            };
-            MusicRankRenderUI.uiView = { "type": "View", "props": { "width": 640, "height": 116 }, "child": [{ "type": "Image", "props": { "y": 33, "x": 12, "var": "rankImg", "skin": "res/role/ic_1.png" } }, { "type": "Image", "props": { "y": 18, "x": 70, "width": 80, "var": "avatarImg", "height": 80 }, "child": [{ "type": "Sprite", "props": { "width": 80, "renderType": "mask", "height": 80 }, "child": [{ "type": "Circle", "props": { "y": 40, "x": 40, "radius": 40, "lineWidth": 1, "fillColor": "#ff0000" } }] }] }, { "type": "Label", "props": { "y": 38, "x": 162, "width": 255, "var": "nickLabel", "text": "隔壁泰山", "height": 40, "fontSize": 35, "color": "#404040" } }, { "type": "Label", "props": { "y": 43, "width": 150, "var": "scoreLabel", "text": "888分", "right": 20, "height": 30, "fontSize": 32, "color": "#4860EB", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 43, "x": 4, "width": 62, "var": "rankLabel", "text": "5", "height": 30, "fontSize": 30, "color": "#979797", "bold": true, "align": "center" } }, { "type": "Sprite", "props": { "y": 115, "x": 10, "width": 620, "height": 1 }, "child": [{ "type": "Rect", "props": { "width": 620, "lineWidth": 1, "height": 1, "fillColor": "#f1f1f1" } }] }] };
-            return MusicRankRenderUI;
-        }(View));
-        views.MusicRankRenderUI = MusicRankRenderUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
         var NoPowerTipUI = /** @class */ (function (_super) {
             __extends(NoPowerTipUI, _super);
             function NoPowerTipUI() {
@@ -502,25 +332,6 @@ var ui;
             return NoPowerTipUI;
         }(View));
         views.NoPowerTipUI = NoPowerTipUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var PopBigCardUI = /** @class */ (function (_super) {
-            __extends(PopBigCardUI, _super);
-            function PopBigCardUI() {
-                return _super.call(this) || this;
-            }
-            PopBigCardUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.PopBigCardUI.uiView);
-            };
-            PopBigCardUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 136, "x": 125, "width": 500, "var": "bigImg", "height": 890 } }, { "type": "Image", "props": { "y": 1079, "x": 242, "var": "shareBtn", "skin": "res/card/btn_share.png", "runtime": "runtime.btn_img" } }] };
-            return PopBigCardUI;
-        }(View));
-        views.PopBigCardUI = PopBigCardUI;
     })(views = ui.views || (ui.views = {}));
 })(ui || (ui = {}));
 (function (ui) {

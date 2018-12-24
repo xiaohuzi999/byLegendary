@@ -6,7 +6,8 @@ module xframe{
 	export class HttpCmd{
 		/**host*/
 		//http://127.0.0.1/web/index.php?r=srv/login
-		public static httpRoot:string = "http://127.0.0.1/byphp/web/index.php?r=";
+		//public static httpRoot:string = "http://127.0.0.1/byphp/web/index.php?r=";
+		public static httpRoot:string = "http://111.230.26.144/byphp/web/index.php?r=";
 
 		/**
 		 * 发送http请求
@@ -35,11 +36,14 @@ module xframe{
 				for(let i in args){
 					str += "&" + i+"="+args[i];
 				}
-				trace("str______________", str, args)
+				str += "&t="+Laya.Browser.now();
 				return str;
 			}
 			
-			function completeHandler(data:Object):void{
+			function completeHandler(data:any):void{
+				if(typeof data === "string"){
+					data = JSON.parse(data);
+				}
 				handler && handler.runWith(data)
 				recover();
 			}

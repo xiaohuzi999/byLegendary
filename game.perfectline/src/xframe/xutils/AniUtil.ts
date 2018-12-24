@@ -89,5 +89,40 @@ module xframe{
 				callback.run();
 			}));
 		}
+
+		//=========================================================================================================
+		public static jump(target:Laya.Sprite):void{
+			let bY:number = target.y;
+			let $this = target;
+			up();
+			function up():void{
+				Laya.Tween.to($this, {scaleX:1.1,scaleY:0.9}, 100, null, Laya.Handler.create(null, ()=>{
+					Laya.Tween.to($this, {scaleX:.9, scaleY:1.1}, 100, null, Laya.Handler.create(null, ()=>{
+						Laya.Tween.to($this, {scaleX:1,scaleY:1,y:bY-30}, 100, null, Laya.Handler.create(null, ()=>{
+							Laya.Tween.to($this, {scaleX:1.1, scaleY:0.9, y:bY-40}, 100, null, Laya.Handler.create(null, back));
+						}));
+					}));
+				}));
+			}
+			
+			function back():void{
+				Laya.Tween.to($this, {scaleX:0.9, scaleY:1.1, y:bY}, 100, null, Laya.Handler.create(null, ()=>{
+					Laya.Tween.to($this, {scaleX:1.1, scaleY:0.9, y:bY}, 100, null, Laya.Handler.create(null, ()=>{
+						Laya.Tween.to($this, {scaleX:0.9, scaleY:1.1, y:bY}, 100, null, Laya.Handler.create(null, ()=>{
+							Laya.Tween.to($this, {scaleX:1, scaleY:1, y:bY}, 100, null, Laya.Handler.create(null, wait));
+						}));
+					}));
+				}));
+			}
+
+			function wait():void{
+				Laya.Tween.to($this, {y:$this.y},800, null, Laya.Handler.create(null, up))
+			}
+
+		}
+
+		public static stop(target:Laya.Sprite):void{
+			Laya.Tween.clearTween(target);   
+		}
 	}
 }

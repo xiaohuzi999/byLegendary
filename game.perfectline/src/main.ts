@@ -1,6 +1,7 @@
 import XFacade = xframe.XFacade;
 import XTip = xframe.XTip;
 import XAlert = xframe.XAlert;
+import Handler = Laya.Handler;
 // 游戏入口
 class Main {
     constructor() {
