@@ -15,9 +15,11 @@ class Main {
     }
 
     init() {
+        /*
         Laya.URL.version = {
             "res/cfg/stage.json":Math.random()
         }
+        */
         //Laya.URL.basePath = "https://s.xiuwu.me/perfectline/2.0/";
         //加载本地资源
         let urlList:any[] = [

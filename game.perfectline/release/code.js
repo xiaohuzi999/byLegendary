@@ -52921,9 +52921,11 @@ var Main = /** @class */ (function () {
         this.init();
     }
     Main.prototype.init = function () {
+        /*
         Laya.URL.version = {
-            "res/cfg/stage.json": Math.random()
-        };
+            "res/cfg/stage.json":Math.random()
+        }
+        */
         //Laya.URL.basePath = "https://s.xiuwu.me/perfectline/2.0/";
         //加载本地资源
         var urlList = [

@@ -1,0 +1,40 @@
+net id: huhaiming
+new pwd:Hhm123456
+初始密码：Pass@2018
+
+E-Mail:huhaiming@iyouxigame.com
+
+完美音轨；
+公众号：
+229908608@qq.com
+12345Qwert
+
+下面收藏起来：
+小游戏面板：http://jira.innotechx.com/secure/RapidBoard.jspa?rapidView=141
+小程序面板：http://jira.innotechx.com/secure/RapidBoard.jspa?rapidView=153
+
+后端面板：http://jira.innotechx.com/secure/RapidBoard.jspa?rapidView=145
+
+
+AccessKeyID：LTAIvKBlsLtSZutp
+AccessKeySecret：89iLJqxD11Sd691mp531DLDsvHUwTp
+OSS路径：oss://yx-static/perfectline
+OSS软件：oss 浏览器：https://helpcdn.aliyun.com/document_detail/61872.html
+
+
+AccessKeyID：LTAIAur0pSKb1TFN
+AccessKeySecret：AZUppI5jLAT4j5FOaiJwOWRVPekV8R
+OSS路径：oss://yx-static/bubbledragon
+
+编译：
+npm run build-dev
+
+
+https://developers.facebook.com/settings/developer/contact
+
+adobest@adobest.com: 2017Adobest
+
+
+泡泡龙小游戏账号：sunl0000009@sina.com
+密码：YX20181010
+192.168.91.14
