@@ -15,9 +15,6 @@ var GameLoading = /** @class */ (function (_super) {
         _this.ui = new ui.views.LoadingViewUI();
         return _this;
     }
-    GameLoading.prototype.showLoading = function () {
-        this.ui.loading.rotation -= 5;
-    };
     GameLoading.prototype.close = function () {
         _super.prototype.close.call(this);
         Laya.timer.clear(this, this.showLoading);
@@ -35,45 +32,18 @@ var GameLoading = /** @class */ (function (_super) {
     };
     GameLoading.prototype.onShow = function () {
         //加载配置
-        var cid = 0;
         var res = [
             { url: 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
         ];
-        //预加载2张背景图
-        var res2 = [
-            { url: 'res/map/bj' + cid + '2.jpg', type: Laya.Loader.IMAGE },
-            { url: 'res/map/bj' + cid + '3.jpg', type: Laya.Loader.IMAGE }
-        ];
-        //Laya.loader.load(res);
-        console.log(Laya.URL.basePath + 'res/snd/' + this.params.mp3 + '.mp3');
         GameView.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
-        Laya.timer.once(22000, this, this.onErr);
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
     };
     GameLoading.prototype.loadSnd = function () {
-        var _this = this;
-        console.log('启动歌曲加载-----------------------');
         XEvent.instance.event(GameEvent.SELECTED, this.params);
         this.close();
-        return;
-        if (Laya.loader.getRes('res/snd/' + this.params.json + '.json')) {
-            XEvent.instance.event(GameEvent.SELECTED, this.params);
-        }
-        else {
-            Laya.timer.clear(this, this.onErr);
-            this.onErr();
-            return;
-        }
-        trace("xxxxxxxxxx__", GameView.mp3);
-        Laya.loader.load(GameView.mp3, Laya.Handler.create(null, function () {
-            //trace(Laya.MiniAdpter["getFileList"]());
-            Laya.timer.clear(_this, _this.onErr);
-            _this.close();
-        }), null, Laya.Loader.SOUND);
     };
-    GameLoading.prototype.onErr = function () {
-        Laya.URL.version[GameView.mp3] = Math.random();
-        XEvent.instance.event(GameEvent.ERR);
+    GameLoading.prototype.showLoading = function () {
+        this.ui.loading.rotation -= 5;
     };
     return GameLoading;
 }(xframe.XMWindow));

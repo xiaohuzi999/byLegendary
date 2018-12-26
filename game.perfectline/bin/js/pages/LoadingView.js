@@ -24,11 +24,11 @@ var LoadingView = /** @class */ (function (_super) {
         //XDB.delLocalData();
         XDB.fetchSrvData(Handler.create(this, this.onGetData));
     };
+    //
     LoadingView.prototype.onGetData = function () {
         User.instace.initdData();
         ;
         XEvent.instance.event(LoadingView.RDY);
-        //this.close();
     };
     LoadingView.prototype.close = function () {
         _super.prototype.close.call(this);

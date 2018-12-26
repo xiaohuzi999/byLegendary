@@ -5,17 +5,24 @@ class DBGame{
     /**常量-最大复活次数 */
     public static ReviveTimes:number = 1;
 
-    public static roleInfo:any = {
-        1:{skin:"game_xhj", shadow:"yy_xhj", rotate:true},
-        2:{skin:"ppx"},
-        3:{skin:"hbd"},
-        4:{skin:"game_mmq", shadow:"yy_mmq", rotate:true},
-        5:{skin:"xq"},
-        6:{skin:"game_qklq", shadow:"yy_qklq",rotate:true},
-        7:{skin:"ppc"},
-        8:{skin:"mmj"},
-        9:{skin:"xfq"},
-        10:{skin:"game_8b", shadow:"yy_8b", rotate:true}
+    public static _roleInfo:RoleVo[];
+
+    public static get roleInfo():RoleVo[]{
+        if(!this._roleInfo){
+            let data:any = Laya.loader.getRes("res/cfg/role.json");
+            this._roleInfo = data.list;
+        }
+        return this._roleInfo;
+    }
+    
+
+    public static getRole(id):RoleVo{
+        for(let i=0; i<this.roleInfo.length; i++){
+            if(this._roleInfo[i].id == id){
+                return this._roleInfo[i];
+            }
+        }
+        return null;
     }
 
     /**获取关卡信息 */

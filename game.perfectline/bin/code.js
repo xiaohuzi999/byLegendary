@@ -48481,7 +48481,7 @@ var xframe;
         /**host*/
         //http://127.0.0.1/web/index.php?r=srv/login
         //public static httpRoot:string = "http://127.0.0.1/byphp/web/index.php?r=";
-        HttpCmd.httpRoot = "http://111.230.26.144/byphp/web/index.php?r=";
+        HttpCmd.httpRoot = "http://111.230.26.144/web/index.php?r=";
         return HttpCmd;
     }());
     xframe.HttpCmd = HttpCmd;
@@ -49478,11 +49478,41 @@ var PathUtil = /** @class */ (function () {
 }());
 
 /*
+* name;
+*/
+var RoleVo = /** @class */ (function () {
+    function RoleVo() {
+        //阴影
+        this.shadow = '';
+    }
+    return RoleVo;
+}());
+
+/*
 * name 角色数据配置
 */
 var DBGame = /** @class */ (function () {
     function DBGame() {
     }
+    Object.defineProperty(DBGame, "roleInfo", {
+        get: function () {
+            if (!this._roleInfo) {
+                var data = Laya.loader.getRes("res/cfg/role.json");
+                this._roleInfo = data.list;
+            }
+            return this._roleInfo;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    DBGame.getRole = function (id) {
+        for (var i = 0; i < this.roleInfo.length; i++) {
+            if (this._roleInfo[i].id == id) {
+                return this._roleInfo[i];
+            }
+        }
+        return null;
+    };
     /**获取关卡信息 */
     DBGame.getStageInfo = function (id) {
         var source = Laya.loader.getRes("res/cfg/stage.json");
@@ -49534,18 +49564,6 @@ var DBGame = /** @class */ (function () {
     };
     /**常量-最大复活次数 */
     DBGame.ReviveTimes = 1;
-    DBGame.roleInfo = {
-        1: { skin: "game_xhj", shadow: "yy_xhj", rotate: true },
-        2: { skin: "ppx" },
-        3: { skin: "hbd" },
-        4: { skin: "game_mmq", shadow: "yy_mmq", rotate: true },
-        5: { skin: "xq" },
-        6: { skin: "game_qklq", shadow: "yy_qklq", rotate: true },
-        7: { skin: "ppc" },
-        8: { skin: "mmj" },
-        9: { skin: "xfq" },
-        10: { skin: "game_8b", shadow: "yy_8b", rotate: true }
-    };
     return DBGame;
 }());
 
@@ -49973,133 +49991,859 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-//小球
-var Ball = /** @class */ (function (_super) {
-    __extends(Ball, _super);
-    function Ball() {
-        var _this = _super.call(this) || this;
-        //影子
-        _this._shadows = [];
+var GameView = /** @class */ (function (_super) {
+    __extends(GameView, _super);
+    function GameView() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.ui = new ui.pages.GamePageUI();
         //
-        _this._posArr = [];
-        _this._needAni = false;
-        _this._maxNode = 40;
-        _this.init();
+        _this._items = [];
+        //是否已经加入最后节点
+        _this._autoLast = false;
+        _this._reviveTimes = 0;
+        //
+        _this._awsomeTime = 0;
+        //是否可项目
+        _this._turnable = true;
+        _this.curX = Laya.stage.width / 2;
+        _this.curY = Laya.stage.height / 2;
+        _this.delX = 0;
+        _this.delY = 0;
+        _this.speedX = 0;
+        _this.speedY = 0;
+        _this.dir = 1;
+        //误差；
+        _this.deviation = 80;
+        _this.targetX = _this.curX;
+        _this.targetY = _this.curY;
         return _this;
     }
-    Ball.prototype.init = function () {
-        this.$shadow = new Laya.Image();
-        this.$shadow.anchorX = 0.5;
-        this.$shadow.anchorY = 0.477;
-        this.addChild(this.$shadow);
-        this.$image = new Laya.Image();
-        this.$image.anchorX = 0.5;
-        this.$image.anchorY = 0.46;
-        this.addChild(this.$image);
-    };
-    /**设定皮肤 */
-    Ball.prototype.setSkin = function (id, speed) {
-        //if(this._id != id){
-        var info = DBGame.roleInfo[id];
-        this._roleData = info;
-        if (info) {
-            this.$image.skin = "res/ic_role/" + info.skin + ".png";
-            if (info.shadow) {
-                this.$shadow.skin = "res/ic_role/" + info.shadow + ".png";
-            }
-            else {
-                this.$shadow.skin = "";
-            }
-            this._needAni = info.rotate;
-            if (speed <= 0.3) {
-                this._roleData.rendFrame = 10;
-            }
-            else if (speed < 0.5) {
-                this._roleData.rendFrame = 8;
-            }
-            else {
-                this._roleData.rendFrame = 6;
-            }
-            this._maxNode = info.rendFrame * (this._shadows.length + 2) - 3;
-            for (var i = 0; i < this._shadows.length; i++) {
-                this._shadows[i].skin = this.$image.skin;
-            }
+    GameView.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
         }
-        //}
-        this._needAni && this.play();
+        _super.prototype.show.call(this);
+        this.params = args[0];
+        this.ui.tfName.text = this.params.name;
+        this.ui.btnPause.visible = false;
+        XFacade.instance.showModule(GameLoading, this.params);
     };
-    Ball.prototype.reset = function () {
-        for (var i = 0; i < this._shadows.length; i++) {
-            this._shadows[i].visible = false;
+    GameView.prototype.onBtnClick = function (e) {
+        switch (e.currentTarget) {
+            case this.ui.btnPause:
+                this.pause();
+                break;
+            case this.ui.backBtn:
+                this.close();
+                break;
+            case this.ui.btnStart:
+                this.onStart(e);
+                break;
         }
-        this._posArr.length = 0;
     };
-    Ball.prototype.play = function () {
-        this.frameLoop(2, this, this.onPlay);
+    GameView.prototype.onGameEvent = function (type, data) {
+        if (data === void 0) { data = null; }
+        switch (type) {
+            case GameEvent.BACK:
+                this.stop();
+                this.close();
+                break;
+            case GameEvent.OVER:
+                this.over();
+                break;
+            case GameEvent.RESTART:
+                this.restart();
+                break;
+            case GameEvent.SELECTED:
+                this.ui.selectBox.visible = true;
+                this.ui.btnPause.visible = false;
+                this.ui.backBtn.visible = true;
+                this.initMap();
+                break;
+            case GameEvent.NEXTCHAPTER:
+                XFacade.instance.showModule(GameLoading, DBChapter.getChapInfo(parseInt(this.params.id) + 1));
+                break;
+        }
     };
-    Ball.prototype.stop = function () {
-        this.clearTimer(this, this.onPlay);
-    };
-    Ball.prototype.onPlay = function () {
-        this.$image.rotation += Ball.ROTATE;
-    };
-    Ball.prototype.flash = function () {
-        Laya.timer.frameLoop(3, this, this.doFlash);
-    };
-    Ball.prototype.removeFlash = function () {
-        this.alpha = 1;
-        Laya.timer.clear(this, this.doFlash);
-    };
-    Ball.prototype.doFlash = function () {
-        if (this.alpha == 1) {
-            this.alpha = 0.5;
+    GameView.prototype.onStart = function (e) {
+        e.stopPropagation();
+        if (User.instace.power > 0) {
+            User.instace.power -= 1;
+            this.ui.selectBox.visible = false;
+            this.ui.btnPause.visible = true;
+            this.ui.backBtn.visible = false;
+            //record nearest play music in chapter
+            this.startWithCfg();
         }
         else {
-            this.alpha = 1;
+            XFacade.instance.showModule(PopAddPower);
         }
     };
-    Ball.prototype.update = function () {
-        this._posArr.push({ x: Math.floor(this.x), y: Math.floor(this.y) });
-        while (this._posArr.length > this._maxNode) {
-            this._posArr.shift();
+    GameView.prototype.pause = function () {
+        if (this.soundChannel) {
+            Star.sleep();
+            try {
+                this.soundChannel.pause();
+            }
+            catch (e) {
+            }
+            Laya.timer.clear(this, this.update);
+            Laya.timer.clear(this, this.update2);
+            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+            PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
+            //暂停无敌状态
+            Laya.timer.clear(this, this.refreshState);
         }
-        var index;
-        var shadow;
-        for (var i = this._roleData.rendFrame; i < this._posArr.length; i++) {
-            if (this._posArr[i]) {
-                if ((i - 1) % this._roleData.rendFrame == 0) {
-                    index = (i - 1) / this._roleData.rendFrame - 1;
-                    shadow = this._shadows[index];
-                    if (shadow) {
-                        shadow.visible = true;
-                        shadow.pos(this._posArr[i].x, this._posArr[i].y);
-                        if (!shadow.parent) {
-                            this.parent.addChildAt(shadow, this.parent.getChildIndex(this));
-                        }
-                    }
+    };
+    //继续
+    GameView.prototype.toResume = function () {
+        DBGame.countdown(3, Laya.Handler.create(this, this.resume));
+    };
+    //重新开始
+    GameView.prototype.restart = function () {
+        if (User.instace.power > 0) {
+            User.instace.power -= 1;
+            User.instace.save();
+        }
+        else {
+            XFacade.instance.showModule(PopAddPower);
+            return;
+        }
+        this.stop();
+        this.initMap(false);
+        this.startWithCfg();
+    };
+    //继续
+    GameView.prototype.revive = function () {
+        var _this = this;
+        if (User.instace.power > 0) {
+            User.instace.power -= 1;
+            User.instace.save();
+        }
+        else {
+            XFacade.instance.showModule(PopAddPower);
+            return;
+        }
+        this._reviveTimes--;
+        var p = this.getStdPoint(this._startTime);
+        this.targetX = p.x;
+        this.targetY = p.y;
+        this.ball.pos(p.x, p.y);
+        this.ball.reset();
+        this.dir = 1;
+        var stdNode = this.getStdNode(this._startTime);
+        this.speedX = stdNode.sx;
+        DBGame.countdown(3, Handler.create(null, function () {
+            //this.soundChannel.play();
+            //this._curTime = Laya.Browser.now();
+            //this._startTime = this._curTime-this._startTime;
+            _this.soundChannel.play();
+            //Laya.timer.frameLoop(1, this, this.update)
+            //Laya.stage.on(Laya.Event.CLICK, this, this.onC);
+            _this._awsomeTime = 3;
+            _this.showAwesome();
+        }));
+    };
+    GameView.prototype.showAwesome = function () {
+        if (this._awsomeTime > 0) {
+            this._turnable = false;
+            this.ball.flash();
+            Laya.timer.loop(100, this, this.refreshState);
+        }
+    };
+    GameView.prototype.refreshState = function () {
+        var _this = this;
+        this._awsomeTime -= 0.1;
+        if (this._awsomeTime <= 0) {
+            this.ball.removeFlash();
+            this.dir = 1;
+            this._awsomeTime = 0;
+            Laya.timer.clear(this, this.refreshState);
+            Laya.timer.once(1000, null, function () {
+                _this._turnable = true;
+            });
+        }
+    };
+    GameView.prototype.stop = function () {
+        if (this.soundChannel) {
+            this.soundChannel.stop();
+            Laya.SoundManager.removeChannel(this.soundChannel);
+            this.soundChannel.completeHandler = null;
+        }
+        Star.sleep();
+        Laya.timer.clear(this, this.update);
+        Laya.timer.clear(this, this.update2);
+        Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+        Laya.SoundManager.destroySound(GameView.mp3);
+    };
+    GameView.prototype.resume = function () {
+        if (!this.soundChannel) {
+            return;
+        }
+        // this._curTime = Laya.Browser.now();
+        // this._startTime = this._curTime-this._startTime;
+        this.soundChannel.play();
+        //继续无敌状态
+        this.showAwesome();
+        /*
+        if(!this.soundChannel){
+            return;
+        }
+
+        this._curTime = this.soundChannel.position;
+        Laya.timer.frameLoop(1, null, syncSnd);
+        var $this = this;
+        function syncSnd():void{
+            if($this.soundChannel.position >= $this._curTime){
+                Laya.timer.clear(null, syncSnd);
+                $this.update();
+                Laya.timer.frameLoop(1, $this, $this.update)
+                Laya.stage.on(Laya.Event.CLICK, $this, $this.onC);
+                Laya.stage.off(Laya.Event.CLICK, $this, $this.resume);
+            }
+        }
+
+        this.soundChannel.resume();
+        */
+    };
+    GameView.prototype.over = function () {
+        if (this._score > 0) {
+            this.showResult();
+        }
+        else {
+            this.back();
+        }
+    };
+    GameView.prototype.initMap = function (firstTime) {
+        if (firstTime === void 0) { firstTime = true; }
+        this._rendIndex = 1;
+        this._starNum = this._score = this._awsomeTime = this._curTime = this._startTime = 0;
+        this._autoLast = false;
+        this.showPro(null);
+        this.ui.tfScore.text = "0";
+        this._reviveTimes = DBGame.ReviveTimes;
+        this._mapArr = [];
+        for (var i = 0; i < this._items.length; i++) {
+            this._items[i].removeSelf();
+        }
+        this._items.length = 0;
+        while (this.effContainer.numChildren) {
+            this.effContainer.removeChildAt(0);
+        }
+        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        this._starCfg = (this.params.stars + "").split("|");
+        for (var i = 0; i < this._starCfg.length; i++) {
+            this._starCfg[i] = parseInt(this._starCfg[i]);
+        }
+        //克隆资源列表 
+        this._resList = xframe.XUtils.clone(cfg.items) || [];
+        this._resList.sort(function (a, b) {
+            return a.t - b.t;
+        });
+        trace("this._resList..................................", this._resList);
+        if (firstTime) {
+            //生成星星
+            Star.shine(30, this.starContainer);
+        }
+        this.stop();
+        //设定初始点=============================
+        this.posInfo = xframe.XUtils.clone(cfg.nodes);
+        this.srcPosInfo = xframe.XUtils.clone(cfg.nodes);
+        var node = this.srcPosInfo.shift();
+        this.curX = this.targetX = node.x;
+        this.curY = this.targetY = this.offsetY = node.y;
+        this.speedX = node.sx;
+        this.speedY = cfg.speed;
+        this.rendMap();
+        //生成角色========================================
+        if (!this.ball) {
+            this.ball = new Role();
+            this.ball.shadow(4);
+            this.pathSp.addChild(this.ball);
+        }
+        this.ball.setSkin(1, this.speedY);
+        this.ball.reset();
+        this.ball.pos(this.curX, this.curY);
+        this.map.y = this.pathSp.y = 0;
+    };
+    GameView.prototype.rendMap = function () {
+        //0，判断是否需要重新绘制地图;
+        var maxHeight = 4096; //2048
+        var curY = this.targetY - this.offsetY;
+        if (this._mapArr.length) {
+            if (this._autoLast || curY - this._mapArr[this._mapArr.length - 1] > 120) {
+                return;
+            }
+        }
+        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        //1根据当前位置计算出初始节点及结束点；
+        //a,取当前节点
+        var midIndex;
+        var startIndex;
+        for (var i = cfg.nodes.length - 1; i >= 0; i--) {
+            if (cfg.nodes[i].y > curY) {
+                midIndex = i;
+                break;
+            }
+        }
+        //trace("midIndex============================",midIndex)
+        //取开始节点
+        for (i = midIndex; i >= 0; i--) {
+            if (cfg.nodes[i].y - curY >= Laya.stage.height) {
+                break;
+            }
+        }
+        startIndex = Math.max(0, i);
+        //trace("startIndex============================",i)
+        //2,生成地图==========================
+        curY = cfg.nodes[startIndex].y;
+        this._mapArr.length = 0;
+        for (i = startIndex; i < cfg.nodes.length; i++) {
+            //trace("delY============================",curY - cfg.nodes[i].y)
+            if (curY - cfg.nodes[i].y < maxHeight) {
+                this._mapArr.push(cfg.nodes[i].x, cfg.nodes[i].y);
+            }
+            else {
+                break;
+            }
+        }
+        //3，绘制地图
+        this.map.graphics.clear();
+        if (startIndex == 0) { //画起点
+            this.map.graphics.drawCircle(this._mapArr[0], this._mapArr[1], 160, "#ffffff");
+            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), this._mapArr[0] - 200, this._mapArr[1] - 200);
+        }
+        this.map.graphics.drawLines(0, 0, this._mapArr, "#ffffff", 160); //160
+        if (i >= cfg.nodes.length && this.soundChannel.duration) {
+            this._autoLast = true;
+            var last = this.posInfo[this.posInfo.length - 1];
+            var total = this.soundChannel.duration * 1000;
+            trace("end=========================", this.soundChannel, last, this.soundChannel.duration);
+            var info = { x: last.x, y: last.y - (total - last.t) * this.speedY, sx: 0, sy: last.sy, t: total };
+            this.posInfo.push(info);
+            this.srcPosInfo.push(info);
+            this.map.graphics.drawLine(last.x, last.y, info.x, info.y, "#ffffff", 160);
+            this.map.graphics.drawCircle(info.x, info.y, 160, "#ffffff");
+            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), info.x - 200, info.y - 200);
+        }
+        var offset = this._autoLast ? 3 : 1;
+        i = startIndex == 0 ? 2 : 0;
+        for (i; i < this._mapArr.length - offset; i++) {
+            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
+            //画引导res/game/click.png
+            if (this.params.id == "1" && startIndex < 27) {
+                if (this._mapArr[i] > this.ui.width / 2) {
+                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] + 135, this._mapArr[i + 1] - 32);
+                }
+                else {
+                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] - 195, this._mapArr[i + 1] - 32);
+                }
+            }
+            i++;
+        }
+    };
+    GameView.prototype.startWithCfg = function () {
+        if (Laya.Browser.onWeiXin) {
+            this.start();
+            //this._awsomeTime = 1;
+        }
+        else {
+            this.stop();
+            this.soundChannel = Laya.SoundManager.playSound(GameView.mp3, 1, Laya.Handler.create(this, this.gemeEnd));
+            this._curTime = this.soundChannel.position;
+            Laya.timer.frameLoop(1, this, this.update);
+            Laya.stage.on(Laya.Event.CLICK, this, this.onC);
+        }
+    };
+    //使用微信接口方法;
+    GameView.prototype.start = function () {
+        var _this = this;
+        var url = encodeURI(Laya.URL.basePath + GameView.mp3);
+        if (this.soundChannel && this.soundChannel.src != url) {
+            this.soundChannel.destroy();
+        }
+        this.soundChannel = wx.createInnerAudioContext();
+        this.soundChannel.src = url;
+        this.soundChannel.play();
+        this.soundChannel.onPlay(function () {
+            if (_this._startTime == 0) {
+                _this._curTime = _this._startTime = Laya.Browser.now();
+            }
+            else {
+                _this._curTime = Laya.Browser.now();
+                _this._startTime = _this._curTime - _this._startTime;
+            }
+            Laya.timer.frameLoop(1, _this, _this.update2);
+            Laya.stage.on(Laya.Event.CLICK, _this, _this.onC);
+        });
+        this.soundChannel.onEnded(function () {
+            _this.gemeEnd();
+        });
+        this.soundChannel.onPause(function () {
+            //记录播放的时间---
+            _this._startTime = Laya.Browser.now() - _this._startTime;
+        });
+        this.soundChannel.onError(function () {
+            XEvent.instance.event(GameEvent.ERR);
+            //播放失败，返回体力
+            User.instace.power += 1;
+            User.instace.save();
+        });
+    };
+    /**核心驱动方法-微信驱动 */
+    GameView.prototype.update2 = function () {
+        var _this = this;
+        this._rendIndex++;
+        var exeIndex = this._rendIndex % 5;
+        var end = false;
+        var tmpTime = Laya.Browser.now() - this._curTime;
+        this._curTime = Laya.Browser.now();
+        var position = this._curTime - this._startTime;
+        Star.active();
+        if (this._awsomeTime) {
+            var p = this.getStdPoint(position);
+            this.targetY = p.y;
+            this.targetX = p.x;
+            if (exeIndex == 4) {
+                var targetPoint = this.getTargetPoint(true, 6);
+                var now = this._score;
+                if (targetPoint) {
+                    this.speedX = targetPoint.sx;
+                    this._score += 10;
+                    xframe.XUtils.showTxtEffect(now, this._score, Laya.Handler.create(null, function (n) {
+                        _this.ui.tfScore.text = n + "";
+                    }));
                 }
             }
         }
-        for (var i = index; i < this._shadows.length - 1; i++) {
-            this._shadows[i].visible = false;
+        else {
+            this.targetY = this.offsetY - this.speedY * position;
+            this.targetX += this.speedX * tmpTime * this.dir;
+        }
+        this.ball.update();
+        this.ball.x = this.targetX;
+        this.ball.y = this.targetY;
+        this.pathSp.y = this.offsetY - this.targetY;
+        this.map.y = this.pathSp.y;
+        if (exeIndex == 1) {
+            var targetPoint_1 = this.getTargetPoint(false);
+            if (this.srcPosInfo.length <= 2) {
+                this.ui.btnPause.visible = false;
+            }
+            else if (targetPoint_1) {
+                if (targetPoint_1.y - this.targetY > 150) {
+                    end = true;
+                }
+            }
+        }
+        else if (exeIndex == 2) {
+            this.showPro(DBGame.calcPro(position, this._starCfg));
+        }
+        else if (exeIndex == 4) {
+            this.rendMap();
+        }
+        else if (exeIndex == 0) {
+            this.rendMapItems(position);
+        }
+        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
+            end = true;
+            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
+        }
+        if (end) {
+            Star.sleep();
+            this.soundChannel.pause();
+            Laya.timer.clear(this, this.update);
+            Laya.timer.clear(this, this.update2);
+            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+            if (this._starNum > 0 && this._reviveTimes) {
+                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
+            }
+            else {
+                this.showResult();
+            }
         }
     };
-    /**影子效果 */
-    Ball.prototype.shadow = function (showNum) {
-        this._shadows.length = 0; //res/game/style_0.png
-        this._renderIndex = 0;
-        this._posArr.length = 0;
-        var img;
-        for (var i = 0; i < showNum; i++) {
-            img = new Laya.Image();
-            img.anchorX = img.anchorY = 0.5;
-            img.scale(0.5, 0.5);
-            this._shadows.push(img);
+    /**核心驱动方法-普通驱动 */
+    GameView.prototype.update = function () {
+        this._rendIndex++;
+        var exeIndex = this._rendIndex % 5;
+        var end = false;
+        var tmpTime = (this.soundChannel.position - this._curTime) * 1000;
+        var position = this.soundChannel.position * 1000;
+        //timeOver
+        if (tmpTime < 0 || position == 0) {
+            return;
+        }
+        else if (tmpTime > 500) { //无效的音频，扔掉
+            trace("Update Error：：Time offset is over..", tmpTime, this.soundChannel.position, this._curTime);
+            this.stop();
+            Laya.timer.once(1000, this, this.startWithCfg);
+            return;
+        }
+        this._curTime = this.soundChannel.position;
+        Star.active();
+        if (this._awsomeTime) {
+            var p = this.getStdPoint(position);
+            this.targetY = p.y;
+            this.targetX = p.x;
+            if (exeIndex == 4) {
+                var targetPoint = this.getTargetPoint();
+                if (targetPoint) {
+                    this._score += 10;
+                    this.speedX = targetPoint.sx;
+                    this.ui.tfScore.text = this._score + "";
+                }
+            }
+        }
+        else {
+            this.targetY = this.offsetY - this.speedY * position;
+            this.targetX += this.speedX * tmpTime * this.dir;
+        }
+        this.ball.update();
+        this.ball.x = this.targetX;
+        this.ball.y = this.targetY;
+        this.pathSp.y = this.offsetY - this.targetY;
+        this.map.y = this.pathSp.y;
+        if (exeIndex == 1) {
+            var targetPoint_2 = this.getTargetPoint(false);
+            if (this.srcPosInfo.length <= 2) {
+                this.ui.btnPause.visible = false;
+            }
+            else if (targetPoint_2) {
+                if (targetPoint_2.y - this.targetY > 150) {
+                    end = true;
+                }
+            }
+        }
+        else if (exeIndex == 2) {
+            this.showPro(DBGame.calcPro(position, this._starCfg));
+        }
+        else if (exeIndex == 4) {
+            this.rendMap();
+        }
+        else if (exeIndex == 0) {
+            this.rendMapItems(this._curTime * 1000);
+        }
+        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
+            end = true;
+            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
+        }
+        if (end) {
+            Star.sleep();
+            this.soundChannel.pause();
+            Laya.timer.clear(this, this.update);
+            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+            if (this._starNum > 0 && this._reviveTimes) {
+                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
+            }
+            else {
+                this.showResult();
+            }
         }
     };
-    Ball.ROTATE = 6;
-    return Ball;
-}(Laya.Sprite));
+    GameView.prototype.onC = function () {
+        var _this = this;
+        this.curX = this.targetX;
+        this.curY = this.targetY;
+        var targetPoint = this.getTargetPoint();
+        if (targetPoint) {
+            this.dir = 1;
+            this.speedX = targetPoint.sx;
+            //效果判定---
+            var delX = Math.abs(targetPoint.x - this.ball.x);
+            var delY = Math.abs(targetPoint.y - this.ball.y);
+            var nowScore = this._score;
+            if (delX < 12 && delY < 15) { //5
+                this.shine(targetPoint.x, targetPoint.y);
+                this._score += 10;
+            }
+            else if (delX < 36 && delY < 25) { //3
+                this.showEff(targetPoint.x, targetPoint.y);
+                this._score += 5;
+            }
+            else { //2
+                this._score += 3;
+            }
+            xframe.XUtils.showTxtEffect(nowScore, this._score, Laya.Handler.create(null, function (n) {
+                _this.ui.tfScore.text = n + "";
+            }));
+        }
+        else { //翻转
+            if (this.srcPosInfo.length && this._turnable) {
+                this.dir *= -1;
+            }
+        }
+    };
+    GameView.prototype.showResult = function () {
+        this.stop();
+        var params = {
+            music: this.params,
+            star: this._starNum,
+            score: this._score
+        };
+        XFacade.instance.showModule(GameResultView, params);
+    };
+    /**
+     * 渲染地图元素
+     * 1,渲染不根据时间变化的元素，生成变化元素列表；
+     * 2，渲染变化元素；
+     * */
+    GameView.prototype.rendMapItems = function (time) {
+        for (var i = 0; i < this._items.length; i++) {
+            if (this._items[i].y - this.targetY > Laya.stage.height) {
+                this._items[i].removeSelf();
+                trace(this._items[i].name);
+                this._items.splice(i--, 1);
+            }
+            else {
+                break;
+            }
+        }
+        var delTime = Laya.stage.height * .35 / this.speedY;
+        for (var i = 0; i < this._resList.length; i++) {
+            if (this._resList[i].t < time + delTime) {
+                var item = new Laya.Image();
+                item.pos(this._resList[i].x, this._resList[i].y);
+                var url = "res/map/" + this._resList[i].id + ".png";
+                Laya.loader.load(url, Laya.Handler.create(null, function () {
+                    item.skin = url;
+                    xframe.AniUtil.popIn(item, 200);
+                }));
+                item.scaleX = this._resList[i].s;
+                trace("rendMapItems", item.x, item.y, this._resList[i]);
+                item.name = item.x + "_" + item.y;
+                this.pathSp.addChild(item);
+                //行为控制
+                //xframe.AniUtil.popIn(item, 200)
+                /*
+                if(Math.random()>.5){
+                    xframe.AniUtil.fadeIn(item, 200);
+                }else{
+                    xframe.AniUtil.popIn(item, 200)
+                }*/
+                this._resList.splice(i--, 1);
+                this._items.push(item);
+            }
+            else {
+                break;
+            }
+        }
+    };
+    GameView.prototype.showPro = function (proInfo) {
+        var _this = this;
+        if (proInfo) {
+            this.ui.bar.value = proInfo.pro || 0;
+            this._starNum = proInfo.stars;
+            if (proInfo.stars == 3) {
+                this.ui.star_2.skin = "res/game/star_w.png";
+                this.ui.star_1.skin = "res/game/star_w.png";
+                this.ui.star_0.skin = "res/game/star_w.png";
+            }
+            else if (proInfo.stars == 2) {
+                this.ui.star_2.skin = "res/game/star_b.png";
+                this.ui.star_1.skin = "res/game/star_w.png";
+                this.ui.star_0.skin = "res/game/star_w.png";
+                Laya.loader.load("res/map/bj13.jpg", Laya.Handler.create(null, function () {
+                    _this.switchSkin("res/map/bj13.jpg");
+                }));
+            }
+            else if (proInfo.stars == 1) {
+                this.ui.star_2.skin = "res/game/star_b.png";
+                this.ui.star_1.skin = "res/game/star_b.png";
+                this.ui.star_0.skin = "res/game/star_w.png";
+                Laya.loader.load("res/map/bj12.jpg", Laya.Handler.create(null, function () {
+                    _this.switchSkin("res/map/bj12.jpg");
+                }));
+            }
+        }
+        else {
+            this.ui.bar.value = 0;
+            this.ui.star_2.skin = "res/game/star_b.png";
+            this.ui.star_1.skin = "res/game/star_b.png";
+            this.ui.star_0.skin = "res/game/star_b.png";
+            this.ui.bg.skin = "res/map/bj11.jpg";
+        }
+        this.ui.proBox.cacheAsBitmap = true;
+    };
+    GameView.prototype.switchSkin = function (skinStr) {
+        if (this.ui.bg.skin != skinStr) {
+            var img = new Laya.Image(this.ui.bg.skin);
+            img.size(Laya.stage.width, Laya.stage.height);
+            this.ui.bg.parent.addChildAt(img, this.ui.bg.parent.getChildIndex(this.ui.bg));
+            Laya.Tween.to(img, { alpha: 0 }, 500, null, Laya.Handler.create(img, img.removeSelf));
+            this.ui.bg.skin = skinStr;
+            this.ui.bg.alpha = 0;
+            Laya.Tween.to(this.ui.bg, { alpha: 1 }, 500);
+        }
+    };
+    /**显示经过特效 */
+    GameView.prototype.showEff = function (x, y) {
+        this._eff.pos(x, y);
+        this.pathSp.addChild(this._eff);
+        Laya.timer.once(248, this._eff, this._eff.removeSelf);
+    };
+    /**精准打击特效 */
+    GameView.prototype.shine = function (x, y) {
+        this._eff2.pos(x, y);
+        this._eff2.alpha = 1;
+        this._eff2.scale(0.5, 0.5);
+        this.pathSp.addChildAt(this._eff2, 0);
+        Laya.Tween.to(this._eff2, { scaleX: 1.2, scaleY: 1.2, alpha: 0 }, 200, null, Laya.Handler.create(this._eff2, this._eff2.removeSelf));
+        /*
+        this._eff2.scaleX = this._eff2.scaleY = 0.5;
+        Laya.Tween.to(this._eff2, {scaleX:1,scaleY:1}, 20, null, Laya.Handler.create(null, ()=>{
+            Laya.Tween.to(this._eff2, {scaleX:1.5, scaleY:1.5},60,null, Laya.Handler.create(this._eff2, this._eff2.removeSelf))
+        }))
+        */
+    };
+    //获取目标节点
+    GameView.prototype.getTargetPoint = function (modify, deviation) {
+        if (modify === void 0) { modify = true; }
+        if (deviation === void 0) { deviation = -1; }
+        var targetPoint;
+        if (this.srcPosInfo.length) {
+            for (var i = 0; i < this.srcPosInfo.length; i++) {
+                var posInfo = this.srcPosInfo[i];
+                if (deviation == -1) {
+                    deviation = this.deviation;
+                }
+                if (Math.abs(posInfo.y - this.targetY) <= deviation || posInfo.y > this.targetY) {
+                    targetPoint = posInfo;
+                    modify && this.srcPosInfo.shift();
+                    break;
+                    //修改成点击一下取一个节点
+                }
+                else {
+                    break;
+                }
+            }
+        }
+        return targetPoint;
+    };
+    GameView.prototype.getStdPoint = function (now) {
+        if (!this._stdP) {
+            this._stdP = new Laya.Point(this.curX, this.curY);
+        }
+        var tmp;
+        for (var i = this.posInfo.length - 1; i >= 0; i--) {
+            tmp = this.posInfo[i];
+            if (tmp.t <= now) {
+                break;
+            }
+        }
+        var delTime = now - tmp.t;
+        this._stdP.x = tmp.x + tmp.sx * delTime;
+        this._stdP.y = tmp.y - this.speedY * delTime;
+        return this._stdP;
+    };
+    /**获取标准的节点-重置操作点 */
+    GameView.prototype.getStdNode = function (now) {
+        var tmp;
+        for (var i = this.posInfo.length - 1; i >= 0; i--) {
+            if (this.posInfo[i].t <= now) {
+                tmp = this.posInfo[i];
+                break;
+            }
+        }
+        this.srcPosInfo = [];
+        for (i = i + 1; i < this.posInfo.length - 1; i++) {
+            this.srcPosInfo.push(this.posInfo[i]);
+        }
+        return tmp;
+    };
+    GameView.prototype.gemeEnd = function () {
+        trace("gameEnd---------------------------------------------->>");
+        var params = {
+            music: this.params,
+            star: this._starNum,
+            score: this._score
+        };
+        XFacade.instance.showModule(GameResultView, params);
+        this.stop();
+    };
+    GameView.prototype.onDestroy = function () {
+        Laya.loader.clearRes("res/map/bj" + this.params.id + "1.jpg");
+        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
+        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
+        //this.params && Laya.loader.clearRes('res/snd/' + this.params.json + '.json');
+        Laya.loader.clearRes(GameView.mp3);
+        Star.destroy();
+        this.soundChannel && this.soundChannel.destroy();
+        this.ball && this.ball.stop();
+        Laya.timer.clear(this, this.update);
+        Laya.stage.off(Laya.Event.CLICK, this, this.onC);
+        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onStart);
+        Laya.stage.off(Laya.Event.CLICK, this, this.resume);
+        this.removeEvent();
+        this.stop();
+    };
+    GameView.prototype.createUI = function () {
+        var _this = this;
+        _super.prototype.createUI.call(this);
+        //this.ui.bg.skin = "res/map/bj"+this.params.id+"1.jpg";
+        this.ui.bg.skin = "res/map/bj11.jpg";
+        this.starContainer = new Laya.Sprite();
+        this.ui.addChildAt(this.starContainer, this.ui.getChildIndex(this.ui.btnPause));
+        this.map = new Laya.Sprite();
+        this.ui.addChildAt(this.map, this.ui.getChildIndex(this.ui.btnPause));
+        this.pathSp = new Laya.Sprite();
+        this.ui.addChildAt(this.pathSp, this.ui.getChildIndex(this.ui.btnPause));
+        this.effContainer = new Laya.Sprite();
+        this.ui.addChild(this.effContainer);
+        this._eff = new Laya.Image("res/game/spot_s.png");
+        this._eff.anchorX = this._eff.anchorY = 0.5;
+        this._eff2 = new Laya.Image("res/game/light.png");
+        this._eff2.anchorX = this._eff2.anchorY = 0.5;
+        this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        this.ui.selectBox.cacheAsBitmap = true;
+        //自动暂停
+        wx.onHide(function () {
+            if (_this.soundChannel && !_this.soundChannel.paused) {
+                _this.pause();
+            }
+        });
+    };
+    GameView.prototype.initEvent = function () {
+        XEvent.instance.on(GameEvent.BACK, this, this.onGameEvent, [GameEvent.BACK]);
+        XEvent.instance.on(GameEvent.OVER, this, this.onGameEvent, [GameEvent.OVER]);
+        XEvent.instance.on(GameEvent.RESTART, this, this.onGameEvent, [GameEvent.RESTART]);
+        XEvent.instance.on(GameEvent.SELECTED, this, this.onGameEvent, [GameEvent.SELECTED]);
+        XEvent.instance.on(GameEvent.NEXTCHAPTER, this, this.onGameEvent, [GameEvent.NEXTCHAPTER]);
+        this.ui.btnPause.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.backBtn.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnStart.on(Laya.Event.CLICK, this, this.onBtnClick);
+    };
+    GameView.prototype.removeEvent = function () {
+        XEvent.instance.off(GameEvent.OVER, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.BACK, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.RESTART, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.SELECTED, this, this.onGameEvent);
+        XEvent.instance.off(GameEvent.NEXTCHAPTER, this, this.onGameEvent);
+        this.ui.btnPause.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.backBtn.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onBtnClick);
+    };
+    return GameView;
+}(xframe.XWindow));
+/**游戏事件 */
+var GameEvent = /** @class */ (function () {
+    function GameEvent() {
+    }
+    /**返回 */
+    GameEvent.BACK = "back";
+    /**重新开始 */
+    GameEvent.RESTART = "restart";
+    /**事件-选中歌曲 */
+    GameEvent.SELECTED = 'selected';
+    /**下一章节 */
+    GameEvent.NEXTCHAPTER = "nextchapter";
+    /**跳转到解锁篇章 */
+    GameEvent.HOMECHAPTER = "homechapter";
+    /**结束歌曲 */
+    GameEvent.OVER = "over";
+    return GameEvent;
+}());
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -50251,9 +50995,6 @@ var GameLoading = /** @class */ (function (_super) {
         _this.ui = new ui.views.LoadingViewUI();
         return _this;
     }
-    GameLoading.prototype.showLoading = function () {
-        this.ui.loading.rotation -= 5;
-    };
     GameLoading.prototype.close = function () {
         _super.prototype.close.call(this);
         Laya.timer.clear(this, this.showLoading);
@@ -50271,48 +51012,159 @@ var GameLoading = /** @class */ (function (_super) {
     };
     GameLoading.prototype.onShow = function () {
         //加载配置
-        var cid = 0;
         var res = [
             { url: 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
         ];
-        //预加载2张背景图
-        var res2 = [
-            { url: 'res/map/bj' + cid + '2.jpg', type: Laya.Loader.IMAGE },
-            { url: 'res/map/bj' + cid + '3.jpg', type: Laya.Loader.IMAGE }
-        ];
-        //Laya.loader.load(res);
-        console.log(Laya.URL.basePath + 'res/snd/' + this.params.mp3 + '.mp3');
         GameView.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
-        Laya.timer.once(22000, this, this.onErr);
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
     };
     GameLoading.prototype.loadSnd = function () {
-        var _this = this;
-        console.log('启动歌曲加载-----------------------');
         XEvent.instance.event(GameEvent.SELECTED, this.params);
         this.close();
-        return;
-        if (Laya.loader.getRes('res/snd/' + this.params.json + '.json')) {
-            XEvent.instance.event(GameEvent.SELECTED, this.params);
-        }
-        else {
-            Laya.timer.clear(this, this.onErr);
-            this.onErr();
-            return;
-        }
-        trace("xxxxxxxxxx__", GameView.mp3);
-        Laya.loader.load(GameView.mp3, Laya.Handler.create(null, function () {
-            //trace(Laya.MiniAdpter["getFileList"]());
-            Laya.timer.clear(_this, _this.onErr);
-            _this.close();
-        }), null, Laya.Loader.SOUND);
     };
-    GameLoading.prototype.onErr = function () {
-        Laya.URL.version[GameView.mp3] = Math.random();
-        XEvent.instance.event(GameEvent.ERR);
+    GameLoading.prototype.showLoading = function () {
+        this.ui.loading.rotation -= 5;
     };
     return GameLoading;
 }(xframe.XMWindow));
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+//小球
+var Role = /** @class */ (function (_super) {
+    __extends(Role, _super);
+    function Role() {
+        var _this = _super.call(this) || this;
+        //影子
+        _this._shadows = [];
+        //
+        _this._posArr = [];
+        _this._needAni = false;
+        _this._maxNode = 40;
+        _this.init();
+        return _this;
+    }
+    Role.prototype.init = function () {
+        this.$shadow = new Laya.Image();
+        this.$shadow.anchorX = 0.5;
+        this.$shadow.anchorY = 0.477;
+        this.addChild(this.$shadow);
+        this.$image = new Laya.Image();
+        this.$image.anchorX = 0.5;
+        this.$image.anchorY = 0.46;
+        this.addChild(this.$image);
+    };
+    /**设定皮肤 */
+    Role.prototype.setSkin = function (id, speed) {
+        //if(this._id != id){
+        var info = DBGame.getRole(id);
+        this._roleData = info;
+        if (info) {
+            this.$image.skin = "res/ic_role/" + info.img + ".png";
+            if (info.shadow) {
+                this.$shadow.skin = "res/ic_role/" + info.shadow + ".png";
+            }
+            else {
+                this.$shadow.skin = "";
+            }
+            this._needAni = info.rotate > 0;
+            if (speed <= 0.3) {
+                this._roleData.rendFrame = 10;
+            }
+            else if (speed < 0.5) {
+                this._roleData.rendFrame = 8;
+            }
+            else {
+                this._roleData.rendFrame = 6;
+            }
+            this._maxNode = info.rendFrame * (this._shadows.length + 2) - 3;
+            for (var i = 0; i < this._shadows.length; i++) {
+                this._shadows[i].skin = this.$image.skin;
+            }
+        }
+        //}
+        this._needAni && this.play();
+    };
+    Role.prototype.reset = function () {
+        for (var i = 0; i < this._shadows.length; i++) {
+            this._shadows[i].visible = false;
+        }
+        this._posArr.length = 0;
+    };
+    Role.prototype.play = function () {
+        this.frameLoop(2, this, this.onPlay);
+    };
+    Role.prototype.stop = function () {
+        this.clearTimer(this, this.onPlay);
+    };
+    Role.prototype.onPlay = function () {
+        this.$image.rotation += Role.ROTATE;
+    };
+    Role.prototype.flash = function () {
+        Laya.timer.frameLoop(3, this, this.doFlash);
+    };
+    Role.prototype.removeFlash = function () {
+        this.alpha = 1;
+        Laya.timer.clear(this, this.doFlash);
+    };
+    Role.prototype.doFlash = function () {
+        if (this.alpha == 1) {
+            this.alpha = 0.5;
+        }
+        else {
+            this.alpha = 1;
+        }
+    };
+    Role.prototype.update = function () {
+        this._posArr.push({ x: Math.floor(this.x), y: Math.floor(this.y) });
+        while (this._posArr.length > this._maxNode) {
+            this._posArr.shift();
+        }
+        var index;
+        var shadow;
+        for (var i = this._roleData.rendFrame; i < this._posArr.length; i++) {
+            if (this._posArr[i]) {
+                if ((i - 1) % this._roleData.rendFrame == 0) {
+                    index = (i - 1) / this._roleData.rendFrame - 1;
+                    shadow = this._shadows[index];
+                    if (shadow) {
+                        shadow.visible = true;
+                        shadow.pos(this._posArr[i].x, this._posArr[i].y);
+                        if (!shadow.parent) {
+                            this.parent.addChildAt(shadow, this.parent.getChildIndex(this));
+                        }
+                    }
+                }
+            }
+        }
+        for (var i = index; i < this._shadows.length - 1; i++) {
+            this._shadows[i].visible = false;
+        }
+    };
+    /**影子效果 */
+    Role.prototype.shadow = function (showNum) {
+        this._shadows.length = 0; //res/game/style_0.png
+        this._renderIndex = 0;
+        this._posArr.length = 0;
+        var img;
+        for (var i = 0; i < showNum; i++) {
+            img = new Laya.Image();
+            img.anchorX = img.anchorY = 0.5;
+            img.scale(0.5, 0.5);
+            this._shadows.push(img);
+        }
+    };
+    Role.ROTATE = 6;
+    return Role;
+}(Laya.Sprite));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -50574,913 +51426,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var GameView = /** @class */ (function (_super) {
-    __extends(GameView, _super);
-    function GameView() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.GamePageUI();
-        //
-        _this._items = [];
-        //是否已经加入最后节点
-        _this._autoLast = false;
-        _this._reviveTimes = 0;
-        //
-        _this._awsomeTime = 0;
-        //是否可项目
-        _this._turnable = true;
-        _this.curX = Laya.stage.width / 2;
-        _this.curY = Laya.stage.height / 2;
-        _this.delX = 0;
-        _this.delY = 0;
-        _this.speedX = 0;
-        _this.speedY = 0;
-        _this.dir = 1;
-        //误差；
-        _this.deviation = 80;
-        _this.targetX = _this.curX;
-        _this.targetY = _this.curY;
-        return _this;
-    }
-    GameView.prototype.createUI = function () {
-        var _this = this;
-        _super.prototype.createUI.call(this);
-        //this.ui.bg.skin = "res/map/bj"+this.params.id+"1.jpg";
-        this.starContainer = new Laya.Sprite();
-        this.ui.addChildAt(this.starContainer, this.ui.getChildIndex(this.ui.btnPause));
-        this.map = new Laya.Sprite();
-        this.ui.addChildAt(this.map, this.ui.getChildIndex(this.ui.btnPause));
-        this.pathSp = new Laya.Sprite();
-        this.ui.addChildAt(this.pathSp, this.ui.getChildIndex(this.ui.btnPause));
-        this.effContainer = new Laya.Sprite();
-        this.ui.addChild(this.effContainer);
-        this._eff = new Laya.Image("res/game/spot_s.png");
-        this._eff.anchorX = this._eff.anchorY = 0.5;
-        this._eff2 = new Laya.Image("res/game/light.png");
-        this._eff2.anchorX = this._eff2.anchorY = 0.5;
-        this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
-        this.ui.selectBox.cacheAsBitmap = true;
-        this.init();
-        //this.initEvent();
-        //自动暂停
-        wx.onHide(function () {
-            if (_this.soundChannel && !_this.soundChannel.paused) {
-                _this.pause();
-            }
-        });
-    };
-    GameView.prototype.init = function () {
-        var _this = this;
-        this.ui.btnPause.on(Laya.Event.CLICK, null, function () {
-            _this.pause();
-        });
-        this.ui.backBtn.on(Laya.Event.CLICK, null, function () {
-            _this.close();
-        });
-        this.ui.btnStart.on(Laya.Event.CLICK, this, this.onStart);
-    };
-    GameView.prototype.show = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        _super.prototype.show.call(this);
-        this.params = args[0];
-        this.ui.tfName.text = this.params.name;
-        this.ui.btnPause.visible = false;
-        XFacade.instance.showModule(GameLoading, this.params);
-    };
-    GameView.prototype.initEvent = function () {
-        XEvent.instance.on(GameEvent.ERR, this, this.onGameEvent, [GameEvent.ERR]);
-        XEvent.instance.on(GameEvent.BACK, this, this.onGameEvent, [GameEvent.BACK]);
-        XEvent.instance.on(GameEvent.OVER, this, this.onGameEvent, [GameEvent.OVER]);
-        XEvent.instance.on(GameEvent.RESTART, this, this.onGameEvent, [GameEvent.RESTART]);
-        XEvent.instance.on(GameEvent.SELECTED, this, this.onGameEvent, [GameEvent.SELECTED]);
-        XEvent.instance.on(GameEvent.NEXTCHAPTER, this, this.onGameEvent, [GameEvent.NEXTCHAPTER]);
-    };
-    GameView.prototype.removeEVent = function () {
-        XEvent.instance.off(GameEvent.ERR, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.OVER, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.BACK, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.RESTART, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.SELECTED, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.NEXTCHAPTER, this, this.onGameEvent);
-    };
-    GameView.prototype.onGameEvent = function (type, data) {
-        if (data === void 0) { data = null; }
-        switch (type) {
-            case GameEvent.BACK:
-                this.stop();
-                this.close();
-                break;
-            case GameEvent.OVER:
-                this.over();
-                break;
-            case GameEvent.RESTART:
-                this.restart();
-                break;
-            case GameEvent.SELECTED:
-                this.ui.selectBox.visible = true;
-                this.ui.btnPause.visible = false;
-                this.ui.backBtn.visible = true;
-                this.initMap();
-                break;
-            case GameEvent.NEXTCHAPTER:
-                XFacade.instance.showModule(GameLoading, DBChapter.getChapInfo(parseInt(this.params.id) + 1));
-                break;
-            case GameEvent.ERR:
-                XAlert.showAlert("哎呀，网络不太好~返回再试试吧", Laya.Handler.create(this, this.close));
-                break;
-        }
-    };
-    GameView.prototype.onStart = function (e) {
-        e.stopPropagation();
-        if (User.instace.power > 0) {
-            User.instace.power -= 1;
-            this.startWithCfg();
-            this.ui.selectBox.visible = false;
-            this.ui.btnPause.visible = true;
-            this.ui.backBtn.visible = false;
-            //record nearest play music in chapter
-        }
-        else {
-            XFacade.instance.showModule(PopAddPower);
-        }
-    };
-    GameView.prototype.pause = function () {
-        if (this.soundChannel) {
-            Star.sleep();
-            try {
-                this.soundChannel.pause();
-            }
-            catch (e) {
-            }
-            Laya.timer.clear(this, this.update);
-            Laya.timer.clear(this, this.update2);
-            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-            PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
-            //暂停无敌状态
-            Laya.timer.clear(this, this.refreshState);
-        }
-    };
-    //继续
-    GameView.prototype.toResume = function () {
-        DBGame.countdown(3, Laya.Handler.create(this, this.resume));
-    };
-    //重新开始
-    GameView.prototype.restart = function () {
-        if (User.instace.power > 0) {
-            User.instace.power -= 1;
-            GameDataManager.instance.recordUserGameData();
-        }
-        else {
-            XFacade.instance.showModule(PopAddPower);
-            return;
-        }
-        this.stop();
-        this.initMap(false);
-        //DBGame.countdown(3, Laya.Handler.create(this, this.startWithCfg));
-        this.startWithCfg();
-    };
-    //继续
-    GameView.prototype.revive = function () {
-        var _this = this;
-        if (User.instace.power > 0) {
-            User.instace.power -= 1;
-            GameDataManager.instance.recordUserGameData();
-        }
-        else {
-            XFacade.instance.showModule(PopAddPower);
-            return;
-        }
-        this._reviveTimes--;
-        var p = this.getStdPoint(this._startTime);
-        this.targetX = p.x;
-        this.targetY = p.y;
-        this.ball.pos(p.x, p.y);
-        this.ball.reset();
-        this.dir = 1;
-        var stdNode = this.getStdNode(this._startTime);
-        this.speedX = stdNode.sx;
-        DBGame.countdown(3, Handler.create(null, function () {
-            //this.soundChannel.play();
-            //this._curTime = Laya.Browser.now();
-            //this._startTime = this._curTime-this._startTime;
-            _this.soundChannel.play();
-            //Laya.timer.frameLoop(1, this, this.update)
-            //Laya.stage.on(Laya.Event.CLICK, this, this.onC);
-            _this._awsomeTime = 3;
-            _this.showAwesome();
-        }));
-    };
-    GameView.prototype.showAwesome = function () {
-        /**
-            Laya.timer.once(this._awsomeTime * 1000, null, () => {
-                this.ball.removeFlash();
-                this.dir = 1;
-                this._awsomeTime = 0;
-            });
-            Laya.timer.once((this._awsomeTime + 1) * 1000, null, () => {
-                this._turnable = true;
-            });
-             */
-        if (this._awsomeTime > 0) {
-            this._turnable = false;
-            this.ball.flash();
-            Laya.timer.loop(100, this, this.refreshState);
-        }
-    };
-    GameView.prototype.refreshState = function () {
-        var _this = this;
-        this._awsomeTime -= 0.1;
-        if (this._awsomeTime <= 0) {
-            this.ball.removeFlash();
-            this.dir = 1;
-            this._awsomeTime = 0;
-            Laya.timer.clear(this, this.refreshState);
-            Laya.timer.once(1000, null, function () {
-                _this._turnable = true;
-            });
-        }
-    };
-    GameView.prototype.stop = function () {
-        if (this.soundChannel) {
-            this.soundChannel.stop();
-            Laya.SoundManager.removeChannel(this.soundChannel);
-            this.soundChannel.completeHandler = null;
-        }
-        Star.sleep();
-        Laya.timer.clear(this, this.update);
-        Laya.timer.clear(this, this.update2);
-        Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-        Laya.SoundManager.destroySound(GameView.mp3);
-    };
-    GameView.prototype.resume = function () {
-        if (!this.soundChannel) {
-            return;
-        }
-        // this._curTime = Laya.Browser.now();
-        // this._startTime = this._curTime-this._startTime;
-        this.soundChannel.play();
-        //继续无敌状态
-        this.showAwesome();
-        /*
-        if(!this.soundChannel){
-            return;
-        }
-
-        this._curTime = this.soundChannel.position;
-        Laya.timer.frameLoop(1, null, syncSnd);
-        var $this = this;
-        function syncSnd():void{
-            if($this.soundChannel.position >= $this._curTime){
-                Laya.timer.clear(null, syncSnd);
-                $this.update();
-                Laya.timer.frameLoop(1, $this, $this.update)
-                Laya.stage.on(Laya.Event.CLICK, $this, $this.onC);
-                Laya.stage.off(Laya.Event.CLICK, $this, $this.resume);
-            }
-        }
-
-        this.soundChannel.resume();
-        */
-    };
-    GameView.prototype.over = function () {
-        if (this._score > 0) {
-            this.showResult();
-        }
-        else {
-            this.back();
-        }
-    };
-    GameView.prototype.initMap = function (firstTime) {
-        if (firstTime === void 0) { firstTime = true; }
-        this._rendIndex = 1;
-        this._starNum = this._score = this._awsomeTime = this._curTime = this._startTime = 0;
-        this._autoLast = false;
-        this.showPro(null);
-        this.ui.tfScore.text = "0";
-        this._reviveTimes = DBGame.ReviveTimes;
-        this._mapArr = [];
-        for (var i = 0; i < this._items.length; i++) {
-            this._items[i].removeSelf();
-        }
-        this._items.length = 0;
-        while (this.effContainer.numChildren) {
-            this.effContainer.removeChildAt(0);
-        }
-        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
-        this._starCfg = (this.params.stars + "").split("|");
-        for (var i = 0; i < this._starCfg.length; i++) {
-            this._starCfg[i] = parseInt(this._starCfg[i]);
-        }
-        //克隆资源列表 
-        this._resList = xframe.XUtils.clone(cfg.items) || [];
-        this._resList.sort(function (a, b) {
-            return a.t - b.t;
-        });
-        trace("this._resList..................................", this._resList);
-        if (firstTime) {
-            //生成星星
-            Star.shine(30, this.starContainer);
-        }
-        this.stop();
-        //设定初始点=============================
-        this.posInfo = xframe.XUtils.clone(cfg.nodes);
-        this.srcPosInfo = xframe.XUtils.clone(cfg.nodes);
-        var node = this.srcPosInfo.shift();
-        this.curX = this.targetX = node.x;
-        this.curY = this.targetY = this.offsetY = node.y;
-        this.speedX = node.sx;
-        this.speedY = cfg.speed;
-        this.rendMap();
-        //生成角色========================================
-        if (!this.ball) {
-            this.ball = new Ball();
-            this.ball.shadow(4);
-            this.pathSp.addChild(this.ball);
-        }
-        this.ball.setSkin(1, this.speedY);
-        this.ball.reset();
-        this.ball.pos(this.curX, this.curY);
-        this.map.y = this.pathSp.y = 0;
-    };
-    GameView.prototype.rendMap = function () {
-        //0，判断是否需要重新绘制地图;
-        var maxHeight = 4096; //2048
-        var curY = this.targetY - this.offsetY;
-        if (this._mapArr.length) {
-            if (this._autoLast || curY - this._mapArr[this._mapArr.length - 1] > 120) {
-                return;
-            }
-        }
-        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
-        //1根据当前位置计算出初始节点及结束点；
-        //a,取当前节点
-        var midIndex;
-        var startIndex;
-        for (var i = cfg.nodes.length - 1; i >= 0; i--) {
-            if (cfg.nodes[i].y > curY) {
-                midIndex = i;
-                break;
-            }
-        }
-        //trace("midIndex============================",midIndex)
-        //取开始节点
-        for (i = midIndex; i >= 0; i--) {
-            if (cfg.nodes[i].y - curY >= Laya.stage.height) {
-                break;
-            }
-        }
-        startIndex = Math.max(0, i);
-        //trace("startIndex============================",i)
-        //2,生成地图==========================
-        curY = cfg.nodes[startIndex].y;
-        this._mapArr.length = 0;
-        for (i = startIndex; i < cfg.nodes.length; i++) {
-            //trace("delY============================",curY - cfg.nodes[i].y)
-            if (curY - cfg.nodes[i].y < maxHeight) {
-                this._mapArr.push(cfg.nodes[i].x, cfg.nodes[i].y);
-            }
-            else {
-                break;
-            }
-        }
-        //3，绘制地图
-        this.map.graphics.clear();
-        if (startIndex == 0) { //画起点
-            this.map.graphics.drawCircle(this._mapArr[0], this._mapArr[1], 160, "#ffffff");
-            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), this._mapArr[0] - 200, this._mapArr[1] - 200);
-        }
-        this.map.graphics.drawLines(0, 0, this._mapArr, "#ffffff", 160); //160
-        if (i >= cfg.nodes.length && this.soundChannel.duration) {
-            this._autoLast = true;
-            var last = this.posInfo[this.posInfo.length - 1];
-            var total = this.soundChannel.duration * 1000;
-            trace("end=========================", this.soundChannel, last, this.soundChannel.duration);
-            var info = { x: last.x, y: last.y - (total - last.t) * this.speedY, sx: 0, sy: last.sy, t: total };
-            this.posInfo.push(info);
-            this.srcPosInfo.push(info);
-            this.map.graphics.drawLine(last.x, last.y, info.x, info.y, "#ffffff", 160);
-            this.map.graphics.drawCircle(info.x, info.y, 160, "#ffffff");
-            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), info.x - 200, info.y - 200);
-        }
-        var offset = this._autoLast ? 3 : 1;
-        i = startIndex == 0 ? 2 : 0;
-        for (i; i < this._mapArr.length - offset; i++) {
-            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
-            //画引导res/game/click.png
-            if (this.params.id == "1" && startIndex < 27) {
-                if (this._mapArr[i] > this.ui.width / 2) {
-                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] + 135, this._mapArr[i + 1] - 32);
-                }
-                else {
-                    this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] - 195, this._mapArr[i + 1] - 32);
-                }
-            }
-            i++;
-        }
-        //4，缓存；
-        //this.map.cacheAsBitmap = true;
-    };
-    GameView.prototype.startWithCfg = function () {
-        this.start();
-        //this._awsomeTime = 1;
-        return;
-        this.stop();
-        this.soundChannel = Laya.SoundManager.playSound(GameView.mp3, 1, Laya.Handler.create(this, this.gemeEnd));
-        this._curTime = this.soundChannel.position;
-        Laya.timer.frameLoop(1, this, this.update);
-        Laya.stage.on(Laya.Event.CLICK, this, this.onC);
-        /**预加载*/
-        var res = [
-            { url: 'res/map/bj' + this.params.id + '2.jpg', type: Laya.Loader.IMAGE },
-            { url: 'res/map/bj' + this.params.id + '3.jpg', type: Laya.Loader.IMAGE }
-        ];
-        Laya.loader.load(res);
-    };
-    //使用微信接口方法;
-    GameView.prototype.start = function () {
-        var _this = this;
-        var url = encodeURI(Laya.URL.basePath + GameView.mp3);
-        if (this.soundChannel && this.soundChannel.src != url) {
-            this.soundChannel.destroy();
-            //清理掉
-        }
-        this.soundChannel = wx.createInnerAudioContext();
-        this.soundChannel.src = url;
-        this.soundChannel.play();
-        this.soundChannel.onPlay(function () {
-            if (_this._startTime == 0) {
-                _this._curTime = _this._startTime = Laya.Browser.now();
-            }
-            else {
-                _this._curTime = Laya.Browser.now();
-                _this._startTime = _this._curTime - _this._startTime;
-            }
-            Laya.timer.frameLoop(1, _this, _this.update2);
-            Laya.stage.on(Laya.Event.CLICK, _this, _this.onC);
-            trace("start======================", _this.soundChannel);
-        });
-        this.soundChannel.onEnded(function () {
-            _this.gemeEnd();
-            trace("onEnded======================");
-        });
-        this.soundChannel.onPause(function () {
-            //记录播放的时间---
-            _this._startTime = Laya.Browser.now() - _this._startTime;
-            trace("onPause======================");
-        });
-        this.soundChannel.onError(function () {
-            XEvent.instance.event(GameEvent.ERR);
-            //播放失败，返回体力
-            User.instace.power += 1;
-            GameDataManager.instance.recordUserGameData();
-            trace("onError======================");
-        });
-        /**预加载*/
-        var res = [
-            { url: 'res/map/bj' + this.params.id + '2.jpg', type: Laya.Loader.IMAGE },
-            { url: 'res/map/bj' + this.params.id + '3.jpg', type: Laya.Loader.IMAGE }
-        ];
-        Laya.loader.load(res);
-    };
-    /**核心驱动方法 */
-    GameView.prototype.update2 = function () {
-        var _this = this;
-        this._rendIndex++;
-        var exeIndex = this._rendIndex % 5;
-        var end = false;
-        var tmpTime = Laya.Browser.now() - this._curTime;
-        this._curTime = Laya.Browser.now();
-        var position = this._curTime - this._startTime;
-        Star.active();
-        if (this._awsomeTime) {
-            var p = this.getStdPoint(position);
-            this.targetY = p.y;
-            this.targetX = p.x;
-            if (exeIndex == 4) {
-                var targetPoint = this.getTargetPoint(true, 6);
-                var now = this._score;
-                if (targetPoint) {
-                    this.speedX = targetPoint.sx;
-                    this._score += 10;
-                    xframe.XUtils.showTxtEffect(now, this._score, Laya.Handler.create(null, function (n) {
-                        _this.ui.tfScore.text = n + "";
-                    }));
-                }
-            }
-        }
-        else {
-            this.targetY = this.offsetY - this.speedY * position;
-            this.targetX += this.speedX * tmpTime * this.dir;
-        }
-        this.ball.update();
-        this.ball.x = this.targetX;
-        this.ball.y = this.targetY;
-        this.pathSp.y = this.offsetY - this.targetY;
-        this.map.y = this.pathSp.y;
-        if (exeIndex == 1) {
-            var targetPoint_1 = this.getTargetPoint(false);
-            if (this.srcPosInfo.length <= 2) {
-                this.ui.btnPause.visible = false;
-            }
-            else if (targetPoint_1) {
-                if (targetPoint_1.y - this.targetY > 150) {
-                    end = true;
-                }
-            }
-        }
-        else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position, this._starCfg));
-        }
-        else if (exeIndex == 4) {
-            this.rendMap();
-        }
-        else if (exeIndex == 0) {
-            this.rendMapItems(position);
-        }
-        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
-            end = true;
-            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
-        }
-        if (end) {
-            Star.sleep();
-            this.soundChannel.pause();
-            Laya.timer.clear(this, this.update);
-            Laya.timer.clear(this, this.update2);
-            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-            if (this._starNum > 0 && this._reviveTimes) {
-                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
-            }
-            else {
-                this.showResult();
-            }
-        }
-    };
-    /**核心驱动方法 */
-    GameView.prototype.update = function () {
-        this._rendIndex++;
-        var exeIndex = this._rendIndex % 5;
-        var end = false;
-        var tmpTime = (this.soundChannel.position - this._curTime) * 1000;
-        var position = this.soundChannel.position * 1000;
-        //timeOver
-        if (tmpTime < 0 || position == 0) {
-            return;
-        }
-        else if (tmpTime > 500) { //无效的音频，扔掉
-            trace("Update Error：：Time offset is over..", tmpTime, this.soundChannel.position, this._curTime);
-            this.stop();
-            Laya.timer.once(1000, this, this.startWithCfg);
-            return;
-        }
-        this._curTime = this.soundChannel.position;
-        Star.active();
-        if (this._awsomeTime) {
-            var p = this.getStdPoint(position);
-            this.targetY = p.y;
-            this.targetX = p.x;
-            if (exeIndex == 4) {
-                var targetPoint = this.getTargetPoint();
-                if (targetPoint) {
-                    this._score += 10;
-                    this.speedX = targetPoint.sx;
-                    this.ui.tfScore.text = this._score + "";
-                }
-            }
-        }
-        else {
-            this.targetY = this.offsetY - this.speedY * position;
-            this.targetX += this.speedX * tmpTime * this.dir;
-        }
-        this.ball.update();
-        this.ball.x = this.targetX;
-        this.ball.y = this.targetY;
-        this.pathSp.y = this.offsetY - this.targetY;
-        this.map.y = this.pathSp.y;
-        if (exeIndex == 1) {
-            var targetPoint_2 = this.getTargetPoint(false);
-            if (this.srcPosInfo.length <= 2) {
-                this.ui.btnPause.visible = false;
-            }
-            else if (targetPoint_2) {
-                if (targetPoint_2.y - this.targetY > 150) {
-                    end = true;
-                }
-            }
-        }
-        else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position, this._starCfg));
-        }
-        else if (exeIndex == 4) {
-            this.rendMap();
-        }
-        else if (exeIndex == 0) {
-            this.rendMapItems(this._curTime * 1000);
-        }
-        else if (exeIndex == 3 && this.srcPosInfo.length && this.getStdPoint(position).distance(this.targetX, this.targetY) > 106) { //120
-            end = true;
-            trace("End at time::", position, tmpTime, this.targetX, this.targetY, this.getStdPoint(position));
-        }
-        if (end) {
-            Star.sleep();
-            this.soundChannel.pause();
-            Laya.timer.clear(this, this.update);
-            Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-            if (this._starNum > 0 && this._reviveTimes) {
-                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) });
-            }
-            else {
-                this.showResult();
-            }
-        }
-    };
-    GameView.prototype.onC = function () {
-        var _this = this;
-        this.curX = this.targetX;
-        this.curY = this.targetY;
-        var targetPoint = this.getTargetPoint();
-        if (targetPoint) {
-            this.dir = 1;
-            this.speedX = targetPoint.sx;
-            //效果判定---
-            var delX = Math.abs(targetPoint.x - this.ball.x);
-            var delY = Math.abs(targetPoint.y - this.ball.y);
-            var nowScore = this._score;
-            if (delX < 12 && delY < 15) { //5
-                this.shine(targetPoint.x, targetPoint.y);
-                this._score += 10;
-            }
-            else if (delX < 36 && delY < 25) { //3
-                this.showEff(targetPoint.x, targetPoint.y);
-                this._score += 5;
-            }
-            else { //2
-                this._score += 3;
-            }
-            xframe.XUtils.showTxtEffect(nowScore, this._score, Laya.Handler.create(null, function (n) {
-                _this.ui.tfScore.text = n + "";
-            }));
-            //动效====================================
-            //this.fly();
-        }
-        else { //翻转
-            if (this.srcPosInfo.length && this._turnable) {
-                this.dir *= -1;
-            }
-        }
-    };
-    GameView.prototype.showResult = function () {
-        this.stop();
-        var params = {
-            music: this.params,
-            star: this._starNum,
-            score: this._score
-        };
-        XFacade.instance.showModule(GameResultView, params);
-    };
-    /**
-     * 渲染地图元素
-     * 1,渲染不根据时间变化的元素，生成变化元素列表；
-     * 2，渲染变化元素；
-     * */
-    GameView.prototype.rendMapItems = function (time) {
-        for (var i = 0; i < this._items.length; i++) {
-            if (this._items[i].y - this.targetY > Laya.stage.height) {
-                this._items[i].removeSelf();
-                trace(this._items[i].name);
-                this._items.splice(i--, 1);
-            }
-            else {
-                break;
-            }
-        }
-        var delTime = Laya.stage.height * .35 / this.speedY;
-        for (var i = 0; i < this._resList.length; i++) {
-            if (this._resList[i].t < time + delTime) {
-                var item = new Laya.Image();
-                item.pos(this._resList[i].x, this._resList[i].y);
-                var url = "res/map/" + this._resList[i].id + ".png";
-                Laya.loader.load(url, Laya.Handler.create(null, function () {
-                    item.skin = url;
-                    xframe.AniUtil.popIn(item, 200);
-                }));
-                item.scaleX = this._resList[i].s;
-                trace("rendMapItems", item.x, item.y, this._resList[i]);
-                item.name = item.x + "_" + item.y;
-                this.pathSp.addChild(item);
-                //行为控制
-                //xframe.AniUtil.popIn(item, 200)
-                /*
-                if(Math.random()>.5){
-                    xframe.AniUtil.fadeIn(item, 200);
-                }else{
-                    xframe.AniUtil.popIn(item, 200)
-                }*/
-                this._resList.splice(i--, 1);
-                this._items.push(item);
-            }
-            else {
-                break;
-            }
-        }
-    };
-    GameView.prototype.showPro = function (proInfo) {
-        var _this = this;
-        if (proInfo) {
-            this.ui.bar.value = proInfo.pro || 0;
-            this._starNum = proInfo.stars;
-            if (proInfo.stars == 3) {
-                this.ui.star_2.skin = "res/game/star_w.png";
-                this.ui.star_1.skin = "res/game/star_w.png";
-                this.ui.star_0.skin = "res/game/star_w.png";
-            }
-            else if (proInfo.stars == 2) {
-                this.ui.star_2.skin = "res/game/star_b.png";
-                this.ui.star_1.skin = "res/game/star_w.png";
-                this.ui.star_0.skin = "res/game/star_w.png";
-                Laya.loader.load("res/map/bj" + this.params.id + "3.jpg", Laya.Handler.create(null, function () {
-                    _this.switchSkin("res/map/bj" + _this.params.id + "3.jpg");
-                }));
-            }
-            else if (proInfo.stars == 1) {
-                this.ui.star_2.skin = "res/game/star_b.png";
-                this.ui.star_1.skin = "res/game/star_b.png";
-                this.ui.star_0.skin = "res/game/star_w.png";
-                Laya.loader.load("res/map/bj" + this.params.id + "2.jpg", Laya.Handler.create(null, function () {
-                    _this.switchSkin("res/map/bj" + _this.params.id + "2.jpg");
-                }));
-            }
-        }
-        else {
-            this.ui.bar.value = 0;
-            this.ui.star_2.skin = "res/game/star_b.png";
-            this.ui.star_1.skin = "res/game/star_b.png";
-            this.ui.star_0.skin = "res/game/star_b.png";
-            this.ui.bg.skin = "res/map/bj" + this.params.id + "1.jpg";
-        }
-        this.ui.proBox.cacheAsBitmap = true;
-    };
-    GameView.prototype.switchSkin = function (skinStr) {
-        if (this.ui.bg.skin != skinStr) {
-            var img = new Laya.Image(this.ui.bg.skin);
-            img.size(Laya.stage.width, Laya.stage.height);
-            this.ui.bg.parent.addChildAt(img, this.ui.bg.parent.getChildIndex(this.ui.bg));
-            Laya.Tween.to(img, { alpha: 0 }, 500, null, Laya.Handler.create(img, img.removeSelf));
-            this.ui.bg.skin = skinStr;
-            this.ui.bg.alpha = 0;
-            Laya.Tween.to(this.ui.bg, { alpha: 1 }, 500);
-        }
-    };
-    /**显示经过特效 */
-    GameView.prototype.showEff = function (x, y) {
-        this._eff.pos(x, y);
-        this.pathSp.addChild(this._eff);
-        Laya.timer.once(248, this._eff, this._eff.removeSelf);
-    };
-    /**精准打击特效 */
-    GameView.prototype.shine = function (x, y) {
-        this._eff2.pos(x, y);
-        this._eff2.alpha = 1;
-        this._eff2.scale(0.5, 0.5);
-        this.pathSp.addChildAt(this._eff2, 0);
-        Laya.Tween.to(this._eff2, { scaleX: 1.2, scaleY: 1.2, alpha: 0 }, 200, null, Laya.Handler.create(this._eff2, this._eff2.removeSelf));
-        /*
-        this._eff2.scaleX = this._eff2.scaleY = 0.5;
-        Laya.Tween.to(this._eff2, {scaleX:1,scaleY:1}, 20, null, Laya.Handler.create(null, ()=>{
-            Laya.Tween.to(this._eff2, {scaleX:1.5, scaleY:1.5},60,null, Laya.Handler.create(this._eff2, this._eff2.removeSelf))
-        }))
-        */
-    };
-    /**飞特效 */
-    GameView.prototype.fly = function () {
-        //动效===
-        var img = Laya.Pool.getItemByClass("eff", Laya.Image);
-        img.skin = "res/game/origin.png";
-        this.effContainer.addChild(img);
-        img.pos(this.curX + 40, this.curY + this.pathSp.y);
-        var rnd = Math.random() * 400;
-        Laya.Tween.to(img, { x: 200 + rnd, y: 150 + rnd }, 150 + rnd / 4, null, Laya.Handler.create(null, function () {
-            Laya.Tween.to(img, { x: 80, y: 414 }, 150 + rnd / 4, null, Laya.Handler.create(null, function () {
-                img.removeSelf();
-                Laya.Pool.recover("eff", img);
-            }));
-        }));
-    };
-    //获取目标节点
-    GameView.prototype.getTargetPoint = function (modify, deviation) {
-        if (modify === void 0) { modify = true; }
-        if (deviation === void 0) { deviation = -1; }
-        var targetPoint;
-        if (this.srcPosInfo.length) {
-            for (var i = 0; i < this.srcPosInfo.length; i++) {
-                var posInfo = this.srcPosInfo[i];
-                if (deviation == -1) {
-                    deviation = this.deviation;
-                }
-                if (Math.abs(posInfo.y - this.targetY) <= deviation || posInfo.y > this.targetY) {
-                    targetPoint = posInfo;
-                    modify && this.srcPosInfo.shift();
-                    break;
-                    //修改成点击一下取一个节点
-                }
-                else {
-                    break;
-                }
-            }
-        }
-        return targetPoint;
-    };
-    GameView.prototype.getStdPoint = function (now) {
-        if (!this._stdP) {
-            this._stdP = new Laya.Point(this.curX, this.curY);
-        }
-        var tmp;
-        for (var i = this.posInfo.length - 1; i >= 0; i--) {
-            tmp = this.posInfo[i];
-            if (tmp.t <= now) {
-                break;
-            }
-        }
-        var delTime = now - tmp.t;
-        this._stdP.x = tmp.x + tmp.sx * delTime;
-        this._stdP.y = tmp.y - this.speedY * delTime;
-        return this._stdP;
-    };
-    /**获取标准的节点-重置操作点 */
-    GameView.prototype.getStdNode = function (now) {
-        var tmp;
-        for (var i = this.posInfo.length - 1; i >= 0; i--) {
-            if (this.posInfo[i].t <= now) {
-                tmp = this.posInfo[i];
-                break;
-            }
-        }
-        this.srcPosInfo = [];
-        for (i = i + 1; i < this.posInfo.length - 1; i++) {
-            this.srcPosInfo.push(this.posInfo[i]);
-        }
-        return tmp;
-    };
-    GameView.prototype.gemeEnd = function () {
-        trace("gameEnd---------------------------------------------->>");
-        var params = {
-            music: this.params,
-            star: this._starNum,
-            score: this._score
-        };
-        XFacade.instance.showModule(GameResultView, params);
-        this.stop();
-    };
-    GameView.prototype.onDestroy = function () {
-        Laya.loader.clearRes("res/map/bj" + this.params.id + "1.jpg");
-        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
-        Laya.loader.clearRes("res/map/bj" + this.params.id + "2.jpg");
-        //this.params && Laya.loader.clearRes('res/snd/' + this.params.json + '.json');
-        Laya.loader.clearRes(GameView.mp3);
-        Star.destroy();
-        this.soundChannel && this.soundChannel.destroy();
-        this.ball && this.ball.stop();
-        Laya.timer.clear(this, this.update);
-        Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onStart);
-        Laya.stage.off(Laya.Event.CLICK, this, this.resume);
-        this.removeEVent();
-        this.stop();
-    };
-    return GameView;
-}(xframe.XWindow));
-/**游戏事件 */
-var GameEvent = /** @class */ (function () {
-    function GameEvent() {
-    }
-    /**返回 */
-    GameEvent.BACK = "back";
-    /**重新开始 */
-    GameEvent.RESTART = "restart";
-    /**事件-选中歌曲 */
-    GameEvent.SELECTED = 'selected';
-    /**下一章节 */
-    GameEvent.NEXTCHAPTER = "nextchapter";
-    /**跳转到解锁篇章 */
-    GameEvent.HOMECHAPTER = "homechapter";
-    /**加载错误 */
-    GameEvent.ERR = "err";
-    /**结束歌曲 */
-    GameEvent.OVER = "over";
-    return GameEvent;
-}());
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var HomeView = /** @class */ (function (_super) {
     __extends(HomeView, _super);
     function HomeView() {
@@ -51628,11 +51573,11 @@ var LoadingView = /** @class */ (function (_super) {
         //XDB.delLocalData();
         XDB.fetchSrvData(Handler.create(this, this.onGetData));
     };
+    //
     LoadingView.prototype.onGetData = function () {
         User.instace.initdData();
         ;
         XEvent.instance.event(LoadingView.RDY);
-        //this.close();
     };
     LoadingView.prototype.close = function () {
         _super.prototype.close.call(this);
@@ -51839,7 +51784,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.GamePauseUI.uiView);
             };
-            GamePauseUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 67, "x": 54, "var": "btnHome", "skin": "res/game/btn_home.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 945, "x": 420, "var": "btnRestart", "skin": "res/game/btn_again.png", "runtime": "runtime.btn_img" } }, { "type": "Button", "props": { "y": 945, "x": 87, "var": "btnResume", "stateNum": 1, "skin": "res/game/btn_continue.png" } }, { "type": "Label", "props": { "y": 546, "x": 224, "width": 301, "text": "暂停", "height": 66, "fontSize": 76, "color": "#ffffff", "align": "center" } }] };
+            GamePauseUI.uiView = { "type": "View", "props": { "width": 640, "height": 936 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/bj_ranking_tc.png" } }, { "type": "Image", "props": { "y": 67, "x": 54, "var": "btnHome", "skin": "res/game/btn_home.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 432, "x": 343, "var": "btnRestart", "skin": "res/game/btn_again.png", "runtime": "runtime.btn_img" } }, { "type": "Button", "props": { "y": 432, "x": 37, "var": "btnResume", "stateNum": 1, "skin": "res/game/btn_continue.png" } }, { "type": "Label", "props": { "y": 7, "x": 169, "width": 301, "text": "暂停", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "center" } }] };
             return GamePauseUI;
         }(View));
         views.GamePauseUI = GamePauseUI;
@@ -51857,7 +51802,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.GameResultViewUI.uiView);
             };
-            GameResultViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 51, "x": 39, "var": "homebtn", "skin": "res/game/btn_home.png" } }, { "type": "Image", "props": { "y": 379, "x": 210, "var": "star1", "skin": "res/game/ic_star_result_b.png", "rotation": -30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 380, "x": 542, "var": "star3", "skin": "res/game/ic_star_result_gray_b.png", "rotation": 30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 187, "x": 305, "var": "star2", "skin": "res/game/ic_star_result_gray_b.png" } }, { "type": "Label", "props": { "y": 478, "x": 224, "width": 301, "var": "scorelabel", "text": "14分", "height": 66, "fontSize": 60, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 598, "x": 219, "var": "tip", "text": "加油哦", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 567, "x": 369, "skin": "res/game/ic_coin.png" } }, { "type": "Label", "props": { "y": 598, "x": 476, "var": "coinLabel", "text": "X10", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 684, "x": 55, "skin": "res/game/bj_single.png" }, "child": [{ "type": "Label", "props": { "y": 35, "x": 172, "var": "musicname", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 88, "x": 172, "var": "authname", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }, { "type": "Image", "props": { "y": 1011, "x": 242, "var": "restartbtn", "skin": "res/game/btn_again.png" } }, { "type": "Image", "props": { "y": 1011, "x": 238, "visible": false, "var": "nextBtn", "skin": "res/game/btn_next.png" } }] };
+            GameResultViewUI.uiView = { "type": "View", "props": { "width": 640, "height": 936 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/bj_ranking_tc.png" } }, { "type": "Image", "props": { "y": 51, "x": 39, "var": "homebtn", "skin": "res/game/btn_home.png" } }, { "type": "Image", "props": { "y": 339, "x": 170, "var": "star1", "skin": "res/game/ic_star_result_b.png", "rotation": -30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 340, "x": 502, "var": "star3", "skin": "res/game/ic_star_result_gray_b.png", "rotation": 30, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 147, "x": 265, "var": "star2", "skin": "res/game/ic_star_result_gray_b.png" } }, { "type": "Label", "props": { "y": 543, "x": 67, "width": 301, "var": "scorelabel", "text": "14分", "height": 66, "fontSize": 60, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 7, "x": 207, "width": 226, "var": "tip", "text": "加油哦", "height": 46, "fontSize": 48, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "y": 527, "x": 369, "skin": "res/game/ic_coin.png" } }, { "type": "Label", "props": { "y": 558, "x": 476, "var": "coinLabel", "text": "X10", "fontSize": 40, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 628, "x": 0, "skin": "res/game/bj_single.png" }, "child": [{ "type": "Label", "props": { "y": 35, "x": 172, "var": "musicname", "text": "天空之城", "fontSize": 32, "color": "#666666", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 88, "x": 172, "var": "authname", "text": "久石让", "fontSize": 26, "color": "#999999" } }] }, { "type": "Image", "props": { "y": 801, "x": 212, "var": "restartbtn", "skin": "res/game/btn_again.png" } }, { "type": "Image", "props": { "y": 801, "x": 208, "visible": false, "var": "nextBtn", "skin": "res/game/btn_next.png" } }] };
             return GameResultViewUI;
         }(View));
         views.GameResultViewUI = GameResultViewUI;
@@ -51876,7 +51821,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.GameReviveUI.uiView);
             };
-            GameReviveUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 945, "x": 242, "var": "btnConfirm", "skin": "res/game/btn_sure.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 546, "x": 224, "width": 301, "text": "复活", "height": 66, "fontSize": 76, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 709, "x": 150, "width": 160, "text": "使用", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "right" } }, { "type": "Image", "props": { "y": 708, "x": 324, "skin": "res/main/ic_power.png" } }, { "type": "Label", "props": { "y": 710, "x": 436, "width": 160, "text": "复活", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 714, "x": 393, "width": 59, "text": "-1", "height": 52, "fontSize": 36, "color": "#ffffff", "align": "left" } }, { "type": "Image", "props": { "y": 24, "x": 22, "var": "btnBack", "skin": "res/role/btn_return.png", "runtime": "runtime.btn_img" } }] };
+            GameReviveUI.uiView = { "type": "View", "props": { "width": 640, "height": 936 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/bj_ranking_tc.png" } }, { "type": "Image", "props": { "y": 678, "x": 181, "var": "btnConfirm", "skin": "res/game/btn_sure.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 7, "x": 157, "width": 301, "text": "复活", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 442, "x": 89, "width": 160, "text": "使用", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "right" } }, { "type": "Image", "props": { "y": 441, "x": 263, "skin": "res/main/ic_power.png" } }, { "type": "Label", "props": { "y": 443, "x": 375, "width": 160, "text": "复活", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "left" } }, { "type": "Label", "props": { "y": 447, "x": 332, "width": 59, "text": "-1", "height": 52, "fontSize": 36, "color": "#ffffff", "align": "left" } }, { "type": "Image", "props": { "y": 50, "x": 590, "var": "btnBack", "skin": "res/main/btn_close.png" } }] };
             return GameReviveUI;
         }(View));
         views.GameReviveUI = GameReviveUI;
@@ -52973,10 +52918,13 @@ var Main = /** @class */ (function () {
         //程序入口
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = "noscale";
-        //this.initSubpackage();
         this.init();
     }
     Main.prototype.init = function () {
+        Laya.URL.version = {
+            "res/cfg/stage.json": Math.random()
+        };
+        //Laya.URL.basePath = "https://s.xiuwu.me/perfectline/2.0/";
         //加载本地资源
         var urlList = [
             { url: 'res/bg.png', type: Laya.Loader.IMAGE },
@@ -52989,106 +52937,11 @@ var Main = /** @class */ (function () {
             { url: 'res/atlas/res/game.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/atlas/res/ic_role.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/cfg/stage.json', type: Laya.Loader.JSON },
+            { url: 'res/cfg/role.json', type: Laya.Loader.JSON },
         ];
         Laya.loader.load(urlList, Handler.create(null, function () {
             xframe.XFacade.instance.init(new App());
         }));
-        /*
-        Tape.Navigator.init({
-            mainPage: LoadingActivity,
-            commonRes: [
-                { url: 'res/bg.png', type: Laya.Loader.IMAGE },
-                { url: 'res/atlas/res/common.atlas', type: Laya.Loader.ATLAS },
-                { url: 'res/atlas/res/rank.atlas', type: Laya.Loader.ATLAS },
-                { url: 'res/atlas/res/main.atlas', type: Laya.Loader.ATLAS },
-                { url: 'res/atlas/res/signin.atlas', type: Laya.Loader.ATLAS },
-                //图片压缩过
-                { url: 'res/atlas/res/card.atlas', type: Laya.Loader.ATLAS },
-                { url: 'res/atlas/res/role.atlas', type: Laya.Loader.ATLAS },
-                { url: 'res/atlas/res/game.atlas', type: Laya.Loader.ATLAS },
-                { url: 'res/atlas/res/ic_role.atlas', type: Laya.Loader.ATLAS },
-                { url: 'res/cfg/stage.json', type: Laya.Loader.JSON},
-                // { url: 'res/common/ic_qrcode.jpg', type: Laya.Loader.IMAGE}
-            ]
-        });
-        */
-    };
-    //初始化分包配置;
-    Main.prototype.initSubpackage = function () {
-        Laya.URL.version = {
-            "res/cfg/stage.json": Math.random()
-        };
-        Laya.URL.basePath = "https://s.xiuwu.me/perfectline/";
-        Laya.MiniAdpter["nativefiles"] = [
-            'res/bg.png',
-            'res/map/bj11.jpg',
-            'res/map/bj31.jpg',
-            'res/main/bj_homepage@2x.png',
-            "res/atlas/res/common.atlas",
-            "res/atlas/res/common.png",
-            "res/atlas/res/rank.atlas",
-            "res/atlas/res/rank.png",
-            "res/atlas/res/main.atlas",
-            "res/atlas/res/main.png",
-            "res/atlas/res/signin.atlas",
-            "res/atlas/res/signin.png",
-            "res/atlas/comp.atlas",
-            "res/atlas/comp.png",
-            'res/atlas/res/card.atlas',
-            'res/atlas/res/card.png',
-            'res/atlas/res/role.atlas',
-            'res/atlas/res/role.png',
-            'res/atlas/res/game.atlas',
-            'res/atlas/res/game.png',
-            'res/atlas/res/ic_role.atlas',
-            'res/atlas/res/ic_role.png',
-            'res/snd/lx.json',
-            'res/snd/gxddbh.json',
-            'res/snd/jd.json',
-            'res/snd/hlxj.json',
-            'res/snd/kldnf.json'
-        ];
-        //歌曲配置。。备份用
-        ['res/snd/about that oldie.json',
-            'res/snd/adlms.json',
-            'res/snd/adlz.json',
-            'res/snd/azh.json',
-            'res/snd/beat your competition.json',
-            'res/snd/cy.json',
-            'res/snd/fdc.json',
-            'res/snd/gddxbwq.json',
-            'res/snd/greenery.json',
-            'res/snd/gxddbh.json',
-            'res/snd/hbnlwq.json',
-            'res/snd/hlxj.json',
-            'res/snd/jd.json',
-            'res/snd/jswd.json',
-            'res/snd/jwtwq.json',
-            'res/snd/kldnf.json',
-            'res/snd/kn.json',
-            'res/snd/llwq.json',
-            'res/snd/lx.json',
-            'res/snd/qmyzb.json',
-            'res/snd/qn.json',
-            'res/snd/sdjdx.json',
-            'res/snd/sgxb.json',
-            'res/snd/slkxq.json',
-            'res/snd/sophomore makeout.json',
-            'res/snd/spring in my step.json',
-            'res/snd/sslg.json',
-            'res/snd/teqjxq.json',
-            'res/snd/wxdhd.json',
-            'res/snd/xbwq.json',
-            'res/snd/xfdh.json',
-            'res/snd/xwh.json',
-            'res/snd/xxzg.json',
-            'res/snd/xylwqdwh.json',
-            'res/snd/ybzy.json',
-            'res/snd/yhczw.json',
-            'res/snd/yntz.json',
-            'res/snd/yyxj.json',
-            'res/snd/zm.json',
-            'res/snd/zytg.json'];
     };
     return Main;
 }());
@@ -53099,4 +52952,30 @@ Laya.MiniAdpter["getUrlEncode"] = function (url, type) {
         return "";
     return "utf8";
 };
+Laya.MiniAdpter["nativefiles"] =
+    [
+        'res/bg.png',
+        'res/map/bj11.jpg',
+        'res/map/bj31.jpg',
+        'res/main/bj_homepage@2x.png',
+        "res/atlas/res/common.atlas",
+        "res/atlas/res/common.png",
+        "res/atlas/res/rank.atlas",
+        "res/atlas/res/rank.png",
+        "res/atlas/res/main.atlas",
+        "res/atlas/res/main.png",
+        "res/atlas/res/signin.atlas",
+        "res/atlas/res/signin.png",
+        "res/atlas/comp.atlas",
+        "res/atlas/comp.png",
+        'res/atlas/res/card.atlas',
+        'res/atlas/res/card.png',
+        'res/atlas/res/role.atlas',
+        'res/atlas/res/role.png',
+        'res/atlas/res/game.atlas',
+        'res/atlas/res/game.png',
+        'res/atlas/res/ic_role.atlas',
+        'res/atlas/res/ic_role.png',
+        'res/cfg/role.json',
+    ];
 new Main();

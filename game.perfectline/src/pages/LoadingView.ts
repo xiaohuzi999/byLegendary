@@ -16,10 +16,10 @@ class LoadingView extends xframe.XWindow {
         XDB.fetchSrvData(Handler.create(this, this.onGetData))
     }
 
+    //
     private onGetData():void{
         User.instace.initdData();;
         XEvent.instance.event(LoadingView.RDY)
-        //this.close();
     }
 
     public close():void{
