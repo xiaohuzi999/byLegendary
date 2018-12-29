@@ -43,11 +43,10 @@ var xframe;
             //==============================================================
             //根据需要换UI====================================================
             //==============================================================
-            this.ui = new XXAlertUI();
+            this.ui = new ui.views.XAlertUIUI();
             this.addChild(this.ui);
             //==============================================================
             //END===========================================================
-            //==============================================================
             this._btnYes = this.ui["btnYes"];
             this._btnNo = this.ui["btnNo"];
             this._btnClose = this.ui["btnClose"];
@@ -104,8 +103,8 @@ var xframe;
             if (noBtnLabel == null || noBtnLabel == "") {
                 noBtnLabel = XAlert.LABEL_NO_DEFAULT;
             }
-            this._tfMsg.innerHTML = message + "";
-            this._tfMsg.y = (this._btnYes.y - this._tfMsg.contextHeight) * 0.5;
+            this._tfMsg.text = message + "";
+            this._tfMsg.y = (this._btnYes.y - this._tfMsg.height) * 0.5;
             var btnNum = 0;
             if (showYesBtn) {
                 btnNum++;
@@ -170,14 +169,14 @@ var xframe;
             bg.size(500, 320);
             bg.graphics.drawRect(0, 0, 500, 320, "#66ccff");
             _this.addChild(bg);
-            _this.tfMsg = new Laya.HTMLDivElement();
+            _this.tfMsg = new Laya.Label;
             _this.tfMsg.width = 460;
             _this.addChild(_this.tfMsg);
             _this.tfMsg.pos(20, 72);
-            _this.tfMsg.style.fontFamily = "微软雅黑";
-            _this.tfMsg.style.fontSize = 20;
-            _this.tfMsg.style.color = "#ffffff";
-            _this.tfMsg.style.align = "center";
+            _this.tfMsg.font = "微软雅黑";
+            _this.tfMsg.fontSize = 20;
+            _this.tfMsg.color = "#ffffff";
+            _this.tfMsg.align = "center";
             _this.btnYes = new Laya.Button("", "Yes");
             bg = new Laya.Image();
             bg.graphics.drawRect(0, 0, 100, 50, "#ff6600");

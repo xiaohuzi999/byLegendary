@@ -10,7 +10,8 @@ class Main {
         //程序入口
         Laya.init(750, 1334, Laya.WebGL);
 
-        Laya.stage.scaleMode = "noscale";
+        //Laya.stage.scaleMode = "noscale";
+        Laya.stage.scaleMode = "showall";
         this.init();
     }
 

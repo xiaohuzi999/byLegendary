@@ -28,7 +28,7 @@ class HomeView extends xframe.XWindow {
                 XFacade.instance.showModule(SignInView)
             break;
             case this.ui.roleBtn:
-                Tape.PopManager.showPop(RoleList);
+                XFacade.instance.showModule(RoleView)
             break;
             case this.ui.btnAddPower:
                 XFacade.instance.showModule(PopAddPower);
@@ -50,7 +50,7 @@ class HomeView extends xframe.XWindow {
     }
 
     private onScroll():void{
-        var index: number = Math.round(this.ui.chapList.scrollBar.value / 480);
+        var index: number = Math.round(this.ui.chapList.scrollBar.value / 300);
         this.scrollToIndex(index);
     }
 

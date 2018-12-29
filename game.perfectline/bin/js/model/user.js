@@ -11,6 +11,8 @@ var User = /** @class */ (function () {
         this.curId = 1;
         /**记录 */
         this.starInfo = [];
+        /**角色状态 {id:state---number(-1/undefind未激活,0未使用,1使用中)}*/
+        this.roleInfo = { 1: 1 };
     }
     User.prototype.initdData = function () {
         var val = XDB.getData(XDB.USER);

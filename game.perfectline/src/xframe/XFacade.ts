@@ -2,6 +2,7 @@
 * name 
 */
 import trace = xframe.trace;
+import Loader = Laya.Loader;
 
 module xframe{
 	export class XFacade{

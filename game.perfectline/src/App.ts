@@ -8,6 +8,7 @@ class App implements IApp{
 
     public start():void{
         this.initEvet();
+        //XAlert.SKIN = ui.views.XAlertUIUI;
         XFacade.instance.showModule(LoadingView)
     }
 

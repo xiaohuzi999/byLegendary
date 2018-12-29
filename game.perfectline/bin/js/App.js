@@ -6,6 +6,7 @@ var App = /** @class */ (function () {
     }
     App.prototype.start = function () {
         this.initEvet();
+        //XAlert.SKIN = ui.views.XAlertUIUI;
         XFacade.instance.showModule(LoadingView);
     };
     App.prototype.onRdy = function () {

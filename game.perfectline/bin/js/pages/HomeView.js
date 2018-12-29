@@ -36,7 +36,7 @@ var HomeView = /** @class */ (function (_super) {
                 XFacade.instance.showModule(SignInView);
                 break;
             case this.ui.roleBtn:
-                Tape.PopManager.showPop(RoleList);
+                XFacade.instance.showModule(RoleView);
                 break;
             case this.ui.btnAddPower:
                 XFacade.instance.showModule(PopAddPower);
@@ -57,7 +57,7 @@ var HomeView = /** @class */ (function (_super) {
         }
     };
     HomeView.prototype.onScroll = function () {
-        var index = Math.round(this.ui.chapList.scrollBar.value / 480);
+        var index = Math.round(this.ui.chapList.scrollBar.value / 300);
         this.scrollToIndex(index);
     };
     HomeView.prototype.createUI = function () {

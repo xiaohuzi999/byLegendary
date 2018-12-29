@@ -10,7 +10,9 @@ class User {
     /**当前歌曲ID */
     public curId:number = 1;
     /**记录 */
-    public starInfo:number[] = []
+    public starInfo:number[] = [];
+    /**角色状态 {id:state---number(-1/undefind未激活,0未使用,1使用中)}*/
+    public roleInfo:any= {1:1};
 
     private static _instace: User;
     /** */

@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":4,
+    "selecteID":9,
     "props":{"width":600,"sceneColor":"#000000","height":120},
     "nodeParent":-1,
     "label":"View",
@@ -66,14 +66,14 @@
         },
         {
             "x":15,
-            "type":"Image",
-            "props":{"y":27,"x":487,"var":"useBtn","skin":"res/role/btn_use.png","runtime":"runtime.btn_img"},
+            "type":"Button",
+            "props":{"y":28,"x":471,"var":"useBtn","stateNum":"1","skin":"res/role/btn_use.png","labelSize":24,"labelBold":true,"label":"使用"},
             "nodeParent":1,
-            "label":"Image(useBtn)",
+            "label":"Button(useBtn)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
-            "compId":7,
+            "compId":9,
             "child":[
                 ]
         }],

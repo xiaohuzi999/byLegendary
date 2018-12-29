@@ -5,7 +5,6 @@ module ui.common {
     export class HomeViewUI extends View {
 		public bg:Laya.Image;
 		public roleBtn:Laya.Image;
-		public btnRank:Laya.Image;
 		public btnMore:Laya.Image;
 		public btnSignin:Laya.Image;
 		public chapList:Laya.List;
@@ -14,10 +13,9 @@ module ui.common {
 		public coinNum:Laya.Label;
 		public heartNum:Laya.Label;
 		public btnAddPower:Laya.Button;
-		public cardBtn:Laya.Image;
 		public btnDev:Laya.Label;
 
-        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Image","props":{"y":0,"x":0,"var":"bg","skin":"res/main/bj_homepage@2x.png"}},{"type":"Image","props":{"y":1159,"x":330,"var":"roleBtn","skin":"res/main/btn_role.png"}},{"type":"Image","props":{"y":1159,"x":64,"var":"btnRank","skin":"res/main/btn_ranking.png"}},{"type":"Image","props":{"y":1041,"x":520,"visible":false,"var":"btnMore","skin":"res/common/ic_more.png"}},{"type":"Image","props":{"y":244,"x":24,"var":"btnSignin","skin":"res/main/btn_sign.png"}},{"type":"List","props":{"y":519,"x":-78,"width":901,"var":"chapList","height":295},"child":[{"type":"ChapterItem","props":{"y":0,"x":0,"runtime":"ChaperItem","name":"render"}}]},{"type":"Image","props":{"y":116,"x":20,"width":88,"var":"btnUserInfo","skin":"res/main/ic_add_power.png","height":88},"child":[{"type":"Sprite","props":{"y":0,"x":0,"width":88,"renderType":"mask","height":88},"child":[{"type":"Circle","props":{"y":44,"x":44,"radius":44,"lineWidth":1,"fillColor":"#d12424"}}]}]},{"type":"Box","props":{"y":28,"x":20},"child":[{"type":"Image","props":{"y":14,"x":30,"skin":"res/main/ic_bg.png"}},{"type":"Label","props":{"y":21,"x":64,"width":76,"var":"starNum","text":"11","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Image","props":{"width":60,"skin":"res/main/ic_star.png"}}]},{"type":"Box","props":{"y":28,"x":362},"child":[{"type":"Image","props":{"y":14,"x":30,"skin":"res/main/ic_bg.png"}},{"type":"Label","props":{"y":21,"x":64,"width":76,"var":"coinNum","text":"56","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Image","props":{"skin":"res/main/ic_coin.png"}}]},{"type":"Box","props":{"y":31,"x":190},"child":[{"type":"Image","props":{"y":14,"x":30,"skin":"res/main/ic_bg.png"}},{"type":"Image","props":{"width":60,"skin":"res/main/ic_power.png","height":60}},{"type":"Label","props":{"y":21,"x":64,"width":52,"var":"heartNum","text":"99","height":24,"fontSize":24,"color":"#ffffff","align":"center"}}]},{"type":"Button","props":{"y":45,"x":304,"var":"btnAddPower","stateNum":1,"skin":"res/main/btn_add.png"}},{"type":"Image","props":{"y":1159,"x":605,"var":"cardBtn","skin":"res/main/btn_card.png"}},{"type":"Label","props":{"y":1279,"x":71,"text":"排行榜","fontSize":25,"color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":1279,"x":350,"text":"角色","fontSize":25,"color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":1279,"x":600,"text":"音乐卡片","fontSize":25,"color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":324,"x":36,"text":"签到","fontSize":25,"color":"#ffffff"}},{"type":"Label","props":{"y":15,"x":507,"var":"btnDev","text":"打开调试面板","fontSize":40,"color":"#ffffff"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Image","props":{"y":0,"x":0,"var":"bg","skin":"res/main/bj_homepage@2x.png"}},{"type":"Image","props":{"y":1178,"x":50,"var":"roleBtn","skin":"res/main/btn_role.png"},"child":[{"type":"Label","props":{"y":120,"x":20,"text":"角色","fontSize":25,"color":"#ffffff","align":"center"}}]},{"type":"Image","props":{"y":1041,"x":520,"visible":false,"var":"btnMore","skin":"res/common/ic_more.png"}},{"type":"Image","props":{"y":244,"x":24,"var":"btnSignin","skin":"res/main/btn_sign.png"}},{"type":"List","props":{"y":519,"x":-78,"width":901,"var":"chapList","height":295},"child":[{"type":"ChapterItem","props":{"y":0,"x":0,"runtime":"ChaperItem","name":"render"}}]},{"type":"Image","props":{"y":116,"x":20,"width":88,"var":"btnUserInfo","skin":"res/main/ic_add_power.png","height":88},"child":[{"type":"Sprite","props":{"y":0,"x":0,"width":88,"renderType":"mask","height":88},"child":[{"type":"Circle","props":{"y":44,"x":44,"radius":44,"lineWidth":1,"fillColor":"#d12424"}}]}]},{"type":"Box","props":{"y":28,"x":20},"child":[{"type":"Image","props":{"y":14,"x":30,"skin":"res/main/ic_bg.png"}},{"type":"Label","props":{"y":21,"x":64,"width":76,"var":"starNum","text":"11","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Image","props":{"width":60,"skin":"res/main/ic_star.png"}}]},{"type":"Box","props":{"y":28,"x":362},"child":[{"type":"Image","props":{"y":14,"x":30,"skin":"res/main/ic_bg.png"}},{"type":"Label","props":{"y":21,"x":64,"width":76,"var":"coinNum","text":"56","height":24,"fontSize":24,"color":"#ffffff","align":"center"}},{"type":"Image","props":{"skin":"res/main/ic_coin.png"}}]},{"type":"Box","props":{"y":31,"x":190},"child":[{"type":"Image","props":{"y":14,"x":30,"skin":"res/main/ic_bg.png"}},{"type":"Image","props":{"width":60,"skin":"res/main/ic_power.png","height":60}},{"type":"Label","props":{"y":21,"x":64,"width":52,"var":"heartNum","text":"99","height":24,"fontSize":24,"color":"#ffffff","align":"center"}}]},{"type":"Button","props":{"y":45,"x":304,"var":"btnAddPower","stateNum":1,"skin":"res/main/btn_add.png"}},{"type":"Label","props":{"y":324,"x":36,"text":"签到","fontSize":25,"color":"#ffffff"}},{"type":"Label","props":{"y":15,"x":507,"var":"btnDev","text":"打开调试面板","fontSize":40,"color":"#ffffff"}}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("ChaperItem",ChaperItem);
@@ -355,13 +353,12 @@ module ui.views {
 		public roleimg:Laya.Image;
 		public rolename:Laya.Label;
 		public tip:Laya.Label;
-		public useBtn:runtime.btn_img;
+		public useBtn:Laya.Button;
 
-        public static  uiView:any ={"type":"View","props":{"width":600,"height":120},"child":[{"type":"Image","props":{"y":0,"x":0,"width":600,"skin":"res/common/bg_white.png","sizeGrid":"20,20,20,20","height":120}},{"type":"Image","props":{"y":10,"x":14,"width":100,"var":"roleimg","skin":"res/ic_role/xhj.png","height":100}},{"type":"Label","props":{"y":23,"x":134,"var":"rolename","text":"角色","fontSize":30,"color":"#404040"}},{"type":"Label","props":{"y":69,"x":134,"var":"tip","text":"连续签到七天可以解锁","fontSize":20,"color":"#999999"}},{"type":"Image","props":{"y":27,"x":487,"var":"useBtn","skin":"res/role/btn_use.png","runtime":"runtime.btn_img"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":600,"height":120},"child":[{"type":"Image","props":{"y":0,"x":0,"width":600,"skin":"res/common/bg_white.png","sizeGrid":"20,20,20,20","height":120}},{"type":"Image","props":{"y":10,"x":14,"width":100,"var":"roleimg","skin":"res/ic_role/xhj.png","height":100}},{"type":"Label","props":{"y":23,"x":134,"var":"rolename","text":"角色","fontSize":30,"color":"#404040"}},{"type":"Label","props":{"y":69,"x":134,"var":"tip","text":"连续签到七天可以解锁","fontSize":20,"color":"#999999"}},{"type":"Button","props":{"y":28,"x":471,"var":"useBtn","stateNum":1,"skin":"res/role/btn_use.png","labelSize":24,"labelBold":true,"label":"使用"}}]};
         constructor(){ super()}
         createChildren():void {
-        			View.regComponent("runtime.btn_img",runtime.btn_img);
-
+        
             super.createChildren();
             this.createView(ui.views.RoleItemRenderUI.uiView);
 
@@ -372,14 +369,13 @@ module ui.views {
 
 module ui.views {
     export class RoleViewUI extends View {
-		public closebtn:runtime.btn_img;
+		public closebtn:Laya.Image;
 		public rolelist:Laya.List;
 
-        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Image","props":{"y":199,"x":55,"skin":"res/role/bj_role_tc.png"},"child":[{"type":"Label","props":{"y":14,"x":280,"width":80,"text":"角色","height":40,"fontSize":40,"color":"#ffffff","bold":true}},{"type":"Image","props":{"y":57,"x":587,"var":"closebtn","skin":"res/main/btn_close.png","runtime":"runtime.btn_img"}},{"type":"List","props":{"y":135,"x":20,"width":600,"var":"rolelist","spaceY":12,"repeatX":1,"height":785},"child":[{"type":"RoleItemRender","props":{"name":"render","runtime":"ui.views.RoleItemRenderUI"}}]}]}]};
+        public static  uiView:any ={"type":"View","props":{"width":650,"height":960},"child":[{"type":"Image","props":{"y":12,"x":5,"skin":"res/role/bj_role_tc.png"},"child":[{"type":"Label","props":{"y":14,"x":280,"width":80,"text":"角色","height":40,"fontSize":40,"color":"#ffffff","bold":true}},{"type":"Image","props":{"y":57,"x":587,"var":"closebtn","skin":"res/main/btn_close.png"}},{"type":"List","props":{"y":135,"x":20,"width":600,"var":"rolelist","spaceY":12,"repeatX":1,"height":785},"child":[{"type":"RoleItemRender","props":{"runtime":"RoleItem","name":"render"}}]}]}]};
         constructor(){ super()}
         createChildren():void {
-        			View.regComponent("runtime.btn_img",runtime.btn_img);
-			View.regComponent("ui.views.RoleItemRenderUI",ui.views.RoleItemRenderUI);
+        			View.regComponent("RoleItem",RoleItem);
 
             super.createChildren();
             this.createView(ui.views.RoleViewUI.uiView);
@@ -472,6 +468,25 @@ module ui.views {
         
             super.createChildren();
             this.createView(ui.views.TopToastViewUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.views {
+    export class XAlertUIUI extends View {
+		public tfTitle:Laya.Label;
+		public tfMsg:Laya.Label;
+		public btnYes:Laya.Button;
+		public btnNo:Laya.Button;
+
+        public static  uiView:any ={"type":"View","props":{"width":642,"height":434},"child":[{"type":"Image","props":{"y":0,"x":0,"width":642,"skin":"res/main/bj_power_tc.png","sizeGrid":"124,0,75,0","height":434},"child":[{"type":"Label","props":{"y":29,"x":151,"width":337,"var":"tfTitle","text":"体力不足","height":54,"fontSize":42,"font":"PingFangSC-Semibold","color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":181,"x":120,"wordWrap":true,"width":400,"var":"tfMsg","text":"   今天的体力用完了， 明天再来宠幸我吧~","leading":10,"height":98,"fontSize":36,"font":"PingFangSC-Semibold","color":"#666666","align":"center"}},{"type":"Button","props":{"y":313,"x":158,"var":"btnYes","stateNum":1,"skin":"res/common/btn_yellow.png","labelSize":32}},{"type":"Button","props":{"y":313,"x":350,"var":"btnNo","stateNum":1,"skin":"res/common/btn_red.png","labelSize":32,"label":"label"}}]}]};
+        constructor(){ super()}
+        createChildren():void {
+        
+            super.createChildren();
+            this.createView(ui.views.XAlertUIUI.uiView);
 
         }
 

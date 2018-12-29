@@ -7,7 +7,7 @@ module xframe{
 		private _btnYes:Laya.Button;
 		private _btnNo:Laya.Button;
 		private _btnClose:Laya.Button;
-		private _tfMsg:Laya.HTMLDivElement;
+		private _tfMsg:Laya.Label;
 		
 		/**确定回调*/
 		private _yesHandler:Handler;
@@ -22,7 +22,6 @@ module xframe{
 		public static LABEL_YES_DEFAULT:string = "YES";
 		/**取消按钮默认label-静态常量*/
 		public static LABEL_NO_DEFAULT:string = "NO";
-
 		constructor(){
 			super();
 			this._autoDispose = false;
@@ -47,11 +46,10 @@ module xframe{
 			//==============================================================
 			//根据需要换UI====================================================
 			//==============================================================
-			this.ui = new XXAlertUI();
+			this.ui = new ui.views.XAlertUIUI();
 			this.addChild(this.ui);
 			//==============================================================
 			//END===========================================================
-			//==============================================================
 			
 			this._btnYes = this.ui["btnYes"];
 			this._btnNo = this.ui["btnNo"];
@@ -111,8 +109,8 @@ module xframe{
 			if(noBtnLabel == null || noBtnLabel == ""){
 				noBtnLabel = XAlert.LABEL_NO_DEFAULT;
 			}
-			this._tfMsg.innerHTML = message+"";
-			this._tfMsg.y = (this._btnYes.y - this._tfMsg.contextHeight ) * 0.5;
+			this._tfMsg.text = message+"";
+			this._tfMsg.y = (this._btnYes.y - this._tfMsg.height ) * 0.5;
 			var btnNum:number = 0;
 			if(showYesBtn){
 				btnNum++;
@@ -167,7 +165,7 @@ module xframe{
 		/***/
 		public btnYes:Laya.Button;
 		public btnNo:Laya.Button;
-		public tfMsg:Laya.HTMLDivElement;
+		public tfMsg:Laya.Label;
 		
 		constructor(){
 			super();
@@ -176,15 +174,15 @@ module xframe{
 			bg.graphics.drawRect(0,0, 500, 320, "#66ccff");
 			this.addChild(bg);
 			
-			this.tfMsg = new Laya.HTMLDivElement();
+			this.tfMsg = new Laya.Label;
 			this.tfMsg.width = 460;
 			this.addChild(this.tfMsg);
 			this.tfMsg.pos(20, 72);
 
-			this.tfMsg.style.fontFamily = "微软雅黑";
-			this.tfMsg.style.fontSize = 20;
-			this.tfMsg.style.color = "#ffffff";
-			this.tfMsg.style.align = "center";
+			this.tfMsg.font = "微软雅黑";
+			this.tfMsg.fontSize = 20;
+			this.tfMsg.color = "#ffffff";
+			this.tfMsg.align = "center";
 			
 			this.btnYes = new Laya.Button("", "Yes");
 			bg = new Laya.Image();

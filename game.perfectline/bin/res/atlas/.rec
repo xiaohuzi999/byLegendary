@@ -7,6 +7,8 @@ P C8BE03E5 btn_share.png
 P 973FB16D btn_too.png
 D res/common
 P 1B7B3A2D bg_white.png
+P 896E90D9 btn_red.png
+P 4A95C10E btn_yellow.png
 P DAE2C051 ic_back.png
 P C02BF76D ic_cricle.png
 P 83CA8FBB ic_more.png
@@ -109,7 +111,7 @@ P F4D425EB bj_role_tc.png
 P 2C31805F btn_release.png
 P 22F72B4D btn_return.png
 P 7BDF57A1 btn_see.png
-P D3E090DA btn_use.png
+P 08340F4C btn_use.png
 P BA43C5C5 ic_1.png
 P 6ACD384E ic_2.png
 P A306FBA4 ic_3.png
