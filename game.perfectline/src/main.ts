@@ -43,7 +43,6 @@ class Main {
     }
 }
 
-
 Laya.MiniAdpter["getUrlEncode"] = function (url, type) {
     if (url.indexOf(".fnt") != -1)
         return "utf8";

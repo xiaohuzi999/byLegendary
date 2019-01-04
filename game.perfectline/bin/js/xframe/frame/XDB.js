@@ -54,7 +54,7 @@ var XDB = /** @class */ (function () {
         //todo：save to srv
     };
     XDB.push2Srv = function () {
-        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { openid: User.getInstance().openid, kv: JSON.stringify(this.data) });
+        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { openid: User.instace.openid, kv: JSON.stringify(this.data) });
     };
     Object.defineProperty(XDB, "data", {
         get: function () {

@@ -1,4 +1,6 @@
 class User {
+    public openid:string;
+
     public avatar:string =  "";
     public id:string =  "";
     public nickname:string =  ""; 

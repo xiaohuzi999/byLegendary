@@ -2,6 +2,7 @@
 * name
 */
 var trace = xframe.trace;
+var Loader = Laya.Loader;
 var xframe;
 (function (xframe) {
     var XFacade = /** @class */ (function () {

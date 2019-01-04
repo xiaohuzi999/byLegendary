@@ -195,15 +195,14 @@ module ui.views {
 
 module ui.views {
     export class GamePauseUI extends View {
-		public btnHome:runtime.btn_img;
-		public btnRestart:runtime.btn_img;
+		public btnHome:Laya.Image;
+		public btnRestart:Laya.Image;
 		public btnResume:Laya.Button;
 
-        public static  uiView:any ={"type":"View","props":{"width":640,"height":936},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"res/role/bj_ranking_tc.png"}},{"type":"Image","props":{"y":67,"x":54,"var":"btnHome","skin":"res/game/btn_home.png","runtime":"runtime.btn_img"}},{"type":"Image","props":{"y":432,"x":343,"var":"btnRestart","skin":"res/game/btn_again.png","runtime":"runtime.btn_img"}},{"type":"Button","props":{"y":432,"x":37,"var":"btnResume","stateNum":1,"skin":"res/game/btn_continue.png"}},{"type":"Label","props":{"y":7,"x":169,"width":301,"text":"暂停","height":66,"fontSize":48,"color":"#ffffff","align":"center"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":640,"height":936},"child":[{"type":"Image","props":{"y":0,"x":0,"skin":"res/role/bj_ranking_tc.png"}},{"type":"Image","props":{"y":67,"x":54,"var":"btnHome","skin":"res/game/btn_home.png"}},{"type":"Image","props":{"y":432,"x":343,"var":"btnRestart","skin":"res/game/btn_again.png"}},{"type":"Button","props":{"y":432,"x":37,"var":"btnResume","stateNum":1,"skin":"res/game/btn_continue.png"}},{"type":"Label","props":{"y":7,"x":169,"width":301,"text":"暂停","height":66,"fontSize":48,"color":"#ffffff","align":"center"}}]};
         constructor(){ super()}
         createChildren():void {
-        			View.regComponent("runtime.btn_img",runtime.btn_img);
-
+        
             super.createChildren();
             this.createView(ui.views.GamePauseUI.uiView);
 
@@ -331,24 +330,6 @@ module ui.views {
 }
 
 module ui.views {
-    export class NoPowerTipUI extends View {
-		public tfTitle:Laya.Label;
-		public tfContent:Laya.Label;
-		public btnClose:Laya.Button;
-
-        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"Image","props":{"y":423,"x":55,"width":642,"skin":"res/main/bj_power_tc.png","sizeGrid":"124,0,75,0","height":434}},{"type":"Label","props":{"y":452,"x":269,"width":211,"var":"tfTitle","text":"体力不足","height":54,"fontSize":42,"font":"PingFangSC-Semibold","color":"#ffffff","align":"center"}},{"type":"Label","props":{"y":604,"x":175,"wordWrap":true,"width":400,"var":"tfContent","text":"   今天的体力用完了， 明天再来宠幸我吧~","leading":10,"height":98,"fontSize":36,"font":"PingFangSC-Semibold","color":"#666666","align":"center"}},{"type":"Button","props":{"y":735,"x":260,"var":"btnClose","stateNum":1,"skin":"res/game/btn_sure2.png"}}]};
-        constructor(){ super()}
-        createChildren():void {
-        
-            super.createChildren();
-            this.createView(ui.views.NoPowerTipUI.uiView);
-
-        }
-
-    }
-}
-
-module ui.views {
     export class RoleItemRenderUI extends View {
 		public roleimg:Laya.Image;
 		public rolename:Laya.Label;
@@ -400,26 +381,6 @@ module ui.views {
         
             super.createChildren();
             this.createView(ui.views.SettingComUI.uiView);
-
-        }
-
-    }
-}
-
-module ui.views {
-    export class ShareMenuUI extends View {
-		public bottomView:View;
-		public pyq:runtime.btn_img;
-		public wxBtn:runtime.btn_img;
-		public closeBtn:runtime.btn_img;
-
-        public static  uiView:any ={"type":"View","props":{"width":750,"height":1334},"child":[{"type":"View","props":{"y":1038,"x":0,"width":750,"var":"bottomView","height":296},"child":[{"type":"Sprite","props":{"y":0,"x":0,"width":750,"height":296,"alpha":0.88},"child":[{"type":"Rect","props":{"width":750,"lineWidth":1,"height":296,"fillColor":"#00000000"}}]},{"type":"Image","props":{"y":115,"x":168,"var":"pyq","skin":"res/common/pyq.png","runtime":"runtime.btn_img"}},{"type":"Image","props":{"y":115,"x":481,"var":"wxBtn","skin":"res/common/wechat.png","runtime":"runtime.btn_img"}},{"type":"Label","props":{"y":51,"x":330,"text":"分享到","fontSize":30,"color":"#ffffff"}},{"type":"Label","props":{"y":238,"x":177,"text":"朋友圈","fontSize":28,"color":"#ffffff"}},{"type":"Label","props":{"y":240,"x":476,"text":"微信好友","fontSize":28,"color":"#ffffff"}},{"type":"Image","props":{"y":17,"x":698,"var":"closeBtn","skin":"res/game/btn_close.png","runtime":"runtime.btn_img"}},{"type":"Label","props":{"y":66,"x":202,"width":96,"height":1,"bgColor":"#e1e1e1"}},{"type":"Label","props":{"y":66,"x":452,"width":96,"height":1,"bgColor":"#e1e1e1"}}]}]};
-        constructor(){ super()}
-        createChildren():void {
-        			View.regComponent("runtime.btn_img",runtime.btn_img);
-
-            super.createChildren();
-            this.createView(ui.views.ShareMenuUI.uiView);
 
         }
 

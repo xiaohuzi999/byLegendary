@@ -105,7 +105,8 @@ class GameView extends xframe.XWindow {
             Laya.timer.clear(this, this.update)
             Laya.timer.clear(this, this.update2)
             Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-            PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
+            XFacade.instance.showModule(PopGamePause, Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart))
+            //PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
             //暂停无敌状态
             Laya.timer.clear(this, this.refreshState);
         }
@@ -234,7 +235,7 @@ class GameView extends xframe.XWindow {
         if (this._score > 0) {
             this.showResult();
         } else {
-            this.back();
+            this.close();
         }
     }
 
@@ -438,7 +439,7 @@ class GameView extends xframe.XWindow {
             this._startTime = Laya.Browser.now() - this._startTime;
         });
         this.soundChannel.onError(()=>{
-            XEvent.instance.event(GameEvent.ERR);
+            this.close();
             //播放失败，返回体力
             User.instace.power += 1;
             User.instace.save();

@@ -3,41 +3,41 @@
 */
 class PopGamePause extends xframe.XMWindow{
     private _view:ui.views.GamePauseUI;
-    public static resumeHandler:Laya.Handler;
-    public static restartHandler:Laya.Handler;
+    private _resumeHandler:Laya.Handler;
+    private _restartHandler:Laya.Handler;
     constructor(){
         super();
-        this.createUI();
     }
 
-    private createUI():void{
+    protected createUI():void{
         this._view = new ui.views.GamePauseUI();
         this.addChild(this._view);
         //
         this._view.btnHome.on(Laya.Event.CLICK, null, ()=>{
             XEvent.instance.event(GameEvent.BACK);
-             Tape.PopManager.hidePop(PopGamePause);
+            XFacade.instance.closeModule(PopGamePause)
         })
 
         this._view.btnRestart.on(Laya.Event.CLICK, null, ()=>{
-            PopGamePause.restartHandler.run();
-            Tape.PopManager.hidePop(PopGamePause);
+            this._restartHandler.run();
+            XFacade.instance.closeModule(PopGamePause)
         })
 
         this._view.btnResume.on(Laya.Event.CLICK, null, (e:Laya.Event)=>{
             e.stopPropagation();
-            PopGamePause.resumeHandler.run();
-            Tape.PopManager.hidePop(PopGamePause);
+            this._resumeHandler.run();
+            XFacade.instance.closeModule(PopGamePause)
         })
-
     }
 
-    
+    public show(...args):void{
+        super.show();
+        this._restartHandler = args[1];
+        this._resumeHandler = args[0];
+    }
 
-    /** */
-    public static show( force:boolean= false, opt:any = null):void{
-        this.resumeHandler = opt[0];
-        this.restartHandler = opt[1];
-        Tape.PopManager.showPop(PopGamePause);
+    public close():void{
+        super.close();
+        this._restartHandler = this._resumeHandler = null;
     }
 }

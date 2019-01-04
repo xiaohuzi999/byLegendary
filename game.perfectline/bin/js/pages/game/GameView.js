@@ -108,7 +108,8 @@ var GameView = /** @class */ (function (_super) {
             Laya.timer.clear(this, this.update);
             Laya.timer.clear(this, this.update2);
             Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-            PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
+            XFacade.instance.showModule(PopGamePause, Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart));
+            //PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
             //暂停无敌状态
             Laya.timer.clear(this, this.refreshState);
         }
@@ -229,7 +230,7 @@ var GameView = /** @class */ (function (_super) {
             this.showResult();
         }
         else {
-            this.back();
+            this.close();
         }
     };
     GameView.prototype.initMap = function (firstTime) {
@@ -402,7 +403,7 @@ var GameView = /** @class */ (function (_super) {
             _this._startTime = Laya.Browser.now() - _this._startTime;
         });
         this.soundChannel.onError(function () {
-            XEvent.instance.event(GameEvent.ERR);
+            _this.close();
             //播放失败，返回体力
             User.instace.power += 1;
             User.instace.save();

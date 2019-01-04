@@ -14,35 +14,39 @@ var __extends = (this && this.__extends) || (function () {
 var PopGamePause = /** @class */ (function (_super) {
     __extends(PopGamePause, _super);
     function PopGamePause() {
-        var _this = _super.call(this) || this;
-        _this.createUI();
-        return _this;
+        return _super.call(this) || this;
     }
     PopGamePause.prototype.createUI = function () {
+        var _this = this;
         this._view = new ui.views.GamePauseUI();
         this.addChild(this._view);
         //
         this._view.btnHome.on(Laya.Event.CLICK, null, function () {
             XEvent.instance.event(GameEvent.BACK);
-            Tape.PopManager.hidePop(PopGamePause);
+            XFacade.instance.closeModule(PopGamePause);
         });
         this._view.btnRestart.on(Laya.Event.CLICK, null, function () {
-            PopGamePause.restartHandler.run();
-            Tape.PopManager.hidePop(PopGamePause);
+            _this._restartHandler.run();
+            XFacade.instance.closeModule(PopGamePause);
         });
         this._view.btnResume.on(Laya.Event.CLICK, null, function (e) {
             e.stopPropagation();
-            PopGamePause.resumeHandler.run();
-            Tape.PopManager.hidePop(PopGamePause);
+            _this._resumeHandler.run();
+            XFacade.instance.closeModule(PopGamePause);
         });
     };
-    /** */
-    PopGamePause.show = function (force, opt) {
-        if (force === void 0) { force = false; }
-        if (opt === void 0) { opt = null; }
-        this.resumeHandler = opt[0];
-        this.restartHandler = opt[1];
-        Tape.PopManager.showPop(PopGamePause);
+    PopGamePause.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this._restartHandler = args[1];
+        this._resumeHandler = args[0];
+    };
+    PopGamePause.prototype.close = function () {
+        _super.prototype.close.call(this);
+        this._restartHandler = this._resumeHandler = null;
     };
     return PopGamePause;
 }(xframe.XMWindow));

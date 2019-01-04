@@ -69,7 +69,7 @@ class XDB{
     }
 
     public static push2Srv():void{
-        xframe.HttpCmd.callServer(Handler.create(null, (data)=>{trace("save::",data)}), "srv", "save", {openid:User.getInstance().openid, kv:JSON.stringify(this.data)})
+        xframe.HttpCmd.callServer(Handler.create(null, (data)=>{trace("save::",data)}), "srv", "save", {openid:User.instace.openid, kv:JSON.stringify(this.data)})
     }
 
     private static get data():any{
