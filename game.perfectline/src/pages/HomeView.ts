@@ -10,6 +10,10 @@ class HomeView extends xframe.XWindow {
         this.updateUserInfo();
         this.showMoveStar();
         this.ui.chapList.refresh();
+
+        let sx = Math.max(Laya.stage.width/AppConfig.AppWidth, Laya.stage.height/AppConfig.AppHeight);
+        this.ui.bg.scale(sx,sx);
+        this.ui.x = (this.ui.bg.width-AppConfig.AppWidth)/2;
     }
 
     public close():void{

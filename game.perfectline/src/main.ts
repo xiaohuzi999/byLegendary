@@ -8,10 +8,11 @@ class Main {
         //初始化微信小游戏
         Laya.MiniAdpter.init();
         //程序入口
-        Laya.init(750, 1334, Laya.WebGL);
+        Laya.init(AppConfig.AppWidth, AppConfig.AppHeight, Laya.WebGL);
 
         //Laya.stage.scaleMode = "noscale";
-        Laya.stage.scaleMode = "showall";
+        //Laya.stage.scaleMode = "showall";
+        Laya.stage.scaleMode = Laya.Stage.SCALE_FIXED_WIDTH;
         this.init();
     }
 
@@ -33,6 +34,7 @@ class Main {
             { url: 'res/atlas/res/role.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/atlas/res/game.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/atlas/res/ic_role.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/atlas/res/icon.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/cfg/stage.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/role.json', type: Laya.Loader.JSON },
 		]

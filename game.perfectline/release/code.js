@@ -48638,6 +48638,7 @@ var xframe;
 * name
 */
 var trace = xframe.trace;
+var Loader = Laya.Loader;
 var xframe;
 (function (xframe) {
     var XFacade = /** @class */ (function () {
@@ -48866,7 +48867,7 @@ var XDB = /** @class */ (function () {
         wx.login({
             success: function (res) {
                 if (res.code) {
-                    xframe.HttpCmd.callServer(onFetchHandler, "srv", "login", { code: res.code });
+                    xframe.HttpCmd.callServer(onFetchHandler, "srv", "login", { name: "petmusician", code: res.code, });
                 }
                 else {
                     XAlert.showAlert('登录失败！' + res.errMsg);
@@ -48909,7 +48910,7 @@ var XDB = /** @class */ (function () {
         //todo：save to srv
     };
     XDB.push2Srv = function () {
-        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { openid: User.getInstance().openid, kv: JSON.stringify(this.data) });
+        xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { openid: User.instace.openid, kv: JSON.stringify(this.data) });
     };
     Object.defineProperty(XDB, "data", {
         get: function () {
@@ -49567,6 +49568,27 @@ var DBGame = /** @class */ (function () {
     return DBGame;
 }());
 
+var WXUtils = /** @class */ (function () {
+    function WXUtils() {
+    }
+    /**
+     * 分享
+     * @param title	string		否	转发标题，不传则默认使用当前小游戏的昵称。
+     * @param imageUrl	string		否	转发显示图片的链接，可以是网络图片路径或本地图片文件路径或相对代码包根目录的图片文件路径。显示图片长宽比是 5:4
+     * @param query	string		否	查询字符串，从这条转发消息进入后，可通过 wx.getLaunchInfoSync() 或 wx.onShow() 获取启动参数中的 query。必须是 key1=val1&key2=val2 的格式。
+    */
+    WXUtils.share = function (title, imageUrl, query) {
+        if (query === void 0) { query = ''; }
+        var obj = {
+            title: title,
+            imageUrl: imageUrl,
+            query: query
+        };
+        wx.shareAppMessage(obj);
+    };
+    return WXUtils;
+}());
+
 var User = /** @class */ (function () {
     function User() {
         this.avatar = "";
@@ -49580,6 +49602,8 @@ var User = /** @class */ (function () {
         this.curId = 1;
         /**记录 */
         this.starInfo = [];
+        /**角色状态 {id:state---number(-1/undefind未激活,0未使用,1使用中)}*/
+        this.roleInfo = { 1: 1 };
     }
     User.prototype.initdData = function () {
         var val = XDB.getData(XDB.USER);
@@ -49609,27 +49633,6 @@ var User = /** @class */ (function () {
     User.UPDATE = "update";
     return User;
 }());
-
-var ShareManager;
-(function (ShareManager) {
-    var defaultOptions = {
-        title: '默认的分享标题',
-        imageUrl: '',
-        query: ''
-    };
-    function share(entry, type) {
-        var share = yxmp.asset.getShareMessage(entry, type);
-        if (share) {
-            // 拿到服务器配置的分享信息
-            wx.shareAppMessage(share);
-        }
-        else {
-            // 使用本地的分享信息
-            wx.shareAppMessage(defaultOptions);
-        }
-    }
-    ShareManager.share = share;
-})(ShareManager || (ShareManager = {}));
 
 /*
 * name;
@@ -49663,6 +49666,18 @@ var ChapterVo = /** @class */ (function () {
     return ChapterVo;
 }());
 
+/*
+* name;
+*/
+var AppConfig = /** @class */ (function () {
+    function AppConfig() {
+    }
+    AppConfig.urlRoot = "https://s.xiuwu.me/perfectline/2.0/";
+    AppConfig.AppWidth = 750;
+    AppConfig.AppHeight = 1334;
+    return AppConfig;
+}());
+
 
 /*
 * name;
@@ -49672,6 +49687,7 @@ var App = /** @class */ (function () {
     }
     App.prototype.start = function () {
         this.initEvet();
+        //XAlert.SKIN = ui.views.XAlertUIUI;
         XFacade.instance.showModule(LoadingView);
     };
     App.prototype.onRdy = function () {
@@ -49901,51 +49917,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var ShareEnter = /** @class */ (function (_super) {
-    __extends(ShareEnter, _super);
-    function ShareEnter() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.ui = new ui.pages.ShareEnterUI();
-        _this.months = ["JANUARY", "FEBURARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-        return _this;
-    }
-    ShareEnter.prototype.onCreate = function () {
-        var _this = this;
-        this.ui.getBtn.on(Laya.Event.CLICK, null, function () {
-            _this.back();
-        });
-        this.init();
-    };
-    ShareEnter.prototype.init = function () {
-        var lanunch = GameDataManager.instance.lanuchInfo;
-        var cid = lanunch.cid;
-        // var id = lanunch.id;
-        var bgImg = lanunch.cover;
-        var time = parseInt(lanunch.time);
-        var positions = GameDataManager.instance.cardConfig[cid];
-        this.ui.cardView.roleImg.skin = GameDataManager.instance.currentUserRoleImg();
-        this.ui.cardView.roleImg.x = positions[0] * 50 / 75 - 4;
-        this.ui.cardView.roleImg.y = positions[1] * 50 / 75 - 4;
-        var date = new Date(time);
-        this.ui.cardView.dateDay.text = date.getDate().toString();
-        this.ui.cardView.dateMonth.text = this.months[date.getMonth()];
-        this.ui.cardView.dateYear.text = date.getFullYear().toString();
-        this.ui.avatar.skin = lanunch.avatar;
-        this.ui.cardView.bgImg.skin = "https://s.xiuwu.me/perfectline/res/map/" + bgImg + ".png";
-    };
-    return ShareEnter;
-}(xframe.XWindow));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var DevView = /** @class */ (function (_super) {
     __extends(DevView, _super);
     function DevView() {
@@ -50091,7 +50062,8 @@ var GameView = /** @class */ (function (_super) {
             Laya.timer.clear(this, this.update);
             Laya.timer.clear(this, this.update2);
             Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-            PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
+            XFacade.instance.showModule(PopGamePause, Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart));
+            //PopGamePause.show(false, [Laya.Handler.create(this, this.toResume), Laya.Handler.create(this, this.restart)]);
             //暂停无敌状态
             Laya.timer.clear(this, this.refreshState);
         }
@@ -50212,7 +50184,7 @@ var GameView = /** @class */ (function (_super) {
             this.showResult();
         }
         else {
-            this.back();
+            this.close();
         }
     };
     GameView.prototype.initMap = function (firstTime) {
@@ -50231,7 +50203,7 @@ var GameView = /** @class */ (function (_super) {
         while (this.effContainer.numChildren) {
             this.effContainer.removeChildAt(0);
         }
-        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        var cfg = Laya.loader.getRes(AppConfig.urlRoot + 'res/snd/' + this.params.json + '.json');
         this._starCfg = (this.params.stars + "").split("|");
         for (var i = 0; i < this._starCfg.length; i++) {
             this._starCfg[i] = parseInt(this._starCfg[i]);
@@ -50276,7 +50248,7 @@ var GameView = /** @class */ (function (_super) {
                 return;
             }
         }
-        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        var cfg = Laya.loader.getRes(AppConfig.urlRoot + 'res/snd/' + this.params.json + '.json');
         //1根据当前位置计算出初始节点及结束点；
         //a,取当前节点
         var midIndex;
@@ -50385,7 +50357,7 @@ var GameView = /** @class */ (function (_super) {
             _this._startTime = Laya.Browser.now() - _this._startTime;
         });
         this.soundChannel.onError(function () {
-            XEvent.instance.event(GameEvent.ERR);
+            _this.close();
             //播放失败，返回体力
             User.instace.power += 1;
             User.instace.save();
@@ -50795,7 +50767,8 @@ var GameView = /** @class */ (function (_super) {
         this._eff.anchorX = this._eff.anchorY = 0.5;
         this._eff2 = new Laya.Image("res/game/light.png");
         this._eff2.anchorX = this._eff2.anchorY = 0.5;
-        this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        //this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        this.scrollRect = new Laya.Rectangle(0, 0, Laya.stage.width, Laya.stage.height);
         this.ui.selectBox.cacheAsBitmap = true;
         //自动暂停
         wx.onHide(function () {
@@ -50861,35 +50834,39 @@ var __extends = (this && this.__extends) || (function () {
 var PopGamePause = /** @class */ (function (_super) {
     __extends(PopGamePause, _super);
     function PopGamePause() {
-        var _this = _super.call(this) || this;
-        _this.createUI();
-        return _this;
+        return _super.call(this) || this;
     }
     PopGamePause.prototype.createUI = function () {
+        var _this = this;
         this._view = new ui.views.GamePauseUI();
         this.addChild(this._view);
         //
         this._view.btnHome.on(Laya.Event.CLICK, null, function () {
             XEvent.instance.event(GameEvent.BACK);
-            Tape.PopManager.hidePop(PopGamePause);
+            XFacade.instance.closeModule(PopGamePause);
         });
         this._view.btnRestart.on(Laya.Event.CLICK, null, function () {
-            PopGamePause.restartHandler.run();
-            Tape.PopManager.hidePop(PopGamePause);
+            _this._restartHandler.run();
+            XFacade.instance.closeModule(PopGamePause);
         });
         this._view.btnResume.on(Laya.Event.CLICK, null, function (e) {
             e.stopPropagation();
-            PopGamePause.resumeHandler.run();
-            Tape.PopManager.hidePop(PopGamePause);
+            _this._resumeHandler.run();
+            XFacade.instance.closeModule(PopGamePause);
         });
     };
-    /** */
-    PopGamePause.show = function (force, opt) {
-        if (force === void 0) { force = false; }
-        if (opt === void 0) { opt = null; }
-        this.resumeHandler = opt[0];
-        this.restartHandler = opt[1];
-        Tape.PopManager.showPop(PopGamePause);
+    PopGamePause.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        _super.prototype.show.call(this);
+        this._restartHandler = args[1];
+        this._resumeHandler = args[0];
+    };
+    PopGamePause.prototype.close = function () {
+        _super.prototype.close.call(this);
+        this._restartHandler = this._resumeHandler = null;
     };
     return PopGamePause;
 }(xframe.XMWindow));
@@ -50958,36 +50935,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-/*
-* name;
-*/
-var PopNoPower = /** @class */ (function (_super) {
-    __extends(PopNoPower, _super);
-    function PopNoPower() {
-        var _this = _super.call(this) || this;
-        _this.ui = new ui.views.NoPowerTipUI;
-        _this.ui.btnClose.on(Laya.Event.CLICK, null, function () {
-            _this.params.run();
-            _this.finish();
-        });
-        return _this;
-    }
-    PopNoPower.prototype.onShow = function () {
-        trace("PopNoPower show");
-    };
-    return PopNoPower;
-}(xframe.XMWindow));
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var GameLoading = /** @class */ (function (_super) {
     __extends(GameLoading, _super);
     function GameLoading() {
@@ -51013,9 +50960,9 @@ var GameLoading = /** @class */ (function (_super) {
     GameLoading.prototype.onShow = function () {
         //加载配置
         var res = [
-            { url: 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
+            { url: AppConfig.urlRoot + 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
         ];
-        GameView.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
+        GameView.mp3 = AppConfig.urlRoot + 'res/snd/' + this.params.mp3 + '.mp3';
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
     };
     GameLoading.prototype.loadSnd = function () {
@@ -51327,7 +51274,7 @@ var GameResultView = /** @class */ (function (_super) {
     };
     GameResultView.prototype.onShow = function () {
         // 金币的数量
-        this._rewardCoin = GameDataManager.instance.rewardCoinByStar(this.params.star);
+        this._rewardCoin = 0;
         this.updateUi();
         User.instace.gold += this._rewardCoin;
     };
@@ -51351,51 +51298,14 @@ var GameResultView = /** @class */ (function (_super) {
         this.ui.tip.text = GameResultView.tipArrays[this.params.star];
         this.ui.coinLabel.text = "X" + this._rewardCoin;
     };
-    GameResultView.prototype.updateData = function () {
-        // 好友排行榜
-        GameDataManager.instance.uploadCloudData();
-        // 保存单曲结果
-        GameDataManager.instance.recordMusicById(this.params.music.id, {
-            score: this.params.score,
-            star: this.params.star,
-            name: this.params.music.name
-        });
-    };
-    //上传分数
-    GameResultView.prototype.updateScore = function () {
-        // 单曲排行榜 开放域排行
-        GameDataManager.instance.uploadMusicCloudData(this.params.music.id, this.params.score);
-        // 单曲排行榜 世界排行
-        // GameDataManager.instance.updateMusicGrade(this.params.score, this.params.music.id);
-    };
     // 选择下一首音乐
     GameResultView.prototype.chooseNextMusic = function () {
         var music = this.params.music;
         var modeId = music.cid;
-        var list = GameDataManager.instance.getMuicList({ id: modeId });
+        var list = DBChapter.chapList;
         var index = list.indexOf(music);
-        if (index < list.length - 1) {
-            var nextMusic = list[index + 1];
-            XFacade.instance.showModule(GameLoading, nextMusic);
-        }
-        else {
-            // 最后一首 ，下章节没有解锁
-            var nextChapter = GameDataManager.instance.nextChapter(modeId);
-            if (nextChapter) {
-                var lock = GameDataManager.instance.checkModeIslock(nextChapter.id);
-                if (lock.length > 0) {
-                    // 下一章节没有解锁
-                    xframe.XTip.showTip("coming soon---------------");
-                }
-                else {
-                }
-            }
-            else {
-                // 敬请期待
-                xframe.XTip.showTip("coming soon---------------");
-                XEvent.instance.event(GameEvent.HOMECHAPTER);
-            }
-        }
+        //
+        XTip.showTip("doing~~~~~~~~~~~~~~~~~~~~~~");
     };
     // 提示解锁下一篇章
     GameResultView.prototype.toastReleaseNextChapter = function () {
@@ -51439,6 +51349,9 @@ var HomeView = /** @class */ (function (_super) {
         this.updateUserInfo();
         this.showMoveStar();
         this.ui.chapList.refresh();
+        var sx = Math.max(Laya.stage.width / AppConfig.AppWidth, Laya.stage.height / AppConfig.AppHeight);
+        this.ui.bg.scale(sx, sx);
+        this.ui.x = (this.ui.bg.width - AppConfig.AppWidth) / 2;
     };
     HomeView.prototype.close = function () {
         Star.destroy();
@@ -51454,7 +51367,7 @@ var HomeView = /** @class */ (function (_super) {
                 XFacade.instance.showModule(SignInView);
                 break;
             case this.ui.roleBtn:
-                Tape.PopManager.showPop(RoleList);
+                XFacade.instance.showModule(RoleView);
                 break;
             case this.ui.btnAddPower:
                 XFacade.instance.showModule(PopAddPower);
@@ -51475,7 +51388,7 @@ var HomeView = /** @class */ (function (_super) {
         }
     };
     HomeView.prototype.onScroll = function () {
-        var index = Math.round(this.ui.chapList.scrollBar.value / 480);
+        var index = Math.round(this.ui.chapList.scrollBar.value / 300);
         this.scrollToIndex(index);
     };
     HomeView.prototype.createUI = function () {
@@ -51617,7 +51530,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.common.HomeViewUI.uiView);
             };
-            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 1159, "x": 330, "var": "roleBtn", "skin": "res/main/btn_role.png" } }, { "type": "Image", "props": { "y": 1159, "x": 64, "var": "btnRank", "skin": "res/main/btn_ranking.png" } }, { "type": "Image", "props": { "y": 1041, "x": 520, "visible": false, "var": "btnMore", "skin": "res/common/ic_more.png" } }, { "type": "Image", "props": { "y": 244, "x": 24, "var": "btnSignin", "skin": "res/main/btn_sign.png" } }, { "type": "List", "props": { "y": 519, "x": -78, "width": 901, "var": "chapList", "height": 295 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "runtime": "ChaperItem", "name": "render" } }] }, { "type": "Image", "props": { "y": 116, "x": 20, "width": 88, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "renderType": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "y": 28, "x": 20 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_star.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 362 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 31, "x": 190 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 52, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 45, "x": 304, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }, { "type": "Image", "props": { "y": 1159, "x": 605, "var": "cardBtn", "skin": "res/main/btn_card.png" } }, { "type": "Label", "props": { "y": 1279, "x": 71, "text": "排行榜", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 350, "text": "角色", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 1279, "x": 600, "text": "音乐卡片", "fontSize": 25, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 324, "x": 36, "text": "签到", "fontSize": 25, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 15, "x": 507, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }] };
+            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "res/main/bj_homepage@2x.png" } }, { "type": "Image", "props": { "y": 1178, "x": 50, "var": "roleBtn", "skin": "res/main/btn_role.png" }, "child": [{ "type": "Label", "props": { "y": 120, "x": 20, "text": "角色", "fontSize": 25, "color": "#ffffff", "align": "center" } }] }, { "type": "Image", "props": { "y": 1041, "x": 520, "visible": false, "var": "btnMore", "skin": "res/common/ic_more.png" } }, { "type": "Image", "props": { "y": 244, "x": 24, "var": "btnSignin", "skin": "res/main/btn_sign.png" } }, { "type": "List", "props": { "y": 519, "x": -86, "width": 921, "var": "chapList", "spaceX": 10, "height": 300 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "runtime": "ChaperItem", "name": "render" } }] }, { "type": "Image", "props": { "y": 116, "x": 20, "width": 88, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "renderType": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "y": 28, "x": 20 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_star.png" } }] }, { "type": "Box", "props": { "y": 28, "x": 362 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 31, "x": 190 }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 52, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 45, "x": 304, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }, { "type": "Label", "props": { "y": 324, "x": 36, "text": "签到", "fontSize": 25, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 15, "x": 507, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }] };
             return HomeViewUI;
         }(View));
         common.HomeViewUI = HomeViewUI;
@@ -51780,11 +51693,10 @@ var ui;
                 return _super.call(this) || this;
             }
             GamePauseUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.GamePauseUI.uiView);
             };
-            GamePauseUI.uiView = { "type": "View", "props": { "width": 640, "height": 936 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/bj_ranking_tc.png" } }, { "type": "Image", "props": { "y": 67, "x": 54, "var": "btnHome", "skin": "res/game/btn_home.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 432, "x": 343, "var": "btnRestart", "skin": "res/game/btn_again.png", "runtime": "runtime.btn_img" } }, { "type": "Button", "props": { "y": 432, "x": 37, "var": "btnResume", "stateNum": 1, "skin": "res/game/btn_continue.png" } }, { "type": "Label", "props": { "y": 7, "x": 169, "width": 301, "text": "暂停", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "center" } }] };
+            GamePauseUI.uiView = { "type": "View", "props": { "width": 640, "height": 936 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/role/bj_ranking_tc.png" } }, { "type": "Image", "props": { "y": 67, "x": 54, "var": "btnHome", "skin": "res/game/btn_home.png" } }, { "type": "Image", "props": { "y": 432, "x": 343, "var": "btnRestart", "skin": "res/game/btn_again.png" } }, { "type": "Button", "props": { "y": 432, "x": 37, "var": "btnResume", "stateNum": 1, "skin": "res/game/btn_continue.png" } }, { "type": "Label", "props": { "y": 7, "x": 169, "width": 301, "text": "暂停", "height": 66, "fontSize": 48, "color": "#ffffff", "align": "center" } }] };
             return GamePauseUI;
         }(View));
         views.GamePauseUI = GamePauseUI;
@@ -51838,11 +51750,10 @@ var ui;
                     return _super.call(this) || this;
                 }
                 AddPowerUI.prototype.createChildren = function () {
-                    View.regComponent("runtime.btn", runtime.btn);
                     _super.prototype.createChildren.call(this);
                     this.createView(ui.views.home.AddPowerUI.uiView);
                 };
-                AddPowerUI.uiView = { "type": "View", "props": { "width": 750, "height": 1134 }, "child": [{ "type": "Image", "props": { "y": 287, "x": 55, "width": 642, "skin": "res/main/bj_power_tc.png", "sizeGrid": "150,50,50,50", "height": 577 } }, { "type": "Label", "props": { "y": 316, "x": 269, "width": 211, "text": "获取体力", "height": 54, "fontSize": 38, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 302, "x": 641, "var": "btnClose", "stateNum": 1, "skin": "res/main/btn_close.png" } }, { "type": "Button", "props": { "y": 723, "x": 260, "var": "btnWatch", "stateNum": 1, "skin": "res/main/btn_watch.png", "runtime": "runtime.btn" } }, { "type": "Image", "props": { "y": 428, "x": 271, "skin": "res/main/ic_add_power.png" } }, { "type": "Label", "props": { "y": 668, "x": 220, "width": 211, "text": "看视频增加体力", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#666666", "align": "right" } }, { "type": "Image", "props": { "y": 654, "x": 438, "skin": "res/main/ic_power1.png" } }, { "type": "Label", "props": { "y": 668, "x": 500, "width": 211, "text": "x1", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#666666", "align": "left" } }] };
+                AddPowerUI.uiView = { "type": "View", "props": { "width": 750, "height": 1134 }, "child": [{ "type": "Image", "props": { "y": 287, "x": 55, "width": 642, "skin": "res/main/bj_power_tc.png", "sizeGrid": "150,50,50,50", "height": 577 } }, { "type": "Label", "props": { "y": 316, "x": 269, "width": 211, "text": "获取体力", "height": 54, "fontSize": 38, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 302, "x": 641, "var": "btnClose", "stateNum": 1, "skin": "res/main/btn_close.png" } }, { "type": "Button", "props": { "y": 723, "x": 260, "var": "btnWatch", "stateNum": 1, "skin": "res/main/btn_watch.png" } }, { "type": "Image", "props": { "y": 428, "x": 271, "skin": "res/main/ic_add_power.png" } }, { "type": "Label", "props": { "y": 668, "x": 220, "width": 211, "text": "看视频增加体力", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#666666", "align": "right" } }, { "type": "Image", "props": { "y": 654, "x": 438, "skin": "res/main/ic_power1.png" } }, { "type": "Label", "props": { "y": 668, "x": 500, "width": 211, "text": "x1", "height": 39, "fontSize": 28, "font": "PingFangSC-Semibold", "color": "#666666", "align": "left" } }] };
                 return AddPowerUI;
             }(View));
             home.AddPowerUI = AddPowerUI;
@@ -51863,7 +51774,7 @@ var ui;
                     _super.prototype.createChildren.call(this);
                     this.createView(ui.views.home.ChapterItemUI.uiView);
                 };
-                ChapterItemUI.uiView = { "type": "View", "props": { "width": 300, "height": 300 }, "child": [{ "type": "Box", "props": { "y": 150, "x": 150, "var": "box", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 300, "var": "pic", "skin": "res/main/bj_piece.png", "height": 300 } }, { "type": "Label", "props": { "y": 8, "x": 75, "width": 149, "var": "tfName", "height": 25, "fontSize": 25, "color": "#ffffff", "align": "center" } }] }] };
+                ChapterItemUI.uiView = { "type": "View", "props": { "width": 300, "height": 300 }, "child": [{ "type": "Box", "props": { "y": 150, "x": 150, "var": "box", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 300, "var": "pic", "skin": "res/icon/1.png", "height": 300 } }, { "type": "Label", "props": { "y": 8, "x": 75, "width": 149, "var": "tfName", "height": 25, "fontSize": 25, "color": "#ffffff", "align": "center" } }] }] };
                 return ChapterItemUI;
             }(View));
             home.ChapterItemUI = ChapterItemUI;
@@ -51912,35 +51823,16 @@ var ui;
 (function (ui) {
     var views;
     (function (views) {
-        var NoPowerTipUI = /** @class */ (function (_super) {
-            __extends(NoPowerTipUI, _super);
-            function NoPowerTipUI() {
-                return _super.call(this) || this;
-            }
-            NoPowerTipUI.prototype.createChildren = function () {
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.NoPowerTipUI.uiView);
-            };
-            NoPowerTipUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 423, "x": 55, "width": 642, "skin": "res/main/bj_power_tc.png", "sizeGrid": "124,0,75,0", "height": 434 } }, { "type": "Label", "props": { "y": 452, "x": 269, "width": 211, "var": "tfTitle", "text": "体力不足", "height": 54, "fontSize": 42, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 604, "x": 175, "wordWrap": true, "width": 400, "var": "tfContent", "text": "   今天的体力用完了， 明天再来宠幸我吧~", "leading": 10, "height": 98, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#666666", "align": "center" } }, { "type": "Button", "props": { "y": 735, "x": 260, "var": "btnClose", "stateNum": 1, "skin": "res/game/btn_sure2.png" } }] };
-            return NoPowerTipUI;
-        }(View));
-        views.NoPowerTipUI = NoPowerTipUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
         var RoleItemRenderUI = /** @class */ (function (_super) {
             __extends(RoleItemRenderUI, _super);
             function RoleItemRenderUI() {
                 return _super.call(this) || this;
             }
             RoleItemRenderUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.RoleItemRenderUI.uiView);
             };
-            RoleItemRenderUI.uiView = { "type": "View", "props": { "width": 600, "height": 120 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 600, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 120 } }, { "type": "Image", "props": { "y": 10, "x": 14, "width": 100, "var": "roleimg", "skin": "res/ic_role/xhj.png", "height": 100 } }, { "type": "Label", "props": { "y": 23, "x": 134, "var": "rolename", "text": "角色", "fontSize": 30, "color": "#404040" } }, { "type": "Label", "props": { "y": 69, "x": 134, "var": "tip", "text": "连续签到七天可以解锁", "fontSize": 20, "color": "#999999" } }, { "type": "Image", "props": { "y": 27, "x": 487, "var": "useBtn", "skin": "res/role/btn_use.png", "runtime": "runtime.btn_img" } }] };
+            RoleItemRenderUI.uiView = { "type": "View", "props": { "width": 600, "height": 120 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 600, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 120 } }, { "type": "Image", "props": { "y": 10, "x": 14, "width": 100, "var": "roleimg", "skin": "res/ic_role/xhj.png", "height": 100 } }, { "type": "Label", "props": { "y": 23, "x": 134, "var": "rolename", "text": "角色", "fontSize": 30, "color": "#404040" } }, { "type": "Label", "props": { "y": 69, "x": 134, "var": "tip", "text": "连续签到七天可以解锁", "fontSize": 20, "color": "#999999" } }, { "type": "Button", "props": { "y": 28, "x": 471, "var": "useBtn", "stateNum": 1, "skin": "res/role/btn_use.png", "labelSize": 24, "labelBold": true, "label": "使用" } }] };
             return RoleItemRenderUI;
         }(View));
         views.RoleItemRenderUI = RoleItemRenderUI;
@@ -51955,12 +51847,11 @@ var ui;
                 return _super.call(this) || this;
             }
             RoleViewUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                View.regComponent("ui.views.RoleItemRenderUI", ui.views.RoleItemRenderUI);
+                View.regComponent("RoleItem", RoleItem);
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.RoleViewUI.uiView);
             };
-            RoleViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 199, "x": 55, "skin": "res/role/bj_role_tc.png" }, "child": [{ "type": "Label", "props": { "y": 14, "x": 280, "width": 80, "text": "角色", "height": 40, "fontSize": 40, "color": "#ffffff", "bold": true } }, { "type": "Image", "props": { "y": 57, "x": 587, "var": "closebtn", "skin": "res/main/btn_close.png", "runtime": "runtime.btn_img" } }, { "type": "List", "props": { "y": 135, "x": 20, "width": 600, "var": "rolelist", "spaceY": 12, "repeatX": 1, "height": 785 }, "child": [{ "type": "RoleItemRender", "props": { "name": "render", "runtime": "ui.views.RoleItemRenderUI" } }] }] }] };
+            RoleViewUI.uiView = { "type": "View", "props": { "width": 650, "height": 960 }, "child": [{ "type": "Image", "props": { "y": 12, "x": 5, "skin": "res/role/bj_role_tc.png" }, "child": [{ "type": "Label", "props": { "y": 14, "x": 280, "width": 80, "text": "角色", "height": 40, "fontSize": 40, "color": "#ffffff", "bold": true } }, { "type": "Image", "props": { "y": 57, "x": 587, "var": "closebtn", "skin": "res/main/btn_close.png" } }, { "type": "List", "props": { "y": 135, "x": 20, "width": 600, "var": "rolelist", "spaceY": 12, "repeatX": 1, "height": 785 }, "child": [{ "type": "RoleItemRender", "props": { "runtime": "RoleItem", "name": "render" } }] }] }] };
             return RoleViewUI;
         }(View));
         views.RoleViewUI = RoleViewUI;
@@ -51982,25 +51873,6 @@ var ui;
             return SettingComUI;
         }(View));
         views.SettingComUI = SettingComUI;
-    })(views = ui.views || (ui.views = {}));
-})(ui || (ui = {}));
-(function (ui) {
-    var views;
-    (function (views) {
-        var ShareMenuUI = /** @class */ (function (_super) {
-            __extends(ShareMenuUI, _super);
-            function ShareMenuUI() {
-                return _super.call(this) || this;
-            }
-            ShareMenuUI.prototype.createChildren = function () {
-                View.regComponent("runtime.btn_img", runtime.btn_img);
-                _super.prototype.createChildren.call(this);
-                this.createView(ui.views.ShareMenuUI.uiView);
-            };
-            ShareMenuUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "View", "props": { "y": 1038, "x": 0, "width": 750, "var": "bottomView", "height": 296 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 750, "height": 296, "alpha": 0.88 }, "child": [{ "type": "Rect", "props": { "width": 750, "lineWidth": 1, "height": 296, "fillColor": "#00000000" } }] }, { "type": "Image", "props": { "y": 115, "x": 168, "var": "pyq", "skin": "res/common/pyq.png", "runtime": "runtime.btn_img" } }, { "type": "Image", "props": { "y": 115, "x": 481, "var": "wxBtn", "skin": "res/common/wechat.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 51, "x": 330, "text": "分享到", "fontSize": 30, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 238, "x": 177, "text": "朋友圈", "fontSize": 28, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 240, "x": 476, "text": "微信好友", "fontSize": 28, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 17, "x": 698, "var": "closeBtn", "skin": "res/game/btn_close.png", "runtime": "runtime.btn_img" } }, { "type": "Label", "props": { "y": 66, "x": 202, "width": 96, "height": 1, "bgColor": "#e1e1e1" } }, { "type": "Label", "props": { "y": 66, "x": 452, "width": 96, "height": 1, "bgColor": "#e1e1e1" } }] }] };
-            return ShareMenuUI;
-        }(View));
-        views.ShareMenuUI = ShareMenuUI;
     })(views = ui.views || (ui.views = {}));
 })(ui || (ui = {}));
 (function (ui) {
@@ -52057,6 +51929,24 @@ var ui;
         views.TopToastViewUI = TopToastViewUI;
     })(views = ui.views || (ui.views = {}));
 })(ui || (ui = {}));
+(function (ui) {
+    var views;
+    (function (views) {
+        var XAlertUIUI = /** @class */ (function (_super) {
+            __extends(XAlertUIUI, _super);
+            function XAlertUIUI() {
+                return _super.call(this) || this;
+            }
+            XAlertUIUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.views.XAlertUIUI.uiView);
+            };
+            XAlertUIUI.uiView = { "type": "View", "props": { "width": 642, "height": 434 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 642, "skin": "res/main/bj_power_tc.png", "sizeGrid": "124,0,75,0", "height": 434 }, "child": [{ "type": "Label", "props": { "y": 29, "x": 151, "width": 337, "var": "tfTitle", "text": "体力不足", "height": 54, "fontSize": 42, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 181, "x": 120, "wordWrap": true, "width": 400, "var": "tfMsg", "text": "   今天的体力用完了， 明天再来宠幸我吧~", "leading": 10, "height": 98, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#666666", "align": "center" } }, { "type": "Button", "props": { "y": 313, "x": 158, "var": "btnYes", "stateNum": 1, "skin": "res/common/btn_yellow.png", "labelSize": 32 } }, { "type": "Button", "props": { "y": 313, "x": 350, "var": "btnNo", "stateNum": 1, "skin": "res/common/btn_red.png", "labelSize": 32, "label": "label" } }] }] };
+            return XAlertUIUI;
+        }(View));
+        views.XAlertUIUI = XAlertUIUI;
+    })(views = ui.views || (ui.views = {}));
+})(ui || (ui = {}));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -52087,7 +51977,7 @@ var ChaperItem = /** @class */ (function (_super) {
             this._data = data;
             if (data) {
                 this.visible = true;
-                //this.pic.skin = data.cover+"";
+                this.pic.skin = "res/icon/" + data.id + ".png";
                 this.tfName.text = data.name + "";
             }
             else {
@@ -52211,63 +52101,93 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var LoginPop = /** @class */ (function (_super) {
-    __extends(LoginPop, _super);
-    function LoginPop() {
-        return _super !== null && _super.apply(this, arguments) || this;
+/*
+* name;
+*/
+var RoleItem = /** @class */ (function (_super) {
+    __extends(RoleItem, _super);
+    function RoleItem() {
+        return _super.call(this) || this;
     }
-    LoginPop.check = function (success) {
-        Tape.MiniButton.checkGetUserInfo(function (userRes) {
-            wx.showLoading({
-                title: '登录中...'
-            });
-            yxmp.api.setUserInfo(userRes.encryptedData, userRes.iv).then(function (res) {
-                success && success(userRes);
-                wx.hideLoading();
-            }).catch(function (err) {
-                success && success(userRes);
-                wx.hideLoading();
-            });
-        }, function () {
-            wx.showModal({
-                title: '　提示',
-                content: "\u4E3A\u4E86\u67E5\u770B\u6392\u884C\u699C\u53CA\u597D\u53CB\u4FE1\u606F\uFF0C\u60A8\u9700\u8981\u60A8\u5141\u8BB8\u6E38\u620F\u4F7F\u7528\u7528\u6237\u4FE1\u606F",
-                showCancel: false,
-                confirmText: '去授权',
-                success: function (res) {
-                    LoginPop.show({ success: success });
+    Object.defineProperty(RoleItem.prototype, "dataSource", {
+        get: function () {
+            return this._vo;
+        },
+        set: function (vo) {
+            this.useBtn.offAll(Laya.Event.CLICK);
+            this._vo = vo;
+            if (vo) {
+                this.roleimg.skin = "res/ic_role/" + vo.img + ".png";
+                this.rolename.text = vo.name;
+                this.tip.text = vo.name;
+                if (User.instace.roleInfo[vo.id] == 1) {
+                    this.useBtn.label = "使用中";
+                    this.tip.text = "已获取";
                 }
-            });
-        });
-    };
-    LoginPop.prototype.onShow = function () {
-        var _this = this;
-        Tape.MiniButton.showGetUserInfoButton('res/main/bj_homepage@2x.png', 0, 0, 750, 1334, function (userRes) {
-            wx.showLoading({
-                title: '登录中...'
-            });
-            yxmp.api.setUserInfo(userRes.encryptedData, userRes.iv).then(function (res) {
-                _this.params.success && _this.params.success(userRes);
-                Tape.MiniButton.hideGetUserInfoButton();
-                wx.hideLoading();
-                _this.finish();
-            }).catch(function (err) {
-                _this.params.success && _this.params.success(userRes);
-                wx.hideLoading();
-            });
-        }, function () {
-            wx.showModal({
-                title: '　提示',
-                content: "\u4E3A\u4E86\u67E5\u770B\u6392\u884C\u699C\u53CA\u597D\u53CB\u4FE1\u606F\uFF0C\u60A8\u9700\u8981\u60A8\u5141\u8BB8\u6E38\u620F\u4F7F\u7528\u7528\u6237\u4FE1\u606F",
-                showCancel: false,
-                confirmText: '去授权',
-                success: function (res) {
+                else if (User.instace.roleInfo[vo.id] == 0) {
+                    this.useBtn.label = "使用";
+                    this.tip.text = "已获取";
+                    this.useBtn.on(Laya.Event.CLICK, this, this.onUse);
                 }
-            });
-        });
+                else {
+                    this.useBtn.label = "购买";
+                    if (vo.cost[0] == 1) {
+                        this.tip.text = "消费" + vo.cost[1] + "金币获得";
+                    }
+                    else {
+                        this.tip.text = "消费" + vo.cost[1] + "钻石获得";
+                    }
+                    this.useBtn.on(Laya.Event.CLICK, this, this.onBuy);
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    RoleItem.prototype.onBuy = function () {
+        if (this._vo.cost[0] == 1) {
+            if (User.instace.gold < this._vo.cost[1]) {
+                XTip.showTip("金币不足~");
+            }
+            else {
+                User.instace.roleInfo[this._vo.id] = 0;
+                User.instace.gold -= this._vo.cost[1];
+                XTip.showTip("获得" + this._vo.name);
+            }
+            User.instace.save();
+            User.instace.dispatchEvent();
+        }
+        else {
+            if (User.instace.gold < this._vo.cost[1]) {
+                XTip.showTip("钻石不足~");
+            }
+            else {
+                User.instace.roleInfo[this._vo.id] = 0;
+                User.instace.diamond -= this._vo.cost[1];
+                XTip.showTip("获得" + this._vo.name);
+            }
+            User.instace.save();
+            User.instace.dispatchEvent();
+        }
     };
-    return LoginPop;
-}(xframe.XMWindow));
+    RoleItem.prototype.onUse = function () {
+        for (var i in User.instace.roleInfo) {
+            if (i == this._vo.id + "") {
+                User.instace.roleInfo[i] = 1;
+            }
+            else {
+                User.instace.roleInfo[i] = 0;
+            }
+        }
+        User.instace.dispatchEvent();
+    };
+    RoleItem.prototype.destroy = function () {
+        this.useBtn.off(Laya.Event.CLICK, this, this.onBuy);
+        this.useBtn.off(Laya.Event.CLICK, this, this.onUse);
+        _super.prototype.destroy.call(this);
+    };
+    return RoleItem;
+}(ui.views.RoleItemRenderUI));
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -52279,123 +52199,37 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var usedRoleKey = "nowUseRole";
-var RoleList = /** @class */ (function (_super) {
-    __extends(RoleList, _super);
-    function RoleList() {
+var RoleView = /** @class */ (function (_super) {
+    __extends(RoleView, _super);
+    function RoleView() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.views.RoleViewUI();
         _this.bgAlpha = 0.8;
-        _this.init();
+        _this.ui.rolelist.vScrollBarSkin = null;
+        _this.ui.rolelist.scrollBar.elasticBackTime = 200;
+        _this.ui.rolelist.scrollBar.elasticDistance = 200;
+        _this.closeOnBlank = true;
         return _this;
     }
-    RoleList.prototype.init = function () {
-        var _this = this;
-        this.ui.closebtn.on(Laya.Event.CLICK, null, function () {
-            _this.close();
-        });
-        this.ui.rolelist.renderHandler = Laya.Handler.create(this, function (item, index) {
-            _this.renderItem(item, index);
-        }, null, false);
-        this.ui.rolelist.vScrollBarSkin = null;
-        this.ui.rolelist.scrollBar.elasticBackTime = 200;
-        this.ui.rolelist.scrollBar.elasticDistance = 200;
-        this.ui.rolelist.array = GameDataManager.instance.roleLIst;
-        Laya.stage.on(refreshRoleList, this, function () {
-            _this.ui.rolelist.array = GameDataManager.instance.roleLIst;
-        });
+    RoleView.prototype.show = function () {
+        _super.prototype.show.call(this);
+        this.ui.rolelist.array = DBGame.roleInfo;
     };
-    RoleList.prototype.renderItem = function (item, index) {
-        var _this = this;
-        var data = GameDataManager.instance.roleLIst[index];
-        var cell = item;
-        cell.useBtn.offAll(Laya.Event.CLICK);
-        if (data.id == Laya.LocalStorage.getItem(usedRoleKey)) {
-            cell.useBtn.skin = "res/role/ic_used.png";
-        }
-        else if (User.instace.checkIsOwnRoleById(data.id)) {
-            cell.useBtn.skin = "res/role/btn_use.png";
-            cell.useBtn.on(Laya.Event.CLICK, null, function () {
-                _this.userRole(data);
-            });
-        }
-        else if (data.type == 1) {
-            cell.useBtn.skin = "res/role/btn_use.png";
-            cell.useBtn.on(Laya.Event.CLICK, null, function () {
-                _this.userRole(data);
-            });
-        }
-        else {
-            cell.useBtn.skin = "res/role/btn_release.png";
-            cell.useBtn.on(Laya.Event.CLICK, null, function () {
-                _this.releaseRole(data, index);
-            });
-        }
-        var tip = "";
-        if (data.type == 1) {
-            tip = "免费使用";
-        }
-        else if (data.type == 2) {
-            tip = "花费" + data.cost + "个金币解锁";
-        }
-        else if (data.type == 3) {
-            tip = "连续签到七天可解锁";
-        }
-        cell.roleimg.skin = "res/ic_role/" + data.img + ".png";
-        cell.rolename.text = data.name;
-        cell.tip.text = tip;
-    };
-    // 解锁角色
-    RoleList.prototype.releaseRole = function (data, index) {
-        var _this = this;
-        if (data.type == 2) { //购买
-            if (User.instace.gold >= data.cost) {
-                wx.showModal({
-                    title: '提示',
-                    content: '获取当前角色需要消耗' + data.cost + "金币",
-                    showCancel: true,
-                    cancelText: '取消',
-                    confirmText: '确定',
-                    success: function (res) {
-                        if (res.confirm) {
-                            _this.getRole(data);
-                        }
-                        if (res.cancel) {
-                        }
-                    }
-                });
-            }
-            else {
-                wx.showToast({
-                    icon: 'none',
-                    title: '金币不够'
-                });
-            }
-        }
-        else if (data.type == 3) { // 签到
-            Tape.PopManager.showPop(SignInView);
-        }
-    };
-    RoleList.prototype.getRole = function (data) {
-        wx.showToast({
-            icon: 'none',
-            title: '解锁成功'
-        });
-        // 记录金币
-        User.instace.gold -= data.cost;
-        GameDataManager.instance.recordUserGameData();
-        // 记录角色
-        GameDataManager.instance.recordUserRolesData(data);
-        // 更改按钮状态
+    RoleView.prototype.update = function () {
+        trace("update");
         this.ui.rolelist.refresh();
     };
-    RoleList.prototype.userRole = function (data) {
-        Laya.LocalStorage.setItem(usedRoleKey, data.id);
-        this.ui.rolelist.refresh();
+    RoleView.prototype.initEvent = function () {
+        _super.prototype.initEvent.call(this);
+        this.ui.closebtn.on(Laya.Event.CLICK, this, this.close);
+        XEvent.instance.on(User.UPDATE, this, this.update);
     };
-    RoleList.prototype.onShow = function () {
+    RoleView.prototype.removeEvent = function () {
+        _super.prototype.removeEvent.call(this);
+        this.ui.closebtn.off(Laya.Event.CLICK, this, this.close);
+        XEvent.instance.off(User.UPDATE, this, this.update);
     };
-    return RoleList;
+    return RoleView;
 }(xframe.XMWindow));
 
 var __extends = (this && this.__extends) || (function () {
@@ -52463,11 +52297,10 @@ var xframe;
             //==============================================================
             //根据需要换UI====================================================
             //==============================================================
-            this.ui = new XXAlertUI();
+            this.ui = new ui.views.XAlertUIUI();
             this.addChild(this.ui);
             //==============================================================
             //END===========================================================
-            //==============================================================
             this._btnYes = this.ui["btnYes"];
             this._btnNo = this.ui["btnNo"];
             this._btnClose = this.ui["btnClose"];
@@ -52524,8 +52357,8 @@ var xframe;
             if (noBtnLabel == null || noBtnLabel == "") {
                 noBtnLabel = XAlert.LABEL_NO_DEFAULT;
             }
-            this._tfMsg.innerHTML = message + "";
-            this._tfMsg.y = (this._btnYes.y - this._tfMsg.contextHeight) * 0.5;
+            this._tfMsg.text = message + "";
+            this._tfMsg.y = (this._btnYes.y - this._tfMsg.height) * 0.5;
             var btnNum = 0;
             if (showYesBtn) {
                 btnNum++;
@@ -52590,14 +52423,14 @@ var xframe;
             bg.size(500, 320);
             bg.graphics.drawRect(0, 0, 500, 320, "#66ccff");
             _this.addChild(bg);
-            _this.tfMsg = new Laya.HTMLDivElement();
+            _this.tfMsg = new Laya.Label;
             _this.tfMsg.width = 460;
             _this.addChild(_this.tfMsg);
             _this.tfMsg.pos(20, 72);
-            _this.tfMsg.style.fontFamily = "微软雅黑";
-            _this.tfMsg.style.fontSize = 20;
-            _this.tfMsg.style.color = "#ffffff";
-            _this.tfMsg.style.align = "center";
+            _this.tfMsg.font = "微软雅黑";
+            _this.tfMsg.fontSize = 20;
+            _this.tfMsg.color = "#ffffff";
+            _this.tfMsg.align = "center";
             _this.btnYes = new Laya.Button("", "Yes");
             bg = new Laya.Image();
             bg.graphics.drawRect(0, 0, 100, 50, "#ff6600");
@@ -52916,8 +52749,10 @@ var Main = /** @class */ (function () {
         //初始化微信小游戏
         Laya.MiniAdpter.init();
         //程序入口
-        Laya.init(750, 1334, Laya.WebGL);
-        Laya.stage.scaleMode = "noscale";
+        Laya.init(AppConfig.AppWidth, AppConfig.AppHeight, Laya.WebGL);
+        //Laya.stage.scaleMode = "noscale";
+        //Laya.stage.scaleMode = "showall";
+        Laya.stage.scaleMode = Laya.Stage.SCALE_FIXED_WIDTH;
         this.init();
     }
     Main.prototype.init = function () {
@@ -52938,6 +52773,7 @@ var Main = /** @class */ (function () {
             { url: 'res/atlas/res/role.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/atlas/res/game.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/atlas/res/ic_role.atlas', type: Laya.Loader.ATLAS },
+            { url: 'res/atlas/res/icon.atlas', type: Laya.Loader.ATLAS },
             { url: 'res/cfg/stage.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/role.json', type: Laya.Loader.JSON },
         ];

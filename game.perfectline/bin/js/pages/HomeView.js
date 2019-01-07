@@ -21,6 +21,9 @@ var HomeView = /** @class */ (function (_super) {
         this.updateUserInfo();
         this.showMoveStar();
         this.ui.chapList.refresh();
+        var sx = Math.max(Laya.stage.width / AppConfig.AppWidth, Laya.stage.height / AppConfig.AppHeight);
+        this.ui.bg.scale(sx, sx);
+        this.ui.x = (this.ui.bg.width - AppConfig.AppWidth) / 2;
     };
     HomeView.prototype.close = function () {
         Star.destroy();

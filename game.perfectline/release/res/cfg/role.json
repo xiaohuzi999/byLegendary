@@ -10,63 +10,63 @@
 		{
 			"id": 2,
 			"img": "ppx",
-			"cost": [1,10],
+			"cost": [2,10],
 			"name" : "papa蟹",
 			"rotate": 0
 		},
 		{
 			"id": 3,
 			"img": "hbd",
-			"cost": [1,10],
+			"cost": [1,666],
 			"name" : "荷包蛋",
 			"rotate": 0
 		},	
 		{
 			"id": 4,
 			"img": "mmq",
-			"cost": [1,10],
+			"cost": [1,8888],
 			"name" : "莓莓圈",
 			"rotate": 1
 		},	
 		{
 			"id": 5,
 			"img": "xq",
-			"cost": [1,10],
+			"cost": [1,18888],
 			"name" : "星球",
 			"rotate": 0
 		},	
 		{
 			"id": 6,
 			"img": "qklq",
-			"cost": [1,10],
+			"cost": [2,88],
 			"name" : "巧克力圈",
 			"rotate": 1
 		},
 		{
 			"id": 7,
 			"img": "ppc",
-			"cost": [1,10],
+			"cost": [2,188],
 			"name" : "飘飘虫",
 			"rotate": 0
 		},	
 		{
 			"id": 8,
 			"img": "mmj",
-			"cost": [1,10],
+			"cost": [2,288],
 			"name" : "焖焖鸡",
 			"rotate": 0
 		},
 		{
 			"id": 9,
 			"img": "xfq",
-			"cost": [1,10],
+			"cost": [2,666],
 			"name" : "小番茄",
 			"rotate": 1
 		},
 		{
 			"id": 10,
 			"img": "8b",
-			"cost": [1,10],
+			"cost": [2,888],
 			"name" : "8 ball",
 			"rotate": 1
 		}

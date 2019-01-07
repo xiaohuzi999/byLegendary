@@ -20,9 +20,9 @@ class GameLoading extends xframe.XMWindow{
     private onShow() {
         //加载配置
         var res:any[] =  [
-            { url: 'res/snd/' + this.params.json + '.json', type:Laya.Loader.JSON}
+            { url: AppConfig.urlRoot+'res/snd/' + this.params.json + '.json', type:Laya.Loader.JSON}
         ]
-        GameView.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
+        GameView.mp3 = AppConfig.urlRoot+'res/snd/' + this.params.mp3 + '.mp3';
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
     }
 

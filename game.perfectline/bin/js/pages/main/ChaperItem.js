@@ -27,7 +27,7 @@ var ChaperItem = /** @class */ (function (_super) {
             this._data = data;
             if (data) {
                 this.visible = true;
-                //this.pic.skin = data.cover+"";
+                this.pic.skin = "res/icon/" + data.id + ".png";
                 this.tfName.text = data.name + "";
             }
             else {

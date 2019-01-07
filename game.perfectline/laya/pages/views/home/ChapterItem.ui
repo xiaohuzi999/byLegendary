@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":4,
-    "selecteID":5,
+    "selecteID":2,
     "props":{"width":300,"sceneColor":"#000000","height":300},
     "nodeParent":-1,
     "label":"View",
@@ -27,7 +27,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":0,"x":0,"width":300,"var":"pic","skin":"res/main/bj_piece.png","height":300},
+                    "props":{"y":0,"x":0,"width":300,"var":"pic","skin":"res/icon/1.png","height":300},
                     "nodeParent":4,
                     "label":"Image(pic)",
                     "isDirectory":false,

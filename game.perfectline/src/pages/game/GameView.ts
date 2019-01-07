@@ -262,6 +262,7 @@ class GameView extends xframe.XWindow {
     private offsetY: number;
     //地图数组
     private _mapArr: number[];
+    
 
     private initMap(firstTime: boolean = true): void {
         this._rendIndex = 1;
@@ -279,7 +280,7 @@ class GameView extends xframe.XWindow {
             this.effContainer.removeChildAt(0);
         }
 
-        var cfg: { speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any } = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        var cfg: { speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any } = Laya.loader.getRes(AppConfig.urlRoot+'res/snd/' + this.params.json + '.json');
 
         this._starCfg = (this.params.stars + "").split("|");
         for (let i = 0; i < this._starCfg.length; i++) {
@@ -332,7 +333,7 @@ class GameView extends xframe.XWindow {
                 return;
             }
         }
-        var cfg: { speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any } = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        var cfg: { speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any } = Laya.loader.getRes(AppConfig.urlRoot+'res/snd/' + this.params.json + '.json');
         //1根据当前位置计算出初始节点及结束点；
         //a,取当前节点
         var midIndex: number;
@@ -850,7 +851,8 @@ class GameView extends xframe.XWindow {
         this._eff2 = new Laya.Image("res/game/light.png");
         this._eff2.anchorX = this._eff2.anchorY = 0.5;
 
-        this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        //this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        this.scrollRect = new Laya.Rectangle(0, 0, Laya.stage.width, Laya.stage.height);
         this.ui.selectBox.cacheAsBitmap = true;
         //自动暂停
         wx.onHide(() => {

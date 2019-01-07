@@ -11,7 +11,7 @@ var XDB = /** @class */ (function () {
         wx.login({
             success: function (res) {
                 if (res.code) {
-                    xframe.HttpCmd.callServer(onFetchHandler, "srv", "login", { code: res.code });
+                    xframe.HttpCmd.callServer(onFetchHandler, "srv", "login", { name: "petmusician", code: res.code, });
                 }
                 else {
                     XAlert.showAlert('登录失败！' + res.errMsg);

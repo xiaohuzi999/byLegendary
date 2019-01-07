@@ -12,7 +12,6 @@ P 4A95C10E btn_yellow.png
 P DAE2C051 ic_back.png
 P C02BF76D ic_cricle.png
 P 83CA8FBB ic_more.png
-P C1E28382 ic_qrcode.png
 P EA3186B5 ic_rank.png
 P 6C6E6558 ic_share.png
 P 68E10C07 ic_signin.png
@@ -72,8 +71,20 @@ P 7B3AFE30 yy_8b.png
 P C5C5A751 yy_mmq.png
 P C5C5A751 yy_qklq.png
 P 970F4347 yy_xhj.png
+D res/icon
+P 6B1B586C 1.png
+P 3B14EEFA 11x.png
+P 8FB9E925 2.png
+P E46FA377 3.png
+P 82E658C2 4.png
+P A576A9F1 5.png
+P F23C82D5 6.png
+P DEFFE5AA 7.png
+P 9AF82FE8 7x.png
+P 8A229C99 8x.png
+R A1B30E59 icon.psd
 D res/main
-R 8651CAAC bj_homepage@2x.png
+R B8AB4697 bj_homepage@2x.png
 P D9DF9444 bj_piece.png
 P 8D0E6173 bj_power_tc.png
 P C919BCA6 bj_user_tc.png
@@ -98,10 +109,6 @@ P ED28FFC8 ic_user_coin.png
 P 95F2D326 ic_user_power.png
 P 11AF94BD ic_user_star.png
 P 04617D56 loading.png
-D res/rank
-P E443FCB5 rank_bg.png
-P F81683F8 rank_close.png
-P 1566F520 rank_group.png
 D res/role
 P 68B8BFE7 bi_single.png
 P 84FACBE8 bj_own.png

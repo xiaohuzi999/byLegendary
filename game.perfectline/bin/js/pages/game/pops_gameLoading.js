@@ -33,9 +33,9 @@ var GameLoading = /** @class */ (function (_super) {
     GameLoading.prototype.onShow = function () {
         //加载配置
         var res = [
-            { url: 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
+            { url: AppConfig.urlRoot + 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
         ];
-        GameView.mp3 = 'res/snd/' + this.params.mp3 + '.mp3';
+        GameView.mp3 = AppConfig.urlRoot + 'res/snd/' + this.params.mp3 + '.mp3';
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
     };
     GameLoading.prototype.loadSnd = function () {

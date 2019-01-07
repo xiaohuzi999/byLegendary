@@ -249,7 +249,7 @@ var GameView = /** @class */ (function (_super) {
         while (this.effContainer.numChildren) {
             this.effContainer.removeChildAt(0);
         }
-        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        var cfg = Laya.loader.getRes(AppConfig.urlRoot + 'res/snd/' + this.params.json + '.json');
         this._starCfg = (this.params.stars + "").split("|");
         for (var i = 0; i < this._starCfg.length; i++) {
             this._starCfg[i] = parseInt(this._starCfg[i]);
@@ -294,7 +294,7 @@ var GameView = /** @class */ (function (_super) {
                 return;
             }
         }
-        var cfg = Laya.loader.getRes('res/snd/' + this.params.json + '.json');
+        var cfg = Laya.loader.getRes(AppConfig.urlRoot + 'res/snd/' + this.params.json + '.json');
         //1根据当前位置计算出初始节点及结束点；
         //a,取当前节点
         var midIndex;
@@ -813,7 +813,8 @@ var GameView = /** @class */ (function (_super) {
         this._eff.anchorX = this._eff.anchorY = 0.5;
         this._eff2 = new Laya.Image("res/game/light.png");
         this._eff2.anchorX = this._eff2.anchorY = 0.5;
-        this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        //this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
+        this.scrollRect = new Laya.Rectangle(0, 0, Laya.stage.width, Laya.stage.height);
         this.ui.selectBox.cacheAsBitmap = true;
         //自动暂停
         wx.onHide(function () {

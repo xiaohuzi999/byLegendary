@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":5,
+    "selecteID":4,
     "props":{"width":750,"sceneColor":"#000000","height":1134},
     "nodeParent":-1,
     "label":"View",
@@ -54,7 +54,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":723,"x":260,"var":"btnWatch","stateNum":"1","skin":"res/main/btn_watch.png","runtime":"runtime.btn"},
+            "props":{"y":723,"x":260,"var":"btnWatch","stateNum":"1","skin":"res/main/btn_watch.png"},
             "nodeParent":1,
             "label":"Button(btnWatch)",
             "isDirectory":false,
