@@ -11,10 +11,11 @@ class ChaperItem extends ui.views.home.ChapterItemUI{
 
     public set dataSource(data:ChapterVo){
         this._data = data;
+        //判定是否解锁
         if(data){
             this.visible = true;
             this.pic.skin = "res/icon/"+data.id+".png";
-            this.tfName.text = data.name+"";
+            this.pic.gray = this.lock.visible = User.instace.starInfo[data.id] == undefined;
         }else{
             this.visible = false;
         }

@@ -29,8 +29,33 @@ var HomeView = /** @class */ (function (_super) {
         Star.destroy();
         _super.prototype.close.call(this);
     };
+    HomeView.prototype.format = function (data) {
+        this.ui.tfName.text = data.name + "";
+        this._isLocked = User.instace.starInfo[data.id] == undefined;
+        if (User.instace.starInfo[data.id] != undefined) {
+            this.ui.star.visible = true;
+            this.ui.condBox.visible = false;
+            this.ui.btnPlay.visible = true;
+            this.ui.btnUnlock.visible = false;
+            var starNum = User.instace.starInfo[data.id];
+            for (var i = 0; i < 3; i++) {
+                if (starNum > i) {
+                    this.ui["star_" + i].gray = false;
+                }
+                else {
+                    this.ui["star_" + i].gray = true;
+                }
+            }
+        }
+        else {
+            this.ui.star.visible = false;
+            this.ui.condBox.visible = true;
+            this.ui.btnPlay.visible = false;
+            this.ui.btnUnlock.visible = true;
+            this.ui.tfItemNum.text = Bag.getInstance().getItemNum(data.cond[0]) + "/" + data.cond[1];
+        }
+    };
     HomeView.prototype.onBtnClick = function (e) {
-        trace("onBtnClick______");
         switch (e.target) {
             case this.ui.btnDev:
                 XFacade.instance.showModule(DevView);
@@ -47,12 +72,34 @@ var HomeView = /** @class */ (function (_super) {
             case this.ui.btnUserInfo:
                 XFacade.instance.showModule(UserInfoView);
                 break;
+            case this.ui.btnPlay:
+                XFacade.instance.showModule(GameView, this.ui.chapList.selectedItem);
+                break;
+            case this.ui.btnUnlock:
+                this.unlock();
+                break;
+        }
+    };
+    HomeView.prototype.unlock = function () {
+        if (DBChapter.canUnlock(this._selectedItem.dataSource.id)) {
+            User.instace.starInfo[this._selectedItem.dataSource.id] = 0;
+            //User.instace.save();
+            this.ui.chapList.refresh();
+            this.format(this._selectedItem.dataSource);
+        }
+        else {
+            XTip.showTip("不满足条件");
         }
     };
     HomeView.prototype.onItemClick = function (e, index) {
         if (e.type == Laya.Event.CLICK) {
             if (index == this.ui.chapList.selectedIndex) {
-                XFacade.instance.showModule(GameView, this.ui.chapList.selectedItem);
+                if (this._isLocked) {
+                    //this.unlock();
+                }
+                else {
+                    XFacade.instance.showModule(GameView, this.ui.chapList.selectedItem);
+                }
             }
             else {
                 this.scrollToIndex(index - 1);
@@ -90,6 +137,7 @@ var HomeView = /** @class */ (function (_super) {
                 this._selectedItem = item;
                 if (this._selectedItem) {
                     this._selectedItem.selected = true;
+                    this.format(this._selectedItem.dataSource);
                 }
             }
         },
@@ -114,6 +162,8 @@ var HomeView = /** @class */ (function (_super) {
         this.ui.roleBtn.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnAddPower.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnUserInfo.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnPlay.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnUnlock.on(Laya.Event.CLICK, this, this.onBtnClick);
         XEvent.instance.on(User.UPDATE, this, this.updateUserInfo);
         this.ui.chapList.mouseHandler = Laya.Handler.create(this, this.onItemClick, null, false);
         this.ui.chapList.scrollBar.on(Laya.Event.END, this, this.onScroll);
@@ -124,6 +174,8 @@ var HomeView = /** @class */ (function (_super) {
         this.ui.roleBtn.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnAddPower.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnUserInfo.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnPlay.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnUnlock.off(Laya.Event.CLICK, this, this.onBtnClick);
         XEvent.instance.off(User.UPDATE, this, this.updateUserInfo);
         this.ui.chapList.mouseHandler.recover();
         this.ui.chapList.mouseHandler = null;

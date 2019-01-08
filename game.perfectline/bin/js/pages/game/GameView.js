@@ -22,6 +22,7 @@ var GameView = /** @class */ (function (_super) {
         _this._awsomeTime = 0;
         //是否可项目
         _this._turnable = true;
+        _this._gift = {};
         _this.curX = Laya.stage.width / 2;
         _this.curY = Laya.stage.height / 2;
         _this.delX = 0;
@@ -45,6 +46,10 @@ var GameView = /** @class */ (function (_super) {
         this.ui.tfName.text = this.params.name;
         this.ui.btnPause.visible = false;
         XFacade.instance.showModule(GameLoading, this.params);
+        //自适应
+        var sx = Math.max(Laya.stage.width / AppConfig.AppWidth, Laya.stage.height / AppConfig.AppHeight);
+        this.ui.bg.scale(sx, sx);
+        this.ui.x = (this.ui.bg.width - AppConfig.AppWidth) / 2;
     };
     GameView.prototype.onBtnClick = function (e) {
         switch (e.currentTarget) {
@@ -238,6 +243,7 @@ var GameView = /** @class */ (function (_super) {
         this._rendIndex = 1;
         this._starNum = this._score = this._awsomeTime = this._curTime = this._startTime = 0;
         this._autoLast = false;
+        this._gift = {};
         this.showPro(null);
         this.ui.tfScore.text = "0";
         this._reviveTimes = DBGame.ReviveTimes;
@@ -250,10 +256,6 @@ var GameView = /** @class */ (function (_super) {
             this.effContainer.removeChildAt(0);
         }
         var cfg = Laya.loader.getRes(AppConfig.urlRoot + 'res/snd/' + this.params.json + '.json');
-        this._starCfg = (this.params.stars + "").split("|");
-        for (var i = 0; i < this._starCfg.length; i++) {
-            this._starCfg[i] = parseInt(this._starCfg[i]);
-        }
         //克隆资源列表 
         this._resList = xframe.XUtils.clone(cfg.items) || [];
         this._resList.sort(function (a, b) {
@@ -349,6 +351,15 @@ var GameView = /** @class */ (function (_super) {
         i = startIndex == 0 ? 2 : 0;
         for (i; i < this._mapArr.length - offset; i++) {
             this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
+            //生成道具
+            if (!this._gift[this._mapArr[i] + "_" + this._mapArr[i + 1]]) {
+                //随机生成
+                var item = new Laya.Image("res/main/ic_coin.png");
+                this.pathSp.addChildAt(item, 0);
+                item.pos(this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
+                item.name = "1";
+                this._gift[this._mapArr[i] + "_" + this._mapArr[i + 1]] = item;
+            }
             //画引导res/game/click.png
             if (this.params.id == "1" && startIndex < 27) {
                 if (this._mapArr[i] > this.ui.width / 2) {
@@ -456,7 +467,7 @@ var GameView = /** @class */ (function (_super) {
             }
         }
         else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position, this._starCfg));
+            this.showPro(DBGame.calcPro(position));
         }
         else if (exeIndex == 4) {
             this.rendMap();
@@ -535,7 +546,7 @@ var GameView = /** @class */ (function (_super) {
             }
         }
         else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position, this._starCfg));
+            this.showPro(DBGame.calcPro(position));
         }
         else if (exeIndex == 4) {
             this.rendMap();
@@ -572,9 +583,15 @@ var GameView = /** @class */ (function (_super) {
             var delX = Math.abs(targetPoint.x - this.ball.x);
             var delY = Math.abs(targetPoint.y - this.ball.y);
             var nowScore = this._score;
-            if (delX < 12 && delY < 15) { //5
+            if (delX < 15 && delY < 18) { //5
                 this.shine(targetPoint.x, targetPoint.y);
                 this._score += 10;
+                //动画
+                var gift = this._gift[targetPoint.x + "_" + targetPoint.y];
+                if (gift) {
+                    gift.removeSelf();
+                    delete this._gift[targetPoint.x + "_" + targetPoint.y];
+                }
             }
             else if (delX < 36 && delY < 25) { //3
                 this.showEff(targetPoint.x, targetPoint.y);

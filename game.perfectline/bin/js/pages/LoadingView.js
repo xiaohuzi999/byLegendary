@@ -27,7 +27,7 @@ var LoadingView = /** @class */ (function (_super) {
     //
     LoadingView.prototype.onGetData = function () {
         User.instace.initdData();
-        ;
+        Bag.getInstance().init();
         XEvent.instance.event(LoadingView.RDY);
     };
     LoadingView.prototype.close = function () {

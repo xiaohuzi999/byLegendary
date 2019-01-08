@@ -7,6 +7,11 @@ class DBChapter{
 
     }
 
+    /**判断是否满足解锁条件 */
+    public static canUnlock(id:any):boolean{
+        let vo:ChapterVo = this.getChapInfo(id);
+        return Bag.getInstance().getItemNum(vo.cond[0]) >= vo.cond[1];
+    }
     //
     public static getChapInfo(id:any):ChapterVo{
         return this.chapList[id];
@@ -18,4 +23,5 @@ class DBChapter{
         }
         return this._data;
     }
+    
 }

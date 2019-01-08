@@ -1,24 +1,14 @@
 D .
 D res
-D res/card
-P 9464241C banner.png
-P 22F72B4D btn_return.png
-P C8BE03E5 btn_share.png
-P 973FB16D btn_too.png
 D res/common
+P 5F0B8C1F 3.png
+P 9464241C banner.png
 P 1B7B3A2D bg_white.png
 P 896E90D9 btn_red.png
 P 4A95C10E btn_yellow.png
-P DAE2C051 ic_back.png
-P C02BF76D ic_cricle.png
-P 83CA8FBB ic_more.png
-P EA3186B5 ic_rank.png
-P 6C6E6558 ic_share.png
-P 68E10C07 ic_signin.png
-P A140C6C6 ic_start.png
-P DA445200 pyq.png
-P 6F5BC59C tab.png
-P 941ECCF8 wechat.png
+P 2B414F4C btn_yellow2.png
+P 4F0B0708 lock.png
+P 358C3018 star.png
 D res/game
 P A74CC120 ball.png
 P 13BDB3BC bj_choose music.png
@@ -43,8 +33,6 @@ P 4208B345 ic_coin.png
 P 6636ECEC ic_power1.png
 P FF87D702 ic_star_result_b.png
 P 4A7C5F39 ic_star_result_gray_b.png
-P E928FD18 ic_star_result_gray_s.png
-P AF9FEB6A ic_star_result_s.png
 P CF9C021E light.png
 P AED089E9 origin.png
 P 210DCA52 progress$bar.png
@@ -58,7 +46,6 @@ D res/ic_role
 P FBCC6EF4 8b.png
 P 898F49EA game_mmq.png
 P 60AE2643 hbd.png
-P 6A63B164 ic_signRole.png
 P 1B9C159F mmj.png
 P C9EF0A8D mmq.png
 P FEEAC12B ppc.png
@@ -85,7 +72,6 @@ P 8A229C99 8x.png
 R A1B30E59 icon.psd
 D res/main
 R B8AB4697 bj_homepage@2x.png
-P D9DF9444 bj_piece.png
 P 8D0E6173 bj_power_tc.png
 P C919BCA6 bj_user_tc.png
 P B40E28B4 btn_add.png
@@ -93,7 +79,6 @@ P 40356834 btn_card.png
 P C280B17D btn_close.png
 P 703B6DC1 btn_invite.png
 P C71ABA30 btn_play.png
-P 70DE4DF2 btn_ranking.png
 P B27DEB03 btn_role.png
 P 7C60E828 btn_sign.png
 P 5A73F0FA btn_watch.png

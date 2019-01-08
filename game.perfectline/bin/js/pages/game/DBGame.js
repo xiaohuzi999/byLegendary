@@ -34,6 +34,7 @@ var DBGame = /** @class */ (function () {
     };
     /**计算进度*/
     DBGame.calcPro = function (nowTime, arr) {
+        return { pro: 1, stars: 2 };
         var pro;
         var stars = 0;
         if (nowTime < arr[0]) {

@@ -11,8 +11,8 @@ class User {
 
     /**当前歌曲ID */
     public curId:number = 1;
-    /**记录 */
-    public starInfo:number[] = [];
+    /**记录{id:星数(undefined未开启; 否者已开启)} */
+    public starInfo:any = {1:0};
     /**角色状态 {id:state---number(-1/undefind未激活,0未使用,1使用中)}*/
     public roleInfo:any= {1:1};
 

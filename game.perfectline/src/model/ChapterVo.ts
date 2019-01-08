@@ -10,7 +10,7 @@ class ChapterVo{
     public json:string// = "lx"
     public mp3:string// = "lx"
     public name:string// = "旅行"
-    public stars:string// = "22628|45220|57460"
+    public cond:number[]// = "[3,1]"
     constructor(){
 
     }

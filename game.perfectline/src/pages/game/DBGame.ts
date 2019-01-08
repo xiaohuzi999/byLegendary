@@ -36,7 +36,13 @@ class DBGame{
     }
 
     /**计算进度*/
-    public static calcPro(nowTime:number, arr:number[]):{pro:number, stars:number}{
+    public static calcPro(nowTime:number, arr?:number[]):{pro:number, stars:number}{
+
+        
+        return {pro:1, stars:2};
+
+
+
         var pro:number;
         var stars:number = 0;
         if(nowTime < arr[0]){

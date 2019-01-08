@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":1,
+    "selecteID":17,
     "props":{"width":640,"sceneColor":"#000000","height":936},
     "nodeParent":-1,
     "label":"View",
@@ -28,7 +28,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":678,"x":181,"var":"btnConfirm","skin":"res/game/btn_sure.png","runtime":"runtime.btn_img"},
+            "props":{"y":678,"x":181,"var":"btnConfirm","skin":"res/game/btn_sure.png"},
             "nodeParent":1,
             "label":"Image(btnConfirm)",
             "isDirectory":false,

@@ -19,8 +19,6 @@ class GameView extends xframe.XWindow {
     private _score: number;
     /**星星数 */
     private _starNum: number
-    /**星星配置 */
-    private _starCfg: any[];
     /**星星 */
     private _stars: Star[];
     //
@@ -32,6 +30,7 @@ class GameView extends xframe.XWindow {
     private _awsomeTime: number = 0;
     //是否可项目
     private _turnable: boolean = true;
+    private _gift:any = {};
 
     public show(...args):void{
         super.show();
@@ -39,6 +38,11 @@ class GameView extends xframe.XWindow {
         this.ui.tfName.text = this.params.name;
         this.ui.btnPause.visible = false;
         XFacade.instance.showModule(GameLoading, this.params)
+
+        //自适应
+        let sx = Math.max(Laya.stage.width/AppConfig.AppWidth, Laya.stage.height/AppConfig.AppHeight);
+        this.ui.bg.scale(sx,sx);
+        this.ui.x = (this.ui.bg.width-AppConfig.AppWidth)/2;
     }
 
     private onBtnClick(e:Laya.Event):void{
@@ -268,6 +272,7 @@ class GameView extends xframe.XWindow {
         this._rendIndex = 1;
         this._starNum = this._score = this._awsomeTime = this._curTime = this._startTime = 0;
         this._autoLast = false;
+        this._gift = {};
         this.showPro(null);
         this.ui.tfScore.text = "0"
         this._reviveTimes = DBGame.ReviveTimes;
@@ -281,11 +286,6 @@ class GameView extends xframe.XWindow {
         }
 
         var cfg: { speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any } = Laya.loader.getRes(AppConfig.urlRoot+'res/snd/' + this.params.json + '.json');
-
-        this._starCfg = (this.params.stars + "").split("|");
-        for (let i = 0; i < this._starCfg.length; i++) {
-            this._starCfg[i] = parseInt(this._starCfg[i]);
-        }
 
         //克隆资源列表 
         this._resList = xframe.XUtils.clone(cfg.items) || [];
@@ -325,6 +325,14 @@ class GameView extends xframe.XWindow {
     }
 
     private rendMap(): void {
+        //扔掉不在需要的节点
+        for(let i in this._gift){
+            let item:any = this._gift[i];
+            if (item.y - this.targetY > Laya.stage.height) {
+                delete this._gift[i];
+                item.removeSelf();
+            }
+        }
         //0，判断是否需要重新绘制地图;
         const maxHeight = 4096;//2048
         var curY: number = this.targetY - this.offsetY;
@@ -387,6 +395,18 @@ class GameView extends xframe.XWindow {
         i = startIndex == 0 ? 2 : 0
         for (i; i < this._mapArr.length - offset; i++) {
             this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
+
+            //生成道具
+            if(!this._gift[this._mapArr[i]+"_"+this._mapArr[i + 1]]){
+                //随机生成
+                let item:Laya.Image = new Laya.Image("res/main/ic_coin.png");
+                this.pathSp.addChildAt(item, 0);
+                item.pos(this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
+                item.name = "1";
+                this._gift[this._mapArr[i]+"_"+this._mapArr[i + 1]] = item;
+            }
+
+
             //画引导res/game/click.png
             if (this.params.id == "1" && startIndex < 27) {
                 if (this._mapArr[i] > this.ui.width / 2) {
@@ -493,7 +513,7 @@ class GameView extends xframe.XWindow {
                 }
             }
         } else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position, this._starCfg));
+            this.showPro(DBGame.calcPro(position));
         } else if (exeIndex == 4) {
             this.rendMap();
         } else if (exeIndex == 0) {
@@ -568,7 +588,7 @@ class GameView extends xframe.XWindow {
                 }
             }
         } else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position, this._starCfg));
+            this.showPro(DBGame.calcPro(position));
         } else if (exeIndex == 4) {
             this.rendMap();
         } else if (exeIndex == 0) {
@@ -603,9 +623,18 @@ class GameView extends xframe.XWindow {
             var delX: number = Math.abs(targetPoint.x - this.ball.x);
             var delY: number = Math.abs(targetPoint.y - this.ball.y);
             var nowScore: number = this._score;
-            if (delX < 12 && delY < 15) {//5
+            if (delX < 15 && delY < 18) {//5
                 this.shine(targetPoint.x, targetPoint.y);
                 this._score += 10;
+
+
+                //动画
+                let gift:Laya.Image = this._gift[targetPoint.x+"_"+targetPoint.y];
+                if(gift){
+                    gift.removeSelf();
+                    delete this._gift[targetPoint.x+"_"+targetPoint.y];
+                }
+
             } else if (delX < 36 && delY < 25) {//3
                 this.showEff(targetPoint.x, targetPoint.y);
                 this._score += 5;

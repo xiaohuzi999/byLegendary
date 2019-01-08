@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":7,
+    "selecteID":6,
     "props":{"width":750,"sceneColor":"#FFFFFF","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -54,7 +54,7 @@
         {
             "x":15,
             "type":"Label",
-            "props":{"y":787,"x":153,"width":444,"text":"佩戴耳机体验更好哦~","height":54,"fontSize":36,"font":"PingFangSC-Semibold","color":"#FFAB20","align":"center"},
+            "props":{"y":787,"x":153,"width":444,"text":"佩戴耳机体验更好哦~","height":54,"fontSize":36,"font":"PingFangSC-Semibold","color":"#825201","align":"center"},
             "nodeParent":1,
             "label":"Label",
             "isDirectory":false,

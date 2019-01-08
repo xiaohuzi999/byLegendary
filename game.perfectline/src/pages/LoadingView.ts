@@ -18,7 +18,8 @@ class LoadingView extends xframe.XWindow {
 
     //
     private onGetData():void{
-        User.instace.initdData();;
+        User.instace.initdData();
+        Bag.getInstance().init();
         XEvent.instance.event(LoadingView.RDY)
     }
 
