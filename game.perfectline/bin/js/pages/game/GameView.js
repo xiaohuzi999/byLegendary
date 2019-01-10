@@ -23,6 +23,7 @@ var GameView = /** @class */ (function (_super) {
         //是否可项目
         _this._turnable = true;
         _this._gift = {};
+        _this._giftList = [];
         _this.curX = Laya.stage.width / 2;
         _this.curY = Laya.stage.height / 2;
         _this.delX = 0;
@@ -46,6 +47,23 @@ var GameView = /** @class */ (function (_super) {
         this.ui.tfName.text = this.params.name;
         this.ui.btnPause.visible = false;
         XFacade.instance.showModule(GameLoading, this.params);
+        //生成列表
+        this._giftList.length = 0;
+        var diamondNum = 2;
+        for (var i = 0; i < 150; i++) {
+            var rnd = Math.random();
+            if (rnd > .4) { //70%
+                this._giftList.push(ItemVo.GOLD);
+            }
+            else if (rnd > .37 && diamondNum > 0) { //
+                diamondNum--;
+                this._giftList.push(ItemVo.DIAMOND);
+            }
+            else {
+                this._giftList.push(0);
+            }
+        }
+        trace("this._giftList==============", this._giftList);
         //自适应
         var sx = Math.max(Laya.stage.width / AppConfig.AppWidth, Laya.stage.height / AppConfig.AppHeight);
         this.ui.bg.scale(sx, sx);
@@ -288,6 +306,14 @@ var GameView = /** @class */ (function (_super) {
         this.map.y = this.pathSp.y = 0;
     };
     GameView.prototype.rendMap = function () {
+        //扔掉不在需要的节点
+        for (var i_1 in this._gift) {
+            var item = this._gift[i_1];
+            if (item.y - this.targetY > Laya.stage.height) {
+                delete this._gift[i_1];
+                item.removeSelf();
+            }
+        }
         //0，判断是否需要重新绘制地图;
         var maxHeight = 4096; //2048
         var curY = this.targetY - this.offsetY;

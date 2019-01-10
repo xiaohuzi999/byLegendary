@@ -31,6 +31,7 @@ class GameView extends xframe.XWindow {
     //是否可项目
     private _turnable: boolean = true;
     private _gift:any = {};
+    private _giftList:number[] = []
 
     public show(...args):void{
         super.show();
@@ -38,6 +39,22 @@ class GameView extends xframe.XWindow {
         this.ui.tfName.text = this.params.name;
         this.ui.btnPause.visible = false;
         XFacade.instance.showModule(GameLoading, this.params)
+
+        //生成列表
+        this._giftList.length = 0;
+        let diamondNum:number = 2;
+        for(let i=0; i<150; i++){
+            let rnd:number = Math.random();
+            if(rnd >.4){ //70%
+                this._giftList.push(ItemVo.GOLD)
+            }else if(rnd>.37 && diamondNum > 0){ //
+                diamondNum --;
+                this._giftList.push(ItemVo.DIAMOND)
+            }else{
+                this._giftList.push(0);
+            }
+        }
+        trace("this._giftList==============", this._giftList)
 
         //自适应
         let sx = Math.max(Laya.stage.width/AppConfig.AppWidth, Laya.stage.height/AppConfig.AppHeight);

@@ -7,6 +7,7 @@ var xframe;
     var HttpCmd = /** @class */ (function () {
         function HttpCmd() {
         }
+        //public static httpRoot:string = "http://111.230.26.144/web/index.php?r=";
         /**
          * 发送http请求
          * @param handler 请求回调；
@@ -55,8 +56,7 @@ var xframe;
         };
         /**host*/
         //http://127.0.0.1/web/index.php?r=srv/login
-        //public static httpRoot:string = "http://127.0.0.1/byphp/web/index.php?r=";
-        HttpCmd.httpRoot = "http://111.230.26.144/web/index.php?r=";
+        HttpCmd.httpRoot = "http://127.0.0.1/byphp/web/index.php?r=";
         return HttpCmd;
     }());
     xframe.HttpCmd = HttpCmd;
