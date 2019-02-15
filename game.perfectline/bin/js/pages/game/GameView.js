@@ -24,6 +24,8 @@ var GameView = /** @class */ (function (_super) {
         _this._turnable = true;
         _this._gift = {};
         _this._giftList = [];
+        //获得数据信息
+        _this._rewards = {};
         _this.curX = Laya.stage.width / 2;
         _this.curY = Laya.stage.height / 2;
         _this.delX = 0;
@@ -52,10 +54,10 @@ var GameView = /** @class */ (function (_super) {
         var diamondNum = 2;
         for (var i = 0; i < 150; i++) {
             var rnd = Math.random();
-            if (rnd > .4) { //70%
+            if (rnd > .62) { //60%
                 this._giftList.push(ItemVo.GOLD);
             }
-            else if (rnd > .37 && diamondNum > 0) { //
+            else if (rnd > .6 && diamondNum > 0) { //
                 diamondNum--;
                 this._giftList.push(ItemVo.DIAMOND);
             }
@@ -88,9 +90,6 @@ var GameView = /** @class */ (function (_super) {
             case GameEvent.BACK:
                 this.stop();
                 this.close();
-                break;
-            case GameEvent.OVER:
-                this.over();
                 break;
             case GameEvent.RESTART:
                 this.restart();
@@ -248,18 +247,11 @@ var GameView = /** @class */ (function (_super) {
         this.soundChannel.resume();
         */
     };
-    GameView.prototype.over = function () {
-        if (this._score > 0) {
-            this.showResult();
-        }
-        else {
-            this.close();
-        }
-    };
     GameView.prototype.initMap = function (firstTime) {
         if (firstTime === void 0) { firstTime = true; }
         this._rendIndex = 1;
-        this._starNum = this._score = this._awsomeTime = this._curTime = this._startTime = 0;
+        this._starNum = this._awsomeTime = this._curTime = this._startTime = 0;
+        this._rewards = {};
         this._autoLast = false;
         this._gift = {};
         this.showPro(null);
@@ -376,15 +368,23 @@ var GameView = /** @class */ (function (_super) {
         var offset = this._autoLast ? 3 : 1;
         i = startIndex == 0 ? 2 : 0;
         for (i; i < this._mapArr.length - offset; i++) {
+            trace("x___________________________", i);
             this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
             //生成道具
-            if (!this._gift[this._mapArr[i] + "_" + this._mapArr[i + 1]]) {
+            if (!this._gift[this._mapArr[i] + "_" + this._mapArr[i + 1]] && this._giftList[startIndex + i / 2]) {
                 //随机生成
-                var item = new Laya.Image("res/main/ic_coin.png");
+                var item = new Laya.Image();
+                if (this._giftList[startIndex + i / 2] == ItemVo.GOLD) {
+                    item.skin = "res/main/ic_coin.png";
+                }
+                else if (this._giftList[startIndex + i / 2] == ItemVo.DIAMOND) {
+                    item.skin = "res/main/ic_diamond.png";
+                }
                 this.pathSp.addChildAt(item, 0);
                 item.pos(this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
                 item.name = "1";
                 this._gift[this._mapArr[i] + "_" + this._mapArr[i + 1]] = item;
+                this._giftList[startIndex + i / 2] = 0;
             }
             //画引导res/game/click.png
             if (this.params.id == "1" && startIndex < 27) {
@@ -617,6 +617,13 @@ var GameView = /** @class */ (function (_super) {
                 if (gift) {
                     gift.removeSelf();
                     delete this._gift[targetPoint.x + "_" + targetPoint.y];
+                    //数据处理===================================
+                    if (this._rewards[gift.name]) {
+                        this._rewards[gift.name] = parseInt(this._rewards[gift.name]) + 1;
+                    }
+                    else {
+                        this._rewards[gift.name] = 1;
+                    }
                 }
             }
             else if (delX < 36 && delY < 25) { //3
@@ -638,12 +645,9 @@ var GameView = /** @class */ (function (_super) {
     };
     GameView.prototype.showResult = function () {
         this.stop();
-        var params = {
-            music: this.params,
-            star: this._starNum,
-            score: this._score
-        };
-        XFacade.instance.showModule(GameResultView, params);
+        this._rewards["score"] = this._score;
+        this._rewards["star"] = this._starNum;
+        XFacade.instance.showModule(GameResultView, this._rewards);
     };
     /**
      * 渲染地图元素
@@ -868,7 +872,6 @@ var GameView = /** @class */ (function (_super) {
     };
     GameView.prototype.initEvent = function () {
         XEvent.instance.on(GameEvent.BACK, this, this.onGameEvent, [GameEvent.BACK]);
-        XEvent.instance.on(GameEvent.OVER, this, this.onGameEvent, [GameEvent.OVER]);
         XEvent.instance.on(GameEvent.RESTART, this, this.onGameEvent, [GameEvent.RESTART]);
         XEvent.instance.on(GameEvent.SELECTED, this, this.onGameEvent, [GameEvent.SELECTED]);
         XEvent.instance.on(GameEvent.NEXTCHAPTER, this, this.onGameEvent, [GameEvent.NEXTCHAPTER]);
@@ -877,7 +880,6 @@ var GameView = /** @class */ (function (_super) {
         this.ui.btnStart.on(Laya.Event.CLICK, this, this.onBtnClick);
     };
     GameView.prototype.removeEvent = function () {
-        XEvent.instance.off(GameEvent.OVER, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.BACK, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.RESTART, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.SELECTED, this, this.onGameEvent);
@@ -902,7 +904,5 @@ var GameEvent = /** @class */ (function () {
     GameEvent.NEXTCHAPTER = "nextchapter";
     /**跳转到解锁篇章 */
     GameEvent.HOMECHAPTER = "homechapter";
-    /**结束歌曲 */
-    GameEvent.OVER = "over";
     return GameEvent;
 }());

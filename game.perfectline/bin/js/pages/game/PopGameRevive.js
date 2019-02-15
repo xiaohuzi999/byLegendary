@@ -38,15 +38,19 @@ var PopGameRevive = /** @class */ (function (_super) {
         }
         _super.prototype.show.call(this);
         this.params = args[0];
+        xframe.AniUtil.flowIn(this);
     };
-    PopGameRevive.prototype.initEvet = function () {
+    PopGameRevive.prototype.close = function () {
+        xframe.AniUtil.flowOut(this, Laya.Handler.create(this, _super.prototype.close));
+    };
+    PopGameRevive.prototype.initEvent = function () {
         _super.prototype.initEvent.call(this);
-        this.ui.btnConfirm.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnBack.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnConfirm.on(Laya.Event.CLICK, this, this.onBtnClick);
     };
     PopGameRevive.prototype.removeEvent = function () {
         _super.prototype.removeEvent.call(this);
-        this.ui.btnConfirm.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnBack.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnConfirm.off(Laya.Event.CLICK, this, this.onBtnClick);
     };
     return PopGameRevive;

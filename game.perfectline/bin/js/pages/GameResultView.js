@@ -31,11 +31,6 @@ var GameResultView = /** @class */ (function (_super) {
             XEvent.instance.event(GameEvent.RESTART);
             _this.close();
         });
-        this.ui.nextBtn.on(Laya.Event.CLICK, null, function () {
-            // 下一首
-            _this.chooseNextMusic();
-            _this.close();
-        });
     };
     GameResultView.prototype.show = function () {
         var args = [];
@@ -65,36 +60,10 @@ var GameResultView = /** @class */ (function (_super) {
             this.ui.nextBtn.visible = true;
         }
         //需要数据支撑~~
-        this.ui.musicname.text = this.params.music.name;
+        this.ui.tip.text = this.params.music.name;
         this.ui.authname.text = this.params.music.author;
         this.ui.scorelabel.text = this.params.score + "分";
-        this.ui.tip.text = GameResultView.tipArrays[this.params.star];
         this.ui.coinLabel.text = "X" + this._rewardCoin;
     };
-    // 选择下一首音乐
-    GameResultView.prototype.chooseNextMusic = function () {
-        var music = this.params.music;
-        var modeId = music.cid;
-        var list = DBChapter.chapList;
-        var index = list.indexOf(music);
-        //
-        XTip.showTip("doing~~~~~~~~~~~~~~~~~~~~~~");
-    };
-    // 提示解锁下一篇章
-    GameResultView.prototype.toastReleaseNextChapter = function () {
-        var _self = this;
-        this.topToast.y = -60;
-        this.ui.addChild(this.topToast);
-        Laya.Tween.to(this.topToast, { y: 0 }, 500, Laya.Ease.linearIn, Laya.Handler.create(this, function () {
-            setTimeout(function () {
-                Laya.Tween.to(_self.topToast, { y: -60 }, 500, Laya.Ease.linearIn, Laya.Handler.create(_self, function () {
-                    Laya.Tween.clearTween(_self.topToast);
-                    _self.ui.removeChild(_self.topToast);
-                    _self.topToast = null;
-                }));
-            }, 2000);
-        }));
-    };
-    GameResultView.tipArrays = ["加油哦", "不错！", "腻害了", "棒极了"];
     return GameResultView;
 }(xframe.XMWindow));

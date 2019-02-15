@@ -19,8 +19,6 @@ class GameView extends xframe.XWindow {
     private _score: number;
     /**星星数 */
     private _starNum: number
-    /**星星 */
-    private _stars: Star[];
     //
     private _items: Laya.Image[] = [];
     //是否已经加入最后节点
@@ -33,6 +31,8 @@ class GameView extends xframe.XWindow {
     private _gift:any = {};
     private _giftList:number[] = []
 
+    //获得数据信息
+    private _rewards:any = {};
     public show(...args):void{
         super.show();
         this.params = args[0];
@@ -45,9 +45,9 @@ class GameView extends xframe.XWindow {
         let diamondNum:number = 2;
         for(let i=0; i<150; i++){
             let rnd:number = Math.random();
-            if(rnd >.4){ //70%
+            if(rnd >.62){ //60%
                 this._giftList.push(ItemVo.GOLD)
-            }else if(rnd>.37 && diamondNum > 0){ //
+            }else if(rnd>.6 && diamondNum > 0){ //
                 diamondNum --;
                 this._giftList.push(ItemVo.DIAMOND)
             }else{
@@ -81,9 +81,6 @@ class GameView extends xframe.XWindow {
             case GameEvent.BACK:
                 this.stop();
                 this.close();
-                break;
-            case GameEvent.OVER:
-                this.over();
                 break;
             case GameEvent.RESTART:
                 this.restart();
@@ -252,14 +249,6 @@ class GameView extends xframe.XWindow {
         */
     }
 
-    private over(): void {
-        if (this._score > 0) {
-            this.showResult();
-        } else {
-            this.close();
-        }
-    }
-
 
     private curX: number = Laya.stage.width / 2;
     private curY: number = Laya.stage.height / 2;
@@ -287,7 +276,8 @@ class GameView extends xframe.XWindow {
 
     private initMap(firstTime: boolean = true): void {
         this._rendIndex = 1;
-        this._starNum = this._score = this._awsomeTime = this._curTime = this._startTime = 0;
+        this._starNum = this._awsomeTime = this._curTime = this._startTime = 0;
+        this._rewards = {};
         this._autoLast = false;
         this._gift = {};
         this.showPro(null);
@@ -411,16 +401,23 @@ class GameView extends xframe.XWindow {
         let offset: number = this._autoLast ? 3 : 1;
         i = startIndex == 0 ? 2 : 0
         for (i; i < this._mapArr.length - offset; i++) {
+            trace("x___________________________", i);
             this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
 
             //生成道具
-            if(!this._gift[this._mapArr[i]+"_"+this._mapArr[i + 1]]){
+            if(!this._gift[this._mapArr[i]+"_"+this._mapArr[i + 1]] && this._giftList[startIndex+i/2]){
                 //随机生成
-                let item:Laya.Image = new Laya.Image("res/main/ic_coin.png");
+                let item:Laya.Image = new Laya.Image();
+                if(this._giftList[startIndex+i/2] == ItemVo.GOLD){
+                    item.skin = "res/main/ic_coin.png"
+                }else if(this._giftList[startIndex+i/2] == ItemVo.DIAMOND){
+                    item.skin = "res/main/ic_diamond.png"
+                }
                 this.pathSp.addChildAt(item, 0);
                 item.pos(this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
                 item.name = "1";
                 this._gift[this._mapArr[i]+"_"+this._mapArr[i + 1]] = item;
+                this._giftList[startIndex+i/2] = 0;
             }
 
 
@@ -650,6 +647,13 @@ class GameView extends xframe.XWindow {
                 if(gift){
                     gift.removeSelf();
                     delete this._gift[targetPoint.x+"_"+targetPoint.y];
+
+                    //数据处理===================================
+                    if(this._rewards[gift.name]){
+                        this._rewards[gift.name] = parseInt(this._rewards[gift.name])+1;
+                    }else{
+                        this._rewards[gift.name] = 1;
+                    }
                 }
 
             } else if (delX < 36 && delY < 25) {//3
@@ -670,12 +674,9 @@ class GameView extends xframe.XWindow {
 
     private showResult(): void {
         this.stop();
-        var params = {
-            music: this.params,
-            star: this._starNum,
-            score: this._score
-        }
-        XFacade.instance.showModule(GameResultView, params);
+        this._rewards["score"] = this._score;
+        this._rewards["star"] = this._starNum;
+        XFacade.instance.showModule(GameResultView, this._rewards);
     }
 
     /**
@@ -910,7 +911,6 @@ class GameView extends xframe.XWindow {
 
     protected initEvent(): void {
         XEvent.instance.on(GameEvent.BACK, this, this.onGameEvent, [GameEvent.BACK]);
-        XEvent.instance.on(GameEvent.OVER, this, this.onGameEvent, [GameEvent.OVER]);
         XEvent.instance.on(GameEvent.RESTART, this, this.onGameEvent, [GameEvent.RESTART]);
         XEvent.instance.on(GameEvent.SELECTED, this, this.onGameEvent, [GameEvent.SELECTED]);
         XEvent.instance.on(GameEvent.NEXTCHAPTER, this, this.onGameEvent, [GameEvent.NEXTCHAPTER]);
@@ -920,7 +920,6 @@ class GameView extends xframe.XWindow {
     }
 
     protected removeEvent(): void {
-        XEvent.instance.off(GameEvent.OVER, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.BACK, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.RESTART, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.SELECTED, this, this.onGameEvent);
@@ -944,6 +943,4 @@ class GameEvent {
     public static NEXTCHAPTER: string = "nextchapter";
     /**跳转到解锁篇章 */
     public static HOMECHAPTER: string = "homechapter";
-    /**结束歌曲 */
-    public static OVER:string = "over"
 }

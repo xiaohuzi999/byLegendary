@@ -2,7 +2,6 @@ class GameResultView extends xframe.XMWindow {
     ui = new ui.views.GameResultViewUI();
     private topToast = new ui.views.TopToastViewUI();
     private _rewardCoin: number;
-    private static tipArrays: Array<string> = ["加油哦", "不错！", "腻害了", "棒极了"];
     private params:any;
     constructor() {
         super();
@@ -21,12 +20,6 @@ class GameResultView extends xframe.XMWindow {
             // 重新开始
             e.stopPropagation();
             XEvent.instance.event(GameEvent.RESTART);
-            this.close();
-        });
-
-        this.ui.nextBtn.on(Laya.Event.CLICK, null, () => {
-            // 下一首
-            this.chooseNextMusic();
             this.close();
         });
     }
@@ -58,37 +51,9 @@ class GameResultView extends xframe.XMWindow {
         }
 
         //需要数据支撑~~
-        this.ui.musicname.text = this.params.music.name;
+        this.ui.tip.text = this.params.music.name;
         this.ui.authname.text = this.params.music.author;
         this.ui.scorelabel.text = this.params.score + "分";
-        this.ui.tip.text = GameResultView.tipArrays[this.params.star];
         this.ui.coinLabel.text = "X" + this._rewardCoin;
-    }
-
-
-    // 选择下一首音乐
-    chooseNextMusic() {
-        var music = this.params.music;
-        var modeId = music.cid;
-        var list: Array<any> = DBChapter.chapList;
-        var index = list.indexOf(music);
-        //
-        XTip.showTip("doing~~~~~~~~~~~~~~~~~~~~~~")
-    }
-
-    // 提示解锁下一篇章
-    toastReleaseNextChapter() {
-        var _self = this;
-        this.topToast.y = -60;
-        this.ui.addChild(this.topToast);
-        Laya.Tween.to(this.topToast, { y: 0 }, 500, Laya.Ease.linearIn, Laya.Handler.create(this, () => {
-            setTimeout(function () {
-                Laya.Tween.to(_self.topToast, { y: -60 }, 500, Laya.Ease.linearIn, Laya.Handler.create(_self, () => {
-                    Laya.Tween.clearTween(_self.topToast);
-                    _self.ui.removeChild(_self.topToast);
-                    _self.topToast = null;
-                }));
-            }, 2000);
-        }));
     }
 }

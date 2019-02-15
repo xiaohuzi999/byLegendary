@@ -25,17 +25,22 @@ class PopGameRevive extends xframe.XMWindow{
     public show(...args):void{
         super.show();
         this.params = args[0];
+        xframe.AniUtil.flowIn(this);
     }
 
-    protected initEvet():void{
+    public close():void{
+        xframe.AniUtil.flowOut(this, Laya.Handler.create(this, super.close));
+    }
+
+    protected initEvent():void{
         super.initEvent();
-        this.ui.btnConfirm.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnBack.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnConfirm.on(Laya.Event.CLICK, this, this.onBtnClick);
     }
 
     protected removeEvent():void{
         super.removeEvent();
-        this.ui.btnConfirm.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.btnBack.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnConfirm.off(Laya.Event.CLICK, this, this.onBtnClick);
     }
 }

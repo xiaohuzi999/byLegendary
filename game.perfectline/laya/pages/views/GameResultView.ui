@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":8,
+    "selecteID":23,
     "props":{"width":640,"sceneColor":"#000000","height":936},
     "nodeParent":-1,
     "label":"View",
@@ -177,19 +177,6 @@
             "isAniNode":true,
             "hasChild":false,
             "compId":17,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "props":{"y":801,"x":208,"visible":false,"var":"nextBtn","skin":"res/game/btn_next.png"},
-            "nodeParent":1,
-            "label":"Image(nextBtn)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":23,
             "child":[
                 ]
         }],
