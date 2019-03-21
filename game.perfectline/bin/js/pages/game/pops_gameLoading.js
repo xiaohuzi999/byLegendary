@@ -29,6 +29,12 @@ var GameLoading = /** @class */ (function (_super) {
         _super.prototype.show.call(this);
         this.onShow();
         Laya.timer.frameLoop(1, this, this.showLoading);
+        this.onStageResize();
+    };
+    GameLoading.prototype.onStageResize = function () {
+        var sx = Math.max(Laya.stage.width / AppConfig.AppWidth, Laya.stage.height / AppConfig.AppHeight);
+        this.ui.bg.scale(sx, sx);
+        //this.ui.bg.x = (AppConfig.AppWidth - this.ui.bg.width)/2;
     };
     GameLoading.prototype.onShow = function () {
         //加载配置

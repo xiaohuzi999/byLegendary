@@ -14,7 +14,12 @@ class DBChapter{
     }
     //
     public static getChapInfo(id:any):ChapterVo{
-        return this.chapList[id];
+        for(let i in this.chapList){
+            if(this.chapList[i].id == id){
+                return this.chapList[i];
+            }
+        }
+        return null;
     }
             
     public static get chapList():ChapterVo[]{

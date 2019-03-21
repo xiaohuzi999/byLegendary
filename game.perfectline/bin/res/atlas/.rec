@@ -1,22 +1,20 @@
 D .
 D res
 D res/common
-P 5F0B8C1F 3.png
-P 9464241C banner.png
+P 74656864 1.png
+P D492CEB0 2.png
+P E58169F7 3.png
 P 1B7B3A2D bg_white.png
+P C6EB0C51 box.png
 P 896E90D9 btn_red.png
 P 4A95C10E btn_yellow.png
 P 2B414F4C btn_yellow2.png
+P 6636ECEC ic_power1.png
 P 4F0B0708 lock.png
 P 358C3018 star.png
 D res/game
-P A74CC120 ball.png
-P 13BDB3BC bj_choose music.png
-P 6ECF5E41 bj_music.png
-P 3EEC46D0 bj_play_tc.png
-P F6CE2FDD bj_ranking_single.png
-P F60E222D bj_single.png
 P 19EF31AF btn_again.png
+P 003B7E79 btn_back.png
 P C280B17D btn_close.png
 P BE7B1835 btn_continue.png
 P 69C85AF8 btn_enter.png
@@ -29,18 +27,12 @@ P 335F628B btn_sure.png
 P 244E6B38 btn_sure2.png
 P 577AF9BC click.png
 P DBB03A6E dot.png
+P 32026F01 hand.png
 P 4208B345 ic_coin.png
 P 6636ECEC ic_power1.png
 P FF87D702 ic_star_result_b.png
 P 4A7C5F39 ic_star_result_gray_b.png
 P CF9C021E light.png
-P AED089E9 origin.png
-P 210DCA52 progress$bar.png
-P 45B44097 progress.png
-P 8B76931D spot.png
-P 62460798 spot_s.png
-P A92689C2 star_b.png
-P 90A4A73B star_w.png
 P 350F701F start_bg.png
 D res/ic_role
 P FBCC6EF4 8b.png
@@ -51,13 +43,8 @@ P C9EF0A8D mmq.png
 P FEEAC12B ppc.png
 P C5ACB391 ppx.png
 P 52C44B5A qklq.png
-P F206A348 xfq.png
 P FBF8670C xhj.png
 P A99CD892 xq.png
-P 7B3AFE30 yy_8b.png
-P C5C5A751 yy_mmq.png
-P C5C5A751 yy_qklq.png
-P 970F4347 yy_xhj.png
 D res/icon
 P 6B1B586C 1.png
 P 3B14EEFA 11x.png
@@ -69,18 +56,15 @@ P F23C82D5 6.png
 P DEFFE5AA 7.png
 P 9AF82FE8 7x.png
 P 8A229C99 8x.png
-R A1B30E59 icon.psd
 D res/main
 R B8AB4697 bj_homepage@2x.png
 P 8D0E6173 bj_power_tc.png
 P C919BCA6 bj_user_tc.png
 P B40E28B4 btn_add.png
-P 40356834 btn_card.png
 P C280B17D btn_close.png
 P 703B6DC1 btn_invite.png
 P C71ABA30 btn_play.png
-P B27DEB03 btn_role.png
-P 7C60E828 btn_sign.png
+P E219A917 btn_sign.png
 P 5A73F0FA btn_watch.png
 P D0479170 ic_add_power.png
 P 2126D1B2 ic_bg.png
@@ -94,6 +78,7 @@ P A0AF2A8F ic_star1.png
 P ED28FFC8 ic_user_coin.png
 P 95F2D326 ic_user_power.png
 P 11AF94BD ic_user_star.png
+P F484FAEB itemStrBG.png
 P 04617D56 loading.png
 D res/role
 P 68B8BFE7 bi_single.png
@@ -103,32 +88,18 @@ P AAC7AB44 bj_ranking_tc.png
 P F4D425EB bj_role_tc.png
 P 2C31805F btn_release.png
 P 22F72B4D btn_return.png
-P 7BDF57A1 btn_see.png
 P 08340F4C btn_use.png
-P BA43C5C5 ic_1.png
-P 6ACD384E ic_2.png
-P A306FBA4 ic_3.png
 P 9D0B44F9 ic_placing.png
-P 7C02E134 ic_used.png
 P 36276C30 tab.png
 D res/signin
-P C0E144E2 bj_get.png
 P EECB6F8C bj_sign_tc.png
 P 94315697 btn_choose.png
 P C280B17D btn_close.png
 P 90895B09 btn_get.png
-P 5413CE17 btn_sure.png
-P 72BA39B3 ic_close.png
 P 5B5C0092 ic_coin.png
 P C9F24EB4 ic_coin1.png
-P 7DFFAC4F ic_coin_get.png
+P 86A90F07 ic_gift.png
 P 122D4D26 ic_power.png
-P 59A213D5 ic_power1.png
-P BAC0EF48 ic_power_get.png
-P A92D0AE0 ic_status_1.png
-P B1797BF0 ic_status_2.png
 P F094AECA item_bg1.png
 P 63241226 item_bg2.png
 P 1452311B item_bg3.png
-P DD6CF1F3 receive.png
-P 5A5D851B supplement.png

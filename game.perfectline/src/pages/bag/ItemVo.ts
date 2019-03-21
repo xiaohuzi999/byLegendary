@@ -24,6 +24,8 @@ class ItemVo{
     /**特殊道具ID */
     public static readonly GOLD:number = 1;
     public static readonly DIAMOND:number = 2;
+    public static readonly KEY:number = 3;
+    public static readonly POWER:number = 4;
     constructor(){
 
     }

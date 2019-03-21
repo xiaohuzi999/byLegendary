@@ -13,7 +13,7 @@ var RoleView = /** @class */ (function (_super) {
     function RoleView() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.views.RoleViewUI();
-        _this.bgAlpha = 0.8;
+        _this.bgAlpha = 0.2;
         _this.ui.rolelist.vScrollBarSkin = null;
         _this.ui.rolelist.scrollBar.elasticBackTime = 200;
         _this.ui.rolelist.scrollBar.elasticDistance = 200;
@@ -23,6 +23,10 @@ var RoleView = /** @class */ (function (_super) {
     RoleView.prototype.show = function () {
         _super.prototype.show.call(this);
         this.ui.rolelist.array = DBGame.roleInfo;
+        xframe.AniUtil.flowIn(this);
+    };
+    RoleView.prototype.close = function () {
+        xframe.AniUtil.flowOut(this, Laya.Handler.create(this, _super.prototype.close));
     };
     RoleView.prototype.update = function () {
         trace("update");

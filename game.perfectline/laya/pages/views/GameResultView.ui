@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":23,
+    "selecteID":33,
     "props":{"width":640,"sceneColor":"#000000","height":936},
     "nodeParent":-1,
     "label":"View",
@@ -23,72 +23,128 @@
             "hasChild":false,
             "compId":24,
             "child":[
+                ],
+            "$HIDDEN":false
+        },
+        {
+            "x":15,
+            "type":"Image",
+            "props":{"y":389,"x":196,"var":"iconDiamond","skin":"res/common/2.png"},
+            "nodeParent":1,
+            "label":"Image(iconDiamond)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":25,
+            "child":[
                 ]
         },
         {
             "x":15,
             "type":"Image",
-            "props":{"y":51,"x":39,"var":"homebtn","skin":"res/game/btn_home.png"},
+            "props":{"y":480,"x":196,"var":"iconItem","skin":"res/common/3.png"},
+            "nodeParent":1,
+            "label":"Image(iconItem)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":27,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Image",
+            "props":{"y":298,"x":196,"var":"iconGold","skin":"res/common/1.png"},
+            "nodeParent":1,
+            "label":"Image(iconGold)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":10,
+            "child":[
+                ],
+            "$HIDDEN":false
+        },
+        {
+            "x":15,
+            "type":"Image",
+            "props":{"y":730,"x":334,"var":"homebtn","skin":"res/common/btn_yellow2.png"},
             "nodeParent":1,
             "label":"Image(homebtn)",
-            "isDirectory":false,
+            "isOpen":true,
+            "isDirectory":true,
             "isAniNode":true,
-            "hasChild":false,
+            "hasChild":true,
             "compId":2,
             "child":[
-                ]
+                {
+                    "x":30,
+                    "type":"Label",
+                    "props":{"y":31,"x":77,"width":108,"text":"返回","height":40,"fontSize":42,"color":"#6f5638","align":"center"},
+                    "nodeParent":2,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":32,
+                    "child":[
+                        ]
+                }],
+            "$HIDDEN":false
         },
         {
             "x":15,
             "type":"Image",
-            "props":{"y":339,"x":170,"var":"star1","skin":"res/game/ic_star_result_b.png","rotation":-30,"anchorY":0.5,"anchorX":0.5},
+            "props":{"y":731,"x":55,"var":"btnRevive","skin":"res/common/btn_yellow2.png"},
             "nodeParent":1,
-            "label":"Image(star1)",
-            "isDirectory":false,
+            "label":"Image(btnRevive)",
+            "isOpen":true,
+            "isDirectory":true,
             "isAniNode":true,
-            "hasChild":false,
-            "compId":5,
+            "hasChild":true,
+            "compId":17,
             "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "props":{"y":340,"x":502,"var":"star3","skin":"res/game/ic_star_result_gray_b.png","rotation":30,"anchorY":0.5,"anchorX":0.5},
-            "nodeParent":1,
-            "label":"Image(star3)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":6,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "props":{"y":147,"x":265,"var":"star2","skin":"res/game/ic_star_result_gray_b.png"},
-            "nodeParent":1,
-            "label":"Image(star2)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":7,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Label",
-            "props":{"y":543,"x":67,"width":301,"var":"scorelabel","text":"14分","height":66,"fontSize":60,"color":"#ffffff","align":"center"},
-            "nodeParent":1,
-            "label":"Label(scorelabel)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":8,
-            "child":[
-                ]
+                {
+                    "x":30,
+                    "type":"Label",
+                    "props":{"y":8,"x":128,"width":46,"text":"-1","height":40,"fontSize":32,"color":"#6f5638"},
+                    "nodeParent":17,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":29,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Image",
+                    "props":{"y":10,"x":86,"width":36,"skin":"res/common/ic_power1.png","height":36},
+                    "nodeParent":17,
+                    "label":"Image",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":30,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "props":{"y":41,"x":74,"width":108,"text":"复活","height":40,"fontSize":42,"color":"#6f5638","align":"center"},
+                    "nodeParent":17,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":31,
+                    "child":[
+                        ]
+                }],
+            "$HIDDEN":false
         },
         {
             "x":15,
@@ -105,23 +161,10 @@
         },
         {
             "x":15,
-            "type":"Image",
-            "props":{"y":527,"x":369,"skin":"res/game/ic_coin.png"},
-            "nodeParent":1,
-            "label":"Image",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":10,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
             "type":"Label",
-            "props":{"y":558,"x":476,"var":"coinLabel","text":"X10","fontSize":40,"color":"#ffffff"},
+            "props":{"y":305,"x":292,"width":156,"var":"tfGold","text":"X10","height":40,"fontSize":40,"color":"#ffffff"},
             "nodeParent":1,
-            "label":"Label(coinLabel)",
+            "label":"Label(tfGold)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
@@ -131,52 +174,40 @@
         },
         {
             "x":15,
-            "type":"Image",
-            "props":{"y":628,"x":0,"skin":"res/game/bj_single.png"},
+            "type":"Label",
+            "props":{"y":402,"x":292,"width":134,"var":"tfDiamond","text":"X10","height":40,"fontSize":40,"color":"#ffffff"},
             "nodeParent":1,
-            "label":"Image",
-            "isOpen":false,
-            "isDirectory":true,
-            "isAniNode":true,
-            "hasChild":true,
-            "compId":13,
-            "child":[
-                {
-                    "type":"Label",
-                    "props":{"y":35,"x":172,"var":"musicname","text":"天空之城","fontSize":32,"color":"#666666","bold":true,"align":"left"},
-                    "nodeParent":13,
-                    "label":"Label(musicname)",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":21,
-                    "child":[
-                        ]
-                },
-                {
-                    "type":"Label",
-                    "props":{"y":88,"x":172,"var":"authname","text":"久石让","fontSize":26,"color":"#999999"},
-                    "nodeParent":13,
-                    "label":"Label(authname)",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":22,
-                    "child":[
-                        ]
-                }],
-            "$HIDDEN":false
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "props":{"y":801,"x":212,"var":"restartbtn","skin":"res/game/btn_again.png"},
-            "nodeParent":1,
-            "label":"Image(restartbtn)",
+            "label":"Label(tfDiamond)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
-            "compId":17,
+            "compId":26,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":492,"x":292,"width":165,"var":"tfItem","text":"X10","height":40,"fontSize":40,"color":"#ffffff"},
+            "nodeParent":1,
+            "label":"Label(tfItem)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":28,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":135,"x":175,"width":289,"var":"tfScore","text":"得分111","height":65,"fontSize":60,"color":"#ffffff","align":"center"},
+            "nodeParent":1,
+            "label":"Label(tfScore)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":33,
             "child":[
                 ]
         }],

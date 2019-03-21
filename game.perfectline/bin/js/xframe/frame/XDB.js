@@ -8,6 +8,11 @@ var XDB = /** @class */ (function () {
     XDB.fetchSrvData = function (cb) {
         this._cb = cb;
         var onFetchHandler = Handler.create(this, this.init);
+        //============================
+        var data = Laya.LocalStorage.getItem(XDB.NAME);
+        onFetchHandler.runWith(data);
+        return;
+        //=======================================
         wx.login({
             success: function (res) {
                 if (res.code) {
@@ -18,8 +23,9 @@ var XDB = /** @class */ (function () {
                 }
             },
             initLocal: function () {
-                XTip.showTip("未与远程数据同步~~");
-                var data = Laya.LocalStorage.getItem(this.NAME);
+                trace("XDB::未与远程数据同步----------------------");
+                trace("XDB::使用本地数据--------------------------");
+                var data = Laya.LocalStorage.getItem(XDB.NAME);
                 onFetchHandler.runWith(data);
             }
         });
@@ -27,8 +33,10 @@ var XDB = /** @class */ (function () {
     /**init with data*/
     XDB.init = function (data) {
         if (typeof data === "string") {
-            trace("data:::::::", data);
-            this._data = JSON.parse(data);
+            if (data.length > 0) {
+                trace("data:::::::", data);
+                this._data = JSON.parse(data);
+            }
         }
         else {
             this._data = data;
@@ -49,8 +57,10 @@ var XDB = /** @class */ (function () {
     /**save */
     XDB.save = function (key, value) {
         this.data[key] = value;
+        trace("save:::::::::::::::::", key, this.data);
         //save to local
         Laya.LocalStorage.setItem(this.NAME, JSON.stringify(this.data));
+        trace("get:::::::::::::::::", Laya.LocalStorage.getItem(this.NAME));
         //todo：save to srv
     };
     XDB.push2Srv = function () {

@@ -10,15 +10,23 @@ class HomeView extends xframe.XWindow {
     public show():void{
         super.show();
         this.updateUserInfo();
-        this.showMoveStar();
         this.ui.chapList.refresh();
+        this.onStageResize();
+
+        let data:any = this.ui.chapList.array;
+        for(let i=0; i<data.length; i++){
+            if(data[i] && data[i].id == User.instace.curId){
+                this.ui.chapList.selectedIndex = i;
+                this.selectedItem = this.ui.chapList.getCell(i);
+                this.scrollToIndex(i-1);
+                break;
+            }
+        }
     }
 
     public onStageResize():void{
-        super.onStageResize();
         let sx = Math.max(Laya.stage.width/AppConfig.AppWidth, Laya.stage.height/AppConfig.AppHeight);
         this.ui.bg.scale(sx,sx);
-        this.ui.x = (this.ui.bg.width-AppConfig.AppWidth)/2;
     }
 
     public close():void{
@@ -34,14 +42,7 @@ class HomeView extends xframe.XWindow {
             this.ui.condBox.visible = false;
             this.ui.btnPlay.visible = true;
             this.ui.btnUnlock.visible = false;
-            let starNum:number = User.instace.starInfo[data.id];
-            for(let i=0; i<3; i++){
-                if(starNum > i){
-                    this.ui["star_"+i].gray = false;
-                }else{
-                    this.ui["star_"+i].gray = true;
-                }
-            }
+            this.ui.tfScore.text = User.instace.starInfo[data.id]+"%"
         }else{
             this.ui.star.visible  = false;
             this.ui.condBox.visible = true;
@@ -53,12 +54,16 @@ class HomeView extends xframe.XWindow {
     
 
     private onBtnClick(e:Laya.Event):void{
+        e.stopPropagation();
         switch(e.target){
             case this.ui.btnDev:
                 XFacade.instance.showModule(DevView)
             break;
             case this.ui.btnSignin:
-                XFacade.instance.showModule(SignInView)
+            // wx.shareAppMessage({
+            //     title: '一起来玩呀'
+            // })
+            XFacade.instance.showModule(SignInView)
             break;
             case this.ui.roleBtn:
                 XFacade.instance.showModule(RoleView)
@@ -70,7 +75,12 @@ class HomeView extends xframe.XWindow {
                 XFacade.instance.showModule(UserInfoView);
             break;
             case this.ui.btnPlay:
-                XFacade.instance.showModule(GameView, this.ui.chapList.selectedItem)
+                if(User.instace.power > 0){
+                    XFacade.instance.showModule(GameView, this.ui.chapList.selectedItem);
+                    User.instace.curId = this.ui.chapList.selectedItem.id;
+                }else{
+                    XFacade.instance.showModule(PopAddPower);
+                }
             break;
             case this.ui.btnUnlock:
                 this.unlock();
@@ -78,14 +88,37 @@ class HomeView extends xframe.XWindow {
         }
     }
 
+    private showTip(e:Laya.Event):void{
+        e.stopPropagation();
+        switch(e.target){
+            case this.ui.diaMC:
+                xframe.XTipManager.showTip(DBItem.getItemVo(ItemVo.DIAMOND), Tip)
+            break;
+            case this.ui.goldMC:
+                xframe.XTipManager.showTip(DBItem.getItemVo(ItemVo.GOLD), Tip)
+            break;
+            case this.ui.powerMC:
+                xframe.XTipManager.showTip(DBItem.getItemVo(ItemVo.POWER), Tip)
+            break;
+        }
+    }
+
     private unlock():void{
-        if(DBChapter.canUnlock(this._selectedItem.dataSource.id)){
-            User.instace.starInfo[this._selectedItem.dataSource.id] = 0;
+        let id:any = this._selectedItem.dataSource.id
+        let vo:ChapterVo = DBChapter.getChapInfo(id);
+        if(DBChapter.canUnlock(id)){
+            User.instace.starInfo[id] = 0;
             //User.instace.save();
             this.ui.chapList.refresh();
             this.format(this._selectedItem.dataSource)
+            //扣道具
+            Bag.getInstance().delItem(vo.cond[0], vo.cond[1]);
+            XTip.showTip("解锁成功")
         }else{
-            XTip.showTip("不满足条件")
+            let itemVo:ItemVo = DBItem.getItemVo(vo.cond[0]);
+            let str:string = "解锁当前关卡需要"+itemVo.name+"x"+vo.cond[1]+",您当前拥有"+Bag.getInstance().getItemNum(itemVo.id);
+            str += "("+itemVo.name+"游戏中获得)"
+            XTip.showTip(str)
         }
     }
 
@@ -93,7 +126,7 @@ class HomeView extends xframe.XWindow {
         if (e.type == Laya.Event.CLICK) {
             if (index == this.ui.chapList.selectedIndex) {
                 if(this._isLocked){
-                    //this.unlock();
+                    this.unlock();
                 }else{
                     XFacade.instance.showModule(GameView, this.ui.chapList.selectedItem)
                 }
@@ -146,16 +179,16 @@ class HomeView extends xframe.XWindow {
     // 更新用户数据展示
     private updateUserInfo() {
         this.ui.coinNum.text = User.instace.gold + '';
-        this.ui.starNum.text = User.instace.star + '';
+        this.ui.starNum.text = User.instace.diamond + '';
         this.ui.heartNum.text = User.instace.power + '';
         this.ui.btnAddPower.visible = User.instace.power < 30;
         this.ui.btnUserInfo.skin = User.instace.avatar;
+        if(this._selectedItem.dataSource){
+            this.ui.tfScore.text = User.instace.starInfo[this._selectedItem.dataSource.id]+"%"
+        }
+        this.ui.btnSignin.visible = User.instace.canSign;
     }
 
-    // 背景星星
-    private showMoveStar() {
-        Star.shine(30, this.ui.bg);
-    }
     protected initEvent():void{
         this.ui.btnDev.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnSignin.on(Laya.Event.CLICK, this, this.onBtnClick);
@@ -164,6 +197,10 @@ class HomeView extends xframe.XWindow {
         this.ui.btnUserInfo.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnPlay.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnUnlock.on(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.diaMC.on(Laya.Event.CLICK, this, this.showTip);
+        this.ui.goldMC.on(Laya.Event.CLICK, this, this.showTip);
+        this.ui.powerMC.on(Laya.Event.CLICK, this, this.showTip);
+
         XEvent.instance.on(User.UPDATE, this, this.updateUserInfo);
         this.ui.chapList.mouseHandler = Laya.Handler.create(this, this.onItemClick,null, false)
         this.ui.chapList.scrollBar.on(Laya.Event.END, this, this.onScroll);
@@ -177,6 +214,10 @@ class HomeView extends xframe.XWindow {
         this.ui.btnUserInfo.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnPlay.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.btnUnlock.off(Laya.Event.CLICK, this, this.onBtnClick);
+        this.ui.diaMC.off(Laya.Event.CLICK, this, this.showTip);
+        this.ui.goldMC.off(Laya.Event.CLICK, this, this.showTip);
+        this.ui.powerMC.off(Laya.Event.CLICK, this, this.showTip);
+
         XEvent.instance.off(User.UPDATE, this, this.updateUserInfo)
         this.ui.chapList.mouseHandler.recover();
         this.ui.chapList.mouseHandler = null;

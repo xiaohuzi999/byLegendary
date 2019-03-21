@@ -1,7 +1,7 @@
-[{"id":"1","mp3":"lx","cid":"1","cond":[],"json":"lx","author":"佚名","album":null,"name":"旅行"},
-{"id":"2","mp3":"jd","cid":"1","cond":[3,1],"json":"jd","author":"佚名","album":" ","name":"简单"},
-{"id":"3","mp3":"kldnf","cid":"1","cond":[3,5],"json":"kldnf","author":"舒曼","album":null,"name":"快乐的农夫"},
-{"id":"4","mp3":"xwh","cid":"2","cond":[3,10],"json":"xwh","author":"刘加澳","album":null,"name":"星无痕"},
-{"id":"5","mp3":"teqjxq","cid":"3","cond":[3,10],"json":"teqjxq","author":"莫扎特","album":null,"name":"土耳其进行曲"},
-{"id":"6","mp3":"qn","cid":"5","cond":[3,10],"json":"qn","author":"泽昆哈·阿布雷乌","album":null,"name":"雀鸟"},
-{"id":"7","mp3":"xxzg","cid":"6","cond":[3,10],"json":"xxzg","author":"萤火虫","album":" ","name":"小溪之歌（cover）"}]
+[{"id":"1","mp3":"lx","cid":"1","cond":[],"json":"lx","author":"佚名","album":null,"name":"旅行","bg":"bj13"},
+{"id":"2","mp3":"jd","cid":"1","cond":[3,1],"json":"jd","author":"佚名","album":" ","name":"简单","bg":"bj51"},
+{"id":"3","mp3":"kldnf","cid":"1","cond":[3,5],"json":"kldnf","author":"舒曼","album":null,"name":"快乐的农夫","bg":"bj13"},
+{"id":"4","mp3":"xwh","cid":"2","cond":[3,10],"json":"xwh","author":"刘加澳","album":null,"name":"星无痕","bg":"bj51"},
+{"id":"5","mp3":"teqjxq","cid":"3","cond":[3,10],"json":"teqjxq","author":"莫扎特","album":null,"name":"土耳其进行曲","bg":"bj22"},
+{"id":"6","mp3":"qn","cid":"5","cond":[3,10],"json":"qn","author":"泽昆哈·阿布雷乌","album":null,"name":"雀鸟","bg":"bj21"},
+{"id":"7","mp3":"xxzg","cid":"6","cond":[3,10],"json":"xxzg","author":"萤火虫","album":" ","name":"小溪之歌（cover）","bg":"bj21"}]

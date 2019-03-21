@@ -35,6 +35,7 @@ class Main {
             { url: 'res/cfg/stage.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/role.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/item.json', type: Laya.Loader.JSON },
+            { url: 'res/cfg/sign.json', type: Laya.Loader.JSON },
 		]
 
         Laya.loader.load(urlList, Handler.create(null, ()=>{

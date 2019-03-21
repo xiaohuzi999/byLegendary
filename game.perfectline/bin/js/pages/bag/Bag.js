@@ -26,7 +26,9 @@ var Bag = /** @class */ (function () {
         if (DBItem.getItemVo(itemId)) {
             vo = { uid: this.index++, itemId: itemId, num: Math.floor(itemNum) };
         }
-        XTip.showTip("道具Id" + itemId + "不存在");
+        else {
+            XTip.showTip("道具Id" + itemId + "不存在");
+        }
         return vo;
     };
     /**加入道具 */
@@ -46,6 +48,12 @@ var Bag = /** @class */ (function () {
         }
         else if (itemId == ItemVo.DIAMOND) {
             User.instace.diamond += Math.floor(itemNum);
+            User.instace.dispatchEvent();
+            User.instace.save();
+            return;
+        }
+        else if (itemId == ItemVo.POWER) {
+            User.instace.power += Math.floor(itemNum);
             User.instace.dispatchEvent();
             User.instace.save();
             return;

@@ -30,8 +30,9 @@ class Bag{
         let vo:any;
         if(DBItem.getItemVo(itemId)){
             vo = {uid:this.index++, itemId:itemId, num:Math.floor(itemNum)}
+        }else{
+            XTip.showTip("道具Id"+itemId+"不存在");
         }
-        XTip.showTip("道具Id"+itemId+"不存在");
         return vo;
     }
 
@@ -51,6 +52,11 @@ class Bag{
             return;
         }else if(itemId == ItemVo.DIAMOND){
             User.instace.diamond += Math.floor(itemNum);
+            User.instace.dispatchEvent();
+            User.instace.save();
+            return;
+        }else if(itemId == ItemVo.POWER){
+            User.instace.power += Math.floor(itemNum);
             User.instace.dispatchEvent();
             User.instace.save();
             return;

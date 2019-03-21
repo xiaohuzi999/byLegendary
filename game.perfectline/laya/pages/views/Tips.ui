@@ -2,8 +2,8 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":32,
-    "props":{"width":750,"sceneColor":"#000000","height":1334},
+    "selecteID":31,
+    "props":{"width":606,"sceneColor":"#000000","height":280},
     "nodeParent":-1,
     "label":"View",
     "isOpen":true,
@@ -15,7 +15,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":423,"x":55,"width":642,"skin":"res/main/bj_power_tc.png","sizeGrid":"138,0,63,0","height":439},
+            "props":{"y":0,"x":0,"width":604,"skin":"res/main/bj_power_tc.png","height":275},
             "nodeParent":1,
             "label":"Image",
             "isDirectory":false,
@@ -28,7 +28,7 @@
         {
             "x":15,
             "type":"Label",
-            "props":{"y":452,"x":269,"width":211,"var":"tfTitle","text":"出错了","height":54,"fontSize":42,"font":"PingFangSC-Semibold","color":"#ffffff","align":"center"},
+            "props":{"y":16,"x":197,"width":211,"var":"tfTitle","text":"提示","height":54,"fontSize":42,"font":"PingFangSC-Semibold","color":"#ffffff","align":"center"},
             "nodeParent":1,
             "label":"Label(tfTitle)",
             "isDirectory":false,
@@ -41,26 +41,13 @@
         {
             "x":15,
             "type":"Label",
-            "props":{"y":599,"x":175,"wordWrap":true,"width":400,"var":"tfContent","text":"哎呀，服务器在打盹儿，等会再来吧~","leading":10,"height":98,"fontSize":36,"font":"PingFangSC-Semibold","color":"#666666","align":"center"},
+            "props":{"y":116,"x":42,"wordWrap":true,"width":521,"var":"tfContent","text":"哎呀，服务器在打盹儿，等会再来吧~","leading":10,"height":98,"fontSize":36,"font":"PingFangSC-Semibold","color":"#666666","align":"center"},
             "nodeParent":1,
             "label":"Label(tfContent)",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
             "compId":31,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Button",
-            "props":{"y":738,"x":260,"var":"btnClose","stateNum":"1","skin":"res/game/btn_sure2.png"},
-            "nodeParent":1,
-            "label":"Button(btnClose)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":32,
             "child":[
                 ]
         }],

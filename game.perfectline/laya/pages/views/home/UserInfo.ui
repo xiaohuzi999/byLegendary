@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":20,
-    "selecteID":21,
+    "selectedBox":1,
+    "selecteID":12,
     "props":{"width":750,"sceneColor":"#000000","height":1134},
     "nodeParent":-1,
     "label":"View",
@@ -40,19 +40,6 @@
         },
         {
             "x":15,
-            "type":"Label",
-            "props":{"y":479,"x":269,"width":211,"var":"nickLabel","text":"我本有心向明月","height":39,"fontSize":28,"font":"PingFangSC-Regular","color":"#ffffff","align":"center"},
-            "nodeParent":1,
-            "label":"Label(nickLabel)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":7,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
             "type":"Image",
             "props":{"y":624,"x":569,"skin":"res/main/ic_user_coin.png"},
             "nodeParent":1,
@@ -80,13 +67,26 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":624,"x":104,"skin":"res/main/ic_user_star.png"},
+            "props":{"y":631,"x":106,"width":65,"skin":"res/common/2.png","height":65},
             "nodeParent":1,
             "label":"Image",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
             "compId":12,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":479,"x":269,"width":211,"var":"nickLabel","text":"我本有心向明月","height":39,"fontSize":28,"font":"PingFangSC-Regular","color":"#ffffff","align":"center"},
+            "nodeParent":1,
+            "label":"Label(nickLabel)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":7,
             "child":[
                 ]
         },

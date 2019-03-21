@@ -35,14 +35,10 @@ class Role extends Laya.Sprite{
     public setSkin(id:any, speed:number):void{
         //if(this._id != id){
             var info:RoleVo = DBGame.getRole(id)
+            trace("roleInfo::::::::::::::::::", info)
             this._roleData = info;
             if(info){
                 this.$image.skin = "res/ic_role/"+info.img+".png";
-                if(info.shadow){
-                    this.$shadow.skin = "res/ic_role/"+info.shadow+".png";
-                }else{
-                    this.$shadow.skin = "";
-                }
                 this._needAni = info.rotate > 0;
                 if(speed <= 0.3){
                     this._roleData.rendFrame = 10;
@@ -51,11 +47,9 @@ class Role extends Laya.Sprite{
                 }else{
                     this._roleData.rendFrame = 6;
                 }
-                this._maxNode = info.rendFrame*(this._shadows.length+2) - 3;
 
-                for(let i=0; i<this._shadows.length; i++){
-                    this._shadows[i].skin = this.$image.skin;
-                }
+                this.shadow(info.child, this.$image.skin)
+                this._maxNode = info.rendFrame*(this._shadows.length+2) - 3;
             }
         //}
         this._needAni && this.play();
@@ -98,6 +92,10 @@ class Role extends Laya.Sprite{
     }
 
     public update():void{
+        if(this._shadows.length == 0){
+            return;
+        }
+
         this._posArr.push({x:Math.floor(this.x),y:Math.floor(this.y)});
         while(this._posArr.length > this._maxNode){
             this._posArr.shift();
@@ -126,13 +124,16 @@ class Role extends Laya.Sprite{
     }
 
     /**影子效果 */
-    public shadow(showNum:number):void{
-        this._shadows.length = 0;//res/game/style_0.png
+    public shadow(showNum:number, skin:string):void{
+        for(let i=0;i<this._shadows.length; i++){
+            this._shadows[i].removeSelf();
+        }
+        this._shadows.length = 0;
         this._renderIndex = 0;
         this._posArr.length = 0;
         let img:Laya.Image;
         for(let i=0;i<showNum; i++){
-            img = new Laya.Image();
+            img = new Laya.Image(skin);
             img.anchorX = img.anchorY = 0.5;
             img.scale(0.5, 0.5);
             this._shadows.push(img);

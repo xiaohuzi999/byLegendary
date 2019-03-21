@@ -11,5 +11,6 @@ var FakeWX = /** @class */ (function () {
     ;
     FakeWX.prototype.onHide = function () { };
     ;
+    FakeWX.prototype.shareAppMessage = function () { };
     return FakeWX;
 }());

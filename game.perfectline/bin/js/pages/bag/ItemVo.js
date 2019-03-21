@@ -9,5 +9,7 @@ var ItemVo = /** @class */ (function () {
     /**特殊道具ID */
     ItemVo.GOLD = 1;
     ItemVo.DIAMOND = 2;
+    ItemVo.KEY = 3;
+    ItemVo.POWER = 4;
     return ItemVo;
 }());

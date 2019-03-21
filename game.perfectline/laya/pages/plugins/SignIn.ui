@@ -1,9 +1,9 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":82,
-    "selecteID":90,
-    "props":{"y":667,"x":375,"width":750,"sceneColor":"#000000","sceneBg":"laya/views/mainMenu/SignIn.png","height":1334,"anchorY":0.5,"anchorX":0.5},
+    "selectedBox":2,
+    "selecteID":87,
+    "props":{"y":0,"x":0,"width":646,"sceneColor":"#000000","sceneBg":"laya/views/mainMenu/SignIn.png","height":1140},
     "nodeParent":-1,
     "label":"View",
     "isOpen":true,
@@ -15,7 +15,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":608,"x":381,"skin":"res/signin/bj_sign_tc.png","anchorY":0.5,"anchorX":0.5},
+            "props":{"y":0,"x":0,"skin":"res/signin/bj_sign_tc.png"},
             "nodeParent":1,
             "label":"Image",
             "isOpen":true,
@@ -36,7 +36,7 @@
                     "compId":89,
                     "child":[
                         ],
-                    "$LOCKED":true,
+                    "$LOCKED":false,
                     "$HIDDEN":false
                 },
                 {
@@ -67,7 +67,7 @@
                                     "x":60,
                                     "type":"UIView",
                                     "source":"plugins/SignInItem.ui",
-                                    "props":{"y":0,"x":0,"var":"sign1"},
+                                    "props":{"y":0,"x":0,"var":"sign1","runtime":"SignItem"},
                                     "nodeParent":57,
                                     "label":"UIView(sign1)",
                                     "isOpen":true,
@@ -83,7 +83,7 @@
                                     "x":60,
                                     "type":"UIView",
                                     "source":"plugins/SignInItem.ui",
-                                    "props":{"y":0,"x":353,"var":"sign3"},
+                                    "props":{"y":0,"x":353,"var":"sign3","runtime":"SignItem"},
                                     "nodeParent":57,
                                     "label":"UIView(sign3)",
                                     "isOpen":true,
@@ -98,7 +98,7 @@
                                     "x":60,
                                     "type":"UIView",
                                     "source":"plugins/SignInItem.ui",
-                                    "props":{"y":0,"x":176,"var":"sign2"},
+                                    "props":{"y":0,"x":176,"var":"sign2","runtime":"SignItem"},
                                     "nodeParent":57,
                                     "label":"UIView(sign2)",
                                     "isOpen":true,
@@ -126,7 +126,7 @@
                                     "x":60,
                                     "type":"UIView",
                                     "source":"plugins/SignInItem.ui",
-                                    "props":{"y":0,"x":0,"var":"sign4"},
+                                    "props":{"y":0,"x":0,"var":"sign4","runtime":"SignItem"},
                                     "nodeParent":75,
                                     "label":"UIView(sign4)",
                                     "isOpen":true,
@@ -141,7 +141,7 @@
                                     "x":60,
                                     "type":"UIView",
                                     "source":"plugins/SignInItem.ui",
-                                    "props":{"y":0,"x":353,"var":"sign6"},
+                                    "props":{"y":0,"x":353,"var":"sign6","runtime":"SignItem"},
                                     "nodeParent":75,
                                     "label":"UIView(sign6)",
                                     "isOpen":true,
@@ -156,7 +156,7 @@
                                     "x":60,
                                     "type":"UIView",
                                     "source":"plugins/SignInItem.ui",
-                                    "props":{"y":0,"x":176,"var":"sign5"},
+                                    "props":{"y":0,"x":176,"var":"sign5","runtime":"SignItem"},
                                     "nodeParent":75,
                                     "label":"UIView(sign5)",
                                     "isOpen":true,
@@ -186,7 +186,7 @@
                                     "props":{"y":8,"x":-1,"width":546,"visible":false,"var":"sign8","height":211},
                                     "nodeParent":82,
                                     "label":"View(sign8)",
-                                    "isOpen":false,
+                                    "isOpen":true,
                                     "isDirectory":true,
                                     "isAniNode":true,
                                     "hasChild":true,
@@ -204,20 +204,8 @@
                                             "hasChild":false,
                                             "compId":94,
                                             "child":[
-                                                ]
-                                        },
-                                        {
-                                            "x":75,
-                                            "type":"Image",
-                                            "props":{"y":47,"x":-3,"skin":"res/ic_role/ic_signRole.png"},
-                                            "nodeParent":90,
-                                            "label":"Image",
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":95,
-                                            "child":[
-                                                ]
+                                                ],
+                                            "$HIDDEN":false
                                         },
                                         {
                                             "x":75,
@@ -239,7 +227,7 @@
                                     "x":60,
                                     "type":"UIView",
                                     "source":"plugins/SignInItem.ui",
-                                    "props":{"y":11,"x":177,"var":"sign7"},
+                                    "props":{"y":12,"x":25,"var":"sign7","runtime":"SignItem"},
                                     "nodeParent":82,
                                     "label":"UIView(sign7)",
                                     "isOpen":true,
@@ -256,33 +244,22 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":1022,"x":309,"visible":false,"var":"btnReceice","skin":"res/signin/btn_get.png","runtime":"runtime.btn_img","anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":1022,"x":309,"visible":true,"var":"btnReceice","skin":"res/signin/btn_get.png","anchorY":0.5,"anchorX":0.5},
                     "nodeParent":2,
                     "label":"Image(btnReceice)",
-                    "isOpen":false,
-                    "isDirectory":true,
+                    "isOpen":true,
+                    "isDirectory":false,
                     "isAniNode":true,
-                    "hasChild":true,
+                    "hasChild":false,
                     "compId":10,
                     "child":[
-                        {
-                            "type":"Label",
-                            "props":{"y":127,"x":-99,"width":491,"text":"连续签到可以获得更多奖励！","height":26,"fontSize":24,"font":"PingFangSC-Semibold","color":"#ffffff","align":"center"},
-                            "nodeParent":10,
-                            "label":"Label",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":88,
-                            "child":[
-                                ]
-                        }],
+                        ],
                     "$HIDDEN":false
                 },
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":72,"x":607,"var":"btnClose","skin":"res/game/btn_close.png","runtime":"runtime.btn_img","anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":72,"x":607,"var":"btnClose","skin":"res/game/btn_close.png","anchorY":0.5,"anchorX":0.5},
                     "nodeParent":2,
                     "label":"Image(btnClose)",
                     "isDirectory":false,
@@ -303,9 +280,23 @@
                     "hasChild":false,
                     "compId":87,
                     "child":[
-                        ]
+                        ],
+                    "$HIDDEN":true
                 }],
             "$HIDDEN":false
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":770,"x":298,"wordWrap":true,"width":309,"text":"奖励每周重置","height":82,"fontSize":36,"color":"#717171","align":"left"},
+            "nodeParent":1,
+            "label":"Label",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":97,
+            "child":[
+                ]
         }],
     "animations":[
         {

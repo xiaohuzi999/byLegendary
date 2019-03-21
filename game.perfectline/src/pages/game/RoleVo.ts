@@ -11,8 +11,7 @@ class RoleVo{
     public rotate: number;
     //尾巴渲染帧数
     public rendFrame:number;
-    //阴影
-    public shadow:string = '';
+    public child:number;
     constructor(){
 
     }

@@ -13,7 +13,7 @@ class UserInfoView extends xframe.XMWindow{
         this.ui.nickLabel.text = User.instace.nickname;
         this.ui.userId.text = "ID：" +  User.instace.id;
         this.ui.heartLabel.text = User.instace.power + '';
-        this.ui.starLabel.text = User.instace.star + '';;
+        this.ui.starLabel.text = User.instace.diamond + '';;
         this.ui.musicLabel.text = User.instace.gold + '';
         super.show();
         xframe.AniUtil.flowIn(this);

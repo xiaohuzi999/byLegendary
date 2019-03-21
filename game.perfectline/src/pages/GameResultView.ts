@@ -1,6 +1,5 @@
 class GameResultView extends xframe.XMWindow {
     ui = new ui.views.GameResultViewUI();
-    private topToast = new ui.views.TopToastViewUI();
     private _rewardCoin: number;
     private params:any;
     constructor() {
@@ -16,10 +15,10 @@ class GameResultView extends xframe.XMWindow {
             this.close();
         });
 
-        this.ui.restartbtn.on(Laya.Event.CLICK, null, (e: Laya.Event) => {
+        this.ui.btnRevive.on(Laya.Event.CLICK, null, (e: Laya.Event) => {
             // 重新开始
             e.stopPropagation();
-            XEvent.instance.event(GameEvent.RESTART);
+            XEvent.instance.event(GameEvent.REVIVE);
             this.close();
         });
     }
@@ -27,33 +26,37 @@ class GameResultView extends xframe.XMWindow {
     public show(...args):void{
         super.show();
         this.params = args[0];
-    }
+        trace("params::",this.params)
+        this.ui.tfGold.text = this.params[ItemVo.GOLD] || "0";
+        this.ui.tfDiamond.text = this.params[ItemVo.DIAMOND] || "0";
+        this.ui.tfItem.text = this.params[ItemVo.KEY] || "0"
+        this.ui.tfScore.text = "完成"+this.params["score"]+"%";
 
-    onShow() {
-        // 金币的数量
-        this._rewardCoin = 0;
-        this.updateUi();
-        User.instace.gold += this._rewardCoin;
+        this.params[ItemVo.GOLD] && Bag.getInstance().addItem(ItemVo.GOLD, this.params[ItemVo.GOLD])
+        this.params[ItemVo.DIAMOND] && Bag.getInstance().addItem(ItemVo.DIAMOND, this.params[ItemVo.DIAMOND])
+        this.params[ItemVo.KEY] && Bag.getInstance().addItem(ItemVo.KEY, this.params[ItemVo.KEY])
+
+        if(this.params["revive"]){
+            this.ui.btnRevive.visible = true;
+            this.ui.btnRevive.pos(56, 730);
+            this.ui.homebtn.pos(334, 730)
+        }else{
+            this.ui.btnRevive.visible = false;
+            this.ui.homebtn.pos(188, 730)
+        }
+
+        //保存==;
+        let musicId:number = this.params.music.id
+        if(User.instace.starInfo[musicId] != undefined && User.instace.starInfo[musicId] < this.params.score){
+            User.instace.starInfo[musicId] = this.params.score;
+        }
+        User.instace.dispatchEvent();
+        User.instace.save();
     }
 
     updateUi() {
-        for (let i = 1; i < 4; i++) {
-            if (i > this.params.star) {
-                this.ui["star" + i].skin = "res/game/ic_star_result_gray_b.png";
-            } else {
-                this.ui["star" + i].skin = "res/game/ic_star_result_b.png";
-            }
-        }
-
-        if (this.params.star > 2) {
-            this.ui.restartbtn.visible = false;
-            this.ui.nextBtn.visible = true;
-        }
-
         //需要数据支撑~~
         this.ui.tip.text = this.params.music.name;
-        this.ui.authname.text = this.params.music.author;
-        this.ui.scorelabel.text = this.params.score + "分";
-        this.ui.coinLabel.text = "X" + this._rewardCoin;
+        this.ui.tfGold.text = "X" + this._rewardCoin;
     }
 }

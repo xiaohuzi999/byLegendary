@@ -33,13 +33,6 @@ var xframe;
             tip.show(tipStr);
             Laya.Tween.to(tip, { y: tip.y - 180, alpha: 0 }, 500, null, Handler.create(tip, tip.close), 1200);
         };
-        /**显示一个tip*/
-        // public showTip(str:string):void{
-        // 	this.show();
-        // 	this._msgTF.text = str;
-        // 	this._msgTF.x = (this._bg.width - this._msgTF.width)/2;
-        // 	this._msgTF.y = (this._bg.height - this._msgTF.height)/2;
-        // }
         XTip.prototype.show = function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -48,8 +41,8 @@ var xframe;
             _super.prototype.show.call(this);
             this.alpha = 1;
             this._msgTF.text = args[0] + "";
-            this._msgTF.x = (this._bg.width - this._msgTF.width) / 2;
-            this._msgTF.y = (this._bg.height - this._msgTF.height) / 2;
+            //this._msgTF.x = (this._bg.width - this._msgTF.width)/2;
+            //this._msgTF.y = (this._bg.height - this._msgTF.height)/2;
         };
         XTip.prototype.close = function () {
             Laya.Pool.recover("XTip", this);
@@ -57,6 +50,10 @@ var xframe;
         };
         //
         XTip.prototype.createUI = function () {
+            this.ui = new ui.views.TipsUI();
+            this.addChild(this.ui);
+            this._msgTF = this.ui.tfContent;
+            return;
             this._bg = new Laya.Image();
             this._bg.sizeGrid = "26,25,20,22,0";
             this.addChild(this._bg);

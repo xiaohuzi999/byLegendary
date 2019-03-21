@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":2,
+    "selecteID":21,
     "props":{"width":750,"sceneColor":"#000000","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -132,7 +132,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":24,"x":24,"var":"btnBack","skin":"res/common/ic_back.png"},
+            "props":{"y":24,"x":24,"var":"btnBack","skin":"res/game/btn_home.png"},
             "nodeParent":1,
             "label":"Image(btnBack)",
             "isDirectory":false,

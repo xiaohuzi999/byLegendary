@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":4,
+    "selecteID":7,
     "props":{"width":750,"sceneColor":"#000000","height":1134},
     "nodeParent":-1,
     "label":"View",
@@ -27,19 +27,6 @@
         },
         {
             "x":15,
-            "type":"Label",
-            "props":{"y":316,"x":269,"width":211,"text":"获取体力","height":54,"fontSize":38,"font":"PingFangSC-Semibold","color":"#ffffff","align":"center"},
-            "nodeParent":1,
-            "label":"Label",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":3,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
             "type":"Button",
             "props":{"y":302,"x":641,"var":"btnClose","stateNum":"1","skin":"res/main/btn_close.png"},
             "nodeParent":1,
@@ -53,19 +40,6 @@
         },
         {
             "x":15,
-            "type":"Button",
-            "props":{"y":723,"x":260,"var":"btnWatch","stateNum":"1","skin":"res/main/btn_watch.png"},
-            "nodeParent":1,
-            "label":"Button(btnWatch)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":5,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
             "type":"Image",
             "props":{"y":428,"x":271,"skin":"res/main/ic_add_power.png"},
             "nodeParent":1,
@@ -74,19 +48,6 @@
             "isAniNode":true,
             "hasChild":false,
             "compId":6,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Label",
-            "props":{"y":668,"x":220,"width":211,"text":"看视频增加体力","height":39,"fontSize":28,"font":"PingFangSC-Semibold","color":"#666666","align":"right"},
-            "nodeParent":1,
-            "label":"Label",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":7,
             "child":[
                 ]
         },
@@ -106,6 +67,32 @@
         {
             "x":15,
             "type":"Label",
+            "props":{"y":316,"x":269,"width":211,"text":"获取体力","height":54,"fontSize":38,"font":"PingFangSC-Semibold","color":"#ffffff","align":"center"},
+            "nodeParent":1,
+            "label":"Label",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":3,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":668,"x":150,"width":281,"var":"tfTip","text":"看视频增加体力","height":39,"fontSize":28,"font":"PingFangSC-Semibold","color":"#666666","align":"right"},
+            "nodeParent":1,
+            "label":"Label(tfTip)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":7,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
             "props":{"y":668,"x":500,"width":211,"text":"x1","height":39,"fontSize":28,"font":"PingFangSC-Semibold","color":"#666666","align":"left"},
             "nodeParent":1,
             "label":"Label",
@@ -113,6 +100,19 @@
             "isAniNode":true,
             "hasChild":false,
             "compId":9,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Button",
+            "props":{"y":726,"x":268,"width":226,"var":"btnWatch","stateNum":"1","skin":"res/common/btn_yellow.png","sizeGrid":"25,48,40,49","labelSize":36,"labelPadding":"-5","labelColors":"#6F5638,#6F5638,#6F5638","labelBold":true,"label":"观看","height":93},
+            "nodeParent":1,
+            "label":"Button(btnWatch)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":12,
             "child":[
                 ]
         }],

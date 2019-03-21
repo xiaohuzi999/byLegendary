@@ -10,4 +10,6 @@ class FakeWX{
     }
     public showShareMenu():void{};
     public onHide():void{};
+
+    public shareAppMessage():void{}
 }

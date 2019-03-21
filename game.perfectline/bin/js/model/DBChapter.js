@@ -11,7 +11,12 @@ var DBChapter = /** @class */ (function () {
     };
     //
     DBChapter.getChapInfo = function (id) {
-        return this.chapList[id];
+        for (var i in this.chapList) {
+            if (this.chapList[i].id == id) {
+                return this.chapList[i];
+            }
+        }
+        return null;
     };
     Object.defineProperty(DBChapter, "chapList", {
         get: function () {

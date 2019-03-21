@@ -11,6 +11,7 @@ class ChapterVo{
     public mp3:string// = "lx"
     public name:string// = "旅行"
     public cond:number[]// = "[3,1]"
+    public bg:string;
     constructor(){
 
     }

@@ -2,7 +2,7 @@ class RoleView extends xframe.XMWindow {
     ui = new ui.views.RoleViewUI();
     constructor () {
         super();
-        this.bgAlpha = 0.8;
+        this.bgAlpha = 0.2;
         this.ui.rolelist.vScrollBarSkin = null;
         this.ui.rolelist.scrollBar.elasticBackTime = 200;
         this.ui.rolelist.scrollBar.elasticDistance = 200;
@@ -12,6 +12,11 @@ class RoleView extends xframe.XMWindow {
     public show():void{
         super.show();
         this.ui.rolelist.array = DBGame.roleInfo; 
+        xframe.AniUtil.flowIn(this);
+    }
+
+    public close():void{
+        xframe.AniUtil.flowOut(this, Laya.Handler.create(this, super.close));
     }
 
     private update():void{

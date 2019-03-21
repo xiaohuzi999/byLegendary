@@ -1,0 +1,9 @@
+{
+"1":{"reward":[[4,3]],"name":"体力","icon":"ic_coin","num":50,"day":"第1天","id":"1"},
+"2":{"reward":[[1,50]],"name":"金币","icon":"ic_coin1","num":100,"day":"第2天","id":"2"},
+"3":{"reward":[[1,100]],"name":"金币","icon":"ic_power","num":3,"day":"第3天","id":"3"},
+"4":{"reward":[[4,5]],"name":"体力","icon":"ic_coin","num":100,"day":"第4天","id":"4"},
+"5":{"reward":[[1,100]],"name":"金币","icon":"ic_coin1","num":200,"day":"第5天","id":"5"},
+"6":{"reward":[[1,200]],"name":"金币","icon":"ic_power","num":6,"day":"第6天","id":"6"},
+"7":{"reward":[[1,100],[2,20],[4,5]],"name":"大礼包","icon":"ic_gift","num":1,"day":"第7天","id":"7"}
+}

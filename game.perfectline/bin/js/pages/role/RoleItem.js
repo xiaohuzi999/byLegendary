@@ -29,11 +29,11 @@ var RoleItem = /** @class */ (function (_super) {
                 this.tip.text = vo.name;
                 if (User.instace.roleInfo[vo.id] == 1) {
                     this.useBtn.label = "使用中";
-                    this.tip.text = "已获取";
+                    this.tip.text = "已获得";
                 }
                 else if (User.instace.roleInfo[vo.id] == 0) {
                     this.useBtn.label = "使用";
-                    this.tip.text = "已获取";
+                    this.tip.text = "已获得";
                     this.useBtn.on(Laya.Event.CLICK, this, this.onUse);
                 }
                 else {

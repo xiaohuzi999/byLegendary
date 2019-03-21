@@ -20,6 +20,13 @@ class XDB{
     public static fetchSrvData(cb:Handler):void{
         this._cb = cb;
         let onFetchHandler:Handler = Handler.create(this, this.init);
+
+        //============================
+        let data:any = Laya.LocalStorage.getItem(XDB.NAME);
+        onFetchHandler.runWith(data);
+        return;
+
+        //=======================================
         wx.login({
             success(res) {
                 if (res.code) {
@@ -29,8 +36,9 @@ class XDB{
                 }
             },
             initLocal(){
-                XTip.showTip("未与远程数据同步~~")
-                let data:any = Laya.LocalStorage.getItem(this.NAME);
+                trace("XDB::未与远程数据同步----------------------")
+                trace("XDB::使用本地数据--------------------------")
+                let data:any = Laya.LocalStorage.getItem(XDB.NAME);
                 onFetchHandler.runWith(data);
             }
         })
@@ -39,8 +47,10 @@ class XDB{
     /**init with data*/
     public static init(data:any):void{
         if(typeof data === "string"){
-            trace("data:::::::",data)
-            this._data = JSON.parse(data);
+            if(data.length > 0){
+                trace("data:::::::",data)
+                this._data = JSON.parse(data);
+            }
         }else{
             this._data = data;
         }
@@ -63,8 +73,10 @@ class XDB{
     /**save */
     public static save(key:string, value:any):void{
         this.data[key] = value;
+        trace("save:::::::::::::::::", key, this.data)
         //save to local
         Laya.LocalStorage.setItem(this.NAME, JSON.stringify(this.data));
+        trace("get:::::::::::::::::", Laya.LocalStorage.getItem(this.NAME))
         //todo：save to srv
     }
 

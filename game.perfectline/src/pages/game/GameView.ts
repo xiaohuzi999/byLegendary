@@ -5,14 +5,13 @@ class GameView extends xframe.XWindow {
     private soundChannel: any;
     private effContainer: Laya.Sprite;
     private params:ChapterVo;
+    private _cfg:{ speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any }
     /**静态传值---非理想方案*/
     public static mp3: string;
     //渲染资源列表
     private _resList: { x: number, y: number, t: number, id: string, s: number }[];
     //渲染编号
     private _rendIndex: number
-    /**地图效果图 */
-    private _eff: Laya.Image;
 
     private _eff2: Laya.Image;
     /**分数 */
@@ -36,30 +35,44 @@ class GameView extends xframe.XWindow {
     public show(...args):void{
         super.show();
         this.params = args[0];
-        this.ui.tfName.text = this.params.name;
         this.ui.btnPause.visible = false;
         XFacade.instance.showModule(GameLoading, this.params)
+        trace("this.params:::::::::::", this.params)
+        this.ui.bg.skin = AppConfig.urlRoot+"res/map/"+this.params.bg+".jpg";
 
         //生成列表
         this._giftList.length = 0;
         let diamondNum:number = 2;
+        let itemNum:number = 1;
         for(let i=0; i<150; i++){
             let rnd:number = Math.random();
             if(rnd >.62){ //60%
                 this._giftList.push(ItemVo.GOLD)
-            }else if(rnd>.6 && diamondNum > 0){ //
-                diamondNum --;
-                this._giftList.push(ItemVo.DIAMOND)
+            }else if(rnd>.6){ //
+                if(diamondNum > 0){
+                    diamondNum --;
+                    this._giftList.push(ItemVo.DIAMOND)
+                }else if(itemNum > 0){
+                    itemNum --;
+                    this._giftList.push(ItemVo.KEY);
+                }else{
+                    this._giftList.push(ItemVo.GOLD);
+                }
             }else{
-                this._giftList.push(0);
+                this._giftList.push(ItemVo.GOLD);
             }
         }
-        trace("this._giftList==============", this._giftList)
+        //trace("this._giftList==============", this._giftList)
 
         //自适应
         let sx = Math.max(Laya.stage.width/AppConfig.AppWidth, Laya.stage.height/AppConfig.AppHeight);
         this.ui.bg.scale(sx,sx);
         this.ui.x = (this.ui.bg.width-AppConfig.AppWidth)/2;
+    }
+
+    public close():void{
+        this.onDestroy();
+        super.close();
     }
 
     private onBtnClick(e:Laya.Event):void{
@@ -69,9 +82,6 @@ class GameView extends xframe.XWindow {
             break;
             case this.ui.backBtn:
                 this.close();
-            break;
-            case this.ui.btnStart:
-                this.onStart(e);
             break;
         }
     }
@@ -91,22 +101,25 @@ class GameView extends xframe.XWindow {
                 this.ui.backBtn.visible = true;
                 this.initMap();
                 break;
-            case GameEvent.NEXTCHAPTER:
-                XFacade.instance.showModule(GameLoading, DBChapter.getChapInfo(parseInt(this.params.id)+1))
-                break;
+            case GameEvent.REVIVE:
+                this.revive();
+            break;
         }
     }
 
     private onStart(e: Laya.Event): void {
+        if(!this.ui.selectBox.visible){
+            Laya.stage.off(Laya.Event.CLICK, this, this.onStart);
+            return;
+        }
         e.stopPropagation();
         if (User.instace.power > 0) {
             User.instace.power -= 1;
             this.ui.selectBox.visible = false;
-            this.ui.btnPause.visible = true;
-            this.ui.backBtn.visible = false;
-            //record nearest play music in chapter
+            //this.ui.btnPause.visible = true;
+            //this.ui.backBtn.visible = false;
             this.startWithCfg();
-            
+            Laya.stage.off(Laya.Event.CLICK, this, this.onStart);
         } else {
             XFacade.instance.showModule(PopAddPower);
         }
@@ -275,13 +288,13 @@ class GameView extends xframe.XWindow {
     
 
     private initMap(firstTime: boolean = true): void {
+        this._cfg = Laya.loader.getRes(AppConfig.urlRoot+'res/snd/' + this.params.json + '.json');
+
         this._rendIndex = 1;
-        this._starNum = this._awsomeTime = this._curTime = this._startTime = 0;
+        this._starNum = this._awsomeTime = this._curTime = this._startTime = this._score = 0;
         this._rewards = {};
         this._autoLast = false;
         this._gift = {};
-        this.showPro(null);
-        this.ui.tfScore.text = "0"
         this._reviveTimes = DBGame.ReviveTimes;
         this._mapArr = [];
         for (let i = 0; i < this._items.length; i++) {
@@ -292,14 +305,14 @@ class GameView extends xframe.XWindow {
             this.effContainer.removeChildAt(0);
         }
 
-        var cfg: { speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any } = Laya.loader.getRes(AppConfig.urlRoot+'res/snd/' + this.params.json + '.json');
+        var cfg: { speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any } = this._cfg
 
         //克隆资源列表 
         this._resList = xframe.XUtils.clone(cfg.items) || [];
         this._resList.sort(function(a, b):any{
             return a.t - b.t;
         })
-        trace("this._resList..................................",this._resList)
+        //trace("this._resList..................................",this._resList)
 
         if (firstTime) {
             //生成星星
@@ -322,10 +335,10 @@ class GameView extends xframe.XWindow {
         //生成角色========================================
         if (!this.ball) {
             this.ball = new Role();
-            this.ball.shadow(4);
+            this.ball.shadow(4, "");
             this.pathSp.addChild(this.ball);
         }
-        this.ball.setSkin(1, this.speedY);
+        this.ball.setSkin(User.instace.curRole, this.speedY);
         this.ball.reset();
         this.ball.pos(this.curX, this.curY);
         this.map.y = this.pathSp.y = 0;
@@ -348,7 +361,7 @@ class GameView extends xframe.XWindow {
                 return;
             }
         }
-        var cfg: { speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any } = Laya.loader.getRes(AppConfig.urlRoot+'res/snd/' + this.params.json + '.json');
+        var cfg: { speed: number, mp3: string, nodes: { x: number, y: number, sx: number, t: number }[], items: any } = this._cfg;
         //1根据当前位置计算出初始节点及结束点；
         //a,取当前节点
         var midIndex: number;
@@ -401,28 +414,26 @@ class GameView extends xframe.XWindow {
         let offset: number = this._autoLast ? 3 : 1;
         i = startIndex == 0 ? 2 : 0
         for (i; i < this._mapArr.length - offset; i++) {
-            trace("x___________________________", i);
-            this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
+            //this.map.graphics.drawTexture(Laya.loader.getRes("res/game/spot.png"), this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
 
             //生成道具
             if(!this._gift[this._mapArr[i]+"_"+this._mapArr[i + 1]] && this._giftList[startIndex+i/2]){
                 //随机生成
                 let item:Laya.Image = new Laya.Image();
-                if(this._giftList[startIndex+i/2] == ItemVo.GOLD){
-                    item.skin = "res/main/ic_coin.png"
-                }else if(this._giftList[startIndex+i/2] == ItemVo.DIAMOND){
-                    item.skin = "res/main/ic_diamond.png"
+                let name = this._giftList[startIndex+i/2]
+                if(name > 0){
+                    item.skin = "res/common/"+name+".png"
                 }
                 this.pathSp.addChildAt(item, 0);
                 item.pos(this._mapArr[i] - 28, this._mapArr[i + 1] - 28);
-                item.name = "1";
+                item.name = name+"";
                 this._gift[this._mapArr[i]+"_"+this._mapArr[i + 1]] = item;
                 this._giftList[startIndex+i/2] = 0;
             }
 
 
             //画引导res/game/click.png
-            if (this.params.id == "1" && startIndex < 27) {
+            if (this.params.id == "1" && startIndex < 3) {
                 if (this._mapArr[i] > this.ui.width / 2) {
                     this.map.graphics.drawTexture(Laya.loader.getRes("res/game/click.png"), this._mapArr[i] + 135, this._mapArr[i + 1] - 32);
                 } else {
@@ -497,13 +508,9 @@ class GameView extends xframe.XWindow {
             this.targetX = p.x;
             if (exeIndex == 4) {
                 var targetPoint = this.getTargetPoint(true, 6);
-                var now: number = this._score;
                 if (targetPoint) {
                     this.speedX = targetPoint.sx;
-                    this._score += 10;
-                    xframe.XUtils.showTxtEffect(now, this._score, Laya.Handler.create(null, (n: number) => {
-                        this.ui.tfScore.text = n + "";
-                    }))
+                    this._score += 1;
                 }
             }
         } else {
@@ -527,7 +534,7 @@ class GameView extends xframe.XWindow {
                 }
             }
         } else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position));
+
         } else if (exeIndex == 4) {
             this.rendMap();
         } else if (exeIndex == 0) {
@@ -543,7 +550,9 @@ class GameView extends xframe.XWindow {
             Laya.timer.clear(this, this.update2)
             Laya.stage.off(Laya.Event.CLICK, this, this.onC);
             if (this._starNum > 0 && this._reviveTimes) {
-                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) })
+                this._rewards["revive"] = true;
+                this.showResult();
+                //XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) })
             } else {
                 this.showResult();
             }
@@ -576,9 +585,8 @@ class GameView extends xframe.XWindow {
             if (exeIndex == 4) {
                 var targetPoint = this.getTargetPoint()
                 if (targetPoint) {
-                    this._score += 10;
+                    this._score += 1;
                     this.speedX = targetPoint.sx;
-                    this.ui.tfScore.text = this._score + "";
                 }
             }
         } else {
@@ -602,7 +610,7 @@ class GameView extends xframe.XWindow {
                 }
             }
         } else if (exeIndex == 2) {
-            this.showPro(DBGame.calcPro(position));
+            
         } else if (exeIndex == 4) {
             this.rendMap();
         } else if (exeIndex == 0) {
@@ -617,7 +625,9 @@ class GameView extends xframe.XWindow {
             Laya.timer.clear(this, this.update)
             Laya.stage.off(Laya.Event.CLICK, this, this.onC);
             if (this._starNum > 0 && this._reviveTimes) {
-                XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) })
+                //XFacade.instance.showModule(PopGameRevive, { yes: Laya.Handler.create(this, this.revive), no: Laya.Handler.create(this, this.showResult) })
+                this._rewards["revive"] = true;
+                this.showResult();
             } else {
                 this.showResult();
             }
@@ -636,16 +646,16 @@ class GameView extends xframe.XWindow {
             //效果判定---
             var delX: number = Math.abs(targetPoint.x - this.ball.x);
             var delY: number = Math.abs(targetPoint.y - this.ball.y);
-            var nowScore: number = this._score;
             if (delX < 15 && delY < 18) {//5
                 this.shine(targetPoint.x, targetPoint.y);
-                this._score += 10;
+                this._score += 1;
 
 
                 //动画
                 let gift:Laya.Image = this._gift[targetPoint.x+"_"+targetPoint.y];
                 if(gift){
-                    gift.removeSelf();
+                    //gift.removeSelf();
+                    Laya.Tween.to(gift, {y: gift.y-300, alpha:0.1}, 700, null, Laya.Handler.create(gift, gift.removeSelf))
                     delete this._gift[targetPoint.x+"_"+targetPoint.y];
 
                     //数据处理===================================
@@ -657,14 +667,10 @@ class GameView extends xframe.XWindow {
                 }
 
             } else if (delX < 36 && delY < 25) {//3
-                this.showEff(targetPoint.x, targetPoint.y);
-                this._score += 5;
+                this._score += 1;
             } else {//2
-                this._score += 3;
+                this._score += 1;
             }
-            xframe.XUtils.showTxtEffect(nowScore, this._score, Laya.Handler.create(null, (n: number) => {
-                this.ui.tfScore.text = n + "";
-            }))
         } else {//翻转
             if (this.srcPosInfo.length && this._turnable) {
                 this.dir *= -1
@@ -674,8 +680,8 @@ class GameView extends xframe.XWindow {
 
     private showResult(): void {
         this.stop();
-        this._rewards["score"] = this._score;
-        this._rewards["star"] = this._starNum;
+        this._rewards["music"] = this.params;
+        this._rewards["score"] = Math.round(this._score/this._cfg.nodes.length*100);
         XFacade.instance.showModule(GameResultView, this._rewards);
     }
 
@@ -699,7 +705,7 @@ class GameView extends xframe.XWindow {
             if (this._resList[i].t < time + delTime) {
                 var item: Laya.Image = new Laya.Image();
                 item.pos(this._resList[i].x, this._resList[i].y);
-                var url: string = "res/map/" + this._resList[i].id + ".png"
+                var url: string = AppConfig.urlRoot+"res/map/" + this._resList[i].id + ".png"
                 Laya.loader.load(url, Laya.Handler.create(null, () => {
                     item.skin = url;
                     xframe.AniUtil.popIn(item, 200)
@@ -724,58 +730,22 @@ class GameView extends xframe.XWindow {
         }
     }
 
-    private showPro(proInfo: { pro: number, stars: number }): void {
-        if (proInfo) {
-            this.ui.bar.value = proInfo.pro || 0;
-            this._starNum = proInfo.stars;
-            if (proInfo.stars == 3) {
-                this.ui.star_2.skin = "res/game/star_w.png";
-                this.ui.star_1.skin = "res/game/star_w.png";
-                this.ui.star_0.skin = "res/game/star_w.png";
-            } else if (proInfo.stars == 2) {
-                this.ui.star_2.skin = "res/game/star_b.png";
-                this.ui.star_1.skin = "res/game/star_w.png";
-                this.ui.star_0.skin = "res/game/star_w.png";
-                Laya.loader.load("res/map/bj13.jpg", Laya.Handler.create(null, () => {
-                    this.switchSkin("res/map/bj13.jpg");
-                }))
-            } else if (proInfo.stars == 1) {
-                this.ui.star_2.skin = "res/game/star_b.png";
-                this.ui.star_1.skin = "res/game/star_b.png";
-                this.ui.star_0.skin = "res/game/star_w.png";
-                Laya.loader.load("res/map/bj12.jpg", Laya.Handler.create(null, () => {
-                    this.switchSkin("res/map/bj12.jpg");
-                }))
-            }
-        } else {
-            this.ui.bar.value = 0;
-            this.ui.star_2.skin = "res/game/star_b.png";
-            this.ui.star_1.skin = "res/game/star_b.png";
-            this.ui.star_0.skin = "res/game/star_b.png";
-            this.ui.bg.skin = "res/map/bj11.jpg";
-        }
-        this.ui.proBox.cacheAsBitmap = true;
-    }
-
     private switchSkin(skinStr: string): void {
         if (this.ui.bg.skin != skinStr) {
-            var img: Laya.Image = new Laya.Image(this.ui.bg.skin);
-            img.size(Laya.stage.width, Laya.stage.height)
-            this.ui.bg.parent.addChildAt(img, this.ui.bg.parent.getChildIndex(this.ui.bg));
-            Laya.Tween.to(img, { alpha: 0 }, 500, null, Laya.Handler.create(img, img.removeSelf))
-            this.ui.bg.skin = skinStr;
-            this.ui.bg.alpha = 0;
-            Laya.Tween.to(this.ui.bg, { alpha: 1 }, 500)
+            if(this.ui.bg.skin){
+                var img: Laya.Image = new Laya.Image(this.ui.bg.skin);
+                img.size(Laya.stage.width, Laya.stage.height)
+                this.ui.bg.parent.addChildAt(img, this.ui.bg.parent.getChildIndex(this.ui.bg));
+                //Laya.Tween.to(img, { alpha: 0 }, 500, null, Laya.Handler.create(img, img.removeSelf))
+                this.ui.bg.skin = skinStr;
+                this.ui.bg.alpha = 0;
+                Laya.Tween.to(this.ui.bg, { alpha: 1 }, 500, null ,Laya.Handler.create(img, img.removeSelf))
+            }else{
+                this.ui.bg.skin = skinStr;
+            }
+            
         }
     }
-
-    /**显示经过特效 */
-    private showEff(x: number, y: number): void {
-        this._eff.pos(x, y);
-        this.pathSp.addChild(this._eff);
-        Laya.timer.once(248, this._eff, this._eff.removeSelf)
-    }
-
     /**精准打击特效 */
     private shine(x: number, y: number): void {
         this._eff2.pos(x, y);
@@ -783,12 +753,7 @@ class GameView extends xframe.XWindow {
         this._eff2.scale(0.5, 0.5);
         this.pathSp.addChildAt(this._eff2, 0);
         Laya.Tween.to(this._eff2, { scaleX: 1.2, scaleY: 1.2, alpha: 0 }, 200, null, Laya.Handler.create(this._eff2, this._eff2.removeSelf))
-        /*
-        this._eff2.scaleX = this._eff2.scaleY = 0.5;
-        Laya.Tween.to(this._eff2, {scaleX:1,scaleY:1}, 20, null, Laya.Handler.create(null, ()=>{
-            Laya.Tween.to(this._eff2, {scaleX:1.5, scaleY:1.5},60,null, Laya.Handler.create(this._eff2, this._eff2.removeSelf))
-        }))
-        */
+
     }
 
     //获取目标节点
@@ -853,36 +818,32 @@ class GameView extends xframe.XWindow {
 
     private gemeEnd() {
         trace("gameEnd---------------------------------------------->>")
-        var params = {
-            music: this.params,
-            star: this._starNum,
-            score: this._score
-        }
-        XFacade.instance.showModule(GameResultView, params);
+        this._rewards["music"] = this.params;
+        this._rewards["score"] = 100;
+        XFacade.instance.showModule(GameResultView, this._rewards);
         this.stop();
     }
 
     protected onDestroy():void{
-        Laya.loader.clearRes("res/map/bj"+this.params.id+"1.jpg");
-        Laya.loader.clearRes("res/map/bj"+this.params.id+"2.jpg");
-        Laya.loader.clearRes("res/map/bj"+this.params.id+"2.jpg");
-        //this.params && Laya.loader.clearRes('res/snd/' + this.params.json + '.json');
+        for(let i in this._gift){
+            let item:any = this._gift[i];
+            delete this._gift[i];
+            item.removeSelf();
+        }
+        Laya.loader.clearRes(this.ui.bg.skin);
+        this.ui.bg.skin = "";
         Laya.loader.clearRes(GameView.mp3);
         Star.destroy();
-        this.soundChannel && this.soundChannel.destroy();
         this.ball && this.ball.stop();
         Laya.timer.clear(this, this.update)
         Laya.stage.off(Laya.Event.CLICK, this, this.onC);
-        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onStart);
         Laya.stage.off(Laya.Event.CLICK, this, this.resume);
-        this.removeEvent();
         this.stop();
     }
 
     protected createUI() {
         super.createUI();
-        //this.ui.bg.skin = "res/map/bj"+this.params.id+"1.jpg";
-        this.ui.bg.skin = "res/map/bj11.jpg";
+        this.ui.bg.skin = "res/map/bj21.jpg";
         this.starContainer = new Laya.Sprite();
         this.ui.addChildAt(this.starContainer, this.ui.getChildIndex(this.ui.btnPause));
         this.map = new Laya.Sprite();
@@ -892,15 +853,11 @@ class GameView extends xframe.XWindow {
         this.effContainer = new Laya.Sprite();
         this.ui.addChild(this.effContainer);
 
-        this._eff = new Laya.Image("res/game/spot_s.png");
-        this._eff.anchorX = this._eff.anchorY = 0.5;
-
         this._eff2 = new Laya.Image("res/game/light.png");
         this._eff2.anchorX = this._eff2.anchorY = 0.5;
 
         //this.scrollRect = new Laya.Rectangle(0, 0, this.ui.width, this.ui.height);
         this.scrollRect = new Laya.Rectangle(0, 0, Laya.stage.width, Laya.stage.height);
-        this.ui.selectBox.cacheAsBitmap = true;
         //自动暂停
         wx.onHide(() => {
             if (this.soundChannel && !this.soundChannel.paused) {
@@ -913,20 +870,20 @@ class GameView extends xframe.XWindow {
         XEvent.instance.on(GameEvent.BACK, this, this.onGameEvent, [GameEvent.BACK]);
         XEvent.instance.on(GameEvent.RESTART, this, this.onGameEvent, [GameEvent.RESTART]);
         XEvent.instance.on(GameEvent.SELECTED, this, this.onGameEvent, [GameEvent.SELECTED]);
-        XEvent.instance.on(GameEvent.NEXTCHAPTER, this, this.onGameEvent, [GameEvent.NEXTCHAPTER]);
+        XEvent.instance.on(GameEvent.REVIVE, this, this.onGameEvent, [GameEvent.REVIVE]);
         this.ui.btnPause.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.backBtn.on(Laya.Event.CLICK, this, this.onBtnClick);
-        this.ui.btnStart.on(Laya.Event.CLICK, this, this.onBtnClick);
+        Laya.stage.on(Laya.Event.CLICK, this, this.onStart);
     }
 
     protected removeEvent(): void {
         XEvent.instance.off(GameEvent.BACK, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.RESTART, this, this.onGameEvent);
         XEvent.instance.off(GameEvent.SELECTED, this, this.onGameEvent);
-        XEvent.instance.off(GameEvent.NEXTCHAPTER, this, this.onGameEvent); 
+        XEvent.instance.off(GameEvent.REVIVE, this, this.onGameEvent);
         this.ui.btnPause.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.backBtn.off(Laya.Event.CLICK, this, this.onBtnClick);
-        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onBtnClick);
+        Laya.stage.off(Laya.Event.CLICK, this, this.onStart);
     }
 }
 
@@ -939,8 +896,9 @@ class GameEvent {
     public static RESTART: string = "restart";
     /**事件-选中歌曲 */
     public static SELECTED:string = 'selected';
-    /**下一章节 */
-    public static NEXTCHAPTER: string = "nextchapter";
+    /**复活 */
+    public static REVIVE: string = "revive";
     /**跳转到解锁篇章 */
     public static HOMECHAPTER: string = "homechapter";
+
 }

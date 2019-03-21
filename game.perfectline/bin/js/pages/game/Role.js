@@ -36,15 +36,10 @@ var Role = /** @class */ (function (_super) {
     Role.prototype.setSkin = function (id, speed) {
         //if(this._id != id){
         var info = DBGame.getRole(id);
+        trace("roleInfo::::::::::::::::::", info);
         this._roleData = info;
         if (info) {
             this.$image.skin = "res/ic_role/" + info.img + ".png";
-            if (info.shadow) {
-                this.$shadow.skin = "res/ic_role/" + info.shadow + ".png";
-            }
-            else {
-                this.$shadow.skin = "";
-            }
             this._needAni = info.rotate > 0;
             if (speed <= 0.3) {
                 this._roleData.rendFrame = 10;
@@ -55,10 +50,8 @@ var Role = /** @class */ (function (_super) {
             else {
                 this._roleData.rendFrame = 6;
             }
+            this.shadow(info.child, this.$image.skin);
             this._maxNode = info.rendFrame * (this._shadows.length + 2) - 3;
-            for (var i = 0; i < this._shadows.length; i++) {
-                this._shadows[i].skin = this.$image.skin;
-            }
         }
         //}
         this._needAni && this.play();
@@ -94,6 +87,9 @@ var Role = /** @class */ (function (_super) {
         }
     };
     Role.prototype.update = function () {
+        if (this._shadows.length == 0) {
+            return;
+        }
         this._posArr.push({ x: Math.floor(this.x), y: Math.floor(this.y) });
         while (this._posArr.length > this._maxNode) {
             this._posArr.shift();
@@ -120,13 +116,16 @@ var Role = /** @class */ (function (_super) {
         }
     };
     /**影子效果 */
-    Role.prototype.shadow = function (showNum) {
-        this._shadows.length = 0; //res/game/style_0.png
+    Role.prototype.shadow = function (showNum, skin) {
+        for (var i = 0; i < this._shadows.length; i++) {
+            this._shadows[i].removeSelf();
+        }
+        this._shadows.length = 0;
         this._renderIndex = 0;
         this._posArr.length = 0;
         var img;
         for (var i = 0; i < showNum; i++) {
-            img = new Laya.Image();
+            img = new Laya.Image(skin);
             img.anchorX = img.anchorY = 0.5;
             img.scale(0.5, 0.5);
             this._shadows.push(img);
