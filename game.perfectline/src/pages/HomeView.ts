@@ -7,12 +7,15 @@ class HomeView extends xframe.XWindow {
     /**选中ITEM是否锁定 */
     private _isLocked;
 
+    /**图标列表 */
+    private _btns:Laya.Sprite[] = [];
+
     public show():void{
         super.show();
         this.updateUserInfo();
         this.ui.chapList.refresh();
         this.onStageResize();
-
+       
         let data:any = this.ui.chapList.array;
         for(let i=0; i<data.length; i++){
             if(data[i] && data[i].id == User.instace.curId){
@@ -32,6 +35,17 @@ class HomeView extends xframe.XWindow {
     public close():void{
         Star.destroy();
         super.close();
+    }
+
+    private showBtns():void{
+        let index:number = 0;
+        const BtnWidth:number = 110
+        for(let i=0; i<this._btns.length; i++){
+            if(this._btns[i].visible){
+                this._btns[i].x = index*BtnWidth
+                index++;
+            }
+        }
     }
 
     private format(data:ChapterVo):void{
@@ -113,12 +127,31 @@ class HomeView extends xframe.XWindow {
             this.format(this._selectedItem.dataSource)
             //扣道具
             Bag.getInstance().delItem(vo.cond[0], vo.cond[1]);
-            XTip.showTip("解锁成功")
+            XTip.showTip("《"+vo.name+"》解锁成功，赶紧去挑战吧")
         }else{
             let itemVo:ItemVo = DBItem.getItemVo(vo.cond[0]);
-            let str:string = "解锁当前关卡需要"+itemVo.name+"x"+vo.cond[1]+",您当前拥有"+Bag.getInstance().getItemNum(itemVo.id);
-            str += "("+itemVo.name+"游戏中获得)"
-            XTip.showTip(str)
+            let delNum:number = vo.cond[1] - Bag.getInstance().getItemNum(itemVo.id);
+            let str:string = "解锁《"+vo.name+"》需要"+itemVo.name+"x"+vo.cond[1]+",您当前拥有"+Bag.getInstance().getItemNum(itemVo.id);
+            str += "，还需要支付"+delNum*10+"钻石";
+            XAlert.showAlert(str, Laya.Handler.create(this, this.doUnlock,[id, itemVo.id, vo.cond[1]]), null, true, true, "解锁",  "取消")
+            //XTip.showTip(str)
+        }
+    }
+
+    private doUnlock(id:number, itemId:number, needNum:number):void{
+        let vo:ChapterVo = DBChapter.getChapInfo(id);
+        let myNum:number = Bag.getInstance().getItemNum(itemId);
+        let delNum = needNum - myNum;
+        let diamond:number = delNum*10;
+        if(User.instace.diamond < diamond){
+            XTip.showTip("哎呀~钻石不够了呢");
+        }else{
+            User.instace.starInfo[id] = 0;
+            User.instace.diamond -= diamond;
+            Bag.getInstance().delItem(itemId, myNum);
+            this.ui.chapList.refresh();
+            this.format(this._selectedItem.dataSource)
+            XTip.showTip("《"+vo.name+"》解锁成功，赶紧去挑战吧")
         }
     }
 
@@ -153,6 +186,9 @@ class HomeView extends xframe.XWindow {
         this.ui.chapList.selectedIndex = 1;
 
         this.selectedItem = this.ui.chapList.getCell(1);
+
+        this._btns.push(this.ui.roleBtn, this.ui.btnSignin);
+        this.ui.roleBtn.visible = AppConfig.openShop;
     }
 
     //滑动到指定位置
@@ -187,6 +223,9 @@ class HomeView extends xframe.XWindow {
             this.ui.tfScore.text = User.instace.starInfo[this._selectedItem.dataSource.id]+"%"
         }
         this.ui.btnSignin.visible = User.instace.canSign;
+
+        //显示按钮
+        this.showBtns();
     }
 
     protected initEvent():void{

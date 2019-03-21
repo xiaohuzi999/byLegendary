@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":25,
+    "selectedBox":17,
+    "selecteID":50,
     "props":{"width":750,"sceneColor":"#8d8d8d","height":1334},
     "nodeParent":-1,
     "label":"View",
@@ -42,6 +42,19 @@
         },
         {
             "x":15,
+            "type":"Image",
+            "props":{"y":30,"x":20,"var":"backBtn","skin":"res/game/btn_home.png"},
+            "nodeParent":1,
+            "label":"Image(backBtn)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":47,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
             "type":"Box",
             "props":{"y":932,"x":18,"var":"selectBox","height":400},
             "nodeParent":1,
@@ -64,21 +77,21 @@
                     "compId":48,
                     "child":[
                         ]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "props":{"y":138,"x":165,"width":337,"text":"点击开始","height":54,"fontSize":42,"font":"PingFangSC-Semibold","color":"#ffffff","align":"center"},
+                    "nodeParent":17,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":50,
+                    "child":[
+                        ]
                 }],
             "$HIDDEN":false
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "props":{"y":30,"x":20,"var":"backBtn","skin":"res/game/btn_home.png"},
-            "nodeParent":1,
-            "label":"Image(backBtn)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":47,
-            "child":[
-                ]
         }],
     "animations":[
         {

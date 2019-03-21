@@ -1,0 +1,52 @@
+{
+	"list": [
+		{
+			"id": 1,
+			"img": "8b",
+			"cost": [1,888],
+			"name" : "8 ball",
+			"rotate": 0,
+			"child":0
+		},
+		{
+			"id": 2,
+			"img": "xq",
+			"cost": [1,888],
+			"name" : "星球",
+			"rotate": 0,
+			"child":0
+		},	
+		{
+			"id": 3,
+			"img": "ppx",
+			"cost": [1,2888],
+			"name" : "papa蟹",
+			"rotate": 0,
+			"child":4
+		},
+		{
+			"id": 4,
+			"img": "qklq",
+			"cost": [2,18],
+			"name" : "甜甜圈",
+			"rotate": 1,
+			"child":0
+		},
+		{
+			"id": 5,
+			"img": "ppc",
+			"cost": [2,188],
+			"name" : "飘飘虫",
+			"rotate": 0,
+			"child":4
+		},	
+		{
+			"id": 6,
+			"img": "mmj",
+			"cost": [2,1888],
+			"name" : "焖焖鸡",
+			"rotate": 0,
+			"child":4
+		}
+	]
+}

@@ -28,6 +28,7 @@ var SignInView = /** @class */ (function (_super) {
                     var day = date.getDay();
                     User.instace.sign.info.push(day);
                     var vo = DBSign.getSignVo(User.instace.sign.info.length);
+                    trace("vo----------------------", vo);
                     var str = "获得";
                     for (var i = 0; i < vo.reward.length; i++) {
                         var info = vo.reward[i];

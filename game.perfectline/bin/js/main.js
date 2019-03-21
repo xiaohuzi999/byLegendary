@@ -10,11 +10,19 @@ var Main = /** @class */ (function () {
         //程序入口
         Laya.init(AppConfig.AppWidth, AppConfig.AppHeight, Laya.WebGL);
         //Laya.stage.scaleMode = "noscale";
-        //Laya.stage.scaleMode = "showall";
-        Laya.stage.scaleMode = Laya.Stage.SCALE_FIXED_WIDTH;
+        if (Laya.Browser.onPC) {
+            Laya.stage.scaleMode = "showall";
+            Laya.stage.alignH = Laya.Stage.ALIGN_CENTER;
+        }
+        else {
+            Laya.stage.scaleMode = Laya.Stage.SCALE_FIXED_WIDTH;
+        }
         this.init();
     }
     Main.prototype.init = function () {
+        Laya.URL.version = {
+            "res/cfg/appCfg.json": Math.random()
+        };
         /*
         Laya.URL.version = {
             "res/cfg/stage.json":Math.random()
@@ -34,6 +42,7 @@ var Main = /** @class */ (function () {
             { url: 'res/cfg/role.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/item.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/sign.json', type: Laya.Loader.JSON },
+            { url: 'res/cfg/appCfg.json', type: Laya.Loader.JSON },
         ];
         Laya.loader.load(urlList, Handler.create(null, function () {
             xframe.XFacade.instance.init(new App());

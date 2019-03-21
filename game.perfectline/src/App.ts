@@ -8,6 +8,12 @@ class App implements IApp{
 
     public start():void{
         this.initEvet();
+
+        let data:any = Laya.loader.getRes("res/cfg/appCfg.json");
+        for(let i in data){
+            AppConfig[i] = data[i];
+        }
+
         //XAlert.SKIN = ui.views.XAlertUIUI;
         XFacade.instance.showModule(LoadingView)
     }

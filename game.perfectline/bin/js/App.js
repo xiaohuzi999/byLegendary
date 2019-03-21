@@ -6,6 +6,10 @@ var App = /** @class */ (function () {
     }
     App.prototype.start = function () {
         this.initEvet();
+        var data = Laya.loader.getRes("res/cfg/appCfg.json");
+        for (var i in data) {
+            AppConfig[i] = data[i];
+        }
         //XAlert.SKIN = ui.views.XAlertUIUI;
         XFacade.instance.showModule(LoadingView);
     };

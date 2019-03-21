@@ -41,7 +41,7 @@
         {
             "x":15,
             "type":"Label",
-            "props":{"y":65,"x":23,"width":270,"var":"tfDesc","text":"看视频增加体力","height":193,"fontSize":24,"color":"#6F5638","align":"left"},
+            "props":{"y":65,"x":34,"wordWrap":true,"width":248,"var":"tfDesc","text":"看视频增加体力","height":193,"fontSize":24,"color":"#6F5638","align":"left"},
             "nodeParent":1,
             "label":"Label(tfDesc)",
             "isDirectory":false,

@@ -18,6 +18,9 @@ var Bag = /** @class */ (function () {
             trace("initBag::", val);
             this.update(val);
         }
+        else {
+            this.addItem(ItemVo.KEY, 1);
+        }
     };
     /**生成一个道具 */
     Bag.prototype.createItem = function (itemId, itemNum) {

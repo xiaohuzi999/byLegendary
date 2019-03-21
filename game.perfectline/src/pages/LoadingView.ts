@@ -12,7 +12,7 @@ class LoadingView extends xframe.XWindow {
         //加载资源
         //初始化主场景
         //获取数据
-        //XDB.delLocalData();
+        XDB.delLocalData();
         XDB.fetchSrvData(Handler.create(this, this.onGetData))
     }
 

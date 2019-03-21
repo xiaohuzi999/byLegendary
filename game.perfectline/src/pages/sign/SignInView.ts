@@ -21,6 +21,7 @@ class SignInView extends xframe.XMWindow {
                     User.instace.sign.info.push(day);
 
                     let vo:SignVo = DBSign.getSignVo(User.instace.sign.info.length);
+                    trace("vo----------------------", vo)
                     let str:string = "获得";
                     for(let i=0; i<vo.reward.length; i++){
                         let info:number[] = vo.reward[i];

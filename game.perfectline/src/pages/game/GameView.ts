@@ -32,10 +32,14 @@ class GameView extends xframe.XWindow {
 
     //获得数据信息
     private _rewards:any = {};
+
+    //路径宽度
+    private readonly RoadWidth:number = 160;
     public show(...args):void{
         super.show();
         this.params = args[0];
         this.ui.btnPause.visible = false;
+        this.ui.backBtn.visible = false;
         XFacade.instance.showModule(GameLoading, this.params)
         trace("this.params:::::::::::", this.params)
         this.ui.bg.skin = AppConfig.urlRoot+"res/map/"+this.params.bg+".jpg";
@@ -68,6 +72,9 @@ class GameView extends xframe.XWindow {
         let sx = Math.max(Laya.stage.width/AppConfig.AppWidth, Laya.stage.height/AppConfig.AppHeight);
         this.ui.bg.scale(sx,sx);
         this.ui.x = (this.ui.bg.width-AppConfig.AppWidth)/2;
+        if(Laya.stage.scaleMode === "showall"){
+            AppConfig.ScaleRate = Laya.Browser.clientHeight/AppConfig.AppHeight
+        }
     }
 
     public close():void{
@@ -98,8 +105,9 @@ class GameView extends xframe.XWindow {
             case GameEvent.SELECTED:
                 this.ui.selectBox.visible = true;
                 this.ui.btnPause.visible = false;
-                this.ui.backBtn.visible = true;
+                this.ui.backBtn.visible = false;
                 this.initMap();
+                this.on(Laya.Event.CLICK, this, this.onStart);
                 break;
             case GameEvent.REVIVE:
                 this.revive();
@@ -107,11 +115,21 @@ class GameView extends xframe.XWindow {
         }
     }
 
-    private onStart(e: Laya.Event): void {
-        if(!this.ui.selectBox.visible){
-            Laya.stage.off(Laya.Event.CLICK, this, this.onStart);
-            return;
+    private onFocus():void{
+        if(!this.soundChannel || this.soundChannel.isStopped){
+            this.close();
         }
+    }
+
+    private onStart(e: Laya.Event): void {
+        trace("onStart======================>>>", this.ui.selectBox.visible);
+        if(!this.ui.selectBox.visible){
+            this.off(Laya.Event.CLICK, this, this.onStart);
+            if(this.soundChannel){
+                return;
+            }
+        }
+        trace("onStart======================>>>1");
         e.stopPropagation();
         if (User.instace.power > 0) {
             User.instace.power -= 1;
@@ -395,10 +413,10 @@ class GameView extends xframe.XWindow {
         //3，绘制地图
         this.map.graphics.clear();
         if (startIndex == 0) {//画起点
-            this.map.graphics.drawCircle(this._mapArr[0], this._mapArr[1], 160, "#ffffff");
+            this.map.graphics.drawCircle(this._mapArr[0], this._mapArr[1], this.RoadWidth, "#ffffff");
             this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), this._mapArr[0] - 200, this._mapArr[1] - 200);
         }
-        this.map.graphics.drawLines(0, 0, this._mapArr, "#ffffff", 160);//160
+        this.map.graphics.drawLines(0, 0, this._mapArr, "#ffffff", this.RoadWidth*AppConfig.ScaleRate);
         if (i >= cfg.nodes.length && this.soundChannel.duration) {
             this._autoLast = true;
             var last: { x: number, y: number, sx: number, sy: number, t?: number } = this.posInfo[this.posInfo.length - 1];
@@ -407,8 +425,8 @@ class GameView extends xframe.XWindow {
             var info: { x: number, y: number, sx: number, sy: number, t?: number } = { x: last.x, y: last.y - (total - last.t) * this.speedY, sx: 0, sy: last.sy, t: total };
             this.posInfo.push(info);
             this.srcPosInfo.push(info);
-            this.map.graphics.drawLine(last.x, last.y, info.x, info.y, "#ffffff", 160);
-            this.map.graphics.drawCircle(info.x, info.y, 160, "#ffffff")
+            this.map.graphics.drawLine(last.x, last.y, info.x, info.y, "#ffffff", this.RoadWidth*AppConfig.ScaleRate);
+            this.map.graphics.drawCircle(info.x, info.y, this.RoadWidth, "#ffffff")
             this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), info.x - 200, info.y - 200);
         }
         let offset: number = this._autoLast ? 3 : 1;
@@ -873,7 +891,7 @@ class GameView extends xframe.XWindow {
         XEvent.instance.on(GameEvent.REVIVE, this, this.onGameEvent, [GameEvent.REVIVE]);
         this.ui.btnPause.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.backBtn.on(Laya.Event.CLICK, this, this.onBtnClick);
-        Laya.stage.on(Laya.Event.CLICK, this, this.onStart);
+        Laya.stage.on(Laya.Event.FOCUS, this, this.onFocus)
     }
 
     protected removeEvent(): void {
@@ -884,6 +902,7 @@ class GameView extends xframe.XWindow {
         this.ui.btnPause.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.backBtn.off(Laya.Event.CLICK, this, this.onBtnClick);
         Laya.stage.off(Laya.Event.CLICK, this, this.onStart);
+        Laya.stage.off(Laya.Event.FOCUS, this, this.onFocus)
     }
 }
 

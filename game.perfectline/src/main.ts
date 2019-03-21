@@ -11,12 +11,20 @@ class Main {
         Laya.init(AppConfig.AppWidth, AppConfig.AppHeight, Laya.WebGL);
 
         //Laya.stage.scaleMode = "noscale";
-        //Laya.stage.scaleMode = "showall";
-        Laya.stage.scaleMode = Laya.Stage.SCALE_FIXED_WIDTH;
+        if(Laya.Browser.onPC){
+            Laya.stage.scaleMode = "showall";
+            Laya.stage.alignH = Laya.Stage.ALIGN_CENTER;
+        }else{
+            Laya.stage.scaleMode = Laya.Stage.SCALE_FIXED_WIDTH;
+        }
+        
         this.init();
     }
 
     init() {
+        Laya.URL.version = {
+            "res/cfg/appCfg.json":Math.random()
+        }
         /*
         Laya.URL.version = {
             "res/cfg/stage.json":Math.random()
@@ -36,6 +44,7 @@ class Main {
             { url: 'res/cfg/role.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/item.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/sign.json', type: Laya.Loader.JSON },
+            { url: 'res/cfg/appCfg.json', type: Laya.Loader.JSON },
 		]
 
         Laya.loader.load(urlList, Handler.create(null, ()=>{

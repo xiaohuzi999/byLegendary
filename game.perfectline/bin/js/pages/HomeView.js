@@ -14,6 +14,8 @@ var HomeView = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.ui = new ui.common.HomeViewUI();
         _this.recommendApp = null;
+        /**图标列表 */
+        _this._btns = [];
         return _this;
     }
     HomeView.prototype.show = function () {
@@ -38,6 +40,16 @@ var HomeView = /** @class */ (function (_super) {
     HomeView.prototype.close = function () {
         Star.destroy();
         _super.prototype.close.call(this);
+    };
+    HomeView.prototype.showBtns = function () {
+        var index = 0;
+        var BtnWidth = 110;
+        for (var i = 0; i < this._btns.length; i++) {
+            if (this._btns[i].visible) {
+                this._btns[i].x = index * BtnWidth;
+                index++;
+            }
+        }
     };
     HomeView.prototype.format = function (data) {
         this.ui.tfName.text = data.name + "";
@@ -116,13 +128,32 @@ var HomeView = /** @class */ (function (_super) {
             this.format(this._selectedItem.dataSource);
             //扣道具
             Bag.getInstance().delItem(vo.cond[0], vo.cond[1]);
-            XTip.showTip("解锁成功");
+            XTip.showTip("《" + vo.name + "》解锁成功，赶紧去挑战吧");
         }
         else {
             var itemVo = DBItem.getItemVo(vo.cond[0]);
-            var str = "解锁当前关卡需要" + itemVo.name + "x" + vo.cond[1] + ",您当前拥有" + Bag.getInstance().getItemNum(itemVo.id);
-            str += "(" + itemVo.name + "游戏中获得)";
-            XTip.showTip(str);
+            var delNum = vo.cond[1] - Bag.getInstance().getItemNum(itemVo.id);
+            var str = "解锁《" + vo.name + "》需要" + itemVo.name + "x" + vo.cond[1] + ",您当前拥有" + Bag.getInstance().getItemNum(itemVo.id);
+            str += "，还需要支付" + delNum * 10 + "钻石";
+            XAlert.showAlert(str, Laya.Handler.create(this, this.doUnlock, [id, itemVo.id, vo.cond[1]]), null, true, true, "解锁", "取消");
+            //XTip.showTip(str)
+        }
+    };
+    HomeView.prototype.doUnlock = function (id, itemId, needNum) {
+        var vo = DBChapter.getChapInfo(id);
+        var myNum = Bag.getInstance().getItemNum(itemId);
+        var delNum = needNum - myNum;
+        var diamond = delNum * 10;
+        if (User.instace.diamond < diamond) {
+            XTip.showTip("哎呀~钻石不够了呢");
+        }
+        else {
+            User.instace.starInfo[id] = 0;
+            User.instace.diamond -= diamond;
+            Bag.getInstance().delItem(itemId, myNum);
+            this.ui.chapList.refresh();
+            this.format(this._selectedItem.dataSource);
+            XTip.showTip("《" + vo.name + "》解锁成功，赶紧去挑战吧");
         }
     };
     HomeView.prototype.onItemClick = function (e, index) {
@@ -154,6 +185,8 @@ var HomeView = /** @class */ (function (_super) {
         this.ui.chapList.scrollBar.rollRatio = 0.7;
         this.ui.chapList.selectedIndex = 1;
         this.selectedItem = this.ui.chapList.getCell(1);
+        this._btns.push(this.ui.roleBtn, this.ui.btnSignin);
+        this.ui.roleBtn.visible = AppConfig.openShop;
     };
     //滑动到指定位置
     HomeView.prototype.scrollToIndex = function (index) {
@@ -189,6 +222,8 @@ var HomeView = /** @class */ (function (_super) {
             this.ui.tfScore.text = User.instace.starInfo[this._selectedItem.dataSource.id] + "%";
         }
         this.ui.btnSignin.visible = User.instace.canSign;
+        //显示按钮
+        this.showBtns();
     };
     HomeView.prototype.initEvent = function () {
         this.ui.btnDev.on(Laya.Event.CLICK, this, this.onBtnClick);

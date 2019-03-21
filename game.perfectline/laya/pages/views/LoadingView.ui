@@ -15,7 +15,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":0,"x":0,"var":"bg","skin":"res/main/bj_homepage@2x.png"},
+            "props":{"y":0,"x":0,"var":"bg","skin":"res/main/bj_homepage.png"},
             "nodeParent":1,
             "label":"Image(bg)",
             "isDirectory":false,

@@ -22,6 +22,8 @@ class Bag{
             }
             trace("initBag::", val)
             this.update(val);
+        }else{
+            this.addItem(ItemVo.KEY, 1)
         }
     }
 

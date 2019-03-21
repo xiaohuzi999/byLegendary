@@ -57,14 +57,15 @@ P DEFFE5AA 7.png
 P 9AF82FE8 7x.png
 P 8A229C99 8x.png
 D res/main
-R B8AB4697 bj_homepage@2x.png
+R B8AB4697 bj_homepage.png
 P 8D0E6173 bj_power_tc.png
 P C919BCA6 bj_user_tc.png
 P B40E28B4 btn_add.png
 P C280B17D btn_close.png
 P 703B6DC1 btn_invite.png
+P BEF37838 btn_mall.png
 P C71ABA30 btn_play.png
-P E219A917 btn_sign.png
+P 5FF759D8 btn_sign.png
 P 5A73F0FA btn_watch.png
 P D0479170 ic_add_power.png
 P 2126D1B2 ic_bg.png
@@ -80,6 +81,7 @@ P 95F2D326 ic_user_power.png
 P 11AF94BD ic_user_star.png
 P F484FAEB itemStrBG.png
 P 04617D56 loading.png
+P FAE7EE48 signBtn.png
 D res/role
 P 68B8BFE7 bi_single.png
 P 84FACBE8 bj_own.png

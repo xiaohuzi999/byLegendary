@@ -54,7 +54,7 @@ var RoleItem = /** @class */ (function (_super) {
     RoleItem.prototype.onBuy = function () {
         if (this._vo.cost[0] == 1) {
             if (User.instace.gold < this._vo.cost[1]) {
-                XTip.showTip("金币不足~");
+                XTip.showTip("金币不够了~");
             }
             else {
                 User.instace.roleInfo[this._vo.id] = 0;
@@ -65,8 +65,8 @@ var RoleItem = /** @class */ (function (_super) {
             User.instace.dispatchEvent();
         }
         else {
-            if (User.instace.gold < this._vo.cost[1]) {
-                XTip.showTip("钻石不足~");
+            if (User.instace.diamond < this._vo.cost[1]) {
+                XTip.showTip("钻石不够了~");
             }
             else {
                 User.instace.roleInfo[this._vo.id] = 0;

@@ -10,6 +10,7 @@ class RoleView extends xframe.XMWindow {
     }
 
     public show():void{
+        User.instace.diamond = 1000;
         super.show();
         this.ui.rolelist.array = DBGame.roleInfo; 
         xframe.AniUtil.flowIn(this);

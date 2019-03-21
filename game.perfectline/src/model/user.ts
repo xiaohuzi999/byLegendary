@@ -48,7 +48,7 @@ class User {
             delTime += 3600*1000*24*delDay
             this.sign.end = now+delTime;
 
-            trace(this.sign.end)
+            trace("end::::::::::::::",this.sign.end)
             this.sign.info.length = 0;
         }
     }
