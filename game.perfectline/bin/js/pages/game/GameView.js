@@ -28,6 +28,8 @@ var GameView = /** @class */ (function (_super) {
         _this._rewards = {};
         //路径宽度
         _this.RoadWidth = 160;
+        //打击半径
+        _this.PickInfo = [15, 18];
         _this.curX = Laya.stage.width / 2;
         _this.curY = Laya.stage.height / 2;
         _this.delX = 0;
@@ -53,6 +55,11 @@ var GameView = /** @class */ (function (_super) {
         XFacade.instance.showModule(GameLoading, this.params);
         trace("this.params:::::::::::", this.params);
         this.ui.bg.skin = AppConfig.urlRoot + "res/map/" + this.params.bg + ".jpg";
+        //平台个性化
+        if (AppConfig.platfrom == AppConfig.Plat4399) {
+            this.PickInfo[0] = 45;
+            this.PickInfo[1] = 54;
+        }
         //生成列表
         this._giftList.length = 0;
         var diamondNum = 2;
@@ -631,7 +638,7 @@ var GameView = /** @class */ (function (_super) {
             //效果判定---
             var delX = Math.abs(targetPoint.x - this.ball.x);
             var delY = Math.abs(targetPoint.y - this.ball.y);
-            if (delX < 15 && delY < 18) { //5
+            if (delX < this.PickInfo[0] && delY < this.PickInfo[1]) { //5
                 this.shine(targetPoint.x, targetPoint.y);
                 this._score += 1;
                 //动画
@@ -648,9 +655,6 @@ var GameView = /** @class */ (function (_super) {
                         this._rewards[gift.name] = 1;
                     }
                 }
-            }
-            else if (delX < 36 && delY < 25) { //3
-                this._score += 1;
             }
             else { //2
                 this._score += 1;

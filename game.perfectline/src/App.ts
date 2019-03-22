@@ -9,6 +9,13 @@ class App implements IApp{
     public start():void{
         this.initEvet();
 
+        if(window && window.location && window.location.href){
+            if(window.location.href.indexOf(AppConfig.Plat4399) != -1){
+                AppConfig.platfrom = AppConfig.Plat4399;
+                AppConfig.urlRoot = "";
+            }
+        }
+
         let data:any = Laya.loader.getRes("res/cfg/appCfg.json");
         for(let i in data){
             AppConfig[i] = data[i];

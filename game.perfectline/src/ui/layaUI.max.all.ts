@@ -369,12 +369,12 @@ module ui.views {
 
 module ui.views {
     export class RoleItemRenderUI extends View {
+		public useBtn:Laya.Button;
 		public roleimg:Laya.Image;
 		public rolename:Laya.Label;
 		public tip:Laya.Label;
-		public useBtn:Laya.Button;
 
-        public static  uiView:any ={"type":"View","props":{"width":600,"height":120},"child":[{"type":"Image","props":{"y":0,"x":0,"width":600,"skin":"res/common/bg_white.png","sizeGrid":"20,20,20,20","height":120}},{"type":"Image","props":{"y":10,"x":14,"width":100,"var":"roleimg","skin":"res/ic_role/xhj.png","height":100}},{"type":"Label","props":{"y":23,"x":134,"var":"rolename","text":"角色","fontSize":30,"color":"#404040"}},{"type":"Label","props":{"y":69,"x":134,"var":"tip","text":"连续签到七天可以解锁","fontSize":20,"color":"#999999"}},{"type":"Button","props":{"y":28,"x":471,"var":"useBtn","stateNum":1,"skin":"res/role/btn_use.png","labelSize":24,"labelBold":true,"label":"使用"}}]};
+        public static  uiView:any ={"type":"View","props":{"width":600,"height":120},"child":[{"type":"Image","props":{"y":0,"x":0,"width":600,"skin":"res/common/bg_white.png","sizeGrid":"20,20,20,20","height":120}},{"type":"Button","props":{"y":30,"x":461,"width":118,"var":"useBtn","stateNum":1,"skin":"res/common/btn_yellow.png","labelSize":24,"labelPadding":"-4","labelBold":true,"label":"使用","height":63}},{"type":"Image","props":{"y":10,"x":14,"width":100,"var":"roleimg","skin":"res/ic_role/xhj.png","height":100}},{"type":"Label","props":{"y":23,"x":134,"var":"rolename","text":"角色","fontSize":30,"color":"#404040"}},{"type":"Label","props":{"y":69,"x":134,"var":"tip","text":"连续签到七天可以解锁","fontSize":20,"color":"#999999"}}]};
         constructor(){ super()}
         createChildren():void {
         

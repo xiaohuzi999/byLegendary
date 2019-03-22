@@ -15,11 +15,16 @@ var Bag = /** @class */ (function () {
             if (typeof val === "string") {
                 val = JSON.parse(val);
             }
-            trace("initBag::", val);
             this.update(val);
         }
         else {
-            this.addItem(ItemVo.KEY, 1);
+            //针对4399
+            if (AppConfig.platfrom == AppConfig.Plat4399) {
+                this.addItem(ItemVo.GOLD, 8888);
+                this.addItem(ItemVo.DIAMOND, 888);
+                this.addItem(ItemVo.KEY, 15);
+                this.addItem(ItemVo.POWER, 10);
+            }
         }
     };
     /**生成一个道具 */

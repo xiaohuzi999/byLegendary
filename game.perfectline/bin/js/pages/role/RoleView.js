@@ -21,7 +21,6 @@ var RoleView = /** @class */ (function (_super) {
         return _this;
     }
     RoleView.prototype.show = function () {
-        User.instace.diamond = 1000;
         _super.prototype.show.call(this);
         this.ui.rolelist.array = DBGame.roleInfo;
         xframe.AniUtil.flowIn(this);

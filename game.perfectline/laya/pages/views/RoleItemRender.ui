@@ -27,6 +27,19 @@
         },
         {
             "x":15,
+            "type":"Button",
+            "props":{"y":30,"x":461,"width":118,"var":"useBtn","stateNum":"1","skin":"res/common/btn_yellow.png","labelSize":24,"labelPadding":"-4","labelBold":true,"label":"使用","height":63},
+            "nodeParent":1,
+            "label":"Button(useBtn)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":9,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
             "type":"Image",
             "props":{"y":10,"x":14,"width":100,"var":"roleimg","skin":"res/ic_role/xhj.png","height":100},
             "nodeParent":1,
@@ -61,19 +74,6 @@
             "isAniNode":true,
             "hasChild":false,
             "compId":6,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Button",
-            "props":{"y":28,"x":471,"var":"useBtn","stateNum":"1","skin":"res/role/btn_use.png","labelSize":24,"labelBold":true,"label":"使用"},
-            "nodeParent":1,
-            "label":"Button(useBtn)",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":9,
             "child":[
                 ]
         }],

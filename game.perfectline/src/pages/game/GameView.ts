@@ -35,6 +35,8 @@ class GameView extends xframe.XWindow {
 
     //路径宽度
     private readonly RoadWidth:number = 160;
+    //打击半径
+    private PickInfo:number[] = [15, 18];
     public show(...args):void{
         super.show();
         this.params = args[0];
@@ -43,6 +45,12 @@ class GameView extends xframe.XWindow {
         XFacade.instance.showModule(GameLoading, this.params)
         trace("this.params:::::::::::", this.params)
         this.ui.bg.skin = AppConfig.urlRoot+"res/map/"+this.params.bg+".jpg";
+
+        //平台个性化
+        if(AppConfig.platfrom == AppConfig.Plat4399){
+            this.PickInfo[0] = 45;
+            this.PickInfo[1] = 54;
+        }
 
         //生成列表
         this._giftList.length = 0;
@@ -664,7 +672,7 @@ class GameView extends xframe.XWindow {
             //效果判定---
             var delX: number = Math.abs(targetPoint.x - this.ball.x);
             var delY: number = Math.abs(targetPoint.y - this.ball.y);
-            if (delX < 15 && delY < 18) {//5
+            if (delX < this.PickInfo[0] && delY < this.PickInfo[1]) {//5
                 this.shine(targetPoint.x, targetPoint.y);
                 this._score += 1;
 
@@ -684,9 +692,7 @@ class GameView extends xframe.XWindow {
                     }
                 }
 
-            } else if (delX < 36 && delY < 25) {//3
-                this._score += 1;
-            } else {//2
+            }else {//2
                 this._score += 1;
             }
         } else {//翻转

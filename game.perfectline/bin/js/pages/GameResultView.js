@@ -39,6 +39,21 @@ var GameResultView = /** @class */ (function (_super) {
         _super.prototype.show.call(this);
         this.params = args[0];
         trace("params::", this.params);
+        //保存==;
+        var musicId = this.params.music.id;
+        if (User.instace.starInfo[musicId] != undefined && User.instace.starInfo[musicId] < this.params.score) {
+            User.instace.starInfo[musicId] = this.params.score;
+            //第一次过关，获得钥匙+1
+            if (this.params.score == 100) {
+                trace("xxxxxxxxxxxxxxxxxx9999", this.params.score);
+                if (this.params[ItemVo.KEY] != undefined) {
+                    this.params[ItemVo.KEY] = parseInt(this.params[ItemVo.KEY]) + 1;
+                }
+                else {
+                    this.params[ItemVo.KEY] = 1;
+                }
+            }
+        }
         this.ui.tfGold.text = this.params[ItemVo.GOLD] || "0";
         this.ui.tfDiamond.text = this.params[ItemVo.DIAMOND] || "0";
         this.ui.tfItem.text = this.params[ItemVo.KEY] || "0";
@@ -54,11 +69,6 @@ var GameResultView = /** @class */ (function (_super) {
         else {
             this.ui.btnRevive.visible = false;
             this.ui.homebtn.pos(188, 730);
-        }
-        //保存==;
-        var musicId = this.params.music.id;
-        if (User.instace.starInfo[musicId] != undefined && User.instace.starInfo[musicId] < this.params.score) {
-            User.instace.starInfo[musicId] = this.params.score;
         }
         User.instace.dispatchEvent();
         User.instace.save();

@@ -49668,8 +49668,16 @@ var Bag = /** @class */ (function () {
             if (typeof val === "string") {
                 val = JSON.parse(val);
             }
-            trace("initBag::", val);
             this.update(val);
+        }
+        else {
+            //针对4399
+            if (AppConfig.platfrom == AppConfig.Plat4399) {
+                this.addItem(ItemVo.GOLD, 8888);
+                this.addItem(ItemVo.DIAMOND, 888);
+                this.addItem(ItemVo.KEY, 15);
+                this.addItem(ItemVo.POWER, 10);
+            }
         }
     };
     /**生成一个道具 */
@@ -49889,7 +49897,7 @@ var User = /** @class */ (function () {
             var delTime = tDate.getTime() - date_1.getTime();
             delTime += 3600 * 1000 * 24 * delDay;
             this.sign.end = now + delTime;
-            trace(this.sign.end);
+            trace("end::::::::::::::", this.sign.end);
             this.sign.info.length = 0;
         }
     };
@@ -49988,6 +49996,17 @@ var AppConfig = /** @class */ (function () {
     AppConfig.urlRoot = "https://s.xiuwu.me/perfectline/2.0/";
     AppConfig.AppWidth = 750;
     AppConfig.AppHeight = 1334;
+    //4399平台
+    AppConfig.Plat4399 = "4399";
+    //贝羽
+    AppConfig.PlayBY = "by211";
+    //画布缩放比率
+    AppConfig.ScaleRate = 1;
+    //url地址
+    AppConfig.platfrom = "by";
+    //功能配置类===============================
+    //商店是否开启
+    AppConfig.openShop = true;
     return AppConfig;
 }());
 
@@ -50000,6 +50019,16 @@ var App = /** @class */ (function () {
     }
     App.prototype.start = function () {
         this.initEvet();
+        if (window && window.location && window.location.href) {
+            if (window.location.href.indexOf(AppConfig.Plat4399) != -1) {
+                AppConfig.platfrom = AppConfig.Plat4399;
+                AppConfig.urlRoot = "";
+            }
+        }
+        var data = Laya.loader.getRes("res/cfg/appCfg.json");
+        for (var i in data) {
+            AppConfig[i] = data[i];
+        }
         //XAlert.SKIN = ui.views.XAlertUIUI;
         XFacade.instance.showModule(LoadingView);
     };
@@ -50095,7 +50124,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.common.HomeViewUI.uiView);
             };
-            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "res/main/bj_homepage.png" } }, { "type": "Box", "props": { "y": 68, "x": 10, "var": "btns" }, "child": [{ "type": "Image", "props": { "y": 92, "x": 26, "var": "btnSignin", "skin": "res/main/btn_sign.png", "scaleY": 1.2, "scaleX": 1.2 } }, { "type": "Image", "props": { "y": 97, "x": 134, "visible": false, "var": "roleBtn", "skin": "res/main/btn_sign.png" }, "child": [{ "type": "Label", "props": { "y": 84, "x": 12, "text": "角色", "fontSize": 25, "color": "#000000", "bold": true } }] }, { "type": "Image", "props": { "y": 98, "x": 238, "width": 88, "visible": false, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "name": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "var": "diaMC" }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/common/2.png" } }] }, { "type": "Box", "props": { "x": 170, "var": "goldMC" }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 3, "x": 342, "var": "powerMC" }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 52, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 17, "x": 456, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }] }, { "type": "List", "props": { "y": 519, "x": -86, "width": 921, "var": "chapList", "spaceX": 10, "height": 300 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "runtime": "ChaperItem", "name": "render" } }] }, { "type": "Label", "props": { "y": 15, "x": 507, "visible": false, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 844, "x": 267, "width": 216, "var": "tfName", "height": 25, "fontSize": 30, "color": "#ff3300", "bold": true, "align": "center" } }, { "type": "Box", "props": { "y": 887, "x": 326, "var": "star" }, "child": [{ "type": "Label", "props": { "width": 97, "var": "tfScore", "text": "1/10", "height": 25, "fontSize": 30, "color": "#ff6600", "bold": true, "align": "center" } }] }, { "type": "Box", "props": { "y": 883, "x": 312, "var": "condBox" }, "child": [{ "type": "Image", "props": { "var": "icon", "skin": "res/common/3.png", "scaleY": 0.6, "scaleX": 0.6 } }, { "type": "Label", "props": { "y": 7, "x": 53, "width": 91, "var": "tfItemNum", "text": "1/10", "height": 25, "fontSize": 30, "color": "#000000", "bold": true, "align": "left" } }] }, { "type": "Button", "props": { "y": 956, "x": 253, "var": "btnUnlock", "stateNum": 1, "skin": "res/common/btn_yellow2.png", "labelStrokeColor": "#dddddd", "labelStroke": 2, "labelSize": 32, "labelColors": "#6f5638,#6f5638,#6f5638", "label": "解锁" } }, { "type": "Button", "props": { "y": 956, "x": 253, "var": "btnPlay", "stateNum": 1, "skin": "res/common/btn_yellow2.png", "labelStrokeColor": "#dddddd", "labelStroke": 2, "labelSize": 32, "labelColors": "#6f5638,#6f5638,#6f5638", "label": "开始" } }, { "type": "Label", "props": { "y": 21, "x": 16, "width": 352, "text": "Powered By LayaAir Engine", "height": 40, "fontSize": 24, "color": "#6e6e6e", "align": "left" } }] };
+            HomeViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "res/main/bj_homepage.png" } }, { "type": "Box", "props": { "y": 68, "x": 10, "var": "btns" }, "child": [{ "type": "Image", "props": { "y": 92, "x": 26, "var": "btnSignin", "skin": "res/main/btn_sign.png" } }, { "type": "Image", "props": { "y": 92, "x": 134, "visible": true, "var": "roleBtn", "skin": "res/main/btn_mall.png" } }, { "type": "Image", "props": { "y": 98, "x": 238, "width": 88, "visible": false, "var": "btnUserInfo", "skin": "res/main/ic_add_power.png", "height": 88 }, "child": [{ "type": "Sprite", "props": { "y": 0, "x": 0, "width": 88, "name": "mask", "height": 88 }, "child": [{ "type": "Circle", "props": { "y": 44, "x": 44, "radius": 44, "lineWidth": 1, "fillColor": "#d12424" } }] }] }, { "type": "Box", "props": { "var": "diaMC" }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "starNum", "text": "11", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "width": 60, "skin": "res/common/2.png" } }] }, { "type": "Box", "props": { "x": 170, "var": "goldMC" }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 76, "var": "coinNum", "text": "56", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Image", "props": { "skin": "res/main/ic_coin.png" } }] }, { "type": "Box", "props": { "y": 3, "x": 342, "var": "powerMC" }, "child": [{ "type": "Image", "props": { "y": 14, "x": 30, "skin": "res/main/ic_bg.png" } }, { "type": "Image", "props": { "width": 60, "skin": "res/main/ic_power.png", "height": 60 } }, { "type": "Label", "props": { "y": 21, "x": 64, "width": 52, "var": "heartNum", "text": "99", "height": 24, "fontSize": 24, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 17, "x": 456, "var": "btnAddPower", "stateNum": 1, "skin": "res/main/btn_add.png" } }] }, { "type": "List", "props": { "y": 519, "x": -86, "width": 921, "var": "chapList", "spaceX": 10, "height": 300 }, "child": [{ "type": "ChapterItem", "props": { "y": 0, "x": 0, "runtime": "ChaperItem", "name": "render" } }] }, { "type": "Label", "props": { "y": 15, "x": 507, "visible": false, "var": "btnDev", "text": "打开调试面板", "fontSize": 40, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 844, "x": 267, "width": 216, "var": "tfName", "height": 25, "fontSize": 30, "color": "#ff3300", "bold": true, "align": "center" } }, { "type": "Box", "props": { "y": 887, "x": 326, "var": "star" }, "child": [{ "type": "Label", "props": { "width": 97, "var": "tfScore", "text": "1/10", "height": 25, "fontSize": 30, "color": "#ff6600", "bold": true, "align": "center" } }] }, { "type": "Box", "props": { "y": 883, "x": 312, "var": "condBox" }, "child": [{ "type": "Image", "props": { "var": "icon", "skin": "res/common/3.png", "scaleY": 0.6, "scaleX": 0.6 } }, { "type": "Label", "props": { "y": 7, "x": 53, "width": 91, "var": "tfItemNum", "text": "1/10", "height": 25, "fontSize": 30, "color": "#000000", "bold": true, "align": "left" } }] }, { "type": "Button", "props": { "y": 956, "x": 253, "var": "btnUnlock", "stateNum": 1, "skin": "res/common/btn_yellow2.png", "labelStrokeColor": "#dddddd", "labelStroke": 2, "labelSize": 32, "labelColors": "#6f5638,#6f5638,#6f5638", "label": "解锁" } }, { "type": "Button", "props": { "y": 956, "x": 253, "var": "btnPlay", "stateNum": 1, "skin": "res/common/btn_yellow2.png", "labelStrokeColor": "#dddddd", "labelStroke": 2, "labelSize": 32, "labelColors": "#6f5638,#6f5638,#6f5638", "label": "开始" } }, { "type": "Label", "props": { "y": 21, "x": 16, "width": 352, "text": "Powered By LayaAir Engine", "height": 40, "fontSize": 24, "color": "#6e6e6e", "align": "left" } }] };
             return HomeViewUI;
         }(View));
         common.HomeViewUI = HomeViewUI;
@@ -50149,7 +50178,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.pages.GamePageUI.uiView);
             };
-            GamePageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 750, "var": "bg", "height": 1334 } }, { "type": "Image", "props": { "y": 20, "x": 20, "var": "btnPause", "skin": "res/game/btn_pause.png" } }, { "type": "Box", "props": { "y": 932, "x": 18, "var": "selectBox", "height": 400 }, "child": [{ "type": "Image", "props": { "y": 196, "x": 317, "skin": "res/game/hand.png" } }] }, { "type": "Image", "props": { "y": 30, "x": 20, "var": "backBtn", "skin": "res/game/btn_home.png" } }] };
+            GamePageUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 750, "var": "bg", "height": 1334 } }, { "type": "Image", "props": { "y": 20, "x": 20, "var": "btnPause", "skin": "res/game/btn_pause.png" } }, { "type": "Image", "props": { "y": 30, "x": 20, "var": "backBtn", "skin": "res/game/btn_home.png" } }, { "type": "Box", "props": { "y": 932, "x": 18, "var": "selectBox", "height": 400 }, "child": [{ "type": "Image", "props": { "y": 196, "x": 317, "skin": "res/game/hand.png" } }, { "type": "Label", "props": { "y": 138, "x": 165, "width": 337, "text": "点击开始", "height": 54, "fontSize": 42, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }] }] };
             return GamePageUI;
         }(View));
         pages.GamePageUI = GamePageUI;
@@ -50375,7 +50404,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.RoleItemRenderUI.uiView);
             };
-            RoleItemRenderUI.uiView = { "type": "View", "props": { "width": 600, "height": 120 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 600, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 120 } }, { "type": "Image", "props": { "y": 10, "x": 14, "width": 100, "var": "roleimg", "skin": "res/ic_role/xhj.png", "height": 100 } }, { "type": "Label", "props": { "y": 23, "x": 134, "var": "rolename", "text": "角色", "fontSize": 30, "color": "#404040" } }, { "type": "Label", "props": { "y": 69, "x": 134, "var": "tip", "text": "连续签到七天可以解锁", "fontSize": 20, "color": "#999999" } }, { "type": "Button", "props": { "y": 28, "x": 471, "var": "useBtn", "stateNum": 1, "skin": "res/role/btn_use.png", "labelSize": 24, "labelBold": true, "label": "使用" } }] };
+            RoleItemRenderUI.uiView = { "type": "View", "props": { "width": 600, "height": 120 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 600, "skin": "res/common/bg_white.png", "sizeGrid": "20,20,20,20", "height": 120 } }, { "type": "Button", "props": { "y": 30, "x": 461, "width": 118, "var": "useBtn", "stateNum": 1, "skin": "res/common/btn_yellow.png", "labelSize": 24, "labelPadding": "-4", "labelBold": true, "label": "使用", "height": 63 } }, { "type": "Image", "props": { "y": 10, "x": 14, "width": 100, "var": "roleimg", "skin": "res/ic_role/xhj.png", "height": 100 } }, { "type": "Label", "props": { "y": 23, "x": 134, "var": "rolename", "text": "角色", "fontSize": 30, "color": "#404040" } }, { "type": "Label", "props": { "y": 69, "x": 134, "var": "tip", "text": "连续签到七天可以解锁", "fontSize": 20, "color": "#999999" } }] };
             return RoleItemRenderUI;
         }(View));
         views.RoleItemRenderUI = RoleItemRenderUI;
@@ -50394,7 +50423,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.RoleViewUI.uiView);
             };
-            RoleViewUI.uiView = { "type": "View", "props": { "width": 650, "height": 960 }, "child": [{ "type": "Image", "props": { "y": 12, "x": 5, "skin": "res/role/bj_role_tc.png" }, "child": [{ "type": "Label", "props": { "y": 14, "x": 280, "width": 80, "text": "角色", "height": 40, "fontSize": 40, "color": "#ffffff", "bold": true } }, { "type": "Image", "props": { "y": 57, "x": 587, "var": "closebtn", "skin": "res/main/btn_close.png" } }, { "type": "List", "props": { "y": 135, "x": 20, "width": 600, "var": "rolelist", "spaceY": 12, "repeatX": 1, "height": 785 }, "child": [{ "type": "RoleItemRender", "props": { "runtime": "RoleItem", "name": "render" } }] }] }] };
+            RoleViewUI.uiView = { "type": "View", "props": { "width": 650, "height": 960 }, "child": [{ "type": "Image", "props": { "y": 12, "x": 5, "skin": "res/role/bj_role_tc.png" }, "child": [{ "type": "Label", "props": { "y": 14, "x": 280, "width": 80, "text": "商店", "height": 40, "fontSize": 40, "color": "#ffffff", "bold": true } }, { "type": "Image", "props": { "y": 57, "x": 587, "var": "closebtn", "skin": "res/main/btn_close.png" } }, { "type": "List", "props": { "y": 135, "x": 20, "width": 600, "var": "rolelist", "spaceY": 12, "repeatX": 1, "height": 785 }, "child": [{ "type": "RoleItemRender", "props": { "runtime": "RoleItem", "name": "render" } }] }] }] };
             return RoleViewUI;
         }(View));
         views.RoleViewUI = RoleViewUI;
@@ -50430,7 +50459,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.TipUI.uiView);
             };
-            TipUI.uiView = { "type": "View", "props": { "width": 316, "height": 300 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/itemStrBG.png" } }, { "type": "Label", "props": { "y": 15, "x": 23, "width": 270, "var": "tfName", "text": "看视频增加体力", "height": 39, "fontSize": 26, "color": "#6F5638", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 65, "x": 23, "width": 270, "var": "tfDesc", "text": "看视频增加体力", "height": 193, "fontSize": 24, "color": "#6F5638", "align": "left" } }] };
+            TipUI.uiView = { "type": "View", "props": { "width": 316, "height": 300 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "res/main/itemStrBG.png" } }, { "type": "Label", "props": { "y": 15, "x": 23, "width": 270, "var": "tfName", "text": "看视频增加体力", "height": 39, "fontSize": 26, "color": "#6F5638", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 65, "x": 34, "wordWrap": true, "width": 248, "var": "tfDesc", "text": "看视频增加体力", "height": 193, "fontSize": 24, "color": "#6F5638", "align": "left" } }] };
             return TipUI;
         }(View));
         views.TipUI = TipUI;
@@ -50466,7 +50495,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.views.XAlertUIUI.uiView);
             };
-            XAlertUIUI.uiView = { "type": "View", "props": { "width": 642, "height": 434 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 642, "skin": "res/main/bj_power_tc.png", "sizeGrid": "124,0,75,0", "height": 434 }, "child": [{ "type": "Label", "props": { "y": 29, "x": 151, "width": 337, "var": "tfTitle", "text": "体力不足", "height": 54, "fontSize": 42, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 181, "x": 120, "wordWrap": true, "width": 400, "var": "tfMsg", "text": "   今天的体力用完了， 明天再来宠幸我吧~", "leading": 10, "height": 98, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#666666", "align": "center" } }, { "type": "Button", "props": { "y": 313, "x": 158, "var": "btnYes", "stateNum": 1, "skin": "res/common/btn_yellow.png", "labelSize": 32 } }, { "type": "Button", "props": { "y": 313, "x": 350, "var": "btnNo", "stateNum": 1, "skin": "res/common/btn_red.png", "labelSize": 32, "label": "label" } }] }] };
+            XAlertUIUI.uiView = { "type": "View", "props": { "width": 642, "height": 434 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 642, "skin": "res/main/bj_power_tc.png", "sizeGrid": "124,0,75,0", "height": 434 }, "child": [{ "type": "Label", "props": { "y": 29, "x": 151, "width": 337, "var": "tfTitle", "text": "温馨提示", "height": 54, "fontSize": 42, "font": "PingFangSC-Semibold", "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 181, "x": 61, "wordWrap": true, "width": 520, "var": "tfMsg", "text": "   今天的体力用完了， 明天再来宠幸我吧~", "leading": 10, "height": 98, "fontSize": 36, "font": "PingFangSC-Semibold", "color": "#666666", "align": "center" } }, { "type": "Button", "props": { "y": 313, "x": 158, "var": "btnYes", "stateNum": 1, "skin": "res/common/btn_yellow.png", "labelSize": 32, "labelPadding": "-4" } }, { "type": "Button", "props": { "y": 313, "x": 350, "var": "btnNo", "stateNum": 1, "skin": "res/common/btn_red.png", "labelSize": 32, "labelPadding": "-4", "label": "label" } }] }] };
             return XAlertUIUI;
         }(View));
         views.XAlertUIUI = XAlertUIUI;
@@ -50892,6 +50921,10 @@ var GameView = /** @class */ (function (_super) {
         _this._giftList = [];
         //获得数据信息
         _this._rewards = {};
+        //路径宽度
+        _this.RoadWidth = 160;
+        //打击半径
+        _this.PickInfo = [15, 18];
         _this.curX = Laya.stage.width / 2;
         _this.curY = Laya.stage.height / 2;
         _this.delX = 0;
@@ -50913,9 +50946,15 @@ var GameView = /** @class */ (function (_super) {
         _super.prototype.show.call(this);
         this.params = args[0];
         this.ui.btnPause.visible = false;
+        this.ui.backBtn.visible = false;
         XFacade.instance.showModule(GameLoading, this.params);
         trace("this.params:::::::::::", this.params);
         this.ui.bg.skin = AppConfig.urlRoot + "res/map/" + this.params.bg + ".jpg";
+        //平台个性化
+        if (AppConfig.platfrom == AppConfig.Plat4399) {
+            this.PickInfo[0] = 45;
+            this.PickInfo[1] = 54;
+        }
         //生成列表
         this._giftList.length = 0;
         var diamondNum = 2;
@@ -50947,6 +50986,9 @@ var GameView = /** @class */ (function (_super) {
         var sx = Math.max(Laya.stage.width / AppConfig.AppWidth, Laya.stage.height / AppConfig.AppHeight);
         this.ui.bg.scale(sx, sx);
         this.ui.x = (this.ui.bg.width - AppConfig.AppWidth) / 2;
+        if (Laya.stage.scaleMode === "showall") {
+            AppConfig.ScaleRate = Laya.Browser.clientHeight / AppConfig.AppHeight;
+        }
     };
     GameView.prototype.close = function () {
         this.onDestroy();
@@ -50975,19 +51017,29 @@ var GameView = /** @class */ (function (_super) {
             case GameEvent.SELECTED:
                 this.ui.selectBox.visible = true;
                 this.ui.btnPause.visible = false;
-                this.ui.backBtn.visible = true;
+                this.ui.backBtn.visible = false;
                 this.initMap();
+                this.on(Laya.Event.CLICK, this, this.onStart);
                 break;
             case GameEvent.REVIVE:
                 this.revive();
                 break;
         }
     };
-    GameView.prototype.onStart = function (e) {
-        if (!this.ui.selectBox.visible) {
-            Laya.stage.off(Laya.Event.CLICK, this, this.onStart);
-            return;
+    GameView.prototype.onFocus = function () {
+        if (!this.soundChannel || this.soundChannel.isStopped) {
+            this.close();
         }
+    };
+    GameView.prototype.onStart = function (e) {
+        trace("onStart======================>>>", this.ui.selectBox.visible);
+        if (!this.ui.selectBox.visible) {
+            this.off(Laya.Event.CLICK, this, this.onStart);
+            if (this.soundChannel) {
+                return;
+            }
+        }
+        trace("onStart======================>>>1");
         e.stopPropagation();
         if (User.instace.power > 0) {
             User.instace.power -= 1;
@@ -51230,10 +51282,10 @@ var GameView = /** @class */ (function (_super) {
         //3，绘制地图
         this.map.graphics.clear();
         if (startIndex == 0) { //画起点
-            this.map.graphics.drawCircle(this._mapArr[0], this._mapArr[1], 160, "#ffffff");
+            this.map.graphics.drawCircle(this._mapArr[0], this._mapArr[1], this.RoadWidth, "#ffffff");
             this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), this._mapArr[0] - 200, this._mapArr[1] - 200);
         }
-        this.map.graphics.drawLines(0, 0, this._mapArr, "#ffffff", 160); //160
+        this.map.graphics.drawLines(0, 0, this._mapArr, "#ffffff", this.RoadWidth * AppConfig.ScaleRate);
         if (i >= cfg.nodes.length && this.soundChannel.duration) {
             this._autoLast = true;
             var last = this.posInfo[this.posInfo.length - 1];
@@ -51242,8 +51294,8 @@ var GameView = /** @class */ (function (_super) {
             var info = { x: last.x, y: last.y - (total - last.t) * this.speedY, sx: 0, sy: last.sy, t: total };
             this.posInfo.push(info);
             this.srcPosInfo.push(info);
-            this.map.graphics.drawLine(last.x, last.y, info.x, info.y, "#ffffff", 160);
-            this.map.graphics.drawCircle(info.x, info.y, 160, "#ffffff");
+            this.map.graphics.drawLine(last.x, last.y, info.x, info.y, "#ffffff", this.RoadWidth * AppConfig.ScaleRate);
+            this.map.graphics.drawCircle(info.x, info.y, this.RoadWidth, "#ffffff");
             this.map.graphics.drawTexture(Laya.loader.getRes("res/game/start_bg.png"), info.x - 200, info.y - 200);
         }
         var offset = this._autoLast ? 3 : 1;
@@ -51481,7 +51533,7 @@ var GameView = /** @class */ (function (_super) {
             //效果判定---
             var delX = Math.abs(targetPoint.x - this.ball.x);
             var delY = Math.abs(targetPoint.y - this.ball.y);
-            if (delX < 15 && delY < 18) { //5
+            if (delX < this.PickInfo[0] && delY < this.PickInfo[1]) { //5
                 this.shine(targetPoint.x, targetPoint.y);
                 this._score += 1;
                 //动画
@@ -51498,9 +51550,6 @@ var GameView = /** @class */ (function (_super) {
                         this._rewards[gift.name] = 1;
                     }
                 }
-            }
-            else if (delX < 36 && delY < 25) { //3
-                this._score += 1;
             }
             else { //2
                 this._score += 1;
@@ -51696,7 +51745,7 @@ var GameView = /** @class */ (function (_super) {
         XEvent.instance.on(GameEvent.REVIVE, this, this.onGameEvent, [GameEvent.REVIVE]);
         this.ui.btnPause.on(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.backBtn.on(Laya.Event.CLICK, this, this.onBtnClick);
-        Laya.stage.on(Laya.Event.CLICK, this, this.onStart);
+        Laya.stage.on(Laya.Event.FOCUS, this, this.onFocus);
     };
     GameView.prototype.removeEvent = function () {
         XEvent.instance.off(GameEvent.BACK, this, this.onGameEvent);
@@ -51706,6 +51755,7 @@ var GameView = /** @class */ (function (_super) {
         this.ui.btnPause.off(Laya.Event.CLICK, this, this.onBtnClick);
         this.ui.backBtn.off(Laya.Event.CLICK, this, this.onBtnClick);
         Laya.stage.off(Laya.Event.CLICK, this, this.onStart);
+        Laya.stage.off(Laya.Event.FOCUS, this, this.onFocus);
     };
     return GameView;
 }(xframe.XWindow));
@@ -51852,6 +51902,7 @@ var GameLoading = /** @class */ (function (_super) {
     function GameLoading() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.views.LoadingViewUI();
+        _this._align = xframe.LayerManager.ALIGN_LEFTUP;
         return _this;
     }
     GameLoading.prototype.close = function () {
@@ -51880,6 +51931,10 @@ var GameLoading = /** @class */ (function (_super) {
         var res = [
             { url: AppConfig.urlRoot + 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
         ];
+        //平台特殊化
+        if (AppConfig.platfrom == AppConfig.Plat4399) {
+            res.push({ url: AppConfig.urlRoot + 'res/snd/' + this.params.mp3 + '.mp3', type: Laya.Loader.SOUND });
+        }
         GameView.mp3 = AppConfig.urlRoot + 'res/snd/' + this.params.mp3 + '.mp3';
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
     };
@@ -52183,6 +52238,21 @@ var GameResultView = /** @class */ (function (_super) {
         _super.prototype.show.call(this);
         this.params = args[0];
         trace("params::", this.params);
+        //保存==;
+        var musicId = this.params.music.id;
+        if (User.instace.starInfo[musicId] != undefined && User.instace.starInfo[musicId] < this.params.score) {
+            User.instace.starInfo[musicId] = this.params.score;
+            //第一次过关，获得钥匙+1
+            if (this.params.score == 100) {
+                trace("xxxxxxxxxxxxxxxxxx9999", this.params.score);
+                if (this.params[ItemVo.KEY] != undefined) {
+                    this.params[ItemVo.KEY] = parseInt(this.params[ItemVo.KEY]) + 1;
+                }
+                else {
+                    this.params[ItemVo.KEY] = 1;
+                }
+            }
+        }
         this.ui.tfGold.text = this.params[ItemVo.GOLD] || "0";
         this.ui.tfDiamond.text = this.params[ItemVo.DIAMOND] || "0";
         this.ui.tfItem.text = this.params[ItemVo.KEY] || "0";
@@ -52198,11 +52268,6 @@ var GameResultView = /** @class */ (function (_super) {
         else {
             this.ui.btnRevive.visible = false;
             this.ui.homebtn.pos(188, 730);
-        }
-        //保存==;
-        var musicId = this.params.music.id;
-        if (User.instace.starInfo[musicId] != undefined && User.instace.starInfo[musicId] < this.params.score) {
-            User.instace.starInfo[musicId] = this.params.score;
         }
         User.instace.dispatchEvent();
         User.instace.save();
@@ -52231,6 +52296,8 @@ var HomeView = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.ui = new ui.common.HomeViewUI();
         _this.recommendApp = null;
+        /**图标列表 */
+        _this._btns = [];
         return _this;
     }
     HomeView.prototype.show = function () {
@@ -52255,6 +52322,16 @@ var HomeView = /** @class */ (function (_super) {
     HomeView.prototype.close = function () {
         Star.destroy();
         _super.prototype.close.call(this);
+    };
+    HomeView.prototype.showBtns = function () {
+        var index = 0;
+        var BtnWidth = 110;
+        for (var i = 0; i < this._btns.length; i++) {
+            if (this._btns[i].visible) {
+                this._btns[i].x = index * BtnWidth;
+                index++;
+            }
+        }
     };
     HomeView.prototype.format = function (data) {
         this.ui.tfName.text = data.name + "";
@@ -52333,13 +52410,32 @@ var HomeView = /** @class */ (function (_super) {
             this.format(this._selectedItem.dataSource);
             //扣道具
             Bag.getInstance().delItem(vo.cond[0], vo.cond[1]);
-            XTip.showTip("解锁成功");
+            XTip.showTip("《" + vo.name + "》解锁成功，赶紧去挑战吧");
         }
         else {
             var itemVo = DBItem.getItemVo(vo.cond[0]);
-            var str = "解锁当前关卡需要" + itemVo.name + "x" + vo.cond[1] + ",您当前拥有" + Bag.getInstance().getItemNum(itemVo.id);
-            str += "(" + itemVo.name + "游戏中获得)";
-            XTip.showTip(str);
+            var delNum = vo.cond[1] - Bag.getInstance().getItemNum(itemVo.id);
+            var str = "解锁《" + vo.name + "》需要" + itemVo.name + "x" + vo.cond[1] + ",您当前拥有" + Bag.getInstance().getItemNum(itemVo.id);
+            str += "，还需要支付" + delNum * 10 + "钻石";
+            XAlert.showAlert(str, Laya.Handler.create(this, this.doUnlock, [id, itemVo.id, vo.cond[1]]), null, true, true, "解锁", "取消");
+            //XTip.showTip(str)
+        }
+    };
+    HomeView.prototype.doUnlock = function (id, itemId, needNum) {
+        var vo = DBChapter.getChapInfo(id);
+        var myNum = Bag.getInstance().getItemNum(itemId);
+        var delNum = needNum - myNum;
+        var diamond = delNum * 10;
+        if (User.instace.diamond < diamond) {
+            XTip.showTip("哎呀~钻石不够了呢");
+        }
+        else {
+            User.instace.starInfo[id] = 0;
+            User.instace.diamond -= diamond;
+            Bag.getInstance().delItem(itemId, myNum);
+            this.ui.chapList.refresh();
+            this.format(this._selectedItem.dataSource);
+            XTip.showTip("《" + vo.name + "》解锁成功，赶紧去挑战吧");
         }
     };
     HomeView.prototype.onItemClick = function (e, index) {
@@ -52371,6 +52467,8 @@ var HomeView = /** @class */ (function (_super) {
         this.ui.chapList.scrollBar.rollRatio = 0.7;
         this.ui.chapList.selectedIndex = 1;
         this.selectedItem = this.ui.chapList.getCell(1);
+        this._btns.push(this.ui.roleBtn, this.ui.btnSignin);
+        this.ui.roleBtn.visible = AppConfig.openShop;
     };
     //滑动到指定位置
     HomeView.prototype.scrollToIndex = function (index) {
@@ -52406,6 +52504,8 @@ var HomeView = /** @class */ (function (_super) {
             this.ui.tfScore.text = User.instace.starInfo[this._selectedItem.dataSource.id] + "%";
         }
         this.ui.btnSignin.visible = User.instace.canSign;
+        //显示按钮
+        this.showBtns();
     };
     HomeView.prototype.initEvent = function () {
         this.ui.btnDev.on(Laya.Event.CLICK, this, this.onBtnClick);
@@ -52685,6 +52785,7 @@ var RoleItem = /** @class */ (function (_super) {
         set: function (vo) {
             this.useBtn.offAll(Laya.Event.CLICK);
             this._vo = vo;
+            this.useBtn.skin = "res/common/btn_yellow.png";
             if (vo) {
                 this.roleimg.skin = "res/ic_role/" + vo.img + ".png";
                 this.rolename.text = vo.name;
@@ -52692,6 +52793,7 @@ var RoleItem = /** @class */ (function (_super) {
                 if (User.instace.roleInfo[vo.id] == 1) {
                     this.useBtn.label = "使用中";
                     this.tip.text = "已获得";
+                    this.useBtn.skin = "res/common/btn_red.png";
                 }
                 else if (User.instace.roleInfo[vo.id] == 0) {
                     this.useBtn.label = "使用";
@@ -52716,27 +52818,25 @@ var RoleItem = /** @class */ (function (_super) {
     RoleItem.prototype.onBuy = function () {
         if (this._vo.cost[0] == 1) {
             if (User.instace.gold < this._vo.cost[1]) {
-                XTip.showTip("金币不足~");
+                XTip.showTip("金币不够了~");
             }
             else {
                 User.instace.roleInfo[this._vo.id] = 0;
                 User.instace.gold -= this._vo.cost[1];
                 XTip.showTip("获得" + this._vo.name);
+                this.onUse();
             }
-            User.instace.save();
-            User.instace.dispatchEvent();
         }
         else {
-            if (User.instace.gold < this._vo.cost[1]) {
-                XTip.showTip("钻石不足~");
+            if (User.instace.diamond < this._vo.cost[1]) {
+                XTip.showTip("钻石不够了~");
             }
             else {
                 User.instace.roleInfo[this._vo.id] = 0;
                 User.instace.diamond -= this._vo.cost[1];
-                XTip.showTip("获得" + this._vo.name);
+                XTip.showTip("成功获得并使用" + this._vo.name);
+                this.onUse();
             }
-            User.instace.save();
-            User.instace.dispatchEvent();
         }
     };
     RoleItem.prototype.onUse = function () {
@@ -52748,6 +52848,7 @@ var RoleItem = /** @class */ (function (_super) {
                 User.instace.roleInfo[i] = 0;
             }
         }
+        User.instace.save();
         User.instace.dispatchEvent();
     };
     RoleItem.prototype.destroy = function () {
@@ -52835,6 +52936,7 @@ var SignInView = /** @class */ (function (_super) {
                     var day = date.getDay();
                     User.instace.sign.info.push(day);
                     var vo = DBSign.getSignVo(User.instace.sign.info.length);
+                    trace("vo----------------------", vo);
                     var str = "获得";
                     for (var i = 0; i < vo.reward.length; i++) {
                         var info = vo.reward[i];
@@ -53481,11 +53583,19 @@ var Main = /** @class */ (function () {
         //程序入口
         Laya.init(AppConfig.AppWidth, AppConfig.AppHeight, Laya.WebGL);
         //Laya.stage.scaleMode = "noscale";
-        Laya.stage.scaleMode = "showall";
-        //Laya.stage.scaleMode = Laya.Stage.SCALE_FIXED_WIDTH;
+        if (Laya.Browser.onPC) {
+            Laya.stage.scaleMode = "showall";
+            Laya.stage.alignH = Laya.Stage.ALIGN_CENTER;
+        }
+        else {
+            Laya.stage.scaleMode = Laya.Stage.SCALE_FIXED_WIDTH;
+        }
         this.init();
     }
     Main.prototype.init = function () {
+        Laya.URL.version = {
+            "res/cfg/appCfg.json": Math.random()
+        };
         /*
         Laya.URL.version = {
             "res/cfg/stage.json":Math.random()
@@ -53505,6 +53615,7 @@ var Main = /** @class */ (function () {
             { url: 'res/cfg/role.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/item.json', type: Laya.Loader.JSON },
             { url: 'res/cfg/sign.json', type: Laya.Loader.JSON },
+            { url: 'res/cfg/appCfg.json', type: Laya.Loader.JSON },
         ];
         Laya.loader.load(urlList, Handler.create(null, function () {
             xframe.XFacade.instance.init(new App());

@@ -27,6 +27,22 @@ class GameResultView extends xframe.XMWindow {
         super.show();
         this.params = args[0];
         trace("params::",this.params)
+
+        //保存==;
+        let musicId:number = this.params.music.id
+        if(User.instace.starInfo[musicId] != undefined && User.instace.starInfo[musicId] < this.params.score){
+            User.instace.starInfo[musicId] = this.params.score;
+            //第一次过关，获得钥匙+1
+            if(this.params.score == 100){
+                trace("xxxxxxxxxxxxxxxxxx9999", this.params.score)
+                if(this.params[ItemVo.KEY] != undefined){
+                    this.params[ItemVo.KEY] = parseInt(this.params[ItemVo.KEY])+1;
+                }else{
+                    this.params[ItemVo.KEY] = 1;
+                }
+            }
+        }
+
         this.ui.tfGold.text = this.params[ItemVo.GOLD] || "0";
         this.ui.tfDiamond.text = this.params[ItemVo.DIAMOND] || "0";
         this.ui.tfItem.text = this.params[ItemVo.KEY] || "0"
@@ -45,11 +61,6 @@ class GameResultView extends xframe.XMWindow {
             this.ui.homebtn.pos(188, 730)
         }
 
-        //保存==;
-        let musicId:number = this.params.music.id
-        if(User.instace.starInfo[musicId] != undefined && User.instace.starInfo[musicId] < this.params.score){
-            User.instace.starInfo[musicId] = this.params.score;
-        }
         User.instace.dispatchEvent();
         User.instace.save();
     }

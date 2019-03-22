@@ -13,6 +13,7 @@ var GameLoading = /** @class */ (function (_super) {
     function GameLoading() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.views.LoadingViewUI();
+        _this._align = xframe.LayerManager.ALIGN_LEFTUP;
         return _this;
     }
     GameLoading.prototype.close = function () {
@@ -41,6 +42,10 @@ var GameLoading = /** @class */ (function (_super) {
         var res = [
             { url: AppConfig.urlRoot + 'res/snd/' + this.params.json + '.json', type: Laya.Loader.JSON }
         ];
+        //平台特殊化
+        if (AppConfig.platfrom == AppConfig.Plat4399) {
+            res.push({ url: AppConfig.urlRoot + 'res/snd/' + this.params.mp3 + '.mp3', type: Laya.Loader.SOUND });
+        }
         GameView.mp3 = AppConfig.urlRoot + 'res/snd/' + this.params.mp3 + '.mp3';
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
     };

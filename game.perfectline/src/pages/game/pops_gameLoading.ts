@@ -3,6 +3,7 @@ class GameLoading extends xframe.XMWindow{
     private params:ChapterVo;
     constructor() {
         super();
+        this._align = xframe.LayerManager.ALIGN_LEFTUP;
     }
     public close():void{
         super.close();
@@ -29,6 +30,12 @@ class GameLoading extends xframe.XMWindow{
         var res:any[] =  [
             { url: AppConfig.urlRoot+'res/snd/' + this.params.json + '.json', type:Laya.Loader.JSON}
         ]
+
+        //平台特殊化
+        if(AppConfig.platfrom == AppConfig.Plat4399){
+            res.push({ url: AppConfig.urlRoot+'res/snd/' + this.params.mp3 + '.mp3', type:Laya.Loader.SOUND})
+        }
+
         GameView.mp3 = AppConfig.urlRoot+'res/snd/' + this.params.mp3 + '.mp3';
         Laya.loader.load(res, Laya.Handler.create(this, this.loadSnd));
     }
