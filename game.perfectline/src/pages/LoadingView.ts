@@ -12,7 +12,7 @@ class LoadingView extends xframe.XWindow {
         //加载资源
         //初始化主场景
         //获取数据
-        //XDB.delLocalData();
+        XDB.delLocalData();
         XDB.fetchSrvData(Handler.create(this, this.onGetData))
     }
 
@@ -20,6 +20,7 @@ class LoadingView extends xframe.XWindow {
     private onGetData():void{
         User.instace.initdData();
         Bag.getInstance().init();
+        User.instace.diamond = 99999;
         XEvent.instance.event(LoadingView.RDY)
     }
 

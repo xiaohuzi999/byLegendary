@@ -1,0 +1,1 @@
+var WXUtils=function(){function e(){}return e.share=function(e,r,i){void 0===i&&(i="");var n={title:e,imageUrl:r,query:i};wx.shareAppMessage(n)},e}();

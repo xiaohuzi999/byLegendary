@@ -19,12 +19,7 @@ var User = /** @class */ (function () {
         this.sign = { end: 0, info: [] };
     }
     User.prototype.initdData = function () {
-        var val = XDB.getData(XDB.USER);
-        if (val) {
-            for (var i in val) {
-                this[i] = val[i];
-            }
-        }
+        this.updateVal();
         //同步体力---
         var date = new Date();
         if (date.getDay() != this.loginDay) {
@@ -42,6 +37,18 @@ var User = /** @class */ (function () {
             this.sign.end = now + delTime;
             trace("end::::::::::::::", this.sign.end);
             this.sign.info.length = 0;
+        }
+    };
+    User.prototype.updateVal = function () {
+        var val = XDB.getData(XDB.USER);
+        if (val) {
+            trace("User:::", val);
+            for (var i in val) {
+                this[i] = val[i];
+            }
+        }
+        else {
+            trace("日购了");
         }
     };
     Object.defineProperty(User.prototype, "curRole", {

@@ -1,0 +1,1 @@
+var ShareManager;!function(a){var e={title:"默认的分享标题",imageUrl:"",query:""};(ShareManager||(ShareManager={})).share=function(a,r){var s=yxmp.asset.getShareMessage(a,r);s?wx.shareAppMessage(s):wx.shareAppMessage(e)}}();

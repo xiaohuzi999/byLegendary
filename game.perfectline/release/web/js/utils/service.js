@@ -1,0 +1,1 @@
+var ossGameVersion="/1.0.0",fetchGameModeList=function(){var e=ossGameVersion+"/game.json";return yxmp.asset.fetch(e,300)},fetchModeDetail=function(e){return yxmp.asset.fetch("",300)},fetchRoleList=function(){var e=ossGameVersion+"/role.json";return yxmp.asset.fetch(e,300)},fetchSignList=function(){var e=ossGameVersion+"/sign.json";return yxmp.asset.fetch(e,300)};

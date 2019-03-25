@@ -645,7 +645,7 @@ var GameView = /** @class */ (function (_super) {
                 var gift = this._gift[targetPoint.x + "_" + targetPoint.y];
                 if (gift) {
                     //gift.removeSelf();
-                    Laya.Tween.to(gift, { y: gift.y - 300, alpha: 0.1 }, 700, null, Laya.Handler.create(gift, gift.removeSelf));
+                    Laya.Tween.to(gift, { y: gift.y - 300, alpha: 0.1, scaleX: 1.2, scaleY: 1.2 }, 700, null, Laya.Handler.create(gift, gift.removeSelf));
                     delete this._gift[targetPoint.x + "_" + targetPoint.y];
                     //数据处理===================================
                     if (this._rewards[gift.name]) {
@@ -658,6 +658,13 @@ var GameView = /** @class */ (function (_super) {
             }
             else { //2
                 this._score += 1;
+                var gift_1 = this._gift[targetPoint.x + "_" + targetPoint.y];
+                if (gift_1) {
+                    var curY_1 = gift_1.y;
+                    Laya.Tween.to(gift_1, { y: gift_1.y - 80, scaleX: 1.2, scaleY: 1.2 }, 200, null, Laya.Handler.create(null, function () {
+                        Laya.Tween.to(gift_1, { y: curY_1, scaleX: 1, scaleY: 1 }, 200);
+                    }));
+                }
             }
         }
         else { //翻转

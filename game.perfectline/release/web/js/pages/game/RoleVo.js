@@ -1,0 +1,1 @@
+var RoleVo=function(){return function(){}}();

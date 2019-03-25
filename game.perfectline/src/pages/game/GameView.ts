@@ -681,7 +681,7 @@ class GameView extends xframe.XWindow {
                 let gift:Laya.Image = this._gift[targetPoint.x+"_"+targetPoint.y];
                 if(gift){
                     //gift.removeSelf();
-                    Laya.Tween.to(gift, {y: gift.y-300, alpha:0.1}, 700, null, Laya.Handler.create(gift, gift.removeSelf))
+                    Laya.Tween.to(gift, {y: gift.y-300, alpha:0.1, scaleX:1.2, scaleY:1.2}, 700, null, Laya.Handler.create(gift, gift.removeSelf))
                     delete this._gift[targetPoint.x+"_"+targetPoint.y];
 
                     //数据处理===================================
@@ -694,6 +694,14 @@ class GameView extends xframe.XWindow {
 
             }else {//2
                 this._score += 1;
+
+                let gift:Laya.Image = this._gift[targetPoint.x+"_"+targetPoint.y];
+                if(gift){
+                    let curY:number = gift.y
+                    Laya.Tween.to(gift, {y:gift.y-80, scaleX:1.2, scaleY:1.2}, 200, null, Laya.Handler.create(null, ()=>{
+                        Laya.Tween.to(gift, {y:curY, scaleX:1, scaleY:1}, 200);
+                    }))
+                }
             }
         } else {//翻转
             if (this.srcPosInfo.length && this._turnable) {

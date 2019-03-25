@@ -20,18 +20,16 @@ var HomeView = /** @class */ (function (_super) {
     }
     HomeView.prototype.show = function () {
         _super.prototype.show.call(this);
-        this.updateUserInfo();
         this.ui.chapList.refresh();
+        this.updateUserInfo();
         this.onStageResize();
-        var data = this.ui.chapList.array;
-        for (var i = 0; i < data.length; i++) {
-            if (data[i] && data[i].id == User.instace.curId) {
-                this.ui.chapList.selectedIndex = i;
-                this.selectedItem = this.ui.chapList.getCell(i);
-                this.scrollToIndex(i - 1);
-                break;
-            }
-        }
+        // let data:any = this.ui.chapList.array;
+        // for(let i=0; i<data.length; i++){
+        //     if(data[i] && data[i].id == User.instace.curId){
+        //         this.scrollToIndex(i-1);
+        //         break;
+        //     }
+        // }
     };
     HomeView.prototype.onStageResize = function () {
         var sx = Math.max(Laya.stage.width / AppConfig.AppWidth, Laya.stage.height / AppConfig.AppHeight);
@@ -52,6 +50,7 @@ var HomeView = /** @class */ (function (_super) {
         }
     };
     HomeView.prototype.format = function (data) {
+        trace("format:::::", data);
         this.ui.tfName.text = data.name + "";
         this._isLocked = User.instace.starInfo[data.id] == undefined;
         if (User.instace.starInfo[data.id] != undefined) {
@@ -218,7 +217,7 @@ var HomeView = /** @class */ (function (_super) {
         this.ui.heartNum.text = User.instace.power + '';
         this.ui.btnAddPower.visible = User.instace.power < 30;
         this.ui.btnUserInfo.skin = User.instace.avatar;
-        if (this._selectedItem.dataSource) {
+        if (this._selectedItem && this._selectedItem.dataSource) {
             this.ui.tfScore.text = User.instace.starInfo[this._selectedItem.dataSource.id] + "%";
         }
         this.ui.btnSignin.visible = User.instace.canSign;

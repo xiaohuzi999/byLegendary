@@ -1,0 +1,1 @@
+var AppConfig=function(){function p(){}return p.AppID="wx0460fedb5825e68c",p.urlRoot="https://s.xiuwu.me/perfectline/2.0/",p.httpRoot="https://www.by211.cn/web/index.php?r=",p.AppWidth=750,p.AppHeight=1334,p.Plat4399="4399",p.PlayBY="by211",p.Debug="file",p.ScaleRate=1,p.platfrom="by",p.openShop=!0,p}();

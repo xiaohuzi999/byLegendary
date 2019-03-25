@@ -1,0 +1,1 @@
+var Conf=function(){function e(){}return e.sdkOptions={serverUrl:"https://betaapi.xiuwu.me",appName:"perfectline",asset:{server:"https://s.xiuwu.me",beta:!1},webSocket:{url:"wss://betaapi.xiuwu.me/ws",format:2,autoRetryTimes:3},debug:!0},e}();

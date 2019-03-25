@@ -10,7 +10,8 @@ class App implements IApp{
         this.initEvet();
 
         if(window && window.location && window.location.href){
-            if(window.location.href.indexOf(AppConfig.Plat4399) != -1){
+            let url:string = window.location.href;
+            if(url.indexOf(AppConfig.Plat4399) != -1){
                 AppConfig.platfrom = AppConfig.Plat4399;
                 AppConfig.urlRoot = "";
             }

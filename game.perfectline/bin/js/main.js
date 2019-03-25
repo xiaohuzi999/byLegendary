@@ -20,12 +20,9 @@ var Main = /** @class */ (function () {
         this.init();
     }
     Main.prototype.init = function () {
-        Laya.URL.version = {
-            "res/cfg/appCfg.json": Math.random()
-        };
         /*
         Laya.URL.version = {
-            "res/cfg/stage.json":Math.random()
+            "res/cfg/appCfg.json":Math.random()
         }
         */
         //Laya.URL.basePath = "https://s.xiuwu.me/perfectline/2.0/";
@@ -59,9 +56,7 @@ Laya.MiniAdpter["getUrlEncode"] = function (url, type) {
 };
 Laya.MiniAdpter["nativefiles"] =
     [
-        'res/map/bj11.jpg',
-        'res/map/bj31.jpg',
-        'res/main/bj_homepage@2x.png',
+        'res/main/bj_homepage.png',
         "res/atlas/res/common.atlas",
         "res/atlas/res/common.png",
         "res/atlas/res/main.atlas",

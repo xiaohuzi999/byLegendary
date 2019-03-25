@@ -1,0 +1,1 @@
+var DBItem=function(){function t(){}return t.getItemVo=function(t){return this.data[t]},Object.defineProperty(t,"data",{get:function(){return this._data||(this._data=Laya.loader.getRes("res/cfg/item.json"),trace(this._data)),this._data},enumerable:!0,configurable:!0}),t}();

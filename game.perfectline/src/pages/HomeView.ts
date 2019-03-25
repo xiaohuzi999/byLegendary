@@ -12,19 +12,17 @@ class HomeView extends xframe.XWindow {
 
     public show():void{
         super.show();
-        this.updateUserInfo();
         this.ui.chapList.refresh();
+        this.updateUserInfo();
         this.onStageResize();
        
-        let data:any = this.ui.chapList.array;
-        for(let i=0; i<data.length; i++){
-            if(data[i] && data[i].id == User.instace.curId){
-                this.ui.chapList.selectedIndex = i;
-                this.selectedItem = this.ui.chapList.getCell(i);
-                this.scrollToIndex(i-1);
-                break;
-            }
-        }
+        // let data:any = this.ui.chapList.array;
+        // for(let i=0; i<data.length; i++){
+        //     if(data[i] && data[i].id == User.instace.curId){
+        //         this.scrollToIndex(i-1);
+        //         break;
+        //     }
+        // }
     }
 
     public onStageResize():void{
@@ -49,6 +47,7 @@ class HomeView extends xframe.XWindow {
     }
 
     private format(data:ChapterVo):void{
+        trace("format:::::", data)
         this.ui.tfName.text = data.name+"";
         this._isLocked = User.instace.starInfo[data.id] == undefined;
         if(User.instace.starInfo[data.id] != undefined){
@@ -219,7 +218,7 @@ class HomeView extends xframe.XWindow {
         this.ui.heartNum.text = User.instace.power + '';
         this.ui.btnAddPower.visible = User.instace.power < 30;
         this.ui.btnUserInfo.skin = User.instace.avatar;
-        if(this._selectedItem.dataSource){
+        if(this._selectedItem && this._selectedItem.dataSource){
             this.ui.tfScore.text = User.instace.starInfo[this._selectedItem.dataSource.id]+"%"
         }
         this.ui.btnSignin.visible = User.instace.canSign;

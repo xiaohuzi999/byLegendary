@@ -1,0 +1,1 @@
+var ReportCmd=function(){function a(){}return a.loadStart="4000_4001_start",a.loadSuccess="4000_4002_success",a.loadFail="4000_4003_fail",a.relive="3000_3001_click",a}();

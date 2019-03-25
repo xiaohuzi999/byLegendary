@@ -1,0 +1,1 @@
+var DBSign=function(){function t(){}return t.getSignVo=function(t){return this.data[t]},Object.defineProperty(t,"data",{get:function(){return this._data||(this._data=Laya.loader.getRes("res/cfg/sign.json")),this._data},enumerable:!0,configurable:!0}),t}();

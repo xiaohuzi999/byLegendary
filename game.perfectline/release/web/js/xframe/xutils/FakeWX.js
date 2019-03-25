@@ -1,0 +1,1 @@
+var FakeWX=function(){function o(){}return o.prototype.login=function(o){o.initLocal()},o.prototype.showShareMenu=function(){},o.prototype.onHide=function(){},o.prototype.shareAppMessage=function(){},o}();

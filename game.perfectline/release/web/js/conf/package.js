@@ -1,0 +1,1 @@
+var Package=function(){function n(){}return n.version="1.2",n.description="",n}();

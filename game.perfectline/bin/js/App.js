@@ -7,7 +7,8 @@ var App = /** @class */ (function () {
     App.prototype.start = function () {
         this.initEvet();
         if (window && window.location && window.location.href) {
-            if (window.location.href.indexOf(AppConfig.Plat4399) != -1) {
+            var url = window.location.href;
+            if (url.indexOf(AppConfig.Plat4399) != -1) {
                 AppConfig.platfrom = AppConfig.Plat4399;
                 AppConfig.urlRoot = "";
             }

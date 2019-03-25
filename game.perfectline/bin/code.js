@@ -48432,7 +48432,6 @@ var xframe;
     var HttpCmd = /** @class */ (function () {
         function HttpCmd() {
         }
-        //public static httpRoot:string = "http://111.230.26.144/web/index.php?r=";
         /**
          * 发送http请求
          * @param handler 请求回调；
@@ -48449,7 +48448,7 @@ var xframe;
             xhr.once(Laya.Event.COMPLETE, null, completeHandler);
             xhr.once(Laya.Event.ERROR, null, errorHandler);
             //数据拼接
-            xhr.send(HttpCmd.httpRoot + m + "/" + action + parseArgs(srvArgs), null, "get");
+            xhr.send(AppConfig.httpRoot + m + "/" + action + parseArgs(srvArgs), null, "get");
             function parseArgs(args) {
                 if (typeof args === "string") {
                     return args;
@@ -48479,9 +48478,6 @@ var xframe;
                 Laya.Pool.recover("HttpRequest", xhr);
             }
         };
-        /**host*/
-        //http://127.0.0.1/web/index.php?r=srv/login
-        HttpCmd.httpRoot = "http://127.0.0.1/byphp/web/index.php?r=";
         return HttpCmd;
     }());
     xframe.HttpCmd = HttpCmd;
@@ -48865,38 +48861,50 @@ var XDB = /** @class */ (function () {
     XDB.fetchSrvData = function (cb) {
         this._cb = cb;
         var onFetchHandler = Handler.create(this, this.init);
-        //============================
-        var data = Laya.LocalStorage.getItem(XDB.NAME);
-        onFetchHandler.runWith(data);
-        return;
+        //============================单机===
+        if (AppConfig.platfrom == AppConfig.Plat4399 || AppConfig.platfrom == AppConfig.Debug) {
+            var data = Laya.LocalStorage.getItem(XDB.NAME);
+            onFetchHandler.runWith(data);
+        }
+        else {
+            wx.login({
+                success: function (res) {
+                    if (res.code) {
+                        xframe.HttpCmd.callServer(onFetchHandler, "srv", "login", { appid: AppConfig.AppID, code: res.code, });
+                    }
+                    else {
+                        XAlert.showAlert('登录失败！' + res.errMsg);
+                    }
+                },
+                initLocal: function () {
+                    trace("XDB::未与远程数据同步, 使用本地数据----------------------");
+                    var data = Laya.LocalStorage.getItem(XDB.NAME);
+                    onFetchHandler.runWith(data);
+                }
+            });
+        }
         //=======================================
-        wx.login({
-            success: function (res) {
-                if (res.code) {
-                    xframe.HttpCmd.callServer(onFetchHandler, "srv", "login", { name: "petmusician", code: res.code, });
-                }
-                else {
-                    XAlert.showAlert('登录失败！' + res.errMsg);
-                }
-            },
-            initLocal: function () {
-                trace("XDB::未与远程数据同步----------------------");
-                trace("XDB::使用本地数据--------------------------");
-                var data = Laya.LocalStorage.getItem(XDB.NAME);
-                onFetchHandler.runWith(data);
-            }
-        });
     };
     /**init with data*/
     XDB.init = function (data) {
-        if (typeof data === "string") {
+        if (typeof data == "string") {
             if (data.length > 0) {
-                trace("data:::::::", data);
                 this._data = JSON.parse(data);
             }
         }
         else {
-            this._data = data;
+            this._data = data || {};
+        }
+        //格式化服务端返回数据
+        if (this._data.code == 0) {
+            User.instace.id = this._data.data.id;
+            User.instace.openid = this._data.data.openid;
+            if (this._data.data.kv.length > 0) {
+                this._data = JSON.parse(this._data.data.kv);
+            }
+            else {
+                this._data = {};
+            }
         }
         if (this._cb) {
             this._cb.run();
@@ -48909,18 +48917,22 @@ var XDB = /** @class */ (function () {
     };
     /**get value by key */
     XDB.getData = function (key) {
+        trace("getData::::::::::::::", this.data);
         return this.data[key];
     };
     /**save */
     XDB.save = function (key, value) {
         this.data[key] = value;
-        trace("save:::::::::::::::::", key, this.data);
         //save to local
         Laya.LocalStorage.setItem(this.NAME, JSON.stringify(this.data));
-        trace("get:::::::::::::::::", Laya.LocalStorage.getItem(this.NAME));
-        //todo：save to srv
+        //save to srv
+        if (!this._pending && AppConfig.platfrom != AppConfig.Plat4399) {
+            this._pending = true;
+            Laya.timer.once(500, this, this.push2Srv);
+        }
     };
     XDB.push2Srv = function () {
+        this._pending = false;
         xframe.HttpCmd.callServer(Handler.create(null, function (data) { trace("save::", data); }), "srv", "save", { openid: User.instace.openid, kv: JSON.stringify(this.data) });
     };
     Object.defineProperty(XDB, "data", {
@@ -48937,6 +48949,8 @@ var XDB = /** @class */ (function () {
     XDB.USER = "user";
     /**KEY-BAG */
     XDB.BAG = "bag";
+    /**是否数据发送中 */
+    XDB._pending = false;
     /**local save key */
     XDB.NAME = "xdb";
     return XDB;
@@ -49876,12 +49890,7 @@ var User = /** @class */ (function () {
         this.sign = { end: 0, info: [] };
     }
     User.prototype.initdData = function () {
-        var val = XDB.getData(XDB.USER);
-        if (val) {
-            for (var i in val) {
-                this[i] = val[i];
-            }
-        }
+        this.updateVal();
         //同步体力---
         var date = new Date();
         if (date.getDay() != this.loginDay) {
@@ -49899,6 +49908,18 @@ var User = /** @class */ (function () {
             this.sign.end = now + delTime;
             trace("end::::::::::::::", this.sign.end);
             this.sign.info.length = 0;
+        }
+    };
+    User.prototype.updateVal = function () {
+        var val = XDB.getData(XDB.USER);
+        if (val) {
+            trace("User:::", val);
+            for (var i in val) {
+                this[i] = val[i];
+            }
+        }
+        else {
+            trace("日购了");
         }
     };
     Object.defineProperty(User.prototype, "curRole", {
@@ -49993,13 +50014,18 @@ var ChapterVo = /** @class */ (function () {
 var AppConfig = /** @class */ (function () {
     function AppConfig() {
     }
+    /** */
+    AppConfig.AppID = "wx0460fedb5825e68c";
     AppConfig.urlRoot = "https://s.xiuwu.me/perfectline/2.0/";
+    AppConfig.httpRoot = "https://www.by211.cn/web/index.php?r=";
     AppConfig.AppWidth = 750;
     AppConfig.AppHeight = 1334;
     //4399平台
     AppConfig.Plat4399 = "4399";
     //贝羽
     AppConfig.PlayBY = "by211";
+    //测试
+    AppConfig.Debug = "file";
     //画布缩放比率
     AppConfig.ScaleRate = 1;
     //url地址
@@ -50020,7 +50046,8 @@ var App = /** @class */ (function () {
     App.prototype.start = function () {
         this.initEvet();
         if (window && window.location && window.location.href) {
-            if (window.location.href.indexOf(AppConfig.Plat4399) != -1) {
+            var url = window.location.href;
+            if (url.indexOf(AppConfig.Plat4399) != -1) {
                 AppConfig.platfrom = AppConfig.Plat4399;
                 AppConfig.urlRoot = "";
             }
@@ -51540,7 +51567,7 @@ var GameView = /** @class */ (function (_super) {
                 var gift = this._gift[targetPoint.x + "_" + targetPoint.y];
                 if (gift) {
                     //gift.removeSelf();
-                    Laya.Tween.to(gift, { y: gift.y - 300, alpha: 0.1 }, 700, null, Laya.Handler.create(gift, gift.removeSelf));
+                    Laya.Tween.to(gift, { y: gift.y - 300, alpha: 0.1, scaleX: 1.2, scaleY: 1.2 }, 700, null, Laya.Handler.create(gift, gift.removeSelf));
                     delete this._gift[targetPoint.x + "_" + targetPoint.y];
                     //数据处理===================================
                     if (this._rewards[gift.name]) {
@@ -51553,6 +51580,13 @@ var GameView = /** @class */ (function (_super) {
             }
             else { //2
                 this._score += 1;
+                var gift_1 = this._gift[targetPoint.x + "_" + targetPoint.y];
+                if (gift_1) {
+                    var curY_1 = gift_1.y;
+                    Laya.Tween.to(gift_1, { y: gift_1.y - 80, scaleX: 1.2, scaleY: 1.2 }, 200, null, Laya.Handler.create(null, function () {
+                        Laya.Tween.to(gift_1, { y: curY_1, scaleX: 1, scaleY: 1 }, 200);
+                    }));
+                }
             }
         }
         else { //翻转
@@ -52302,18 +52336,16 @@ var HomeView = /** @class */ (function (_super) {
     }
     HomeView.prototype.show = function () {
         _super.prototype.show.call(this);
-        this.updateUserInfo();
         this.ui.chapList.refresh();
+        this.updateUserInfo();
         this.onStageResize();
-        var data = this.ui.chapList.array;
-        for (var i = 0; i < data.length; i++) {
-            if (data[i] && data[i].id == User.instace.curId) {
-                this.ui.chapList.selectedIndex = i;
-                this.selectedItem = this.ui.chapList.getCell(i);
-                this.scrollToIndex(i - 1);
-                break;
-            }
-        }
+        // let data:any = this.ui.chapList.array;
+        // for(let i=0; i<data.length; i++){
+        //     if(data[i] && data[i].id == User.instace.curId){
+        //         this.scrollToIndex(i-1);
+        //         break;
+        //     }
+        // }
     };
     HomeView.prototype.onStageResize = function () {
         var sx = Math.max(Laya.stage.width / AppConfig.AppWidth, Laya.stage.height / AppConfig.AppHeight);
@@ -52334,6 +52366,7 @@ var HomeView = /** @class */ (function (_super) {
         }
     };
     HomeView.prototype.format = function (data) {
+        trace("format:::::", data);
         this.ui.tfName.text = data.name + "";
         this._isLocked = User.instace.starInfo[data.id] == undefined;
         if (User.instace.starInfo[data.id] != undefined) {
@@ -52500,7 +52533,7 @@ var HomeView = /** @class */ (function (_super) {
         this.ui.heartNum.text = User.instace.power + '';
         this.ui.btnAddPower.visible = User.instace.power < 30;
         this.ui.btnUserInfo.skin = User.instace.avatar;
-        if (this._selectedItem.dataSource) {
+        if (this._selectedItem && this._selectedItem.dataSource) {
             this.ui.tfScore.text = User.instace.starInfo[this._selectedItem.dataSource.id] + "%";
         }
         this.ui.btnSignin.visible = User.instace.canSign;
@@ -53593,12 +53626,9 @@ var Main = /** @class */ (function () {
         this.init();
     }
     Main.prototype.init = function () {
-        Laya.URL.version = {
-            "res/cfg/appCfg.json": Math.random()
-        };
         /*
         Laya.URL.version = {
-            "res/cfg/stage.json":Math.random()
+            "res/cfg/appCfg.json":Math.random()
         }
         */
         //Laya.URL.basePath = "https://s.xiuwu.me/perfectline/2.0/";

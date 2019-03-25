@@ -26,12 +26,7 @@ class User {
     //最大体力
     public static readonly MaxPower:number = 10;
     public initdData () {
-        let val:any = XDB.getData(XDB.USER);
-        if(val){
-            for(let i in val){
-                this[i] = val[i];
-            }
-        }
+        this.updateVal();
         //同步体力---
         let date:Date = new Date();
         if(date.getDay() != this.loginDay){
@@ -50,6 +45,18 @@ class User {
 
             trace("end::::::::::::::",this.sign.end)
             this.sign.info.length = 0;
+        }
+    }
+
+    public updateVal():void{
+        let val:any = XDB.getData(XDB.USER);
+        if(val){
+            trace("User:::", val);
+            for(let i in val){
+                this[i] = val[i];
+            }
+        }else{
+            trace("日购了")
         }
     }
 

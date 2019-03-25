@@ -1,0 +1,1 @@
+var ItemVo=function(){function t(){this.quality=0}return t.GOLD=1,t.DIAMOND=2,t.KEY=3,t.POWER=4,t}();
